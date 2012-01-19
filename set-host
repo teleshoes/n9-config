@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $host = `n9`;
+chomp $host;
+
+my $cmd = "
+  OLD=\$HOSTNAME;
+  NEW=$host;
+  echo \$NEW | tee /etc/hostname;
+  cat /etc/hosts | sed s/\$OLD/\$NEW/g > /tmp/new_hosts;
+  mv /tmp/new_hosts /etc/hosts;
+";
+
+system 'n9', '-s', $cmd;
