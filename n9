@@ -2,11 +2,17 @@
 use strict;
 use warnings;
 
+my $USB_PC_IP = '192.168.2.14';
+my $USB_N9_IP = '192.168.2.15';
+
 my $hostname = `cat $ENV{HOME}/Code/n9/.hostname`;
 chomp $hostname;
 
 my @ips = `cat $ENV{HOME}/Code/n9/.ipguesses`;
 chomp foreach @ips;
+
+my @macs = `cat $ENV{HOME}/Code/n9/.macs`;
+chomp foreach @macs;
 
 my $ssh = 0;
 if(@ARGV >= 1 and $ARGV[0] eq '-s'){
@@ -14,10 +20,74 @@ if(@ARGV >= 1 and $ARGV[0] eq '-s'){
   $ssh = 1;
 }
 
+sub getHosts(){
+  for my $line(`cat /etc/hosts`){
+    if($line =~ /^(\d+\.\d+\.\d+\.\d+)\s*$hostname\s*#n9$/){
+      return $1;
+    }
+  }
+  return undef;
+}
 
-system ('ensure-host', $hostname, @ips);
-if($? != 0){
-  die "Error ensuring host: $!\n";
+sub setHosts($){
+  my $ip = shift;
+  my $old = getHosts();
+  if(not defined $ip){
+    if(defined getHosts()){
+      print STDERR "removing $hostname line from /etc/hosts\n";
+    }else{
+      return;
+    }
+  }else{
+    if(not defined $old or $old ne $ip){
+      print STDERR "replacing $hostname line in /etc/hosts\n";
+    }else{
+      return;
+    }
+  }
+
+  my @lines = `cat /etc/hosts`;
+  for my $line(@lines){
+    if($line =~ /^(\d+\.\d+\.\d+\.\d+)\s*$hostname\s*#n9$/){
+      $line = '';
+    }
+  }
+  if(defined $ip and $ip =~ /^\d+\.\d+\.\d+\.\d+$/){
+    push @lines, "$ip\t$hostname#n9\n";
+  }
+  open FH, "| sudo tee /etc/hosts > /dev/null"
+    or die "Couldnt open /etc/hosts for writing\n";
+  print FH @lines;
+  close FH;
+}
+
+sub usb(){
+  my $ifconfig = `ifconfig -a`;
+  foreach my $mac(@macs){
+    #if($ifconfig =~ /^([a-z0-9_]+).*$mac\s*$/mi){
+    if($ifconfig =~ /^(usb\d+)/mi){ #assume any usb, because mac keeps changing
+      my $dev = $1;
+      $ifconfig = `ifconfig $dev`;
+      if($ifconfig !~ /inet addr:$USB_PC_IP/){
+        print STDERR "USB DEVICE UP\n";
+        system "sudo ifconfig"
+          . " $dev $USB_PC_IP netmask 255.255.255.0 up"
+          . " > /dev/null"
+          ;
+      }
+      setHosts $USB_N9_IP;
+      return 1;
+    }
+  }
+  return 0;
+}
+
+if(not usb()){
+  setHosts undef;
+  system ('ensure-host', $hostname, @ips);
+  if($? != 0){
+    die "Error ensuring host: $!\n";
+  }
 }
 
 if($ssh){
