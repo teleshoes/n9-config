@@ -2,19 +2,26 @@
 use strict;
 use warnings;
 
+my $hostname = `cat $ENV{HOME}/Code/n9/.hostname`;
+chomp $hostname;
+
+my @ips = `cat $ENV{HOME}/Code/n9/.ipguesses`;
+chomp foreach @ips;
+
 my $ssh = 0;
 if(@ARGV >= 1 and $ARGV[0] eq '-s'){
   shift;
   $ssh = 1;
 }
 
-my @ips = `cat .ipguesses`;
-chomp foreach @ips;
 
-system ('ensure-host', 'wolke-n9', @ips);
+system ('ensure-host', $hostname, @ips);
+if($? != 0){
+  die "Error ensuring host: $!\n";
+}
 
 if($ssh){
-  system ('ssh', 'root@wolke-n9', @ARGV);
+  system ('ssh', "root\@$hostname", @ARGV);
 }else{
-  print "wolke-n9\n";
+  print "$hostname\n";
 }
