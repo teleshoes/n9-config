@@ -5,6 +5,11 @@ use warnings;
 my $USB_PC_IP = '192.168.2.14';
 my $USB_N9_IP = '192.168.2.15';
 
+#adds a line to the host file for routers that dont set hostname
+my %ssidIps = (
+  'flipsafad' => '192.168.1.6',
+);
+
 my $hostname = `cat $ENV{HOME}/Code/n9/.hostname`;
 chomp $hostname;
 
@@ -83,10 +88,17 @@ sub usb(){
 }
 
 if(not usb()){
-  setHosts undef;
-  system ('ensure-host', $hostname, @ips);
-  if($? != 0){
-    die "Error ensuring host: $!\n";
+  my $iwconfig = `iwconfig 2>/dev/null`;
+  my $ssid = lc $1 if $iwconfig =~ /ESSID:"(.*)"/;
+  my $ip = defined $ssid ? $ssidIps{$ssid} : undef;
+  if(defined $ip){
+    setHosts $ip; 
+  }else{
+    setHosts undef;
+    system ('ensure-host', $hostname, @ips);
+    if($? != 0){
+      die "Error ensuring host: $!\n";
+    }
   }
 }
 
