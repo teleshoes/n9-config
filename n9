@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $ssh = 0;
+if(@ARGV >= 1 and $ARGV[0] eq '-s'){
+  shift;
+  $ssh = 1;
+}
+
+my @ips = `cat .ipguesses`;
+chomp foreach @ips;
+
+system ('ensure-host', 'wolke-n9', @ips);
+
+if($ssh){
+  system ('ssh', 'root@wolke-n9', @ARGV);
+}else{
+  print "wolke-n9\n";
+}
