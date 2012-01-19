@@ -6,4 +6,10 @@ open a terminal:
 devel-su #password is rootme
 passwd user #any password
 
-you can ssh like: ssh user@192.168.ip.addr
+ {you can now ssh like: ssh user@192.168.ip.addr}
+
+now you can:
+
+1) set-host
+2) keygen.pl
+3) install-sane
