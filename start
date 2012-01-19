@@ -1,0 +1,9 @@
+enable dev mode to get a terminal
+Settings -> Security {???} -> Dev Mode
+phone will restart after it is done installing. or at least shut off
+
+open a terminal:
+devel-su #password is rootme
+passwd user #any password
+
+you can ssh like: ssh user@192.168.ip.addr
