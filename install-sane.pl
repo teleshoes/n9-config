@@ -20,7 +20,7 @@ system 'n9', '-s', "
 ";
 
 
-my @packages = qw( n9tweak rsync vim bash );
+my @packages = qw( n9tweak rsync vim );
 for my $pkg(@packages){
   system 'n9', '-s', 'apt-get', 'install', $pkg;
 }
