@@ -1,1 +1,1 @@
-DISPLAY="" bash && exit
+unset DISPLAY && exec bash
