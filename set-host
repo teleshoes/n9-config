@@ -5,12 +5,13 @@ use warnings;
 my $host = `n9`;
 chomp $host;
 
-my $cmd = "
-  OLD=\$HOSTNAME;
-  NEW=$host;
-  echo \$NEW | tee /etc/hostname;
-  cat /etc/hosts | sed s/\$OLD/\$NEW/g > /tmp/new_hosts;
-  mv /tmp/new_hosts /etc/hosts;
+system 'n9', '-s', "
+  OLD=`hostname`
+  echo $host | tee /etc/hostname
+  cat /etc/hosts | sed s/\$OLD/$host/g > /tmp/new_hosts
+  mv /tmp/new_hosts /etc/hosts
+  sysctl -w kernel.hostname=$host
+  echo OLD: \$OLD
+  echo NEW: `hostname`
 ";
 
-system 'n9', '-s', $cmd;
