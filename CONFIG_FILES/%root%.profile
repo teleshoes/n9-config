@@ -1,0 +1,1 @@
+DISPLAY="" bash && exit
