@@ -1,0 +1,225 @@
+﻿<?xml version = "1.0" encoding = "utf-8"?>
+<Language name = "English">
+	<Menu>
+		<Main>
+			<Entries>
+				<item id = "0" text = "&amp;File" />
+				<item id = "1" text = "&amp;Option" />
+				<item id = "2" text = "&amp;View" />
+				<item id = "3" text = "&amp;Help" />
+			</Entries>
+			
+			<SubEntries>
+				<item xPos = "1" yPos = "0" text = "&amp;Server"/>
+				<item xPos = "1" yPos = "5" text = "&amp;Language"/>
+			</SubEntries>
+			
+			<Command>
+				<item id = "40001" text = "&amp;Search Code	Ctrl+F" />
+				<item id = "40002" text = "&amp;Refresh	F5" />
+				<item id = "40003" text = "Task &amp;Contiune" />
+				<item id = "40004" text = "E&amp;xit	Alt+F4" />
+				
+				<item id = "40005" text = "&amp;Nokia Care Suit" />
+				<item id = "40006" text = "&amp;Production External" />
+				<item id = "40007" text = "&amp;Quality Assurance" />
+				<item id = "40008" text = "&amp;Config" />
+				
+				<item id = "40009" text = "&amp;Task Window	Ctrl+T" />
+				
+				<item id = "40010" text = "&amp;Help" />
+				<item id = "40011" text = "&amp;About" />
+				
+				<item id = "40021" text = "Pro&amp;xy" />
+			</Command>
+		</Main>
+		<Popup>
+				<Product>
+					<SubEntries>
+						<item xPos = "0" yPos = "2" text = "&amp;Export List"/>
+					</SubEntries>
+					<Command>
+						<item id = "40002" text = "&amp;Refresh	F5" />
+						<item id = "40017" text = "&amp;Text"/>
+						<item id = "40018" text = "&amp;XML"/>
+					</Command>
+				</Product>
+				
+				<Variant>
+					<SubEntries>
+						<item xPos = "0" yPos = "0" text = "&amp;Export List"/>
+					</SubEntries>
+					<Command>
+						<item id = "40019" text = "&amp;Text" />
+						<item id = "40020" text = "&amp;XML" />
+					</Command>
+				</Variant>
+				
+				<File>
+					<SubEntries>
+						<item xPos = "0" yPos = "3" text = "&amp;Copy URLs to Clipbrd"/>
+					</SubEntries>
+					<Command>
+						<item id = "40012" text = "&amp;Select All	Ctrl+A" />
+						<item id = "40013" text = "&amp;Unselect All	Ctrl+Z" />
+						<item id = "40014" text = "&amp;Current File" />
+						<item id = "40015" text = "&amp;Selected Files" />
+						<item id = "40016" text = "&amp;All Files" />
+					</Command>
+				</File>
+				
+				<ProgressView>
+					<Command>
+						<item id = "40300" text = "&amp;Pause" />
+						<item id = "40301" text = "&amp;Contiune" />
+						<item id = "40302" text = "&amp;Delete" />
+						<item id = "40303" text = "&amp;Copy URL" />
+					</Command>
+				</ProgressView>
+		</Popup>
+	</Menu>
+	<UI title = "Nokia Firmware Downloader">
+		<Product text = "Products: "/>
+		<Release text = "Releases: "/>
+		<Variant text = "Variants: "/>
+		<FileList label = "FileList: ">
+			<FileName text = "FileName"/>
+			<FileSize text = "FileSize"/>
+		</FileList>
+		<Download text = "Add to Download Task"/>
+	</UI>
+	<TaskMgr title = "Download Task Manager">
+		<ListView>
+			<Status text = "Status"/>
+			<FileName text = "FileName"/>
+			<FileSize text = "FileSize"/>
+			<Progress text = "Progress"/>
+			<Speed text = "Speed"/>
+		</ListView>
+	</TaskMgr>
+	<Dialog>
+		<CODE title = "Enter CODE"/>
+		<About title = "About"/>
+		<NewTask title = "New Download Task">
+			<item id = "1028" text = "Browse..."/>
+			<item id = "1029" text = "Download"/>
+			<item id = "1030" text = "Cancel"/>
+			<item id = "1031" text = "Select All"/>
+			<item id = "1032" text = "Inverse Select"/>
+			<FileList>
+				<FileName text = "FileName"/>
+				<FileSize text = "FileSize"/>
+			</FileList>
+		</NewTask>
+		
+		<Config title = "Config">
+			<item id = "1036" text = "Message Tip"/>
+			<item id = "1037" text = "Main Window Colors"/>
+			<item id = "1038" text = "Prompt Exit when have task"/>
+			<item id = "1039" text = "Prompt whether continue download"/>
+			<item id = "1040" text = "Show TaskMgr when add new task"/>
+			<item id = "1041" text = "L"/>
+			<item id = "1042" text = "R"/>
+			<item id = "1043" text = "OK"/>
+			<item id = "1044" text = "Cancel"/>	
+			<item id = "1050" text = "Font"/>
+		</Config>
+		
+		<Confirm>
+			<item id = "1047" text = "&amp;Yes"/>
+			<item id = "1048" text = "&amp;No"/>
+			<item id = "1049" text = "Remember choice"/>
+			
+			<Exit title = "Exit?">
+				<Info text = "Downloading files. Really want to quit?"/>
+			</Exit>
+			
+			<Task title = "Continue Download?">
+				<Info text = "Do you want to continue the unfinished task?"/>
+			</Task>
+		</Confirm>
+		
+		<Proxy title = "Proxy Configuration">
+			<item id = "1051" text ="Proxy Type: " />
+			<item id = "1053" text ="Server: " />
+			<item id = "1055" text ="Port: " />
+			<item id = "1057" text ="User Name: " />
+			<item id = "1059" text ="Password: " />
+			<item id = "1061" text ="OK" />
+			<item id = "1062" text ="Cancel" />
+		</Proxy>
+	</Dialog>
+	
+	<MsgBox>
+		<TaskCon title = "Task Continue">
+			<Text>No file to prepare for downloading.</Text>
+		</TaskCon>
+		<ThreadErr title = "Error">
+			<Text>Failed to CreateThread</Text>
+		</ThreadErr>
+		<Refresh title = "Refresh?">
+			<Text>Do you want to re-get the product list? It will delete all the cache.</Text>
+		</Refresh>
+		<Clipbrd title = "Copy URLs">
+			<Text>Failed to copy URLs to system clipbord</Text>
+		</Clipbrd>
+		<ExportTxt title = "Export Text">
+			<Text>Failed to export to text file.</Text>
+		</ExportTxt>
+		<SID title = "Error">
+			<Text>Failed to get SID from server, please try again later.</Text>
+		</SID>
+		<DelTask title = "Be care">
+			<Text>Are you sure you want to delete this task?</Text>
+		</DelTask>
+		<DelErr title = "Operation Failed">
+			<Text>Delete task failed.</Text>
+		</DelErr>
+		<NewTask_Url title = "New Task">
+			<Text>URL cann't be empty, unable to download file.</Text>
+		</NewTask_Url>
+		<NewTask_init title = "Error">
+			<Text>Initialization Libcurl failed. Unable to download file.</Text>
+		</NewTask_init>
+		<NewTask_Err title = "Download Failed">
+			<Text>Unable to download file.</Text>
+		</NewTask_Err>
+		<EmptyDir title = "New Download">
+			<Text>You should select a destination directory first.</Text>
+		</EmptyDir>
+		<ServerErr_Product title = "Error">
+			<Text>Failed to get product list, server returned info: </Text>
+		</ServerErr_Product>
+		<ServerErr_Release title = "Error">
+			<Text>Failed to get release list, server returned info: </Text>
+		</ServerErr_Release>
+		<ServerErr_Variant title = "Error">
+			<Text>Failed to get variant list, server returned info: </Text>
+		</ServerErr_Variant>
+		<ServerErr_Code title = "Error">
+			<Text>Failed to get code file list. Please check out your code. Server returned info: </Text>
+		</ServerErr_Code>
+	</MsgBox>
+	
+	<Status>
+		<Finish>All download tasks have been completed.</Finish>
+		<CopyUrl>Successfully copied URL to clipboard</CopyUrl>
+		<ReadCache>Reading cache file.</ReadCache>
+		<EndProductThread>Finished getting product list.</EndProductThread>
+		<EndReleaseThread>Finished getting release list.</EndReleaseThread>
+		<EndVariantThread>Finished getting variant list.</EndVariantThread>
+		<EndCodeThread>Finished getting file list.</EndCodeThread>
+		<Parsing>Parsing the received data...</Parsing>
+		<WaitPic>Waiting for downloading phone picture...</WaitPic>
+		<Connecting>Connecting to the server...</Connecting>
+		<GetSID>Trying to get SID...</GetSID>
+	</Status>
+	
+	<ProxyType>
+		<NoProxy>No Proxy</NoProxy>
+		<Http>HTTP Proxy</Http>
+		<Sv4>SOCKS v4 Proxy</Sv4>
+		<Sv5>SOCKS v5 Proxy</Sv5>
+	</ProxyType>
+	
+</Language>
