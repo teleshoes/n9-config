@@ -1,4 +1,12 @@
 =================================
+TO GET FIRMWARE/KERNEL FLASHER
+http://tablets-dev.nokia.com/maemo-dev-env-downloads.php
+
+grab the flasher that says 'for Harmattan', e.g.:
+flasher_3.12.1_amd64.deb
+=================================
+
+=================================
 TO GET FIRMWARE IMAGE:
 -get your 059**** code from the sim card tray
  {mine, the malaysian 64 GB, is 059J238}
