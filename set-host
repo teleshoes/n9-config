@@ -5,20 +5,6 @@ use warnings;
 my $host = `n9`;
 chomp $host;
 
-
-my $cmd = "echo -e '"
-            . 'mkdir -m 0755 -p /var/run/sshd\n'
-            . 'exec /usr/sbin/sshd $SSHD_OPTS'
-          . "' >> /etc/default/ssh;"
-          . "pkill -9 /usr/sbin/sshd";
-
-system 'ssh', "user\@$host", "
-  echo \"$cmd\" > /tmp/fix
-  chmod a+x /tmp/fix
-  echo enter password, TYPE '/tmp/fix' and PUSH ENTER
-  devel-su
-";
-  
 system 'n9', '-s', "
   OLD=`hostname`
   echo $host | tee /etc/hostname
