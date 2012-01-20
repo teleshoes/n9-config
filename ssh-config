@@ -10,15 +10,37 @@ passwd -d user
 
 
 sshDefault=/etc/default/ssh
-echo append some lines to $sshDefault
-echo 'mkdir -m 0755 -p /var/run/sshd' | tee -a $sshDefault
-echo 'exec /usr/sbin/sshd $SSHD_OPTS' | tee -a $sshDefault
+echo overwrite $sshDefault
+echo "\n\n"
+echo OLD:
+cat $sshDefault
+echo -n > $sshDefault
+echo '# Default settings for openssh-server. This file is sourced by /bin/sh from' >> $sshDefault
+echo '# /etc/init.d/ssh.' >> $sshDefault
+echo '' >> $sshDefault
+echo '# Options to pass to sshd' >> $sshDefault
+echo 'SSHD_OPTS="-D -4"' >> $sshDefault
+echo '' >> $sshDefault
+echo '# OOM-killer adjustment for sshd (see' >> $sshDefault
+echo '# linux/Documentation/filesystems/proc.txt; lower values reduce likelihood' >> $sshDefault
+echo '# of being killed, while -17 means the OOM-killer will ignore sshd; set to' >> $sshDefault
+echo '# the empty string to skip adjustment)' >> $sshDefault
+echo 'SSHD_OOM_ADJUST=-17' >> $sshDefault
+echo '' >> $sshDefault
+echo 'mkdir -m 0755 -p /var/run/sshd' >> $sshDefault
+echo 'exec /usr/sbin/sshd $SSHD_OPTS' >> $sshDefault
+
+echo "\n\n"
+echo NEW:
+cat $sshDefault
 
 sshdConf=/etc/ssh/sshd_config
 tmpFile=/tmp/sshd_config.tmp
+echo "\n\n"
 echo change PermitRootLogin from no to yes
 cat $sshdConf \
   | sed 's/PermitRootLogin no/PermitRootLogin yes/' \
   > $tmpFile
 mv $tmpFile $sshdConf
 
+killall sshd
