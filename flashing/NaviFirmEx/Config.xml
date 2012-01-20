@@ -1,6 +1,6 @@
 <NaviFirmEx version="1.6" lang="English.xml">
     <Window>
-        <MainGUI left="-1" top="16" right="1057" bottom="1081" maxed="0">
+        <MainGUI left="1055" top="16" right="1921" bottom="346" maxed="0">
             <Color begin="#DADCF8" end="#C0DACE" />
             <Font>
                 <Data value="-11|0|0|0|400|0|0|0|0|3|2|1|49" />
@@ -11,7 +11,7 @@
         <TaskMgr left="0" top="0" right="0" bottom="0" maxed="0" />
     </Window>
     <Download>
-        <Server>1</Server>
+        <Server>0</Server>
         <Folder></Folder>
         <Prompt>
             <Exit action="1" ask="1" />
