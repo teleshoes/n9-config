@@ -8,16 +8,17 @@ flasher_3.12.1_amd64.deb
 
 
 =================================
-TO GET FIRMWARE IMAGE:
+TO GET FIRMWARE IMAGE or EMMC IMAGE:
 -get your 059**** code from the sim card tray
  {mine, the malaysian 64 GB, is 059J238}
 -{you can get NaviFirmEx here: https://code.google.com/p/navifirmex/}
 -run:
 wine NaviFirmEx/NaviFirmEx.exe
-  server is Production External
-  phone is n9
+  change server to: Nokia Care Suite
+  phone is n9...
 -pick the latest-looking release that has your code
--copy the link location of the large 1.1GB+ file and wget it
+-copy the link location of the large 1.1GB+ or 1.8GB+ file and wget it
+  emmc should have the word 'emmc' in it
 =================================
 
 
@@ -52,4 +53,21 @@ sudo flasher -F firmware.bin -f
 -IMMEDIATELY run: {nokia claims this voids your warranty}
 sudo flasher -F firmware.bin -k openkernel --flash-only=kernel -f -R
 -remove the usb cable after the second success, it should start on its own
+=================================
+
+
+=================================
+TO FLASH EMMC:
+-run:
+sudo dpkg -i flasher*.deb
+-turn off n9
+-ensure usb connected
+-start n9
+  wait till you see:
+  'usb device connected: sync and connect'
+  {do nothing yet}
+-run:
+sudo flasher -f -F firmware.bin -F emmc.bin -R
+-click 'sync and connect' and it instantly starts flashing your root image + emmc
+  and permanently destroy your device
 =================================
