@@ -1,16 +1,28 @@
 enable dev mode to get a terminal
 Settings -> Security {???} -> Dev Mode
-phone will restart after it is done installing. or at least shut off
+phone will restart after it is done installing
+you can just wait {about 2 minutes} once it prompts for:
+  ~2.6MB additional installation required
 
 open a terminal:
 devel-su #password is rootme
 passwd user #any password
 
- {you can now ssh like: ssh user@192.168.ip.addr}
+on n9:
+insert usb,
+select: sync and connect
 
-now you can:
+on pc:
+sudo ifconfig usb0 192.168.2.14 netmask 255.255.255.0 up
+scp ssh-config user@192.168.2.15:/tmp
+ssh user@192.168.2.15
 
+devel-su #rootme
+sh /tmp/ssh-config
+
+0) dev mode + ssh-config
 1) set-host
 2) keygen.pl
 3) install-sane
 4) config-files
+
