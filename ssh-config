@@ -1,0 +1,24 @@
+#!/bin/sh
+
+echo TO BE RUN ON THE DEVICE
+
+echo type a new root password
+passwd
+
+echo delete user password
+passwd -d user
+
+
+sshDefault=/etc/default/ssh
+echo append some lines to $sshDefault
+echo 'mkdir -m 0755 -p /var/run/sshd' | tee -a $sshDefault
+echo 'exec /usr/sbin/sshd $SSHD_OPTS' | tee -a $sshDefault
+
+sshdConf=/etc/ssh/sshd_config
+tmpFile=/tmp/sshd_config.tmp
+echo change PermitRootLogin from no to yes
+cat $sshdConf \
+  | sed 's/PermitRootLogin no/PermitRootLogin yes/' \
+  > $tmpFile
+mv $tmpFile $sshdConf
+
