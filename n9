@@ -8,6 +8,7 @@ my $USB_N9_IP = '192.168.2.15';
 #adds a line to the host file for routers that dont set hostname
 my %ssidIps = (
   'flipsafad' => '192.168.1.6',
+  'da5id'     => '192.168.11.56',
 );
 
 my $hostname = `cat $ENV{HOME}/Code/n9/.hostname`;
