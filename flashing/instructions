@@ -51,7 +51,7 @@ sudo dpkg -i flasher*.deb
 sudo flasher -F firmware.bin -f
 -click 'sync and connect' to instantly starts flashing your root image
   {and/or permanently destroys your device}
--immediately run: {nokia claims this voids your warranty}
+-IMMEDIATELY run: {nokia claims this voids your warranty}
 sudo flasher -F firmware.bin -k openkernel --flash-only=kernel -f -R
 -remove the usb cable after the second success, it should start on its own
 =================================
@@ -71,4 +71,7 @@ sudo dpkg -i flasher*.deb
 sudo flasher -f -F firmware.bin -F emmc.bin -R
 -click 'sync and connect' to instantly start flashing your root image + emmc
   {and/or permanently destroys your device}
+-you may wish to IMMEDIATELY flash the openkernel, as above:
+sudo flasher -F firmware.bin -k openkernel --flash-only=kernel -f -R
+-remove the usb cable after the second success, it should start on its own
 =================================
