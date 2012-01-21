@@ -25,4 +25,4 @@ sh /tmp/ssh-config
 2) keygen.pl
 3) install-sane
 4) config-files
-
+5) install-packages
