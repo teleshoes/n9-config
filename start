@@ -1,33 +1,20 @@
-first, flash an open kernel {see flashing/instructions}
+A) flash an open kernel {see flashing/instructions}
 
-ON N9:
-1) enable dev mode to get a terminal:
+B) enable dev mode to get a terminal:
 Settings -> Security {???} -> Dev Mode
 phone will restart after it is done installing
 you can just wait {about 2 minutes} once it prompts for:
   ~2.6MB additional installation required
 
-2) open a terminal
+C) open a terminal
 devel-su #password is rootme
 passwd user #any password
 
-3) insert usb, select: sync and connect
+D) insert usb, select: sync and connect
 
-ON PC:
-ssh-keygen -f ~/.ssh/known_hosts -R 192.168.2.15
-ssh-keygen -f ~/.ssh/known_hosts -R `cat .hostname`
-sudo ifconfig usb0 192.168.2.14 netmask 255.255.255.0 up
-scp ssh-config user@192.168.2.15:/tmp
-ssh user@192.168.2.15
-
-devel-su #rootme
-sh /tmp/ssh-config #should prompt you for password twice and throw you off
-
-#you can now ssh as root
-
-0) dev mode + ssh-config
-1) set-host
-2) keygen.pl
-3) install-sane
-4) config-files
-5) install-packages
+1) ssh-config
+2) set-host
+3) keygen.pl
+4) install-sane
+5) config-files
+6) install-packages

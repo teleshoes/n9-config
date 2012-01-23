@@ -1,46 +1,68 @@
-#!/bin/sh
+#!/usr/bin/perl
+use strict;
+use warnings;
 
-echo TO BE RUN ON THE DEVICE
+my $host = '192.168.2.15';
 
+my $sshDefaultFileName = '/tmp/sshDefaultFile';
+my $sshDefaultFileContent =
+'# Default settings for openssh-server. This file is sourced by /bin/sh from
+# /etc/init.d/ssh.
+
+# Options to pass to sshd
+SSHD_OPTS="-D -4"
+
+# OOM-killer adjustment for sshd (see
+# linux/Documentation/filesystems/proc.txt; lower values reduce likelihood
+# of being killed, while -17 means the OOM-killer will ignore sshd; set to
+# the empty string to skip adjustment)
+SSHD_OOM_ADJUST=-17
+
+mkdir -m 0755 -p /var/run/sshd
+exec /usr/sbin/sshd $SSHD_OPTS
+';
+
+
+my $commandScriptFileName = '/tmp/commandScript.sh';
+my $commandScriptFileContent =
+qq@#!/bin/sh
+
+set -x
 echo type a new root password
 passwd
+
+diff $sshDefaultFileName /etc/default/ssh
+cp $sshDefaultFileName /etc/default/ssh
+
+sshdConf=/etc/ssh/sshd_config
+tmpFile=/tmp/sshd_config.tmp
+echo "\\n\\n"
+echo change PermitRootLogin from no to yes
+cat \$sshdConf | sed 's/PermitRootLogin no/PermitRootLogin yes/' > \$tmpFile
+diff \$tmpFile \$sshdConf
+cp \$tmpFile \$sshdConf
 
 echo delete user password
 passwd -d user
 
-
-sshDefault=/etc/default/ssh
-echo overwrite $sshDefault
-echo "\n\n"
-echo OLD:
-cat $sshDefault
-echo -n > $sshDefault
-echo '# Default settings for openssh-server. This file is sourced by /bin/sh from' >> $sshDefault
-echo '# /etc/init.d/ssh.' >> $sshDefault
-echo '' >> $sshDefault
-echo '# Options to pass to sshd' >> $sshDefault
-echo 'SSHD_OPTS="-D -4"' >> $sshDefault
-echo '' >> $sshDefault
-echo '# OOM-killer adjustment for sshd (see' >> $sshDefault
-echo '# linux/Documentation/filesystems/proc.txt; lower values reduce likelihood' >> $sshDefault
-echo '# of being killed, while -17 means the OOM-killer will ignore sshd; set to' >> $sshDefault
-echo '# the empty string to skip adjustment)' >> $sshDefault
-echo 'SSHD_OOM_ADJUST=-17' >> $sshDefault
-echo '' >> $sshDefault
-echo 'mkdir -m 0755 -p /var/run/sshd' >> $sshDefault
-echo 'exec /usr/sbin/sshd $SSHD_OPTS' >> $sshDefault
-
-echo "\n\n"
-echo NEW:
-cat $sshDefault
-
-sshdConf=/etc/ssh/sshd_config
-tmpFile=/tmp/sshd_config.tmp
-echo "\n\n"
-echo change PermitRootLogin from no to yes
-cat $sshdConf \
-  | sed 's/PermitRootLogin no/PermitRootLogin yes/' \
-  > $tmpFile
-mv $tmpFile $sshdConf
-
 killall sshd
+@;
+
+
+system 'ssh-keygen', '-f', "$ENV{HOME}/.ssh/known_hosts", '-R', '192.168.2.15';
+system 'ssh-keygen', '-f', "$ENV{HOME}/.ssh/known_hosts", '-R', `cat .hostname`;
+system 'sudo', 'ifconfig', 'usb0', '192.168.2.14', 'netmask', '255.255.255.0', 'up';
+
+open FH, "> $sshDefaultFileName"
+  or die "Couldnt open $sshDefaultFileName for writing\n";
+print FH $sshDefaultFileContent;
+close FH;
+system 'scp', $sshDefaultFileName, "user\@$host:$sshDefaultFileName";
+
+open FH, "> $commandScriptFileName"
+  or die "Couldnt open $commandScriptFileName for writing\n";
+print FH $commandScriptFileContent;
+close FH;
+system 'scp', $commandScriptFileName, "user\@$host:$commandScriptFileName";
+
+system 'ssh', "user\@$host", "devel-su -c 'sh $commandScriptFileName'";
