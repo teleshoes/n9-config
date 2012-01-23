@@ -5,6 +5,8 @@ use warnings;
 my $host = `n9`;
 chomp $host;
 
+system 'ssh-keygen', '-f', "$ENV{HOME}/.ssh/known_hosts", '-R', $host;
+
 system 'n9', '-s', "
   OLD=`hostname`
   echo $host | tee /etc/hostname
