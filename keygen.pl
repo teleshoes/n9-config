@@ -2,46 +2,51 @@
 use strict;
 use warnings;
 
-chdir "$ENV{HOME}/.ssh";
-
+my $sshDir = "$ENV{HOME}/.ssh";
 my $host = `n9`;
 chomp $host;
-my $pubKeyName = 'n9.pub';
 
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+#makes the keys on the host, and appends to local .pub {local=>remote}
 sub keygen($){
   my $user = shift;
   my $group = $user eq 'user' ? 'users' : $user;
-  system 'ssh', "$user\@$host", "
+
+  run 'ssh', "$user\@$host", "
     set -x
     mkdir -p ~/.ssh
     chmod go-w ~/.ssh
     chown $user.$group ~/
     rm ~/.ssh/*
     ssh-keygen -t rsa -N \"\" -q -f ~/.ssh/id_rsa
-    mv ~/.ssh/id_rsa.pub ~/.ssh/$pubKeyName
   ";
-  system "scp $user\@$host:~/.ssh/$pubKeyName .";
-  system "scp *.pub $user\@$host:~/.ssh";
 
-  system 'ssh', "$user\@$host", "
-    cat ~/.ssh/*.pub > ~/.ssh/authorized_keys
-  ";
+  run "ssh $user\@$host 'cat ~/.ssh/id_rsa.pub' >> $sshDir/$host.pub";
 }
 
+#copies the local pub keys and authorizes them {remote=>local}
+sub keyCopy($){
+  run "scp $sshDir/*.pub $_[0]\@$host:~/.ssh";
+  run 'ssh', "$_[0]\@$host", "cat ~/.ssh/*.pub > ~/.ssh/authorized_keys";
+}
 
-print "removing previous rsa host key from known hosts for $host\n\n";
-system "ssh-keygen -f ~/.ssh/known_hosts -R $host";
+sub main(@){
+  die "Usage: $0\n" if @_ > 0;
 
-print "add a user password so we dont have to fuss (we'll delete it later)\n\n";
-system 'ssh', "root\@$host", 'passwd user';
+  run 'rm', "$sshDir/$host.pub";
+  run 'ssh', "root\@$host", 'passwd user';
 
-print "setting up root\n\n";
-keygen 'root';
-print "setting up user\n\n";
-keygen 'user';
+  keygen 'root';
+  keygen 'user';
+  keyCopy 'root';
+  keyCopy 'user';
 
-print "deleting user password\n\n";
-system 'ssh', "root\@$host", 'passwd -d user';
+  run 'ssh', "root\@$host", 'passwd -d user';
+  run "cat $sshDir/*.pub > $sshDir/authorized_keys";
+}
 
-system "cat *.pub > authorized_keys";
-
+&main(@ARGV)
