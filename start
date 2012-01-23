@@ -1,18 +1,19 @@
-enable dev mode to get a terminal
+first, flash an open kernel {see flashing/instructions}
+
+ON N9:
+1) enable dev mode to get a terminal:
 Settings -> Security {???} -> Dev Mode
 phone will restart after it is done installing
 you can just wait {about 2 minutes} once it prompts for:
   ~2.6MB additional installation required
 
-open a terminal:
+2) open a terminal
 devel-su #password is rootme
 passwd user #any password
 
-on n9:
-insert usb,
-select: sync and connect
+3) insert usb, select: sync and connect
 
-on pc:
+ON PC:
 sudo ifconfig usb0 192.168.2.14 netmask 255.255.255.0 up
 scp ssh-config user@192.168.2.15:/tmp
 ssh user@192.168.2.15
