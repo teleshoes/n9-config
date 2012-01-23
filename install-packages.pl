@@ -10,10 +10,7 @@ my @packages = qw(
   python perl
   kernel-source linux-kernel-headers
   gcc make libc6-dev libc-dev bzip2);
-for my $pkg(@packages){
-  system 'n9', '-s', 'apt-get', 'install', $pkg;
-}
-
+system 'n9', '-s', 'apt-get', 'install', @packages;
 
 my @debs = `ls packages/`;
 
