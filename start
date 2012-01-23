@@ -14,12 +14,16 @@ passwd user #any password
 3) insert usb, select: sync and connect
 
 ON PC:
+ssh-keygen -f ~/.ssh/known_hosts -R 192.168.2.15
+ssh-keygen -f ~/.ssh/known_hosts -R `cat .hostname`
 sudo ifconfig usb0 192.168.2.14 netmask 255.255.255.0 up
 scp ssh-config user@192.168.2.15:/tmp
 ssh user@192.168.2.15
 
 devel-su #rootme
-sh /tmp/ssh-config
+sh /tmp/ssh-config #should prompt you for password twice and throw you off
+
+#you can now ssh as root
 
 0) dev mode + ssh-config
 1) set-host
