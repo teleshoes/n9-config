@@ -21,4 +21,4 @@ system 'n9', '-s', "
 
 
 my @packages = qw( n9tweak rsync vim );
-system 'n9', '-s', 'apt-get', 'install', @packages;
+system 'n9', '-s', 'apt-get', '-y', '--force-yes', 'install', @packages;
