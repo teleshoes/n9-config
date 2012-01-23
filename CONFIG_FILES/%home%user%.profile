@@ -1,0 +1,1 @@
+unset DISPLAY && exec bash

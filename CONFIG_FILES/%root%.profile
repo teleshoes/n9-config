@@ -1,1 +1,1 @@
-unset DISPLAY && exec bash
+/home/user/.profile
