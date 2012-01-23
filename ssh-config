@@ -31,7 +31,7 @@ set -x
 echo type a new root password
 passwd
 
-diff $sshDefaultFileName /etc/default/ssh
+diff /etc/default/ssh $sshDefaultFileName
 cp $sshDefaultFileName /etc/default/ssh
 
 sshdConf=/etc/ssh/sshd_config
@@ -39,7 +39,7 @@ tmpFile=/tmp/sshd_config.tmp
 echo "\\n\\n"
 echo change PermitRootLogin from no to yes
 cat \$sshdConf | sed 's/PermitRootLogin no/PermitRootLogin yes/' > \$tmpFile
-diff \$tmpFile \$sshdConf
+diff \$sshdConf \$tmpFile
 cp \$tmpFile \$sshdConf
 
 echo delete user password
@@ -65,4 +65,5 @@ print FH $commandScriptFileContent;
 close FH;
 system 'scp', $commandScriptFileName, "user\@$host:$commandScriptFileName";
 
+print "devel-su passwd {starts as rootme}\n";
 system 'ssh', "user\@$host", "devel-su -c 'sh $commandScriptFileName'";
