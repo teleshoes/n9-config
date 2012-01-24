@@ -4,6 +4,7 @@ use warnings;
 
 my $repoDir = 'repos';
 my $debDir = 'debs-custom';
+my $debDestPrefix = '/opt';
 
 my %pkgGroups = (
   '1hdev' => [qw(
@@ -73,15 +74,30 @@ sub installPackages(){
   }
 }
 
+sub getCustomDebsHash(){
+  my $cmd = ''
+    . "if [ -e \"$debDestPrefix/$debDir/\" ]; then"
+    . "  ls $debDestPrefix/$debDir/*.deb | sort | xargs md5sum;"
+    . "fi"
+    ;
+  return `n9 -s '$cmd'`;
+}
+
 sub installDebs(){
+  my $before = getCustomDebsHash();
   my @debs = `ls $debDir`;
-  my $dest = '/opt';
-  print "\n\nSyncing $dest/$debDir to $dest on dest:\n";
-  print "---\n@debs---\n";
-  system "rsync $debDir root@`n9`:$dest -av --progress --delete";
+  chomp foreach @debs;
+  print "\n\nSyncing $debDestPrefix/$debDir to $debDestPrefix on dest:\n";
+  print "---\n@debs\n---\n";
+  system "rsync $debDir root@`n9`:$debDestPrefix -av --progress --delete";
+  my $after = getCustomDebsHash();
+  if($before eq $after){
+    print "not running the below commands because nothing changed:\n";
+  }
   for my $deb(@debs){
-    chomp $deb;
-    system 'n9', '-s', 'dpkg', '-i', "$dest/$debDir/$deb"; 
+    my @cmd = ('n9', '-s', 'dpkg', '-i', "$debDestPrefix/$debDir/$deb");
+    print "@cmd\n";
+    system @cmd unless $before eq $after;
   }
 }
 
