@@ -75,10 +75,10 @@ sub installPackages(){
 
 sub installDebs(){
   my @debs = `ls $debDir/*.deb`;
-  my $dir = '/opt/manual-packages';
+  my $dir = '/opt/manual-debs';
   print "\n\nCopying and installing these debs to $dir:\n";
   print "---\n@debs---\n";
-  system "rsync packages/ root@`n9`:$dir -av --progress --delete";
+  system "rsync packages root@`n9`:$dir -av --progress --delete";
   for my $deb(@debs){
     chomp $deb;
     system 'n9', '-s', 'dpkg', '-i', "$dir/$deb"; 
