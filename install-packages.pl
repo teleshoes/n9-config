@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 my $repoDir = 'repos';
-my $debDir = 'packages';
+my $debDir = 'debs-custom';
 
 my %pkgGroups = (
   '1hdev' => [qw(
@@ -74,14 +74,14 @@ sub installPackages(){
 }
 
 sub installDebs(){
-  my @debs = `ls $debDir/*.deb`;
-  my $dir = '/opt/manual-debs';
-  print "\n\nCopying and installing these debs to $dir:\n";
+  my @debs = `ls $debDir`;
+  my $dest = '/opt';
+  print "\n\nSyncing $dest/$debDir to $dest on dest:\n";
   print "---\n@debs---\n";
-  system "rsync packages root@`n9`:$dir -av --progress --delete";
+  system "rsync $debDir root@`n9`:$dest -av --progress --delete";
   for my $deb(@debs){
     chomp $deb;
-    system 'n9', '-s', 'dpkg', '-i', "$dir/$deb"; 
+    system 'n9', '-s', 'dpkg', '-i', "$dest/$debDir/$deb"; 
   }
 }
 
