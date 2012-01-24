@@ -16,7 +16,5 @@ D) insert usb, select: sync and connect
 2) set-host
 3) keygen.pl
 ###switch to wifi now###
-4) install-sane
+4) install-packages
 5) config-files
-6) install-packages
-7) config-files {again}
