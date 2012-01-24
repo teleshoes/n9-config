@@ -1,0 +1,1101 @@
+#! /bin/sh
+program=mcetorture
+version=1.9.1
+
+GCONFTOOL=gconftool-2
+
+DBUS_SEND=dbus-send
+DBUS_SEND_FLAGS_REPLY='--system --type=method_call --print-reply'
+DBUS_SEND_FLAGS='--system --type=method_call'
+DBUS_SEND_SIGNAL_FLAGS='--system --type=signal'
+
+DBUS_PATH=/com/nokia/mce/request
+DBUS_DEST=com.nokia.mce
+DBUS_INTERFACE=$DBUS_DEST.request
+
+logdir=/media/mmc1
+[ -d $logdir ] || logdir=/root
+
+logfile=$logdir/mcetorture.log
+leaklogfile=$logdir/mcetorture_leaks.log
+logball=$logdir/dsmelog.tar
+memfile=$logdir/mcememlog
+mcepid=$(pidof mce)
+
+syslog=1
+syslogdir=/var/log
+[ -f $syslogdir/syslog ] || syslogdir=/var/ftd-log
+[ -f $syslogdir/syslog ] || syslog=0
+
+KEYBOARD_EVENT_FILE=/dev/input/keypad
+POWERBUTTON_EVENT_FILE=/dev/input/pwrbutton
+TOUCHSCREEN_EVENT_FILE=/dev/input/ts
+GPIOKEYS_EVENT_FILE=/dev/input/gpio-keys
+
+x=0
+tests=0
+retval=
+status=0
+
+MCETOOL_FLAGS=
+
+oneshot=0
+noleakcheck=0
+noabort=0
+verbose=0
+nolog=0
+
+blank=
+mceinfo=
+unblank=
+dim=
+radiostates=
+cabcmode=
+callstate=
+tklock=
+alarm=
+battery=
+charger=
+led=
+homeshort=
+homelong=
+powershort=
+powerdouble=
+powerlong=
+gpiokeyslide=
+touchscreen=
+powershortdbus=
+powerdoubledbus=
+powerlongdbus=
+gconfbrightness=
+gconftimeout=
+gconfled=
+dbuserrors=
+
+size=0
+rss=0
+shared_clean=0
+shared_dirty=0
+private_clean=0
+private_dirty=0
+
+old_size=0
+old_rss=0
+old_shared_clean=0
+old_shared_dirty=0
+old_private_clean=0
+old_private_dirty=0
+
+EVENT_TIMESTAMP="\x48\x67\x98\x45\x5f\x16\x0b\x00"
+
+EVENT_KEY_TYPE="\x01\x00"		# EV_KEY / 0x01
+EVENT_SWITCH_TYPE="\x05\x00"		# EV_SW / 0x05
+EVENT_ABS_TYPE="\x03\x00"		# EV_ABS / 0x03
+
+EVENT_ABS_PRESSURE="\x18\x00"		# ABS_PRESSURE / 0x18
+EVENT_BTN_TOUCH="\x4a\x01"		# BTN_TOUCH / 0x14a
+EVENT_POWER_KEY="\x74\x00"		# KEY_POWER / 0x74
+EVENT_HOME_KEY="\x3f\x00"		# KEY_F5 [home] / 0x3f
+EVENT_KEYPAD_SLIDE="\x0a\x00"		# SW_KEYPAD_SLIDE / 0x0a
+
+EVENT_PRESS_VALUE="\x01\x00\x00\x00"
+EVENT_RELEASE_VALUE="\x00\x00\x00\x00"
+
+GCONF_DISPLAY_BRIGHTNESS_PATH=/system/osso/dsm/display/display_brightness
+GCONF_DISPLAY_BLANK_TIMEOUT_PATH=/system/osso/dsm/display/display_blank_timeout
+GCONF_DISPLAY_DIM_TIMEOUT_PATH=/system/osso/dsm/display/display_dim_timeout
+GCONF_DISPLAY_INHIBIT_BLANK_PATH=/system/osso/dsm/display/inhibit_blank_mode
+GCONF_DISPLAY_ADAPTIVE_DIMMING_ENABLED_PATH=/system/osso/dsm/display/use_adaptive_display_dimming
+GCONF_DISPLAY_ADAPTIVE_DIMMING_THRESHOLD_PATH=/system/osso/dsm/display/adaptive_display_dim_threshold
+GCONF_LED_PATTERN_ERROR_PATH=/system/osso/dsm/leds/PatternError
+GCONF_BRIGHTNESS_MIN=1
+GCONF_BRIGHTNESS_MAX=5
+
+crashcheck()
+{
+	mcerunpid=$(pidof mce)
+
+	if [ x$mcerunpid == x"" ]; then
+		printf "MCE (pid %d) crashed\n" $mcepid
+		return 1
+	fi
+
+	if [ $mcepid -ne $(pidof mce) ]; then
+		printf "MCE (pid %d) crashed and restarted as %d\n" $mcepid $(pidof mce)
+		return 1
+	fi
+
+	return 0
+}
+
+get_memstats()
+{
+	size=$(awk '/Size:/ { a += $2 } END { printf a }' /proc/$mcepid/smaps)
+	rss=$(awk '/Rss:/ { a += $2 }' /proc/$mcepid/smaps)
+	shared_clean=$(awk '/Shared_Clean:/ { a += $2 } END { printf a }' /proc/$mcepid/smaps)
+	shared_dirty=$(awk '/Shared_Dirty:/ { a += $2 } END { printf a }' /proc/$mcepid/smaps)
+	private_clean=$(awk '/Private_Clean:/ { a += $2 } END { printf a }' /proc/$mcepid/smaps)
+	private_dirty=$(awk '/Private_Dirty/ { a += $2 } END { printf a }' /proc/$mcepid/smaps)
+
+	# Make sure we don't get any unset values
+	[ x"$size" = x"" ] && size=0
+	[ x"$rss" = x"" ] && rss=0
+	[ x"$shared_clean" = x"" ] && shared_clean=0
+	[ x"$shared_dirty" = x"" ] && shared_dirty=0
+	[ x"$private_clean" = x"" ] && private_clean=0
+	[ x"$private_dirty" = x"" ] && private_dirty=0
+}
+
+leakcheck()
+{
+	if [ $noleakcheck -eq 1 ]; then
+		return 0
+	fi
+
+	[ $size -gt $old_size ] && old_size=$size
+	[ $rss -gt $old_rss ] && old_rss=$rss
+	[ $shared_clean -gt $old_shared_clean ] && old_shared_clean=$shared_clean
+	[ $shared_dirty -gt $old_shared_dirty ] && old_shared_dirty=$shared_dirty
+	[ $private_clean -gt $old_private_clean ] && old_private_clean=$private_clean
+	[ $private_dirty -gt $old_private_dirty ] && old_private_dirty=$private_dirty
+
+	get_memstats
+
+	if [ $size -gt $old_size ] ||
+	   [ $rss -gt $old_rss ] ||
+	   [ $shared_clean -gt $old_shared_clean ] ||
+	   [ $shared_dirty -gt $old_shared_dirty ] ||
+	   [ $private_clean -gt $old_private_clean ] ||
+	   [ $private_dirty -gt $old_private_dirty ]; then
+		printf "Aieeek, a leak!\n"
+		if [ $nolog -eq 0 ]; then
+			cp /proc/$mcepid/smaps $memfile.after
+
+			if [ $noabort -eq 1 ]; then
+				printf "leaked testcase: $1 (iterations: $x)\n" >> $leaklogfile
+				printf "\n" >> $leaklogfile
+				printf "size         : %d\n" $size >> $leaklogfile
+				printf "rss          : %d\n" $rss >> $leaklogfile
+				printf "shared_clean : %d\n" $shared_clean >> $leaklogfile
+				printf "shared_dirty : %d\n" $shared_dirty >> $leaklogfile
+				printf "private_clean: %d\n" $private_clean >> $leaklogfile
+				printf "private_dirty: %d\n" $private_dirty >> $leaklogfile
+				printf "----\n" >> $leaklogfile
+			fi
+		fi
+		return 1
+	fi
+
+	return 0
+}
+
+abort()
+{
+	if [ $noabort -eq 1 ]; then
+		printf "Abort disabled, error message: %s\n" "$1"
+		return 0
+	fi
+
+	if [ $nolog -eq 0 ]; then
+		printf "Aborting: $1\n" | tee $logfile
+		printf "iterations: $x\n" >> $logfile
+		printf "testcases: $blank $mceinfo $unblank $dim $radiostates $cabcmode $callstate $tklock $alarm $battery $charger $led $homeshort $homelong $powershort $powerdouble $powerlong $gpiokeyslide $touchscreen $powershortdbus $powerdoubledbus $powerlongdbus $gconfbrightness $gconftimeouts $gconfled $dbuserrors\n" >> $logfile
+		if [ $syslog -eq 1 ]; then
+			cat $syslogdir/syslog >> $logfile
+		fi
+		tar cf $logball /var/lib/dsme 2> /dev/null
+	fi
+
+	exit 42
+}
+
+normal_exit()
+{
+	test_unblank
+	exit 0
+}
+
+usage()
+{
+	printf "Usage: %s [OPTION]... [TEST]...\n" "$program"
+	printf "Continuously run the specified tests;\n"
+	printf "if no tests are listed, all tests are executed\n"
+	printf "\n"
+	printf "  --no-leakcheck   disable leak-checking\n"
+	printf "  --no-logging     disable error-logging\n"
+	printf "  --no-abort       do not abort on error\n"
+	printf "  --session        use the session bus instead of the system bus for D-Bus\n"
+	printf "  --one-shot       run the tests once, then exit\n"
+	printf "  --verbose        print the name of each test case as it's "
+	printf "being run\n"
+	printf "  --help           display this help and exit\n"
+	printf "  --version        output version information and exit\n"
+	printf "\n"
+	printf "Valid tests are:\n"
+	printf "\n"
+	printf "  blank\n"
+	printf "  mceinfo\n"
+	printf "  unblank\n"
+	printf "  dim\n"
+	printf "  radiostates\n"
+	printf "  cabcmode\n"
+	printf "  callstate\n"
+	printf "  tklock\n"
+	printf "  alarm\n"
+	printf "  battery\n"
+	printf "  charger\n"
+	printf "  led\n"
+	printf "  homeshort(1)\n"
+	printf "  homelong(1)\n"
+	printf "  powershort\n"
+	printf "  powerdouble\n"
+	printf "  powerlong(2)\n"
+	printf "  gpio-keyslide\n"
+	printf "  touchscreen\n"
+	printf "  powershort-dbus\n"
+	printf "  powerdouble-dbus\n"
+	printf "  powerlong-dbus(2)\n"
+	printf "  gconf-brightness\n"
+	printf "  gconf-timeouts\n"
+	printf "  gconf-led\n"
+	printf "  dbus-errors\n"
+	printf "\n"
+	printf "(1) not included in the default set of test cases since the\n"
+	printf "    [home] module isn't part of the default configuration\n"
+	printf "(2) not included in the default set of test cases\n"
+	printf "    since it would cause the device to reboot\n"
+}
+
+version()
+{
+	printf "%s %s\n" "$program" "$version"
+}
+
+test_mceinfo()
+{
+	# just dump information
+	mcetool $MCETOOL_FLAGS > /dev/null
+}
+
+test_blank()
+{
+	# cancel blank prevent and blank screen
+	mcetool $MCETOOL_FLAGS --cancel-blank-prevent > /dev/null
+	mcetool $MCETOOL_FLAGS --blank-screen > /dev/null
+}
+
+test_dim()
+{
+	# dim screen
+	mcetool $MCETOOL_FLAGS --dim-screen > /dev/null
+}
+
+test_unblank()
+{
+	# unblank screen and prevent blank
+	mcetool $MCETOOL_FLAGS --unblank-screen > /dev/null
+	mcetool $MCETOOL_FLAGS --blank-prevent > /dev/null
+}
+
+test_radiostates()
+{
+	# enable master radio
+	mcetool $MCETOOL_FLAGS --enable-radio=master > /dev/null
+
+	# enable cellular
+	mcetool $MCETOOL_FLAGS --enable-radio=cellular > /dev/null
+
+	# enable wlan
+	mcetool $MCETOOL_FLAGS --enable-radio=wlan > /dev/null
+
+	# enable bluetooth
+	mcetool $MCETOOL_FLAGS --enable-radio=bluetooth > /dev/null
+
+	# disable master radio
+	mcetool $MCETOOL_FLAGS --disable-radio=master > /dev/null
+
+	# disable cellular
+	mcetool $MCETOOL_FLAGS --disable-radio=cellular > /dev/null
+
+	# disable wlan
+	mcetool $MCETOOL_FLAGS --disable-radio=wlan > /dev/null
+
+	# disable bluetooth
+	mcetool $MCETOOL_FLAGS --disable-radio=bluetooth > /dev/null
+
+	# enable master radio
+	mcetool $MCETOOL_FLAGS --enable-radio=master > /dev/null
+
+	# enable cellular
+	mcetool $MCETOOL_FLAGS --enable-radio=cellular > /dev/null
+
+	# enable wlan
+	mcetool $MCETOOL_FLAGS --enable-radio=wlan > /dev/null
+
+	# enable bluetooth
+	mcetool $MCETOOL_FLAGS --enable-radio=bluetooth > /dev/null
+}
+
+# When mcetool exits, it will be considered to have died and thus the cabc
+# mode will revert to the default...
+test_cabcmode()
+{
+	# switch to off
+	mcetool $MCETOOL_FLAGS --set-cabc-mode=off > /dev/null
+
+	# switch to ui
+	mcetool $MCETOOL_FLAGS --set-cabc-mode=ui > /dev/null
+
+	# switch to still-image
+	mcetool $MCETOOL_FLAGS --set-cabc-mode=still-image > /dev/null
+
+	# switch to moving-image
+	mcetool $MCETOOL_FLAGS --set-cabc-mode=moving-image > /dev/null
+}
+
+# XXX: this test case needs an modified mcetool that returns the result
+# value from the call state request to be able to detect veto:ed calls
+#
+# Even then, we'll have big problems because when mcetool exits,
+# it will be considered to have died and thus the call state will
+# revert to none...
+test_callstate()
+{
+	# switch to none:normal
+	mcetool $MCETOOL_FLAGS --set-call-state=none:normal > /dev/null
+	# switch to none:emergency [undefined combination]
+	mcetool $MCETOOL_FLAGS --set-call-state=none:emergency > /dev/null
+	# switch to none:normal
+	mcetool $MCETOOL_FLAGS --set-call-state=none:normal > /dev/null
+
+	# switch to active:normal
+	mcetool $MCETOOL_FLAGS --set-call-state=active:normal > /dev/null
+	# switch to none:normal
+	mcetool $MCETOOL_FLAGS --set-call-state=none:normal > /dev/null
+	# switch to active:emergency
+	mcetool $MCETOOL_FLAGS --set-call-state=active:emergency > /dev/null
+	# switch to none:normal
+	mcetool $MCETOOL_FLAGS --set-call-state=none:normal > /dev/null
+
+	# switch to active:normal
+	mcetool $MCETOOL_FLAGS --set-call-state=active:normal > /dev/null
+	# switch to active:emergency
+	mcetool $MCETOOL_FLAGS --set-call-state=active:emergency > /dev/null
+	# switch to none:normal
+	mcetool $MCETOOL_FLAGS --set-call-state=none:normal > /dev/null
+
+	# switch to service:normal
+	mcetool $MCETOOL_FLAGS --set-call-state=service:normal > /dev/null
+	# switch to none:normal
+	mcetool $MCETOOL_FLAGS --set-call-state=none:normal > /dev/null
+	# switch to service:emergency [undefined combination]
+	mcetool $MCETOOL_FLAGS --set-call-state=service:emergency > /dev/null
+	# switch to none:normal
+	mcetool $MCETOOL_FLAGS --set-call-state=none:normal > /dev/null
+
+	# switch to service:normal
+	mcetool $MCETOOL_FLAGS --set-call-state=service:normal > /dev/null
+	# switch to active:emergency
+	mcetool $MCETOOL_FLAGS --set-call-state=active:emergency > /dev/null
+	# switch to none:normal
+	mcetool $MCETOOL_FLAGS --set-call-state=none:normal > /dev/null
+
+	# switch to active:normal
+	mcetool $MCETOOL_FLAGS --set-call-state=active:normal > /dev/null
+	# switch to active:normal [should be vetoed]
+	mcetool $MCETOOL_FLAGS --set-call-state=active:normal > /dev/null
+	# switch to none:normal
+	mcetool $MCETOOL_FLAGS --set-call-state=none:normal > /dev/null
+
+	# switch to active:emergency
+	mcetool $MCETOOL_FLAGS --set-call-state=active:emergency > /dev/null
+	# switch to active:normal [should be vetoed]
+	mcetool $MCETOOL_FLAGS --set-call-state=active:normal > /dev/null
+	# switch to none:normal
+	mcetool $MCETOOL_FLAGS --set-call-state=none:normal > /dev/null
+
+}
+
+test_tklock()
+{
+	# lock tklock
+	mcetool $MCETOOL_FLAGS --set-tklock-mode=locked > /dev/null
+	# unlock tklock
+	mcetool $MCETOOL_FLAGS --set-tklock-mode=unlocked > /dev/null
+	sleep 1
+	# lock tklock and dim the screen
+	mcetool $MCETOOL_FLAGS --set-tklock-mode=locked-dim > /dev/null
+	# unlock tklock
+	mcetool $MCETOOL_FLAGS --set-tklock-mode=unlocked > /dev/null
+	sleep 1
+}
+
+ALARM_DBUS_PATH=/com/nokia/voland/signal
+ALARM_DBUS_INTERFACE=com.nokia.voland.signal
+test_alarm()
+{
+	# Fake that alarm ui is visible, and alarm is ringing
+	$DBUS_SEND $DBUS_SEND_SIGNAL_FLAGS $ALARM_DBUS_PATH $ALARM_DBUS_INTERFACE.visual_reminders_status int32:0
+
+	# Fake that alarm ui is visible, but alarm is not ringing
+	$DBUS_SEND $DBUS_SEND_SIGNAL_FLAGS $ALARM_DBUS_PATH $ALARM_DBUS_INTERFACE.visual_reminders_status int32:2
+
+	# Fake that alarm ui isn't visible
+	$DBUS_SEND $DBUS_SEND_SIGNAL_FLAGS $ALARM_DBUS_PATH $ALARM_DBUS_INTERFACE.visual_reminders_status int32:1
+}
+
+BME_DBUS_PATH=/com/nokia/bme/signal
+BME_DBUS_INTERFACE=com.nokia.bme.signal
+test_battery()
+{
+	# Fake that battery level is empty
+	$DBUS_SEND $DBUS_SEND_SIGNAL_FLAGS $BME_DBUS_PATH $BME_DBUS_INTERFACE.battery_empty
+
+	# Fake that battery level is low
+	$DBUS_SEND $DBUS_SEND_SIGNAL_FLAGS $BME_DBUS_PATH $BME_DBUS_INTERFACE.battery_low
+
+	# Fake that battery level is ok
+	$DBUS_SEND $DBUS_SEND_SIGNAL_FLAGS $BME_DBUS_PATH $BME_DBUS_INTERFACE.battery_ok
+
+	# Fake that battery level is full
+	$DBUS_SEND $DBUS_SEND_SIGNAL_FLAGS $BME_DBUS_PATH $BME_DBUS_INTERFACE.battery_full
+
+	# Send a fake battery state, without percentage
+	$DBUS_SEND $DBUS_SEND_SIGNAL_FLAGS $BME_DBUS_PATH $BME_DBUS_INTERFACE.battery_state_changed uint32:1 uint32:8
+
+	# Send a fake battery state, without percentage
+	$DBUS_SEND $DBUS_SEND_SIGNAL_FLAGS $BME_DBUS_PATH $BME_DBUS_INTERFACE.battery_state_changed uint32:8 uint32:8
+
+	# Send a fake battery state, with percentage
+	$DBUS_SEND $DBUS_SEND_SIGNAL_FLAGS $BME_DBUS_PATH $BME_DBUS_INTERFACE.battery_state_changed uint32:1 uint32:8 uint32:10
+
+	# Send a fake battery state, with percentage
+	$DBUS_SEND $DBUS_SEND_SIGNAL_FLAGS $BME_DBUS_PATH $BME_DBUS_INTERFACE.battery_state_changed uint32:8 uint32:8 uint32:96
+}
+
+test_charger()
+{
+	# Fake that charger is connected
+	$DBUS_SEND $DBUS_SEND_SIGNAL_FLAGS $BME_DBUS_PATH $BME_DBUS_INTERFACE.charger_connected
+
+	# Fake that charging started
+	$DBUS_SEND $DBUS_SEND_SIGNAL_FLAGS $BME_DBUS_PATH $BME_DBUS_INTERFACE.charger_charging_on
+
+	# Fake that charging stopped
+	$DBUS_SEND $DBUS_SEND_SIGNAL_FLAGS $BME_DBUS_PATH $BME_DBUS_INTERFACE.charger_charging_off
+
+	# Fake that charger is disconnected
+	$DBUS_SEND $DBUS_SEND_SIGNAL_FLAGS $BME_DBUS_PATH $BME_DBUS_INTERFACE.charger_connected
+}
+
+test_led()
+{
+	# Enable LED
+	mcetool $MCETOOL_FLAGS --enable-led
+	# Activate poweron LED pattern
+	mcetool $MCETOOL_FLAGS --activate-led-pattern=PatternPowerOn
+	# Activate error LED pattern
+	mcetool $MCETOOL_FLAGS --activate-led-pattern=PatternError
+	# Disable LED
+	mcetool $MCETOOL_FLAGS --disable-led
+	# Enable LED
+	mcetool $MCETOOL_FLAGS --enable-led
+	# Deactivate poweron LED pattern
+	mcetool $MCETOOL_FLAGS --deactivate-led-pattern=PatternPowerOn
+	# Deactivate error LED pattern
+	mcetool $MCETOOL_FLAGS --deactivate-led-pattern=PatternError
+	# Disable LED
+	mcetool $MCETOOL_FLAGS --disable-led
+}
+
+inject_tap()
+{
+	printf "$EVENT_TIMESTAMP$EVENT_ABS_TYPE$1$EVENT_PRESS_VALUE$EVENT_TIMESTAMP$EVENT_ABS_TYPE$1$EVENT_RELEASE_VALUE" > $2
+	sleep 1
+}
+
+inject_keyshort()
+{
+	printf "$EVENT_TIMESTAMP$EVENT_KEY_TYPE$1$EVENT_PRESS_VALUE$EVENT_TIMESTAMP$EVENT_KEY_TYPE$1$EVENT_RELEASE_VALUE" > $2
+	sleep 1
+}
+
+inject_keydouble()
+{
+	printf "$EVENT_TIMESTAMP$EVENT_KEY_TYPE$1$EVENT_PRESS_VALUE$EVENT_TIMESTAMP$EVENT_KEY_TYPE$1$EVENT_RELEASE_VALUE$EVENT_TIMESTAMP$EVENT_KEY_TYPE$1$EVENT_PRESS_VALUE$EVENT_TIMESTAMP$EVENT_KEY_TYPE$1$EVENT_RELEASE_VALUE" > $2
+	sleep 1
+}
+
+inject_keylong()
+{
+	printf "$EVENT_TIMESTAMP$EVENT_KEY_TYPE$1$EVENT_PRESS_VALUE" > $2
+	sleep 2
+	printf "$EVENT_TIMESTAMP$EVENT_KEY_TYPE$1$EVENT_RELEASE_VALUE" > $2
+	sleep 1
+}
+
+inject_switch()
+{
+	# switch closed
+	printf "$EVENT_TIMESTAMP$EVENT_SWITCH_TYPE$1$EVENT_RELEASE_VALUE" > $2
+	sleep 2
+	# switch open
+	printf "$EVENT_TIMESTAMP$EVENT_SWITCH_TYPE$1$EVENT_PRESS_VALUE" > $2
+	sleep 1
+}
+
+test_homeshort()
+{
+	# Inject a short [home] event into the keyboard event queue
+	inject_keyshort $EVENT_HOME_KEY $KEYBOARD_EVENT_FILE
+}
+
+test_homelong()
+{
+	# Inject a long [home] event into the keyboard event queue
+	inject_keylong $EVENT_HOME_KEY $KEYBOARD_EVENT_FILE
+}
+
+test_powershort()
+{
+	# Inject a short [power] event into the keyboard event queue
+	inject_keyshort $EVENT_POWER_KEY $POWERBUTTON_EVENT_FILE
+}
+
+test_powerdouble()
+{
+	# Inject a double [power] event into the keyboard event queue
+	inject_keydouble $EVENT_POWER_KEY $POWERBUTTON_EVENT_FILE
+}
+
+test_powerlong()
+{
+	# Inject a long [power] event into the keyboard event queue
+	inject_keylong $EVENT_POWER_KEY $POWERBUTTON_EVENT_FILE
+}
+
+test_gpio_keyslide()
+{
+	# Inject a keyboard slide event into the gpio-keys event queue
+	inject_switch $EVENT_KEYPAD_SLIDE $GPIOKEYS_EVENT_FILE
+}
+
+test_touchscreen()
+{
+	# Inject a touchscren tap into the touchscreen event queue
+	inject_tap $EVENT_ABS_PRESSURE $TOUCHSCREEN_EVENT_FILE
+
+	# Inject a touchscren key press into the touchscreen event queue
+	inject_keyshort $EVENT_BTN_TOUCH $TOUCHSCREEN_EVENT_FILE
+}
+
+test_powershort_dbus()
+{
+	# Trigger a short [power] event using the D-Bus method
+	mcetool $MCETOOL_FLAGS --powerkey-event=short
+}
+
+test_powerdouble_dbus()
+{
+	# Trigger a short [power] event using the D-Bus method
+	mcetool $MCETOOL_FLAGS --powerkey-event=double
+}
+
+test_powerlong_dbus()
+{
+	# Trigger a long [power] event using the D-Bus method
+	mcetool $MCETOOL_FLAGS --powerkey-event=long
+}
+
+gconf_unset_key()
+{
+	$GCONFTOOL --unset $1
+}
+
+gconf_set()
+{
+	keytype=$($GCONFTOOL --get-type $1 2> /dev/null)
+
+	# If the key is not set, accept any keytype
+	if [ x"$keytype" = x"" ]; then
+		keytype=$2
+	fi
+
+	if [ x"$keytype" != x"$2" ]; then
+		abort "Got type $keytype for GConf key $1, expected $2"
+	fi
+
+	$GCONFTOOL --set --type=$2 $1 $3
+	sleep 1
+}
+
+gconf_set_bool()
+{
+	gconf_set $1 bool $2
+}
+
+gconf_set_int()
+{
+	gconf_set $1 int $2
+}
+
+gconf_get()
+{
+	keytype=$($GCONFTOOL --get-type $2 2> /dev/null)
+
+	status=0
+
+	# if the key is not set, don't bother reading it
+	if [ x"$keytype" = x"" ]; then
+		status=42
+		retval=0
+		return
+	fi
+
+	if [ x"$keytype" != x"$1" ]; then
+		abort "Got type $keytype for GConf key $2, expected $1"
+	fi
+
+	retval=$($GCONFTOOL --get $2 2> /dev/null)
+}
+
+gconf_get_bool()
+{
+	gconf_get bool $1
+	# This looks stupid; it's just to allow altering
+	# of the return value
+	tmp=$retval
+	retval=$tmp
+}
+
+gconf_get_int()
+{
+	gconf_get int $1
+	# This looks stupid; it's just to allow altering
+	# of the return value
+	tmp=$retval
+	retval=$tmp
+}
+
+test_gconf_brightness()
+{
+	# Save old brightness
+	gconf_get_int $GCONF_DISPLAY_BRIGHTNESS_PATH
+	old_brightness=$retval
+
+	# Set maximum brightness
+	gconf_set_int $GCONF_DISPLAY_BRIGHTNESS_PATH $GCONF_BRIGHTNESS_MAX
+
+	# Set minimum brightness
+	gconf_set_int $GCONF_DISPLAY_BRIGHTNESS_PATH $GCONF_BRIGHTNESS_MIN
+
+	# Restore brightness
+	gconf_set_int $GCONF_DISPLAY_BRIGHTNESS_PATH $old_brightness
+}
+
+test_gconf_timeouts()
+{
+	# Save old blank timeout
+	gconf_get_int $GCONF_DISPLAY_BLANK_TIMEOUT_PATH
+	old_blank_timeout=$retval
+
+	# Save old dim timeout
+	gconf_get_int $GCONF_DISPLAY_DIM_TIMEOUT_PATH
+	old_dim_timeout=$retval
+
+	# Save old display blanking inhibit
+	gconf_get_int $GCONF_DISPLAY_INHIBIT_BLANK_PATH
+	old_display_inhibit_blank=$retval
+
+	# Save old adaptive dimming
+	gconf_get_bool $GCONF_DISPLAY_ADAPTIVE_DIMMING_ENABLED_PATH
+	old_display_adaptive_dimming_enabled=$retval
+
+	# Save old adaptive dimming threshold
+	gconf_get_int $GCONF_DISPLAY_ADAPTIVE_DIMMING_THRESHOLD_PATH
+	old_display_adaptive_dimming_threshold=$retval
+
+	# Set 5 second dim timeout
+	gconf_set_int $GCONF_DISPLAY_DIM_TIMEOUT_PATH 5
+
+	# Set 15 second blank timeout
+	gconf_set_int $GCONF_DISPLAY_DIM_TIMEOUT_PATH 15
+
+	# Disable blanking inhibiting
+	gconf_set_int $GCONF_DISPLAY_INHIBIT_BLANK_PATH 0
+
+	# Inhibit dimming when charger is connected
+	gconf_set_int $GCONF_DISPLAY_INHIBIT_BLANK_PATH 1
+
+	# Inhibit blanking when charger is connected
+	gconf_set_int $GCONF_DISPLAY_INHIBIT_BLANK_PATH 2
+
+	# Inhibit dimming
+	gconf_set_int $GCONF_DISPLAY_INHIBIT_BLANK_PATH 3
+
+	# Inhibit blanking
+	gconf_set_int $GCONF_DISPLAY_INHIBIT_BLANK_PATH 4
+
+	# Set the adaptive dimming threhold to 7500 milliseconds
+	gconf_set_int $GCONF_DISPLAY_ADAPTIVE_DIMMING_THRESHOLD_PATH 15
+
+	# Disable adaptive dimming
+	gconf_set_bool $GCONF_DISPLAY_ADAPTIVE_DIMMING_ENABLED_PATH false
+
+	# Restore blank timeout
+	gconf_set_int $GCONF_DISPLAY_BLANK_TIMEOUT_PATH $old_blank_timeout
+
+	# Restore dim timeout
+	gconf_set_int $GCONF_DISPLAY_DIM_TIMEOUT_PATH $old_dim_timeout
+
+	# Restore display blanking inhibit
+	gconf_set_int $GCONF_DISPLAY_INHIBIT_BLANK_PATH $old_display_inhibit_blank
+
+	# Restore display adaptive dimming
+	gconf_set_bool $GCONF_DISPLAY_ADAPTIVE_DIMMING_ENABLED_PATH $old_display_adaptive_dimming_enabled
+
+	# Restore display adaptive dimming threshold
+	gconf_set_int $GCONF_DISPLAY_ADAPTIVE_DIMMING_THRESHOLD_PATH $old_display_adaptive_dimming_threshold
+}
+
+test_gconf_led()
+{
+	# Save old PatternError LED setting
+	gconf_get_bool $GCONF_LED_PATTERN_ERROR_PATH
+	old_led_pattern_error=$retval
+
+	# No matter if the key exists or not, unset it
+	gconf_unset_key $GCONF_LED_PATTERN_ERROR_PATH
+
+	# If there's no value set for PatternError, set it
+	if [ $status -eq 42 ]; then
+		gconf_set_bool $GCONF_LED_PATTERN_ERROR_PATH true
+	fi
+
+	# Enable PatternError
+	gconf_set_bool $GCONF_LED_PATTERN_ERROR_PATH true
+
+	# enable LED
+	mcetool $MCETOOL_FLAGS --enable-led
+
+	# activate error LED pattern
+	mcetool $MCETOOL_FLAGS --activate-led-pattern=PatternError
+
+	# Disable PatternError
+	gconf_set_bool $GCONF_LED_PATTERN_ERROR_PATH false
+
+	# Deactivate error LED pattern
+	mcetool $MCETOOL_FLAGS --deactivate-led-pattern=PatternError
+
+	# Disable LED
+	mcetool $MCETOOL_FLAGS --disable-led
+
+	# Restore old PatternError LED setting
+	if [ x"$old_led_pattern_error" = x"" ]; then
+		gconf_unset_key $GCONF_LED_PATTERN_ERROR_PATH
+	else
+		gconf_set_bool $GCONF_LED_PATTERN_ERROR_PATH $old_led_pattern_error
+	fi
+}
+
+test_dbus_errors()
+{
+	# Send invalid D-Bus method calls to MCE
+
+	# LED tests
+
+	# Invalid LED disabling (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_led_disable int32:42
+
+	# Invalid LED enabling (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_led_enable string:Foo
+
+	# activate LED pattern (too few arguments)
+	$DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_led_pattern_activate
+
+	# activate LED pattern (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_led_pattern_activate string:PatternError int32:42
+
+	# activate LED pattern (invalid type)
+	$DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_led_pattern_activate int32:42
+
+	# activate LED pattern (non-existing pattern)
+	$DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_led_pattern_activate string:PatternNonExisting
+
+	# de-activate LED pattern (too few arguments)
+	$DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_led_pattern_deactivate
+
+	# de-activate LED pattern (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_led_pattern_deactivate string:PatternError int32:42
+
+	# de-activate LED pattern (invalid type)
+	$DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_led_pattern_deactivate int32:42
+
+	# de-activate LED pattern (non-existing pattern)
+	$DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_led_pattern_deactivate string:PatternNonExisting
+
+
+	# Misc
+
+	# get inactivity status (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS_REPLY --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.get_inactivity_status int32:42
+
+	# get MCE version (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS_REPLY --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.get_version int32:42
+
+
+	# Display state
+
+	# get display status (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS_REPLY --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.get_display_status int32:42
+
+	# blank screen (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_display_state_off int32:42
+
+	# dim screen (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_display_state_dim int32:42
+
+	# unblank screen (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_display_state_on int32:42
+
+	# prevent blank (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_display_blanking_pause int32:42
+
+	# cancel prevent blank (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_display_cancel_blanking_pause int32:42
+
+
+	# Device mode
+
+	# get device mode (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS_REPLY --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.get_device_mode int32:42
+
+	# request device mode change (too few arguments)
+	$DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_device_mode_change
+
+	# request device mode change (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_device_mode_change string:normal int32:42
+
+	# request device mode change (invalid type)
+	$DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_device_mode_change int32:42
+
+	# request device mode change (invalid value)
+	$DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_device_mode_change string:foo
+
+
+	# Radio states
+
+	# get radio states (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS_REPLY --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.get_radio_states int32:42
+
+	# request radio states change (too few arguments)
+	$DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_radio_states_change
+
+	# request radio states change (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_radio_states_change uint32:0 uint32:0 uint32:0
+
+	# request radio states change (invalid type)
+	$DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_radio_states_change string:foo uint32:0
+
+
+	# Tklock mode
+
+	# get touchscreen/keypad lock mode (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS_REPLY --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.get_tklock_mode int32:42
+
+	# request tklock mode change (too few arguments)
+	$DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_device_mode_change
+
+	# request tklock mode change (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_device_mode_change string:unlocked int32:42
+
+	# request tklock mode change (invalid type)
+	$DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_device_mode_change int32:42
+
+	# request tklock mode change (invalid value)
+	$DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_device_mode_change string:foo
+
+
+	# Powerkey trigger
+
+	# trigger powerkey event (too few arguments)
+	$DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_trigger_powerkey_event
+
+	# trigger powerkey event; boolean interface (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_trigger_powerkey_event boolean:false int32:42
+
+	# trigger powerkey event; uint32 interface (too many arguments)
+	# $DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_trigger_powerkey_event uint32:2 int32:42
+
+	# trigger powerkey event (invalid type)
+	$DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_trigger_powerkey_event string:foo
+
+	# trigger powerkey event (invalid value)
+	$DBUS_SEND $DBUS_SEND_FLAGS --dest=$DBUS_DEST $DBUS_PATH $DBUS_INTERFACE.req_trigger_powerkey_event uint32:42
+}
+
+run_test()
+{
+	[ x"$2" == x"" ] && return 0
+
+	[ $verbose -eq 1 ] && printf "Running test-case $1\n"
+
+	$2
+
+	crashcheck || abort "$1 test-case caused a crash"
+	leakcheck $1 || abort "$1 test-case leaked"
+}
+
+# setup command line options
+while ! [ $# -eq 0 ]; do
+	case $1 in
+	mceinfo|blank|dim|unblank|radiostates|cabcmode|callstate|tklock|alarm|battery|charger|led|homeshort|homelong|powershort|powerdouble|powerlong|touchscreen)
+		eval ${1}=test_${1}
+		tests=$((tests + 1))
+		;;
+	gpio-keyslide)
+		gpiokeyslide=test_gpio_keyslide
+		tests=$((tests + 1))
+		;;
+	powershort-dbus)
+		powershortdbus=test_powershort_dbus
+		tests=$((tests + 1))
+		;;
+	powerdouble-dbus)
+		powerdoubledbus=test_powerdouble_dbus
+		tests=$((tests + 1))
+		;;
+	powerlong-dbus)
+		powerlongdbus=test_powerlong_dbus
+		tests=$((tests + 1))
+		;;
+	gconf-brightness)
+		gconfbrightness=test_gconf_brightness
+		tests=$((tests + 1))
+		;;
+	gconf-timeouts)
+		gconftimeouts=test_gconf_timeouts
+		tests=$((tests + 1))
+		;;
+	gconf-led)
+		gconfled=test_gconf_led
+		tests=$((tests + 1))
+		;;
+	dbus-errors)
+		dbuserrors=test_dbus_errors
+		tests=$((tests + 1))
+		;;
+	--no-leakcheck)
+		printf "Leak checking disabled\n"
+		noleakcheck=1
+		;;
+	--no-abort)
+		printf "Abort on error disabled\n"
+		noabort=1
+		;;
+	--session)
+		MCETOOL_FLAGS="$MCETOOL_FLAGS --session"
+		;;
+	--one-shot)
+		oneshot=1
+		;;
+	--verbose)
+		verbose=1
+		;;
+	--help)
+		usage
+		exit 0
+		;;
+	--version)
+		version
+		exit 0
+		;;
+	*)
+		usage
+		exit 1
+		;;
+	esac
+	shift
+done
+
+if ! [ -x "/sbin/mcetool" ]; then
+	printf "mcetool is not installed; exiting\n"
+	exit 1
+fi
+
+if [ $tests -eq 0 ]; then
+	printf "No test cases specified; enabling all default tests\n"
+
+	mceinfo=test_mceinfo
+	unblank=test_unblank
+	dim=test_dim
+	blank=test_blank
+	radiostates=test_radiostates
+	cabcmode=test_cabcmode
+	callstate=test_callstate
+	tklock=test_tklock
+	alarm=test_alarm
+	battery=test_battery
+	charger=test_charger
+	led=test_led
+	powershort=test_powershort
+	powerdouble=test_powerdouble
+	touchscreen=test_touchscreen
+	gpiokeyslide=test_gpio_keyslide
+	powershortdbus=test_powershort_dbus
+	powerdoubledbus=test_powerdouble_dbus
+	gconfbrightness=test_gconf_brightness
+	gconftimeouts=test_gconf_timeouts
+	gconfled=test_gconf_led
+	dbuserrors=test_dbus_errors
+fi
+
+if [ x"$mcepid" = x"" ]; then
+	printf "MCE not running; aborting!\n"
+	exit 1
+fi
+
+if [ $nolog -eq 0 ]; then
+	cp /proc/$mcepid/smaps $memfile.before
+fi
+
+get_memstats
+
+while /bin/true; do
+	x=$((x+1))
+
+	run_test "blank" $blank
+	run_test "mceinfo" $mceinfo
+	run_test "unblank" $unblank
+	run_test "dim" $dim
+	run_test "radiostates" $radiostates
+	run_test "cabcmode" $cabcmode
+	run_test "callstate" $callstate
+	run_test "tklock" $tklock
+	run_test "alarm" $alarm
+	run_test "battery" $battery
+	run_test "charger" $charger
+	run_test "led" $led
+	run_test "homeshort" $homeshort
+	run_test "homelong" $homelong
+	run_test "powershort" $powershort
+	run_test "powerdouble" $powerdouble
+	run_test "powerlong" $powerlong
+	run_test "gpio-keyslide" $gpiokeyslide
+	run_test "touchscreen" $touchscreen
+	run_test "powershort-dbus" $powershortdbus
+	run_test "powerdouble-dbus" $powerdoubledbus
+	run_test "powerlong-dbus" $powerlongdbus
+	run_test "gconf-brightness" $gconfbrightness
+	run_test "gconf-timeouts" $gconftimeouts
+	run_test "gconf-led" $gconfled
+	run_test "dbus-errors" $dbuserrors
+
+	printf "iterations: $x\n"
+
+	if [ $syslog -eq 1 ]; then
+		tail -n100 /var/log/syslog | grep -q "DSME: process" && abort "A process monitored by DSME died"
+	fi
+
+	[ $oneshot -eq 1 ] && normal_exit
+done
