@@ -19,6 +19,7 @@ my %pkgGroups = (
   '4hdev' => [qw(
     kernel-source linux-kernel-headers
     gcc make libc6-dev libc-dev bzip2
+    mcetools
     wget
   )],
 );
