@@ -95,9 +95,11 @@ sub installDebs(){
     print "not running the below commands because nothing changed:\n";
   }
   for my $deb(@debs){
-    my @cmd = ('n9', '-s', 'dpkg', '-i', "$debDestPrefix/$debDir/$deb");
-    print "@cmd\n";
-    system @cmd unless $before eq $after;
+    my $cmd = ''
+      . "dpkg -i $debDestPrefix/$debDir/$deb"
+      . " || apt-get -f install -y --force-yes";
+    print "$cmd\n";
+    system 'n9', '-s', $cmd unless $before eq $after;
   }
 }
 
