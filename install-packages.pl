@@ -27,14 +27,22 @@ sub installDebs();
 
 sub main(@){
   die "Usage: $0\n" if @_ > 0;
-  setupRepos();
-  system 'n9', '-s', 'apt-get', 'update';
+  if(setupRepos()){
+    system 'n9', '-s', 'apt-get', 'update';
+  }
   installPackages();
   installDebs();
 }
 
 
+sub getRepos(){
+  #important to sort the files and not the lines
+  my $cmd = 'ls /etc/apt/sources.list.d/*.list | sort | xargs cat';
+  return `n9 -s '$cmd'`;
+}
+
 sub setupRepos(){
+  my $before = getRepos();
   my $host = `n9`;
   chomp $host;
 
@@ -48,6 +56,9 @@ sub setupRepos(){
   }
 
   system 'scp', @repos, "root\@$host:/etc/apt/sources.list.d/";
+  
+  my $after = getRepos();
+  return $before ne $after;
 }
 
 sub installPackages(){
