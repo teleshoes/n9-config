@@ -1,0 +1,6 @@
+pidof phonetorch
+if [ $? == 0 ]; then
+  killall phonetorch
+else
+  DISPLAY=:0 /opt/phonetorch/bin/phonetorch > /dev/null 2> /dev/null &
+fi
