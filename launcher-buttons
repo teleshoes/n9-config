@@ -1,0 +1,63 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $host = `n9`;
+chomp $host;
+
+my $appDir = '/usr/share/applications';
+my $unusedDir = '/opt/unused-applications';
+my $confFileDest = '/home/user/.config/meegotouchhome-nokia/launcherbuttons.data';
+
+my @buttons = qw(
+  call-history
+  messaging-ui
+  contacts
+  fennec 
+
+  camera-ui
+  meego-terminal
+  calendar
+  clock
+
+  gallery
+  nokia-drive-qml
+  duicontrolpanel
+  calc
+
+  notes
+  joikuspot
+  phonetorch
+);
+
+
+my $cmd = "\n";
+$cmd .= "mkdir -p $unusedDir;\n";
+$cmd .= "mv $appDir/* $unusedDir;\n";
+
+for my $button(@buttons){
+  $cmd .= "mv $unusedDir/$button.desktop $appDir;\n";
+}
+system "ssh", "root\@$host", '-s', $cmd;
+
+
+my $confFile = "[DesktopEntries]
+home\\user\\.local\\share\\applications\\quicklaunchbar0.desktop=quicklaunchbar/0
+home\\user\\.local\\share\\applications\\quicklaunchbar1.desktop=quicklaunchbar/1
+home\\user\\.local\\share\\applications\\quicklaunchbar2.desktop=quicklaunchbar/2
+home\\user\\.local\\share\\applications\\quicklaunchbar3.desktop=quicklaunchbar/3
+";
+
+for(my $i=0; $i<@buttons; $i++){
+  my $button = $buttons[$i];
+  my $line = "usr\\share\\applications\\$button.desktop=launcher/0/$i\n";
+  $confFile .= $line;
+}
+
+print $confFile;
+my $tmp = "/tmp/launcherbuttons.data";
+open FH, "> $tmp" or die "Couldnt write to $tmp\n";
+print FH $confFile;
+close FH;
+
+system 'scp', $tmp, "root\@$host:$confFileDest";
