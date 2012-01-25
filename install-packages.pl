@@ -67,7 +67,7 @@ sub installPackages(){
     print "Installing group[$pkgGroup]:\n----\n@packages\n----\n";
     my @cmd = ('n9', '-s', 'apt-get',
       'install', @packages,
-      '-y', '--force-yes',
+      '-y', '--allow-unauthenticated',
     );
     system @cmd;
   }
