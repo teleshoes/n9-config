@@ -17,7 +17,7 @@ my %pkgGroups = (
   )],
   '3' => [qw(
     kernel-source linux-kernel-headers
-    gcc make libc6-dev libc-dev intltool
+    gcc make libc6-dev libc-dev
   )],
 );
 
