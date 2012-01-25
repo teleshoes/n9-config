@@ -1,9 +1,12 @@
 =================================
-TO GET FIRMWARE/KERNEL FLASHER
-http://tablets-dev.nokia.com/maemo-dev-env-downloads.php
+TO GET THE FLASHER APP:
+[url]http://tablets-dev.nokia.com/maemo-dev-env-downloads.php[/url]
 
-grab the flasher that says 'for Harmattan', e.g.:
+grab the flasher for your OS that says 'for Harmattan', e.g.:
 flasher_3.12.1_amd64.deb
+
+install it, e.g.:
+sudo dpkg -i flasher*.deb
 =================================
 
 
@@ -19,59 +22,60 @@ wine NaviFirmEx/NaviFirmEx.exe
 -pick the latest-looking release that has your code
 -copy the link location of the large file and wget it
   emmc should have the word 'emmc' in it and most are ~1.8GB
+  e.g.: 2C899062_DFL61_HARMATTAN_20.2011.40-4.SEAP_EMMC_SEAP.bin
   flasher is the other one and most are ~1.1GB
+  e.g.: DFL61_HARMATTAN_20.2011.40-4_PR_LEGACY_005-OEM1-958_ARM.bin
+-rename them to firmware.bin or emmc.bin if you feel like it.
 =================================
 
 
 =================================
 TO GET OPEN KERNEL:
-http://maemo.cloud-7.de/HARM/N9/openmode_kernel_PR1.1/
+[url]http://maemo.cloud-7.de/HARM/N9/openmode_kernel_PR1.1/[/url]
 
 patched: {you probably want this}
-http://maemo.cloud-7.de/HARM/N9/openmode_kernel_PR1.1/zImage-2.6.32.39-dfl61-20113701
+[url]http://maemo.cloud-7.de/HARM/N9/openmode_kernel_PR1.1/zImage-2.6.32.39-dfl61-20113701[/url]
 unpatched:
-http://maemo.cloud-7.de/HARM/N9/openmode_kernel_PR1.1/unpatched_openmode_kernel/zImage-2.6.32.39-dfl61-20113701
+[url]http://maemo.cloud-7.de/HARM/N9/openmode_kernel_PR1.1/unpatched_openmode_kernel/zImage-2.6.32.39-dfl61-20113701[/url]
 
-both gave me the big scary warning on a malaysian n9 64gb
-patched appears to work out-of-the-box, unpatched wouldnt let me restart sshd
+both gave me the big scary warning on a malaysian n9 64gb.
+patched appears to work out-of-the-box {no aegis, real root}.
+unpatched wouldnt let me restart sshd.
+
+rename it to 'openkernel' if you feel like it.
 =================================
 
 
 =================================
-TO FLASH OPEN KERNEL:
--run:
-sudo dpkg -i flasher*.deb
--turn off n9
--ensure usb connected
--start n9
-  wait till you see:
-  'usb device connected: sync and connect'
-  {dont push it yet}
--run:
-sudo flasher -F firmware.bin -f
--click 'sync and connect' to instantly starts flashing your root image
-  {and/or permanently destroys your device}
--IMMEDIATELY run: {nokia claims this voids your warranty}
-sudo flasher -F firmware.bin -k openkernel --flash-only=kernel -f -R
--remove the usb cable after the second success, it should start on its own
-=================================
+TO FLASH FIRMWARE, KERNEL and/or EMMC:
+1) install the flasher app
+2) get the firmware image {i rename it 'firmware.bin'}
+  you must always flash the firmware first, and then the emmc and/or the kernel.
+  {you can do the emmc at the same time as firmware}
+3) get the kernel {i rename it 'openkernel'}, and/or the emmc {i rename it 'emmc.bin'}
+4) turn off your N9
+5) unplug your N9 from the usb so you dont start until you are ready
+6) run the first firmware command below. wait until it says waiting...
+7) plug in your phone via usb to start flashing immediately.
+when one command finishes {it will say 'Success'},
+[B]IMMEDIATELY[/B] run the next flasher command.
+[B]if the phone reboots in between commands, start over or you will brick it.[/B] {i find that the phone reboots in ~10s}
 
+FIRMWARE + KERNEL
+[I]NOTE: deletes apps, and a lot of settings {everything not in /home}.
+does NOT delete DCIM, or anything else in MyDocs[/I]
+[I]*Nokia claims this voids your warranty*[/I]
+  flasher -F firmware.bin -f
+  flasher -F firmware.bin -k openkernel --flash-only=kernel -f -R
 
-=================================
-TO FLASH EMMC:
--run:
-sudo dpkg -i flasher*.deb
--turn off n9
--ensure usb connected
--start n9
-  wait till you see:
-  'usb device connected: sync and connect'
-  {dont push it yet}
--run:
-sudo flasher -f -F firmware.bin -F emmc.bin -R
--click 'sync and connect' to instantly start flashing your root image + emmc
-  {and/or permanently destroys your device}
--you may wish to IMMEDIATELY flash the openkernel, as above:
-sudo flasher -F firmware.bin -k openkernel --flash-only=kernel -f -R
--remove the usb cable after the second success, it should start on its own
+FIRMWARE + EMMC
+[I]NOTE: DELETES ALL PERSONAL DATA, ALL APPS, AND EVERYTHING ELSE.[/I]
+[I]*Nokia is FINE with this.*[/I]
+  flasher -f -F firmware.bin -F emmc.bin -R
+
+FIRMWARE + KERNEL + EMMC
+[I]NOTE: DELETES ALL PERSONAL DATA, ALL APPS, AND EVERYTHING ELSE.[/I]
+[I]*Nokia claims this voids your warranty*[/I]
+  flasher -f -F firmware.bin -F emmc.bin -R
+  flasher -F firmware.bin -k openkernel --flash-only=kernel -f -R
 =================================
