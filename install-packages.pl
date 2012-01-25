@@ -7,22 +7,17 @@ my $debDir = 'debs-custom';
 my $debDestPrefix = '/opt';
 
 my %pkgGroups = (
-  '1hdev' => [qw(
-    bash
+  '1' => [qw(
+    bash vim rsync wget git
   )],
-  '2hrzrh' => [qw(
-    n9tweak rsync vim git bash-completion
+  '2' => [qw(
+    perl bash-completion python python-apt
+    mcetools n9tweak bzip2
+    libpurple0
   )],
-  '3meego' => [qw(
-    python perl python-apt
-  )],
-  '4hdev' => [qw(
+  '3' => [qw(
     kernel-source linux-kernel-headers
     gcc make libc6-dev libc-dev intltool
-    bzip2
-    mcetools
-    wget
-    libpurple0
   )],
 );
 
