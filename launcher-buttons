@@ -5,23 +5,23 @@ use warnings;
 my @buttons = qw(
   call-history
   messaging-ui
-  contacts
+  meego-terminal
   fennec 
 
   camera-ui
-  meego-terminal
   calendar
   clock
+  phonetorch
 
   gallery
-  nokia-drive-qml
   duicontrolpanel
-  calc
+  gconfik_harmattan
+  contacts
 
+  calc
   notes
   joikuspot
-  phonetorch
-  gconfik_harmattan
+  nokia-drive-qml
 );
 
 my @quickLaunch = qw(
