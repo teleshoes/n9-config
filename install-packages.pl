@@ -64,7 +64,7 @@ sub setupRepos(){
 sub installPackages(){
   for my $pkgGroup(sort keys %pkgGroups){
     my @packages = @{$pkgGroups{$pkgGroup}}; 
-    print "Installing $pkgGroup:\n----\n@packages----\n";
+    print "Installing group[$pkgGroup]:\n----\n@packages\n----\n";
     my @cmd = ('n9', '-s', 'apt-get',
       'install', @packages,
       '-y', '--force-yes',
