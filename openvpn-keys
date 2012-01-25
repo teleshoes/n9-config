@@ -1,0 +1,2 @@
+#!/bin/bash
+rsync $HOME/openvpn root@`n9`:/home/user
