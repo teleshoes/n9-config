@@ -28,6 +28,7 @@ my @buttons = qw(
   notes
   joikuspot
   phonetorch
+  gconfik_harmattan
 );
 
 
