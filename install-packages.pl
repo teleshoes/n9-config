@@ -12,7 +12,7 @@ my %pkgGroups = (
   )],
   '2' => [qw(
     perl bash-completion python python-apt
-    mcetools n9tweak bzip2
+    mcetools bzip2
     libpurple0
   )],
   '3' => [qw(
