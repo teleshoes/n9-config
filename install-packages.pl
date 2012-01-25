@@ -22,6 +22,7 @@ my %pkgGroups = (
     bzip2
     mcetools
     wget
+    libpurple0
   )],
 );
 
