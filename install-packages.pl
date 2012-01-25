@@ -14,11 +14,12 @@ my %pkgGroups = (
     n9tweak rsync vim git bash-completion
   )],
   '3meego' => [qw(
-    python perl
+    python perl python-apt
   )],
   '4hdev' => [qw(
     kernel-source linux-kernel-headers
-    gcc make libc6-dev libc-dev bzip2
+    gcc make libc6-dev libc-dev intltool
+    bzip2
     mcetools
     wget
   )],
@@ -87,7 +88,7 @@ sub getCustomDebsHash(){
 
 sub installDebs(){
   my $before = getCustomDebsHash();
-  my @debs = `ls $debDir`;
+  my @debs = `cd $debDir; ls *.deb`;
   chomp foreach @debs;
   print "\n\nSyncing $debDestPrefix/$debDir to $debDestPrefix on dest:\n";
   print "---\n@debs\n---\n";
