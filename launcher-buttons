@@ -2,13 +2,6 @@
 use strict;
 use warnings;
 
-my $host = `n9`;
-chomp $host;
-
-my $appDir = '/usr/share/applications';
-my $unusedDir = '/opt/unused-applications';
-my $confFileDest = '/home/user/.config/meegotouchhome-nokia/launcherbuttons.data';
-
 my @buttons = qw(
   call-history
   messaging-ui
@@ -31,15 +24,34 @@ my @buttons = qw(
   gconfik_harmattan
 );
 
+my @quickLaunch = qw(
+  call-history
+  messaging-ui
+  fennec 
+  camera-ui
+);
+
+
+my $host = `n9`;
+chomp $host;
+
+my $appDir = '/usr/share/applications';
+my $unusedDir = '/opt/unused-applications';
+my $quickLaunchDir = '/home/user/.local/share/applications';
+my $confFileDest = '/home/user/.config/meegotouchhome-nokia/launcherbuttons.data';
+
+
+
 
 my $cmd = "\n";
 $cmd .= "mkdir -p $unusedDir;\n";
-$cmd .= "mv $appDir/* $unusedDir;\n";
+$cmd .= "mv $appDir/*.desktop $unusedDir;\n";
 
 for my $button(@buttons){
   $cmd .= "mv $unusedDir/$button.desktop $appDir;\n";
 }
-system "ssh", "root\@$host", '-s', $cmd;
+print $cmd;
+system "ssh", "root\@$host", $cmd;
 
 
 my $confFile = "[DesktopEntries]
@@ -55,10 +67,21 @@ for(my $i=0; $i<@buttons; $i++){
   $confFile .= $line;
 }
 
+$cmd = "\n";
+$cmd .= "rm $quickLaunchDir/*.desktop;\n";
+for(my $i=0; $i<@quickLaunch; $i++){
+  my $qlFile = "$quickLaunchDir/quicklaunchbar$i.desktop";
+  $cmd .= "ln -s $appDir/$quickLaunch[$i].desktop $qlFile;\n";
+}
+print $cmd;
+system "ssh", "root\@$host", $cmd;
+
 print $confFile;
 my $tmp = "/tmp/launcherbuttons.data";
 open FH, "> $tmp" or die "Couldnt write to $tmp\n";
 print FH $confFile;
 close FH;
 
+system "ssh root\@$host killall meegotouchhome";
 system 'scp', $tmp, "root\@$host:$confFileDest";
+
