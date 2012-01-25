@@ -1,2 +1,2 @@
 #!/bin/bash
-rsync $HOME/openvpn root@`n9`:/home/user
+rsync -av --progress $HOME/openvpn root@`n9`:/home/user --exclude=status
