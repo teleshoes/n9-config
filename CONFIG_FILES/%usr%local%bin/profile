@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my @profiles = qw( silent meeting general );
+
+my $valid = join "|", @profiles;
+
+my $p = shift() || '';
+if(@ARGV > 0 or $p !~ /^($valid)$/){
+  die "Usage: $0 [$valid]\n";
+}
+
+system 'dbus-send',
+  '--session',
+  '--type=method_call',
+  '--dest=com.nokia.profiled',
+  '/com/nokia/profiled',
+  'com.nokia.profiled.set_profile',
+  "string:$p";
