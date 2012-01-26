@@ -21,6 +21,7 @@ open FH, "n9 -s vnc-netview @serverArgs 2>&1 |"
   or die "Error running vnc-netview\n";
 while(<FH>){
   if(/^The VNC desktop is:\s*(.*)$/m){
+    system 'n9', '-s', 'lock --unlock';
     exec 'vncviewer', $1, @clientArgs;
   }
 }
