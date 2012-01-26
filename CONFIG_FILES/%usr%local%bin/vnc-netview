@@ -1,0 +1,5 @@
+/opt/netview/x11vnc/bin/x11vnc \
+  -display :0 \
+  -touchdev "Atmel mXT Touchscreen" \
+  -nopw \
+  $@

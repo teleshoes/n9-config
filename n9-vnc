@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+if(@ARGV == 1 and $ARGV[0] =~ /^-?-?(h|help)$/i){
+  die "Usage: $0 <server args>  [-- <client args>]\n" .
+    " e.g.: $0 -rotate 90\n" .
+    "       $0 -rotate 90 -- -quality 0\n" .
+    "       $0 -- -quality 0\n";
+}
+
+my @serverArgs;
+while(@ARGV > 0){
+  my $arg = shift;
+  last if $arg eq '--';
+  push @serverArgs, $arg;
+}
+my @clientArgs = @ARGV;
+
+open FH, "n9 -s vnc-netview @serverArgs 2>&1 |"
+  or die "Error running vnc-netview\n";
+while(<FH>){
+  if(/^The VNC desktop is:\s*(.*)$/m){
+    exec 'vncviewer', $1, @clientArgs;
+  }
+}
+close FH;
+die "Couldnt vnc: $!";
