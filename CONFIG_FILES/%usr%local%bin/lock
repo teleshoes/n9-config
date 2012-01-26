@@ -40,7 +40,7 @@ sub powerButton(){
   my $EVENT_TIMESTAMP='\x48\x67\x98\x45\x5f\x16\x0b\x00';
   my $EVENT_KEY_TYPE='\x01\x00';
   my $EVENT_PRESS_VALUE='\x01\x00\x00\x00';
-  my $EVENT_RELEASE_VALUE='\x00\x00\x00\x00'
+  my $EVENT_RELEASE_VALUE='\x00\x00\x00\x00';
 
   my $bytes = join '', (
     $EVENT_TIMESTAMP,
