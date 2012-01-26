@@ -1,0 +1,56 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $usage = "Usage:
+  $0 or $0 [-t|--toggle|toggle]
+    simulates pushing the power-button
+  $0 [-g|--get|get]
+    prints locked or unlocked, or exits with error code
+    determined by dbus method com.nokia.mce.request.get_tklock_mode
+  $0 [-l|--lock|lock]
+    if $0 --get returns unlocked, simulates pushing the power-button
+  $0 [-u|--unlock|lock]
+    if $0 --get returns locked, simulates pushing the power-button
+";
+
+sub getLock(){
+  my @cmd = qw(dbus-send
+    --system
+    --print-reply
+    --type=method_call
+    --dest=com.nokia.mce
+    /com/nokia/mce/request
+    com.nokia.mce.request.get_tklock_mode
+  );
+
+  my $tklockMode = `@cmd`;
+  if($tklockMode =~ /string "(locked|unlocked)"/){
+    return $1;
+  }else{
+    die "Error- couldnt understand dbus reply '$tklockMode'\n";
+  } 
+}
+
+sub powerButton(){
+  system 'power-button';
+}
+
+sub main(@){
+  my $arg = shift;
+  $arg = '--toggle' if not defined $arg;
+  die $usage if @_ > 0;
+  if($arg =~ /^(-t|--toggle|toggle)$/){
+    powerButton;
+  }elsif($arg =~ /^(-l|--lock|lock)$/){
+    powerButton if getLock eq 'unlocked';
+  }elsif($arg =~ /^(-l|--unlock|unlock)$/){
+    powerButton if getLock eq 'locked';
+  }elsif($arg =~ /^(-g|--get|get)$/){
+    print getLock() . "\n";
+  }else{
+    die $usage;
+  }
+}
+
+&main(@ARGV);
