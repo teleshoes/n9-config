@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-my $defaultUsbModeVal = 'ask';
+my $defaultUsbModeVal = 'ovi_suite';
 
 my $host = `n9`;
 chomp $host;
