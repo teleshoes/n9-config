@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $defaultUsbModeVal = 'ask';
+
+my $host = `n9`;
+chomp $host;
+
+sub gconfGet($){
+  system 'n9' '-s', "gconftool-2 --get $_[0]";
+}
+sub gconfSet($$$){
+  my ($key, $val, $type) = @_;
+  system "n9", "-s", "gconftool-2 --set $key --type=$type $val";
+}
+
+my $defaultUsbModeKey = '/Meego/System/UsbMode';
+print "set default usbmode to $defaultUsbMode\n";
+gconfSet $defaultUsbModeKey, $defaultUsbModeVal, "string";
