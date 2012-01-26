@@ -2,6 +2,11 @@
 use strict;
 use warnings;
 
+if(@ARGV >= 1 and $ARGV[0] eq '-vnc'){
+  shift;
+  exec "$ENV{HOME}/Code/n9/n9-vnc", @ARGV;
+}
+
 my $USB_PC_IP = '192.168.2.14';
 my $USB_N9_IP = '192.168.2.15';
 
