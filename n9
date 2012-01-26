@@ -4,7 +4,9 @@ use warnings;
 
 if(@ARGV >= 1 and $ARGV[0] eq '-vnc'){
   shift;
-  exec "$ENV{HOME}/Code/n9/n9-vnc", @ARGV;
+  my @args = @ARGV;
+  @args = ('-rotate', 90) if @args == 0;
+  exec "$ENV{HOME}/Code/n9/n9-vnc", @args;
 }
 
 my $USB_PC_IP = '192.168.2.14';
