@@ -12,9 +12,9 @@ for my $file(@files){
   my $dest = $file;
   $dest =~ s/%/\//g;
   if(-d $src){
-    system "rsync -av --del $src/ $dest";
+    system "rsync -av $src/ $dest";
   }else{
-    system "rsync -av --del $src $dest";
+    system "rsync -av $src $dest";
   }
   if($dest =~ /^\/home\/user/){
     system "chown -R user.users $dest";
