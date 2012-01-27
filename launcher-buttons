@@ -22,6 +22,9 @@ my @buttons = qw(
   notes
   joikuspot
   nokia-drive-qml
+
+  mail
+  accountsui
 );
 
 my @quickLaunch = qw(
