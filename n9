@@ -16,6 +16,7 @@ my $USB_N9_IP = '192.168.2.15';
 my %ssidIps = (
   'flipsafad' => '192.168.1.6',
   'da5id'     => '192.168.11.56',
+  'athena'    => '192.168.20.1',
 );
 
 my $hostname = `cat $ENV{HOME}/Code/n9/.hostname`;
