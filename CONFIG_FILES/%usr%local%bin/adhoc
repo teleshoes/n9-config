@@ -1,0 +1,12 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $file = "/sys/devices/platform/wl1271/allow_adhoc";
+
+my $arg = shift;
+$arg = 1 if not defined $arg;
+die "Usage: $0  or $0 <val>\n" if @ARGV > 0;
+
+print "Writing to $file: ";
+system "echo $arg | tee $file";
