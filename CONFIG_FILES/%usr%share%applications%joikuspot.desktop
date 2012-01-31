@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0.3
+Type=Application
+Name=Wi-Fi Hotspot
+Name[zh]=WLAN热点
+Name[zh_CN]=WLAN热点
+Name[zh_TW]=WLAN熱點
+Name[zh_HK]=WLAN熱點
+Exec=/opt/joikuspot/joikuspot
+Icon=/opt/joikuspot/share/icons/hotspot.svg
