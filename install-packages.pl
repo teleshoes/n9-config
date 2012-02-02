@@ -6,7 +6,7 @@ my $repoDir = 'repos';
 my $debDir = 'debs-custom';
 my $debDestPrefix = '/opt';
 
-my @packagesToRemove = qw( );
+my @packagesToRemove = qw( wxapp );
 
 my %pkgGroups = (
   '1' => [qw(
