@@ -6,6 +6,8 @@ my $repoDir = 'repos';
 my $debDir = 'debs-custom';
 my $debDestPrefix = '/opt';
 
+my @packagesToRemove = qw( );
+
 my %pkgGroups = (
   '1' => [qw(
     bash vim rsync wget git openvpn
@@ -22,20 +24,24 @@ my %pkgGroups = (
 );
 
 sub installPackages();
+sub removePackages();
 sub setupRepos();
 sub installDebs();
 
 sub main(@){
   my $arg = shift;
   $arg = 'all' if not defined $arg;
-  die "Usage: $0 [all|repos|packages|debs]\n" if @_ > 0;
-  if($arg =~ /^all|repos$/){
+  if(@_ > 0 or $arg !~ /^(all|repos|packages|remove|debs)$/){
+    die "Usage: $0 [all|repos|packages|remove|debs]\n";
+  }
+  if($arg =~ /^(all|repos)$/){
     if(setupRepos()){
       system 'n9', '-s', 'apt-get', 'update';
     }
   }
-  installPackages() if $arg =~ /^all|packages$/;
-  installDebs() if $arg =~ /^all|debs$/;
+  installPackages() if $arg =~ /^(all|packages)$/;
+  removePackages() if $arg =~ /^(all|remove)$/;
+  installDebs() if $arg =~ /^(all|debs)$/;
 }
 
 
@@ -75,6 +81,13 @@ sub installPackages(){
     );
     system @cmd;
   }
+}
+
+sub removePackages(){
+  my $pkgs = join ' ', @packagesToRemove;
+  my $cmd = "apt-get remove --purge $pkgs";
+  print "$cmd\n";
+  system 'n9', '-s', $cmd;
 }
 
 sub getCustomDebsHash(){
