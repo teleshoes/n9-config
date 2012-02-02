@@ -72,6 +72,7 @@ sub setupRepos(){
 }
 
 sub installPackages(){
+  print "\n\n";
   for my $pkgGroup(sort keys %pkgGroups){
     my @packages = @{$pkgGroups{$pkgGroup}}; 
     print "Installing group[$pkgGroup]:\n----\n@packages\n----\n";
