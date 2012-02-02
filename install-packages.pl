@@ -85,6 +85,7 @@ sub installPackages(){
 }
 
 sub removePackages(){
+  print "\n\n";
   my $pkgs = join ' ', @packagesToRemove;
   my $cmd = "apt-get remove --purge $pkgs";
   print "$cmd\n";
