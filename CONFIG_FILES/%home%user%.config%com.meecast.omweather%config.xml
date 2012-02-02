@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config xmlns="http://omweather.garage.maemo.org/schemas">
+ <base>/opt/com.meecast.omweather/share/</base>
+ <iconset>Meecast</iconset>
+ <temperature_unit>F</temperature_unit>
+ <wind_speed_unit>mi/h</wind_speed_unit>
+ <pressure_unit>mbar</pressure_unit>
+ <current_station_id>0</current_station_id>
+ <update_period>14400</update_period>
+ <update_connect>false</update_connect>
+ <fullscreen>false</fullscreen>
+ <gps>false</gps>
+ <station>
+  <source_name>weather.com</source_name>
+  <station_name>Babylon</station_name>
+  <station_id>USNY0075</station_id>
+  <country>United States of America</country>
+  <region>New York</region>
+  <file_name>/home/user/.config/com.meecast.omweather/weather.com_USNY0075</file_name>
+  <forecast_url>http://xml.weather.com/weather/local/USNY0075?cm_ven=1CW&amp;site=wx.com-bar&amp;cm_ite=wx-cc&amp;par=1CWFFv1.1.9&amp;cm_pla=wx.com-bar&amp;cm_cat=FFv1.1.9&amp;unit=m&amp;dayf=9&amp;cc=*</forecast_url>
+  <detail_url>http://xml.weather.com/weather/local/USNY0075?cm_ven=1CW&amp;site=wx.com-bar&amp;cm_ite=wx-cc&amp;par=1CWFFv1.1.9&amp;cm_pla=wx.com-bar&amp;cm_cat=FFv1.1.9&amp;unit=m&amp;hbhf=12</detail_url>
+  <view_url>http://www.weather.com/weather/tenday/USNY0075</view_url>
+  <converter>/opt/com.meecast.omweather/lib/weathercom</converter>
+  <gps>false</gps>
+ </station>
+</config>
