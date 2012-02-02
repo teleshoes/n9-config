@@ -95,7 +95,7 @@ sub installDebs(){
   }
   for my $deb(@debs){
     my $cmd = ''
-      . "dpkg -i $debDestPrefix/$debDir/$deb"
+      . "dpkg -i -E $debDestPrefix/$debDir/$deb"
       . " || apt-get -f install -y --allow-unauthenticated";
     print "$cmd\n";
     system 'n9', '-s', $cmd unless $before eq $after;
