@@ -26,12 +26,16 @@ sub setupRepos();
 sub installDebs();
 
 sub main(@){
-  die "Usage: $0\n" if @_ > 0;
-  if(setupRepos()){
-    system 'n9', '-s', 'apt-get', 'update';
+  my $arg = shift;
+  $arg = 'all' if not defined $arg;
+  die "Usage: $0 [all|repos|packages|debs]\n" if @_ > 0;
+  if($arg =~ /^all|repos$/){
+    if(setupRepos()){
+      system 'n9', '-s', 'apt-get', 'update';
+    }
   }
-  installPackages();
-  installDebs();
+  installPackages() if $arg =~ /^all|packages$/;
+  installDebs() if $arg =~ /^all|debs$/;
 }
 
 
@@ -90,16 +94,22 @@ sub installDebs(){
   print "---\n@debs\n---\n";
   system "rsync $debDir root@`n9`:$debDestPrefix -av --progress --delete";
   my $after = getCustomDebsHash();
-  if($before eq $after){
-    print "not running the below commands because nothing changed:\n";
-  }
+  my $changed = $before ne $after;
+  my @commands;
   for my $deb(@debs){
-    my $cmd = ''
+    push @commands, ''
       . "dpkg -i -E $debDestPrefix/$debDir/$deb"
       . " || apt-get -f install -y --allow-unauthenticated";
-    print "$cmd\n";
-    system 'n9', '-s', $cmd unless $before eq $after;
+  }
+  if($changed){
+    my $cmd = join ";", map {"echo; echo ---; echo $_; $_"} @commands;
+    system 'n9', '-s', $cmd;
+  }else{
+    print "#NOT CHANGED\n";
+    print join("\n", @commands) . "\n";
+    print "#NOT CHANGED\n";
   }
 }
+
 
 &main(@ARGV);
