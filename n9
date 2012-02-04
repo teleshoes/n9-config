@@ -2,12 +2,15 @@
 use strict;
 use warnings;
 
-if(@ARGV >= 1 and $ARGV[0] eq '-vnc'){
-  shift;
-  my @args = @ARGV;
-  @args = ('-rotate', 90) if @args == 0;
-  exec "$ENV{HOME}/Code/n9/n9-vnc", @args;
-}
+my $baseDir = "$ENV{HOME}/Code/n9";
+
+my $hostname = `cat $baseDir/.hostname`;
+my @ips = `cat $baseDir/.ipguesses`;
+my @macs = `cat $baseDir/.macs`;
+
+chomp $hostname;
+chomp foreach @ips;
+chomp foreach @macs;
 
 my $USB_PC_IP = '192.168.2.14';
 my $USB_N9_IP = '192.168.2.15';
@@ -19,14 +22,12 @@ my %ssidIps = (
   'athena'    => '192.168.20.1',
 );
 
-my $hostname = `cat $ENV{HOME}/Code/n9/.hostname`;
-chomp $hostname;
-
-my @ips = `cat $ENV{HOME}/Code/n9/.ipguesses`;
-chomp foreach @ips;
-
-my @macs = `cat $ENV{HOME}/Code/n9/.macs`;
-chomp foreach @macs;
+if(@ARGV >= 1 and $ARGV[0] eq '-vnc'){
+  shift;
+  my @args = @ARGV;
+  @args = ('-rotate', 90) if @args == 0;
+  exec "$ENV{HOME}/Code/n9/n9-vnc", @args;
+}
 
 my $ssh = 0;
 if(@ARGV >= 1 and $ARGV[0] eq '-s'){
