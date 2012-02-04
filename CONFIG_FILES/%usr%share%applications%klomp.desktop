@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=klomp
+Comment=Kommand Line Music Player
+Icon=klomp
+Exec=/usr/bin/meego-terminal -e /usr/local/bin/klomp
+Type=Application
