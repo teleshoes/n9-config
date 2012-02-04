@@ -2,6 +2,6 @@
 Name=Terminal
 Comment=Terminal Emulator for MeeGo
 Icon=icon-l-terminal
-Exec=/usr/bin/meego-terminal
+Exec=/usr/bin/meego-terminal -e bash
 Type=Application
 Categories=Development;
