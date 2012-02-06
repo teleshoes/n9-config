@@ -18,7 +18,7 @@ my %pkgGroups = (
     libpurple0
   )],
   '3' => [qw(
-    kernel-source linux-kernel-headers
+    linux-kernel-headers
     gcc make libc6-dev libc-dev
   )],
 );
