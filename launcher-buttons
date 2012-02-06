@@ -8,6 +8,11 @@ my @buttons = qw(
   meego-terminal
   fennec 
 
+  pidgin
+  klomp
+  meecast
+  btinput_harmattan
+
   camera-ui
   calendar
   clock
