@@ -1,0 +1,3 @@
+#!/bin/sh
+PW=""
+echo $PW | devel-su -c "$*"
