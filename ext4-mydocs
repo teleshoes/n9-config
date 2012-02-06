@@ -1,0 +1,36 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub run(@){
+  print "@_\n";
+  system 'n9', '-s', @_;
+}
+
+run "umount -l /home/user/MyDocs";
+print "sleeping for 2 sex, then ill prompt you to continue\n";
+sleep 2;
+print "\n\n\n";
+print "ok muthafucka. you ready?! are you HARD enough?!??\n";
+print "THIS WILL KILL MyDocs, DCIM, AND YO BABY [y/N]: ";
+if(lc <STDIN> ne "y\n"){
+  die "what a fag!\n";
+}
+print "oooooookay you one tough muthafucka\n";
+print "\n\n\n";
+
+run "mkfs.ext4 /dev/mmcblk0p1";
+
+print "\n\n";
+print "DID THAT SHIT WORKK!?!?! [y/N]: ";
+if(lc <STDIN> ne "y\n"){
+  die "fucken TOLEJA\n";
+}
+
+run "mount -t ext4 /dev/mmcblk0p1 /home/user/MyDocs";
+run "chown user.users -R /home/user/MyDocs";
+
+my $vfat = '\/home\/user\/MyDocs vfat.*';
+my $ext4 = '\/home\/user\/MyDocs ext4 rw,noatime,errors=remount-ro,barrier=1 0 0';
+run "cat /etc/fstab | sed 's/$vfat/$ext4/' > /tmp/fstab";
+run "mv /tmp/fstab /etc/fstab";
