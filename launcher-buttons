@@ -53,7 +53,8 @@ my $confFileDest = '/home/user/.config/meegotouchhome-nokia/launcherbuttons.data
 
 my $cmd = "\n";
 $cmd .= "mkdir -p $unusedDir;\n";
-$cmd .= "mv $appDir/*.desktop $unusedDir;\n";
+$cmd .= "mv $appDir/* $unusedDir;\n";
+$cmd .= "mv $appDir/.* $unusedDir;\n";
 
 for my $button(@buttons){
   $cmd .= "mv $unusedDir/$button.desktop $appDir;\n";
