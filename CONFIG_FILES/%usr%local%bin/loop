@@ -1,0 +1,29 @@
+#!/usr/bin/perl
+
+my $usage = "usage: $0 [-d] [optional-sleep-delay] command\n";
+if(@ARGV == 0){
+  die $usage;
+}
+my $date = 0;
+if($ARGV[0] eq '-d'){
+  shift;
+  $date = 1;
+}
+my $sleepDelay = -1;
+if($ARGV[0] =~ /^-?\d+(\.\d+)?$/){
+  $sleepDelay = shift;
+  if($sleepDelay <= 0){
+    die "sleep delay must be a positive real number {not 0}\n";
+  }
+}
+if(@ARGV == 0){
+  die $usage;
+}
+my $cmd = join ' ', @ARGV;
+if($date > 0){
+  $cmd = "date; $cmd";
+}
+if($sleepDelay > 0){
+  $cmd = "$cmd; sleep $sleepDelay";
+}
+exec "while [ 1 ]; do $cmd; done";
