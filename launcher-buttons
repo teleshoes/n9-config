@@ -49,16 +49,20 @@ my $quickLaunchDir = '/home/user/.local/share/applications';
 my $confFileDest = '/home/user/.config/meegotouchhome-nokia/launcherbuttons.data';
 
 
+system "n9", "-s", "
+  set -x
+  mkdir -p $unusedDir
+  cd $appDir
+  bash -c 'find -name \\*.desktop -execdir mv {} $unusedDir \\;'
+  rm -rf $appDir
+  mkdir -p $appDir
+";
 
-
-my $cmd = "\n";
-$cmd .= "mkdir -p $unusedDir;\n";
-$cmd .= "mv $appDir/* $unusedDir;\n";
-$cmd .= "mv $appDir/.* $unusedDir;\n";
-
+my $cmd = "cd $unusedDir; mv";
 for my $button(@buttons){
-  $cmd .= "mv $unusedDir/$button.desktop $appDir;\n";
+  $cmd .= " $button.desktop";
 }
+$cmd .= " $appDir";
 print $cmd;
 system "ssh", "root\@$host", $cmd;
 
