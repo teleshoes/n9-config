@@ -79,3 +79,4 @@ FIRMWARE + KERNEL + EMMC
   flasher -f -F firmware.bin -F emmc.bin -R
   flasher -F firmware.bin -k openkernel --flash-only=kernel -f -R
 =================================
+{maybe you wanna? highlight both lines and paste them into a root terminal}
