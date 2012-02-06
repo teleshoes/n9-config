@@ -2,19 +2,30 @@
 use strict;
 use warnings;
 
-my $defaultUsbModeVal = 'ovi_suite';
-
-my $host = `n9`;
-chomp $host;
+my %gconf = (
+  '/Meego/System/UsbMode' => 'string:ovi_suite',
+#  '/Meego/System/UsbMode' => 'string:mass_storage',
+#  '/Meego/System/UsbMode' => 'string:charging_only',
+#  '/Meego/System/UsbMode' => 'string:ask',
+);
 
 sub gconfGet($){
-  system 'n9' '-s', "gconftool-2 --get $_[0]";
+  my $val = `n9 -s gconftool-2 --get $_[0]`;
+  chomp $val;
+  return $val;
 }
 sub gconfSet($$$){
   my ($key, $val, $type) = @_;
   system "n9", "-s", "gconftool-2 --set $key --type=$type $val";
 }
 
-my $defaultUsbModeKey = '/Meego/System/UsbMode';
-print "set default usbmode to $defaultUsbMode\n";
-gconfSet $defaultUsbModeKey, $defaultUsbModeVal, "string";
+for my $key(keys %gconf){
+  my $val = $gconf{$key};
+  my $type = 'string';
+  if($val =~ /^(int|bool|float|string|list|pair):(.*)$/i){
+    $type = $1;
+    $val = $2;
+  }
+  print "$key " . gconfGet($key) . " => " . $val . "\n";
+  gconfSet $key, $val, $type;
+}
