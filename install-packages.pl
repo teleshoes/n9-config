@@ -124,6 +124,7 @@ sub installDebs(){
     print join("\n", @commands) . "\n";
     print "#NOT CHANGED\n";
   }
+  print "fennec may need reinstall, gotta fix this later\n";
 }
 
 
