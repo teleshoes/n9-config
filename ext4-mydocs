@@ -17,6 +17,9 @@ if(lc <STDIN> ne "y\n"){
   die "what a fag!\n";
 }
 print "oooooookay you one tough muthafucka\n";
+print "this will probably either:\n";
+print "  take 1min to produce any output, then another 1min to finish\n";
+print "  OR fail immediately\n";
 print "\n\n\n";
 
 run "mkfs.ext4 /dev/mmcblk0p1";
