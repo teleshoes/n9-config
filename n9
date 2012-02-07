@@ -30,9 +30,14 @@ if(@ARGV >= 1 and $ARGV[0] eq '-vnc'){
 }
 
 my $ssh = 0;
+my $bash = 0;
 if(@ARGV >= 1 and $ARGV[0] eq '-s'){
   shift;
   $ssh = 1;
+}elsif(@ARGV == 2 and $ARGV[0] eq '-b'){
+  shift;
+  $ssh = 1;
+  $bash = 1;
 }
 
 sub getHosts(){
@@ -113,7 +118,23 @@ if(not usb()){
 }
 
 if($ssh){
-  system ('ssh', "root\@$hostname", @ARGV);
+  if($bash){
+    my $c = "@ARGV";
+    $c =~ s/'/'\\''/g;
+    system "ssh", "root\@$hostname", "bash -c '$c'";
+  }else{
+    system "ssh", "root\@$hostname", @ARGV;
+  }
+}elsif(@ARGV > 0){
+  die "Usage:
+    $0
+      establish hosts file, up devices, and print hostname
+    $0 -vnc <server args> [-- <client args>]
+      setup and then call n9-vnc {e.g. `$0 -vnc rotate90 -- -quality 0`}
+    $0 -s CMD ARG ARG..
+      setup and then ssh with command and args
+    $0 -b SHELLCMD
+      setup and then invoke single cmd string in bash\n";
 }else{
   print "$hostname\n";
 }
