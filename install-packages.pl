@@ -14,7 +14,7 @@ my %pkgGroups = (
   )],
   '2' => [qw(
     perl bash-completion python python-apt
-    mcetools bzip2
+    mcetools bzip2 sqlite3
     libpurple0
   )],
   '3' => [qw(
