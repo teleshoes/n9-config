@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $cities = "$ENV{HOME}/Code/n9/cities";
+my $dest = "/home/user/MyDocs/cities";
+
+my $host = `n9`;
+chomp $host;
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+run "n9", "-s", "rm -rf $dest";
+run "rsync", "-av", "--delete", "$cities/", "root\@$host:$dest";
+run "n9", "-s", "chown -R user.users $dest";
+run "n9", "-s", "chmod -R 777 $dest";
