@@ -1,0 +1,12 @@
+#name:default-or-empty:library-path:flacmirror-path
+1:default:/home/user/MyDocs/Music/1:/home/user/MyDocs/Music/flacmirrors/1
+2:default:/home/user/MyDocs/Music/2:/home/user/MyDocs/Music/flacmirrors/2
+3:default:/home/user/MyDocs/Music/3:/home/user/MyDocs/Music/flacmirrors/3
+4:default:/home/user/MyDocs/Music/4:/home/user/MyDocs/Music/flacmirrors/4
+5:default:/home/user/MyDocs/Music/5:/home/user/MyDocs/Music/flacmirrors/5
+6:default:/home/user/MyDocs/Music/6:/home/user/MyDocs/Music/flacmirrors/6
+#7:default:/home/user/MyDocs/Music/7:/home/user/MyDocs/Music/flacmirrors/7
+#8:default:/home/user/MyDocs/Music/8:/home/user/MyDocs/Music/flacmirrors/8
+#books::/home/user/MyDocs/Music/AudioBooks:/home/user/MyDocs/Music/flacmirrors/AudioBooks
+#noshuffle::/home/user/MyDocs/Music/NoShuffle:/home/user/MyDocs/Music/flacmirrors/NoShuffle
+#emily::/home/user/MyDocs/Music/Emily:
