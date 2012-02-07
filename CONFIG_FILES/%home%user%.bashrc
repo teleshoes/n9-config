@@ -33,6 +33,7 @@ if [ -d $meego_gnu ]; then
   prependPath /usr/local/sbin
   prependPath /sbin
   prependPath /usr/sbin
+  prependPath /usr/libexec/git-core
   prependPath $meego_gnu/bin
   prependPath $meego_gnu/usr/bin
   prependPath $meego_gnu/usr/sbin
@@ -78,7 +79,7 @@ alias :q='exit'
 alias suod='sudo'
 alias sudp='sudo'
 alias wconnect='sudo wconnect'
-alias resolv='sudo resolvchooser'
+alias resolv='sudo resolv'
 alias exot='exit'
 alias exut='exit'
 alias l='ls -al --color=auto'
@@ -87,3 +88,8 @@ alias ld='ls -dal --color=auto'
 alias mplayer='WINDOW_TITLE=MPLAYER; mplayer'
 alias migl='miglatest'
 
+##AUTOLOGIN START##
+if [ -z "$DISPLAY" ] && [ "$tty" == "/dev/tty7" ]; then
+  exec startx
+fi
+##AUTOLOGIN END##
