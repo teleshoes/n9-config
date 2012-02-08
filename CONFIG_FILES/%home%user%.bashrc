@@ -89,7 +89,7 @@ alias mplayer='WINDOW_TITLE=MPLAYER; mplayer'
 alias migl='miglatest'
 
 ##AUTOLOGIN START##
-if [ -z "$DISPLAY" ] && [ "$tty" == "/dev/tty7" ]; then
+if [ -z "$DISPLAY" ] && [ $(tty) == "/dev/tty7" ]; then
   exec startx
 fi
 ##AUTOLOGIN END##
