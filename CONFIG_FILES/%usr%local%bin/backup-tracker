@@ -1,0 +1,30 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $dest = '/home/user/MyDocs/backup-tracker';
+my $trackerDir = '/home/user/.cache/tracker';
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+run "mkdir -p $dest";
+chdir $trackerDir;
+
+my $name = `date +%Y_%m_%d-%s`;
+chomp $name;
+
+print "\nCompression takes about 3min18s for 83MiB\n";
+
+print "\nSize before compression:\n";
+run "du -hsc $trackerDir/*";
+
+print "\nCompressing:\n";
+run "time tar -czf $dest/$name.tar.gz *";
+
+print "\nSize after compression:\n";
+run "du", "-hs", "$dest/$name.tar.gz";
+
+
