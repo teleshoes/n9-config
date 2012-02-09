@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub c($);
+
+my %k = (
+  up    => c 's',
+  down  => c 'x',
+  left  => c 'z',
+  right => c 'c',
+  jump  => c '9',
+  fire  => c '0',
+  next  => c 'p',
+  prev  => c 'o',
+  map   => c 'm',
+  inv   => c 'n',
+);
+
+my $outputFile = 'settings.dat';
+
+my $bytes = "
+ 0216      0000      0000      0300      0000      0101      0000      0001
+ 0000      0100      0000      0000      0000      0000      0000      0000
+ 0000      0000      0000      0000      0000      0000      0000      0000
+ 0000      0000      0000      0000      0000      0000      0000      $k{left}
+ 0000      $k{right} 0000      $k{up}    0000      $k{down}  0000      $k{jump}
+ 0000      $k{fire}  0000      $k{next}  0000      $k{next}  0000      $k{inv}
+ 0000      $k{map}   0000      1b00      0000      1a01      0000      1b01
+ 0000      7200      0000      1d01      0000      1e01      0000      1f01
+ 0000      2001      0000      2101      0000      2201      0000      2301
+ 0000      2401      0000      2501      0000      2000      0000      6300
+ 0000      7600      0000
+";
+
+sub main($){
+  die "Usage: $0\n" if @_ > 0;
+  $bytes =~ s/[^a-f0-9]+//g;
+  my $cmd = "xxd -p -r - $outputFile";
+  open FH, "| $cmd" or die "Couldnt run $cmd\n";
+  print FH $bytes;
+  close FH;
+}
+
+
+sub c($){
+  return sprintf "%x00", ord $_[0];
+}
+
+&main(@ARGV);
