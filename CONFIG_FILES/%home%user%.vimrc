@@ -1,4 +1,5 @@
 """filetype plugin indent on
+set uc=0 """no swapfile
 set ic
 set history=9000
 set nocompatible
@@ -7,22 +8,12 @@ syntax on
 
 set number
 
-if &term =~ '.*rxvt.*'
-  set t_Co=256
-  hi Normal ctermfg=green ctermbg=none
-  hi LineNr ctermfg=blue ctermbg=darkgray
-else
-  hi Normal ctermfg=green ctermbg=black
-  hi LineNr ctermbg=blue ctermfg=white
-endif
+colorscheme solarized
+set background=dark
+hi Normal ctermfg=green ctermbg=none
+hi LineNr ctermfg=blue ctermbg=darkgray
 
-if has('gui_running')
-  set t_Co=256
-  set guifont=Inconsolata\ Medium\ 13
-  hi Normal guifg=green guibg=black
-  hi LineNr guifg=blue guibg=darkgray
-endif
-
+set mouse=a
 
 set hlsearch
 set expandtab
@@ -40,6 +31,9 @@ nnoremap # #zz
 nnoremap g* g*zz
 nnoremap g# g#zz
 
+"""command repeat"""
+nmap , @:
+""""""
 
 """Quit"""
 nmap <C-X><C-C> :q!<CR>
@@ -62,7 +56,10 @@ nmap <C-R>      <C-R>
 imap <C-R> <Esc><C-R>li
 """"""
 
-
+"""word wrap"""
+map <C-w><C-w> :s/\v(.{80}[^ ]*)/\1\r/g<CR>
+map <C-w><C-h> :s/\v(.{80}[^ ]*)/\1\r--/g<CR>
+""""""
 
 """Write"""
 nmap <F3>      :w<CR>

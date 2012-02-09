@@ -67,7 +67,7 @@ cEnd='\[\033[00m\]'
 #the n9 fucks with that line on reboot
 PS1="$c1$u$h$cEnd$colon$c2\w$cEnd\$ "
 
-
+alias gvim='termcmd vim'
 alias shut='sudo poweroff'
 alias shutdown='poweroff'
 alias susp='sudo pm-suspend'
