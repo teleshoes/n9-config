@@ -15,9 +15,9 @@ for my $file(@files){
   chomp $destDir;
   system "mkdir -p $destDir";
   if(-d $src){
-    system "rsync -av $src/ $dest";
+    system "rsync -a --out-format=%n $src/ $dest";
   }else{
-    system "rsync -av $src $dest";
+    system "rsync -a --out-format=%n $src $dest";
   }
   if($dest =~ /^\/home\/user/){
     system "chown -R user.users $dest";
