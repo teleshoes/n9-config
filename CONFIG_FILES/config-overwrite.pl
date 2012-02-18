@@ -5,6 +5,12 @@ use warnings;
 my $DIR = '/opt/CONFIG_FILES';
 my @files = `ls -d $DIR/%*`;
 
+my @rsyncOpts = qw(
+  -a  --no-owner --no-group
+  --del
+  --out-format=%n
+);
+
 for my $file(@files){
   chomp $file;
   $file =~ s/^.*\///;
@@ -14,10 +20,11 @@ for my $file(@files){
   my $destDir = `dirname $dest`;
   chomp $destDir;
   system "mkdir -p $destDir";
+  print "\n%%% $dest\n";
   if(-d $src){
-    system "rsync -a --out-format=%n $src/ $dest";
+    system 'rsync', @rsyncOpts, "$src/", "$dest";
   }else{
-    system "rsync -a --out-format=%n $src $dest";
+    system 'rsync', @rsyncOpts, "$src", "$dest";
   }
   if($dest =~ /^\/home\/user/){
     system "chown -R user.users $dest";
