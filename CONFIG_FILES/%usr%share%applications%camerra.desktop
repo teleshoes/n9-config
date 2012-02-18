@@ -1,5 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=CamerraH
-Icon=/opt/camerra/camerra.png
-Exec=python /usr/bin/camerra.py
