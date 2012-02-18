@@ -11,6 +11,9 @@ for my $file(@files){
   my $src = "$DIR/$file";
   my $dest = $file;
   $dest =~ s/%/\//g;
+  my $destDir = `dirname $dest`;
+  chomp $destDir;
+  system "mkdir -p $destDir";
   if(-d $src){
     system "rsync -av $src/ $dest";
   }else{
