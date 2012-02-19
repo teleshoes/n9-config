@@ -24,7 +24,7 @@ run "n9", "-b", "
   fi
   echo running klomp install
   cd /root/klomp
-  ./install.pl
+  ./install.pl /usr
 ";
 
 print "\n\n";
