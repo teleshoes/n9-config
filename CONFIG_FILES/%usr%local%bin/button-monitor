@@ -1,74 +1,112 @@
-
-#
+#!/usr/bin/python
+#Copyright 2012 Elliot Wolk
+#based on:
+#####
 # Ye Olde Camerra Hack - Another fine Harmattan Hack Powered by Python(tm)!
 # 2012-01-12; Thomas Perl <thp.io/about>
-#
+#####
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# This package is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
-#
-# On Debian systems, the complete text of the GNU General
-# Public License version 3 can be found in "/usr/share/common-licenses/GPL-3".
-#
-
 
 from QmSystem import *
 from PySide.QtGui import *
 from PySide.QtDeclarative import *
 
 import sys
+import os
 import subprocess
 import re
-import time
 
-app = QApplication(sys.argv)
-keys = QmKeys()
-last_time = time.time()
 
-WAIT_BETWEEN_CLICKS = 3
-WINID_REGEX = r'_NET_ACTIVE_WINDOW\(WINDOW\): window id # (0x[0-9a-f]*)'
-CAMERA_REGEX = r'WM_CLASS\(STRING\) = "camera-ui"'
+evtPressed = 'pressed'
+evtRepeated = 'repeated'
+evtReleased = 'released'
 
-def camera_app_on_top():
-    # Is the window of the camera app currently on top or some other app?
-    root = subprocess.Popen(['xprop', '-root'], stdout=subprocess.PIPE)
-    stdout, stderr = root.communicate()
-    win_id = re.search(WINID_REGEX, stdout).group(1)
+stateOn = 2
+stateOff = 0
 
-    win_info = subprocess.Popen(['xprop', '-id', win_id],
-            stdout=subprocess.PIPE)
-    stdout, stderr = win_info.communicate()
+power = 20
+volup = 2
+voldn = 3
 
-    return re.search(CAMERA_REGEX, stdout) is not None
+###############
+###############
+###############
+def screenLocked():
+  stdout, stderr = subprocess.Popen(['lock', '-g'],
+    stdout=subprocess.PIPE).communicate()
+  return stdout == "locked\n"
+def screenUnlocked():
+  return not screenLocked()
+
+def readProc(cmdarr):
+  out, err = subprocess.Popen(cmdarr, stdout=subprocess.PIPE).communicate()
+  return out
+def appOnTop(app):
+  return lambda: isAppOnTop(app)
+def isAppOnTop(app):
+  winId = readProc(["xprop", "-root", "_NET_ACTIVE_WINDOW"]) [40:]
+  print winId
+  winCmd = readProc(["xprop", "-id", winId, "WM_COMMAND"]) [24:-4]
+  return app in winCmd
+
+def cmd(cmd):
+  return lambda: runcmd(cmd)
+def runcmd(cmd):
+  os.system(cmd)
+
+def getActions():
+  return ([ None
+  , Action(volup, cond=appOnTop("camera-ui"), action=cmd("camera-click"))
+  , Action(volup, cond=screenLocked, action=cmd("klomp-cmd pause"))
+  , Action(voldn, cond=screenLocked, action=cmd("klomp-cmd next"))
+  ])
+###############
+###############
+###############
+
+class Action():
+  def __init__(self, key, event=evtPressed, action=None, cond=None, stop=True):
+    self.key = key
+    self.event = event
+    self.action = action
+    self.cond = cond
+    self.stop = stop
+
+keysPressed = set()
+actions = getActions()
 
 def keyEvent(key, state):
-    # Callback for QmKeys key events
-    global last_time
+  event = None
+  if state == stateOn:
+    if key not in keysPressed:
+      event = evtPressed
+    else:
+      event = evtRepeated
+  elif state == stateOff:
+    event = evtReleased
 
-    if time.time() - last_time < WAIT_BETWEEN_CLICKS:
-        # Avoid hammering the cam app when Vol+ is being kept pressed
-        return
+  if state == stateOn:
+    keysPressed.add(key)
+  elif state == stateOff:
+    keysPressed.discard(key)
 
-    if key == state == 2 and camera_app_on_top():
-        last_time = time.time()
-        p = subprocess.Popen(['xresponse', '-d', '820x240,820x240', '-w', '1'],
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        p.wait()
+  for action in actions:
+    if action != None and action.key == key and action.event == event:
+      if action.cond == None or action.cond():
+        action.action()
+        if action.stop:
+          return
 
-keys.keyEvent.connect(keyEvent)
+def main():
+  app = QApplication(sys.argv)
+  keys = QmKeys()
+  keys.keyEvent.connect(keyEvent)
+  app.exec_()
 
-view = QDeclarativeView()
-view.setSource('/opt/camerra/camerra.qml')
-view.showFullScreen()
-
-app.exec_()
+if __name__ == "__main__":
+  sys.exit(main())
 
