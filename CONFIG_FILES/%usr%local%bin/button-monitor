@@ -43,7 +43,6 @@ def appOnTop(app):
   return lambda: isAppOnTop(app)
 def isAppOnTop(app):
   winId = readProc(["xprop", "-root", "_NET_ACTIVE_WINDOW"]) [40:]
-  print winId
   winCmd = readProc(["xprop", "-id", winId, "WM_COMMAND"]) [24:-4]
   return app in winCmd
 
