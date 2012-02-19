@@ -20,31 +20,25 @@ import os
 import subprocess
 import re
 
-
-evtPressed = 'pressed'
-evtRepeated = 'repeated'
-evtReleased = 'released'
-
-stateOn = 2
-stateOff = 0
-
-power = 20
-volup = 2
-voldn = 3
-
 ###############
 ###############
 ###############
-def screenLocked():
-  stdout, stderr = subprocess.Popen(['lock', '-g'],
-    stdout=subprocess.PIPE).communicate()
-  return stdout == "locked\n"
-def screenUnlocked():
-  return not screenLocked()
+def getActions():
+  return ([ None
+  , Action(volup, cond=appOnTop("camera-ui"), action=cmd("camera-click"))
+  , Action(volup, cond=screenLocked, action=cmd("klomp-cmd pause"))
+  , Action(voldn, cond=screenLocked, action=cmd("klomp-cmd next"))
+  ])
 
 def readProc(cmdarr):
   out, err = subprocess.Popen(cmdarr, stdout=subprocess.PIPE).communicate()
   return out
+
+def screenLocked():
+  return "locked\n" == readProc(['lock', '-g'])
+def screenUnlocked():
+  return not screenLocked()
+
 def appOnTop(app):
   return lambda: isAppOnTop(app)
 def isAppOnTop(app):
@@ -57,16 +51,20 @@ def cmd(cmd):
   return lambda: runcmd(cmd)
 def runcmd(cmd):
   os.system(cmd)
+###############
+###############
+###############
 
-def getActions():
-  return ([ None
-  , Action(volup, cond=appOnTop("camera-ui"), action=cmd("camera-click"))
-  , Action(volup, cond=screenLocked, action=cmd("klomp-cmd pause"))
-  , Action(voldn, cond=screenLocked, action=cmd("klomp-cmd next"))
-  ])
-###############
-###############
-###############
+evtPressed = 'pressed'
+evtRepeated = 'repeated'
+evtReleased = 'released'
+
+stateOn = 2
+stateOff = 0
+
+power = 20
+volup = 2
+voldn = 3
 
 class Action():
   def __init__(self, key, event=evtPressed, action=None, cond=None, stop=True):
