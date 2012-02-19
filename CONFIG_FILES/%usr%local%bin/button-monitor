@@ -49,7 +49,8 @@ def isAppOnTop(app):
 def cmd(cmd):
   return lambda: runcmd(cmd)
 def runcmd(cmd):
-  os.system(cmd)
+  print 'running cmd: "' + cmd + '"'
+  subprocess.Popen(['bash', '-c', cmd])
 ###############
 ###############
 ###############
