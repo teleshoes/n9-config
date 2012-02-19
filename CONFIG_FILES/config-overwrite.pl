@@ -36,6 +36,14 @@ for my $file(@files){
 for my $file(`cat $DIR/config-files-to-remove`){
   chomp $file;
   if(-e $file){
+    if(-d $file){
+      $file =~ s/\/$//;
+      $file .= '/';
+      print "\nremoving these files in $file:\n";
+      system "find $file";
+    }else{
+      print "\nremoving $file\n";
+    }
     system "rm -r $file";
   }
 }
