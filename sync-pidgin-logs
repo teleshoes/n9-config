@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $host = `n9`;
+chomp $host;
+
+my $remoteUserGroup = "user.users";
+my $localUserGroup = "$ENV{USER}" . "." . `id -gn $ENV{USER}`;
+chomp $localUserGroup;
+
+my $remoteDir = "/home/user/.purple/logs";
+my $localDir = "$ENV{HOME}/.purple/logs";
+
+my $rem = "root\@$host:$remoteDir";
+my $loc = $localDir;
+
+my @opts = qw(
+  -a  --no-owner --no-group
+  -v
+  -z
+);
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+print "\n\nREMOTE => LOCAL\n";
+run "rsync", @opts, "$rem/", $loc;
+print "\n\nLOCAL => REMOTE\n";
+run "rsync", @opts, "$loc/", $rem;
+
+print "\n\nCHOWN REMOTE\n";
+run "ssh", "root\@$host", "chown $remoteUserGroup $remoteDir";
+print "\n\nCHOWN LOCAL\n";
+run "chown", $localUserGroup, $localDir;
