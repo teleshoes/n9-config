@@ -1,0 +1,23 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $f = "/home/user/.klompcur";
+my $out = `cat $f`;
+
+my $arg = shift;
+if($arg eq '--top'){
+  if($out =~ /^artist=(.*)$/m){
+    print "$1";
+  }
+  print "-";
+  if($out =~ /^album=(.*)$/m){
+    print $1;
+  }
+}elsif($arg eq '--bot'){
+  if($out =~ /^title=(.*)$/m){
+    print $1;
+  }
+}else{
+  die "Usage: $0 [--top|--bot]\n";
+}
