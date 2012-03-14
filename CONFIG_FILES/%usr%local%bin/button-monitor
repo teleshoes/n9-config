@@ -1,4 +1,5 @@
 #!/usr/bin/python
+#n9-button-monitor v0.1
 #Copyright 2012 Elliot Wolk
 #based on:
 #####
@@ -24,7 +25,7 @@ import re
 ###############
 ###############
 def getActions():
-  return ([ None
+  return filter(None, [ None
   , Action(volup, cond=appOnTop("camera-ui"), action=cmd("camera-click"))
   , Action(volup, cond=screenLocked, action=cmd("klomp-cmd pause"))
   , Action(voldn, cond=screenLocked, action=cmd("klomp-cmd next"))
@@ -93,7 +94,7 @@ def keyEvent(key, state):
     keysPressed.discard(key)
 
   for action in actions:
-    if action != None and action.key == key and action.event == event:
+    if action.key == key and action.event == event:
       if action.cond == None or action.cond():
         action.action()
         if action.stop:
