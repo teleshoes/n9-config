@@ -8,6 +8,8 @@ my $debDestPrefix = '/opt';
 
 my @packagesToRemove = qw( wxapp );
 
+my $env = 'AEGIS_FIXED_ORIGIN=com.nokia.maemo';
+
 my %pkgGroups = (
   '1' => [qw(
     bash vim rsync wget git openvpn
@@ -38,7 +40,7 @@ sub main(@){
   }
   if($arg =~ /^(all|repos)$/){
     if(setupRepos()){
-      system 'n9', '-s', 'apt-get', 'update';
+      system 'n9', '-s', $env, 'apt-get', 'update';
     }
   }
   installPackages() if $arg =~ /^(all|packages)$/;
@@ -78,7 +80,7 @@ sub installPackages(){
   for my $pkgGroup(sort keys %pkgGroups){
     my @packages = @{$pkgGroups{$pkgGroup}}; 
     print "Installing group[$pkgGroup]:\n----\n@packages\n----\n";
-    my @cmd = ('n9', '-s', 'apt-get',
+    my @cmd = ('n9', '-s', $env, 'apt-get',
       'install', @packages,
       '-y', '--allow-unauthenticated',
     );
@@ -89,7 +91,7 @@ sub installPackages(){
 sub removePackages(){
   print "\n\n";
   my $pkgs = join ' ', @packagesToRemove;
-  my $cmd = "apt-get remove --purge $pkgs -y";
+  my $cmd = "$env apt-get remove --purge $pkgs -y";
   print "$cmd\n";
   system 'n9', '-s', $cmd;
 }
@@ -115,8 +117,8 @@ sub installDebs(){
   my @commands;
   for my $deb(@debs){
     push @commands, ''
-      . "dpkg -i -E $debDestPrefix/$debDir/$deb"
-      . " || apt-get -f install -y --allow-unauthenticated";
+      . "$env dpkg -i -E $debDestPrefix/$debDir/$deb"
+      . " || $env apt-get -f install -y --allow-unauthenticated";
   }
   if($changed){
     my $cmd = join ";", map {"echo; echo ---; echo $_; $_"} @commands;
