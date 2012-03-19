@@ -32,6 +32,6 @@ print "\n\nLOCAL => REMOTE\n";
 run "rsync", @opts, "$loc/", $rem;
 
 print "\n\nCHOWN REMOTE\n";
-run "ssh", "root\@$host", "chown $remoteUserGroup $remoteDir";
+run "ssh", "root\@$host", "chown -R $remoteUserGroup $remoteDir";
 print "\n\nCHOWN LOCAL\n";
-run "chown", $localUserGroup, $localDir;
+run "sudo", "chown", "-R", $localUserGroup, $localDir;
