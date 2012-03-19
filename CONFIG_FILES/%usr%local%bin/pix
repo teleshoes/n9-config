@@ -1,0 +1,13 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+for my $file(@ARGV){
+  $file =~ s/'/'\\''/g;
+  my $info = `identify '$file'`;
+  if($info =~ /(\d+x\d+)/){
+    print "$1\n";
+  }else{
+    print STDERR "Could not find HxW using imagemagick for $file\n";
+  }
+}
