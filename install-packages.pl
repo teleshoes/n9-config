@@ -30,7 +30,7 @@ my %pkgGroups = (
 sub installPackages();
 sub removePackages();
 sub setupRepos();
-sub installDebs();
+sub installDebs($);
 
 sub main(@){
   my $arg = shift;
@@ -45,7 +45,7 @@ sub main(@){
   }
   installPackages() if $arg =~ /^(all|packages)$/;
   removePackages() if $arg =~ /^(all|remove)$/;
-  installDebs() if $arg =~ /^(all|debs)$/;
+  installDebs($arg eq 'debs') if $arg =~ /^(all|debs)$/;
 }
 
 
@@ -105,7 +105,8 @@ sub getCustomDebsHash(){
   return `n9 -s '$cmd'`;
 }
 
-sub installDebs(){
+sub installDebs($){
+  my $force = shift;
   my $before = getCustomDebsHash();
   my @debs = `cd $debDir; ls *.deb`;
   chomp foreach @debs;
@@ -120,7 +121,7 @@ sub installDebs(){
       . "$env dpkg -i -E $debDestPrefix/$debDir/$deb"
       . " || $env apt-get -f install -y --allow-unauthenticated";
   }
-  if($changed){
+  if($changed or $force){
     my $cmd = join ";", map {"echo; echo ---; echo $_; $_"} @commands;
     system 'n9', '-s', $cmd;
   }else{
