@@ -30,6 +30,10 @@ my @buttons = qw(
 
   mail
   accountsui
+  xmcr
+  vmpk9
+
+  FBReader
 );
 
 my @quickLaunch = qw(
