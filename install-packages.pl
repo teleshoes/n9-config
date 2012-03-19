@@ -17,7 +17,6 @@ my %pkgGroups = (
   '2' => [qw(
     perl bash-completion python python-apt
     mcetools bzip2 sqlite3
-    libpurple0
     x11-utils xresponse
     python-pyside.qtgui python-qmsystem python-pyside.qtdeclarative
   )],
