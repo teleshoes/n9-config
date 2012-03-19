@@ -23,7 +23,7 @@ my %pkgGroups = (
   )],
   '3' => [qw(
     linux-kernel-headers
-    gcc make libc6-dev libc-dev
+    gcc make
   )],
 );
 
