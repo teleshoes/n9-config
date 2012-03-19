@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $host = `n9`;
+chomp $host;
+my $src = "/home/user/MyDocs/DCIM";
+my $dest = "$ENV{HOME}/Code/n9/DCIM";
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+run 'rsync', "-av", "root\@$host:$src/", $dest;
