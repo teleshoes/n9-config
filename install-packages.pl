@@ -6,7 +6,9 @@ my $repoDir = 'repos';
 my $debDir = 'debs-custom';
 my $debDestPrefix = '/opt';
 
-my @packagesToRemove = qw( wxapp );
+my @packagesToRemove = qw(
+  wxapp 
+);
 
 my $env = 'AEGIS_FIXED_ORIGIN=com.nokia.maemo';
 
@@ -89,12 +91,33 @@ sub installPackages(){
   }
 }
 
+sub getInstalledVersion($){
+  my $pkg = shift;
+  my $cmd = "n9 -s apt-cache show $pkg 2>&1";
+  my $status = `$cmd`;
+  if($status =~ /^Status: install ok installed$/m){
+    if($status =~ /^Version: (.*)/m){
+      return $1;
+    }
+  }
+  return undef;
+}
+
 sub removePackages(){
-  print "\n\n";
-  my $pkgs = join ' ', @packagesToRemove;
-  my $cmd = "$env apt-get remove --purge $pkgs -y";
-  print "$cmd\n";
-  system 'n9', '-s', $cmd;
+  print "\n\nChecking uninstalled packages\n";
+  my $cmd = '';
+  for my $pkg(@packagesToRemove){
+    if(defined getInstalledVersion $pkg){
+      $cmd .= "$env dpkg --purge $pkg\n";
+    }else{
+      print "Skipped already uninstalled package $pkg\n";
+    }
+  }
+  print "\n\nRemoving bad packages\n";
+  if($cmd ne ''){
+    print $cmd;
+    system 'n9', '-s', $cmd;
+  }
 }
 
 sub getCustomDebsHash(){
