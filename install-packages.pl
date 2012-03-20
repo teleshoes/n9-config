@@ -104,6 +104,23 @@ sub getInstalledVersion($){
 }
 
 sub removePackages(){
+  print "\n\nInstalling the deps for removed packages to unmarkauto\n";
+  my %deps;
+  for my $line(`n9 -s apt-cache depends @packagesToRemove`){
+    if($line =~ /  Depends: (.*)/){
+      $deps{$1} = 1;
+    }
+  }
+  for my $pkg(@packagesToRemove){
+    delete $deps{$pkg};
+  }
+  my $cmd = "apt-get install \\\n";
+  for my $dep(keys %deps){
+    $cmd .= "  $dep \\\n";
+  }
+  print $cmd;
+  system 'n9', '-s', $cmd;
+
   print "\n\nChecking uninstalled packages\n";
   my $cmd = '';
   for my $pkg(@packagesToRemove){
