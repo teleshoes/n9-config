@@ -118,26 +118,26 @@ sub removePackages(){
   for my $pkg(@packagesToRemove){
     delete $deps{$pkg};
   }
-  my $cmd = "apt-get install \\\n";
+  my $depInstallCmd = "apt-get install \\\n";
   for my $dep(keys %deps){
-    $cmd .= "  $dep \\\n";
+    $depInstallCmd .= "  $dep \\\n";
   }
-  print $cmd;
-  system 'n9', '-s', $cmd;
+  print $depInstallCmd;
+  system 'n9', '-s', $depInstallCmd;
 
   print "\n\nChecking uninstalled packages\n";
-  my $cmd = '';
+  my $removeCmd = '';
   for my $pkg(@packagesToRemove){
     if(defined getInstalledVersion $pkg){
-      $cmd .= "$env dpkg --purge $pkg\n";
+      $removeCmd .= "$env dpkg --purge $pkg\n";
     }else{
       print "Skipped already uninstalled package $pkg\n";
     }
   }
   print "\n\nRemoving bad packages\n";
-  if($cmd ne ''){
-    print $cmd;
-    system 'n9', '-s', $cmd;
+  if($removeCmd ne ''){
+    print $removeCmd;
+    system 'n9', '-s', $removeCmd;
   }
 }
 
