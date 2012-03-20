@@ -13,6 +13,11 @@ my @buttons = qw(
   meecast
   camera-ui
 
+  nokia-drive-qml
+  xmcr
+  vmpkn9
+  FBReader
+  
   calendar
   clock
   gallery
@@ -21,16 +26,11 @@ my @buttons = qw(
   gconfik_harmattan
   contacts
   calc
-  notes
-  
   joikuspot
-  nokia-drive-qml
+  
+  notes
   mail
   accountsui
-
-  xmcr
-  vmpkn9
-  FBReader
 );
 
 my @quickLaunch = qw(
