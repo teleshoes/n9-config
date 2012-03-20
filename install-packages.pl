@@ -9,6 +9,9 @@ my $debDestPrefix = '/opt';
 my @packagesToRemove = qw(
   wxapp apnews realgolf2011 gof2
   angrybirdsfreemagic
+
+  mp-harmattan-005-pr
+  facebook twitter twitter-qml
 );
 
 my $env = 'AEGIS_FIXED_ORIGIN=com.nokia.maemo';
