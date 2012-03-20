@@ -37,7 +37,7 @@ my %pkgGroups = (
 sub installPackages();
 sub removePackages();
 sub setupRepos();
-sub installDebs($);
+sub installDebs();
 
 sub main(@){
   my $arg = shift;
@@ -52,7 +52,7 @@ sub main(@){
   }
   installPackages() if $arg =~ /^(all|packages)$/;
   removePackages() if $arg =~ /^(all|remove)$/;
-  installDebs($arg eq 'debs') if $arg =~ /^(all|debs)$/;
+  installDebs() if $arg =~ /^(all|debs)$/;
 }
 
 
@@ -107,6 +107,26 @@ sub getInstalledVersion($){
   return undef;
 }
 
+sub getArchiveVersion($){
+  my $debArchive = shift;
+  my $status = `dpkg --info $debArchive`;
+  if($status =~ /^ Version: (.*)/m){
+    return $1;
+  }else{
+    return undef;
+  }
+}
+
+sub getArchivePackageName($){
+  my $debArchive = shift;
+  my $status = `dpkg --info $debArchive`;
+  if($status =~ /^ Package: (.*)/m){
+    return $1;
+  }else{
+    return undef;
+  }
+}
+
 sub removePackages(){
   print "\n\nInstalling the deps for removed packages to unmarkauto\n";
   my %deps;
@@ -141,41 +161,43 @@ sub removePackages(){
   }
 }
 
-sub getCustomDebsHash(){
-  my $cmd = ''
-    . "if [ -e \"$debDestPrefix/$debDir/\" ]; then"
-    . "  ls $debDestPrefix/$debDir/*.deb | sort | xargs md5sum;"
-    . "fi"
-    ;
-  return `n9 -s '$cmd'`;
+sub isAlreadyInstalled($){
+  my $debFile = shift;
+  my $packageName = getArchivePackageName $debFile;
+  my $archiveVersion = getArchiveVersion $debFile;
+  my $installedVersion = getInstalledVersion $packageName;
+  if(not defined $archiveVersion or not defined $installedVersion){
+    return 0;
+  }else{
+    return $archiveVersion eq $installedVersion;
+  }
 }
 
-sub installDebs($){
-  my $force = shift;
-  my $before = getCustomDebsHash();
+sub installDebs(){
   my @debs = `cd $debDir; ls *.deb`;
   chomp foreach @debs;
+  
   print "\n\nSyncing $debDestPrefix/$debDir to $debDestPrefix on dest:\n";
   print "---\n@debs\n---\n";
   system "rsync $debDir root@`n9`:$debDestPrefix -av --progress --delete";
-  my $after = getCustomDebsHash();
-  my $changed = $before ne $after;
-  my @commands;
-  for my $deb(@debs){
-    push @commands, ''
-      . "$env dpkg -i -E $debDestPrefix/$debDir/$deb"
-      . " || $env apt-get -f install -y --allow-unauthenticated";
-  }
-  if($changed or $force){
-    my $cmd = join ";", map {"echo; echo ---; echo $_; $_"} @commands;
-    system 'n9', '-s', $cmd;
-  }else{
-    print "#NOT CHANGED\n";
-    print join("\n", @commands) . "\n";
-    print "#NOT CHANGED\n";
-  }
-  print "fennec may need reinstall, gotta fix this later\n";
-}
 
+  print "\n\nChecking installed versions\n";
+  my $cmd = '';
+  for my $deb(@debs){
+    my $localDebFile = "$debDir/$deb";
+    my $remoteDebFile = "$debDestPrefix/$debDir/$deb\n";
+    if(not isAlreadyInstalled($localDebFile)){
+      $cmd .= "$env dpkg -i $remoteDebFile\n"
+    }else{
+      print "Skipping already installed $deb\n";
+    }
+  }
+  
+  print "\n\nInstalling debs\n";
+  if($cmd ne ''){
+    $cmd .= "apt-get -f install -y --allow-unauthenticated\n";
+    system 'n9', '-s', "set -x; $cmd";
+  }
+}
 
 &main(@ARGV);
