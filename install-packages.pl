@@ -24,6 +24,7 @@ my %pkgGroups = (
     perl bash-completion python python-apt
     mcetools bzip2 sqlite3
     x11-utils xresponse
+    meecast
     imagemagick
     libterm-readkey-perl
     python-pyside.qtgui python-qmsystem python-pyside.qtdeclarative
