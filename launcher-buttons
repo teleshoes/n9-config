@@ -53,7 +53,7 @@ system "n9", "-s", "
   set -x
   mkdir -p $unusedDir
   cd $appDir
-  bash -c 'find -name \\*.desktop -execdir mv {} $unusedDir \\;'
+  bash -c 'find -maxdepth 1 -name \\*.desktop -execdir mv {} $unusedDir \\;'
   rm -rf $appDir
   mkdir -p $appDir
 ";
