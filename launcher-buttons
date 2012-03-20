@@ -11,28 +11,25 @@ my @buttons = qw(
   pidgin
   klomp
   meecast
-  btinput_harmattan
-
   camera-ui
+
   calendar
   clock
-  phonetorch
-
   gallery
   duicontrolpanel
+  
   gconfik_harmattan
   contacts
-
   calc
   notes
+  
   joikuspot
   nokia-drive-qml
-
   mail
   accountsui
+
   xmcr
   vmpk9
-
   FBReader
 );
 
@@ -42,7 +39,6 @@ my @quickLaunch = qw(
   fennec 
   camera-ui
 );
-
 
 my $host = `n9`;
 chomp $host;
