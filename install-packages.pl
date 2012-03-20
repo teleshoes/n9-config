@@ -7,7 +7,8 @@ my $debDir = 'debs-custom';
 my $debDestPrefix = '/opt';
 
 my @packagesToRemove = qw(
-  wxapp 
+  wxapp apnews realgolf2011 gof2
+  angrybirdsfreemagic
 );
 
 my $env = 'AEGIS_FIXED_ORIGIN=com.nokia.maemo';
