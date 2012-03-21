@@ -10,15 +10,20 @@ chomp $host;
 
 my $contactsSrcDir = "/home/user/MyDocs/backup-contacts";
 my $contactsDestDir = "$dest/backup-contacts";
+my $smsSrcDir = "/home/user/MyDocs/backup-sms";
+my $smsDestDir = "$dest/backup-sms";
 my $trackerSrcDir = "/home/user/MyDocs/backup-tracker";
 my $trackerDestDir = "$dest/backup-tracker";
 
 system "$dir/dcim-backup";
 system "$dir/sync-pidgin-logs";
 system "n9", "-s", "backup-contacts";
+system "n9", "-s", "backup-sms";
 system "n9", "-s", "backup-tracker";
 
 system "mkdir", "-p", $contactsDestDir;
+system "mkdir", "-p", $smsDestDir;
 system "mkdir", "-p", $trackerDestDir;
-system "rsync", "-av", "root\@$host:$contactsSrcDir", $contactsDestDir;
-system "rsync", "-av", "root\@$host:$trackerSrcDir", $trackerDestDir;
+system "rsync", "-av", "root\@$host:$contactsSrcDir/", $contactsDestDir;
+system "rsync", "-av", "root\@$host:$smsSrcDir/", $smsDestDir;
+system "rsync", "-av", "root\@$host:$trackerSrcDir/", $trackerDestDir;

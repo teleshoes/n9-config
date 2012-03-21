@@ -1,0 +1,18 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $dest = '/home/user/MyDocs/backup-sms';
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+run "mkdir -p $dest";
+my $name = `date +%Y_%m_%d-%s`;
+chomp $name;
+
+run "su user -c 'source /etc/profile; smsbackuprestore export $dest/$name.sms'";
+
+run "chown", "user.users", "-R", $dest;
