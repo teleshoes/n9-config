@@ -11,31 +11,35 @@ my @config = qw(
   pidgin
   klomp
   camera-ui
-  btinput-terminal
+  duicontrolpanel
 
   nokia-drive-qml
   xmcr
   vmpkn9
   FBReader
   
-  calendar
   clock
-  gallery
-  duicontrolpanel
-  
-  gconfik_harmattan
+  dir-stuff[
+    gallery
+    video-suite
+    calendar
+    notes
+    ]
+  dir-box[
+    maps
+    calc
+    accountsui
+    gconfik_harmattan
+    ]
+  dir-bluetooth[
+    btinput-terminal
+    btinput_harmattan
+    toggleBT_harmattan
+    ]
+ 
   contacts
-  calc
-  joikuspot
-  
-  notes
   mail
-  accountsui
-  btinput_harmattan
-
-  toggleBT_harmattan
-  video-suite
-  maps
+  joikuspot
 );
 
 my @quickLaunch = qw(
