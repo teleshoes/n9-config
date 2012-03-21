@@ -31,6 +31,10 @@ my @buttons = qw(
   notes
   mail
   accountsui
+  btinput_harmattan
+
+  toggleBT_harmattan
+  btinput-terminal
 );
 
 my @quickLaunch = qw(
