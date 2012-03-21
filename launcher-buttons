@@ -10,8 +10,8 @@ my @buttons = qw(
 
   pidgin
   klomp
-  meecast
   camera-ui
+  btinput-terminal
 
   nokia-drive-qml
   xmcr
@@ -34,7 +34,6 @@ my @buttons = qw(
   btinput_harmattan
 
   toggleBT_harmattan
-  btinput-terminal
 );
 
 my @quickLaunch = qw(
