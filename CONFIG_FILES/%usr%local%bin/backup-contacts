@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $dest = '/home/user/MyDocs/backup-contacts';
+my $vcardexportExec = '/opt/vcardexport/bin/vcardexport';
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+run "mkdir -p $dest";
+my $name = `date +%Y_%m_%d-%s`;
+chomp $name;
+
+run "source /etc/profile; $vcardexportExec > $dest/$name.vcf";
+
+run "chown", "user.users", "-R", $dest;

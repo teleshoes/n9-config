@@ -27,4 +27,4 @@ run "time tar -czf $dest/$name.tar.gz *";
 print "\nSize after compression:\n";
 run "du", "-hs", "$dest/$name.tar.gz";
 
-
+run "chown", "user.users", "-R", $dest;
