@@ -34,6 +34,8 @@ my @buttons = qw(
   btinput_harmattan
 
   toggleBT_harmattan
+  video-suite
+  maps
 );
 
 my @quickLaunch = qw(
