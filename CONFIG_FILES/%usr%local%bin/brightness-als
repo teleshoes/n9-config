@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $mceFile = "/etc/mce/mce.ini";
+my $on = 'brightness-als';
+my $off = 'brightness-simple';
+
+my $arg = shift;
+$arg = 'toggle' if not defined $arg;
+if(@ARGV > 0 or $arg !~ /^(on|off|toggle)$/){
+  die "Usage: $0 [on|off|toggle]   toggle is default\n";
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+sub get(){
+  my $mceCurrent = `cat $mceFile`;
+  if($mceCurrent =~ /$on/){
+    return 'on';
+  }elsif($mceCurrent =~ /$off/){
+    return 'off';
+  }else{
+    return 'UNKNOWN';
+  }
+}
+
+sub set($){
+  my $arg = shift;
+  my $old = $arg eq 'on' ? $off : $on;
+  my $new = $arg eq 'on' ? $on : $off;
+  run "sed", "-ie", "s/$old/$new/", $mceFile;
+  run "killall", "mce";
+}
+
+if($arg eq 'toggle'){
+  $arg = get() eq 'on' ? 'off' : 'on';
+}
+set($arg);
+print "ALS brightness changing: " . get() . "\n";
+

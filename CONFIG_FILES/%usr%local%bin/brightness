@@ -1,0 +1,64 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $dev = "/sys/devices/omapdss/display0/backlight/display0/brightness";
+my $lastFile = "/home/user/.brightness";
+
+my @brackets = (1, 51, 102, 153, 204, 255);
+
+my $usage = "Usage:\n"
+  . "  $0            prints brightness [1-255]\n"
+  . "  $0 [up|down]  jump between: @brackets\n"
+  . "  $0 int-value  set brightness to value [1-255], record in $lastFile\n"
+  . "  $0 last       set brightness to value read from $lastFile\n"
+  . "\n"
+  . "simply writes the value to $dev\n"
+  . "note that 0 turns off the screen, so this script sets 1 instead\n"
+  ;
+
+sub getBrightness(){
+  my $val = `cat $dev`;
+  chomp $val;
+  return $val;
+}
+sub setBrightness($$){
+  my $target = shift;
+  my $softUpdate = shift;
+  if($target == 0){
+    print "0 turns off the screen, so setting it to 1\n";
+    $target = 1;
+  }
+  system "echo $target > $lastFile" if not $softUpdate;
+  print getBrightness() . " => $target\n";
+  system "echo $target > $dev";
+}
+
+my $arg = shift;
+die $usage if @ARGV != 0;
+if(not defined $arg){
+  print getBrightness() . "\n";
+}elsif($arg =~ /^(up|down)$/){
+  my $b = getBrightness;
+  @brackets = reverse @brackets if $arg eq 'down';
+  for my $bracket(@brackets){
+    if(($arg eq 'up' and $bracket > $b) or ($arg eq 'down' and $bracket < $b)){
+      setBrightness $bracket, 0;
+      last;
+    }
+  }
+}elsif($arg =~ /^(last)$/){
+  if(-e $lastFile){
+    my $brightness = `cat $lastFile`;
+    chomp $brightness;
+    if($brightness =~ /^\d+$/){
+      setBrightness $brightness, 1;
+    }
+  }
+}elsif($arg =~ /^\d+$/){
+  setBrightness $arg, 0;
+}else{
+  die $usage;
+}
+
+
