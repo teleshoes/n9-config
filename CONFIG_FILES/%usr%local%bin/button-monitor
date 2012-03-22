@@ -27,8 +27,8 @@ import re
 def getActions():
   return filter(None, [ None
   , Action(volup, cond=appOnTop("camera-ui"), action=cmd("camera-click"))
-  , Action(volup, cond=screenLocked, action=cmd("klomp-cmd pause"))
-  , Action(voldn, cond=screenLocked, action=cmd("klomp-cmd next"))
+  , Action(volup, cond=screenLocked, action=cmd("udo klomp-cmd pause"))
+  , Action(voldn, cond=screenLocked, action=cmd("udo klomp-cmd next"))
   ])
 
 def readProc(cmdarr):
