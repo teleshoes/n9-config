@@ -26,10 +26,12 @@ for my $file(@files){
   }else{
     system 'rsync', @rsyncOpts, "$src", "$dest";
   }
-  if($dest =~ /^\/home\/user/){
+  if($destDir =~ /^\/home\/user/){
     system "chown -R user.users $dest";
+    system "chown user.users $destDir";
   }else{
     system "chown -R root.root $dest";
+    system "chown root.root $destDir";
   }
 }
 
