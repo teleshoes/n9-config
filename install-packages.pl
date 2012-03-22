@@ -28,6 +28,7 @@ my %pkgGroups = (
     imagemagick
     libterm-readkey-perl
     python-pyside.qtgui python-qmsystem python-pyside.qtdeclarative
+    python-qtmobility.multimediakit
   )],
   '3' => [qw(
     linux-kernel-headers
