@@ -1,0 +1,5 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+exec "/usr/bin/aegis-exec", "-s", "-u", "user", "bash", "-c", "@ARGV";
