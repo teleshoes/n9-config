@@ -1,0 +1,9 @@
+#!/usr/bin/python
+from QtMobility.MultimediaKit import QCamera, QCameraExposure
+
+camera = QCamera()
+#camera.setCaptureMode(QCamera.CaptureStillImage)
+camera.exposure().setFlashMode(QCameraExposure.FlashManual)
+camera.unlock()
+camera.stop()
+camera.unload()

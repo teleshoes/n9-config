@@ -1,0 +1,10 @@
+#!/usr/bin/python
+from PySide.QtGui import QApplication
+from QtMobility.MultimediaKit import QCamera, QCameraExposure
+
+app = QApplication([])
+camera = QCamera()
+camera.setCaptureMode(QCamera.CaptureVideo)
+camera.exposure().setFlashMode(QCameraExposure.FlashTorch)
+camera.start()
+app.exec_()

@@ -1,6 +1,24 @@
-pidof phonetorch
-if [ $? == 0 ]; then
-  killall phonetorch
-else
-  DISPLAY=:0 /opt/phonetorch/bin/phonetorch > /dev/null 2> /dev/null &
-fi
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $arg = shift;
+$arg = 'toggle' if not defined $arg;
+if(@ARGV > 0 or $arg !~ /^(on|off|toggle)$/){
+  die "Usage: $0 [on|off|toggle]\n";
+}
+
+system "pidof", "torch-python";
+my $on = $? == 0;
+
+print "torch-python was " . ($on ? '' : 'NOT ') . "running \n";
+$arg = ($on ? 'off' : 'on') if $arg eq 'toggle';
+
+if($arg eq 'on'){
+  print "Torch ON\n";
+  system "torch-python >/dev/null 2> /dev/null &";
+}elsif($arg eq 'off'){
+  print "Torch OFF\n";
+  system "killall", "-9", "torch-python";
+  system "torch-python-fix >/dev/null 2> /dev/null &";
+}
