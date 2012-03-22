@@ -26,9 +26,9 @@ import re
 ###############
 def getActions():
   return filter(None, [ None
-  , Action(volup, cond=appOnTop("camera-ui"), action=cmd("camera-click"))
-  , Action(volup, cond=screenLocked, action=cmd("udo klomp-cmd pause"))
-  , Action(voldn, cond=screenLocked, action=cmd("udo klomp-cmd next"))
+  , Action(key=volup, cond=appOnTop("camera-ui"), action=cmd("camera-click"))
+  , Action(key=volup, cond=screenLocked, action=cmd("udo klomp-cmd pause"))
+  , Action(key=voldn, cond=screenLocked, action=cmd("udo klomp-cmd next"))
   ])
 
 def readProc(cmdarr):
@@ -68,15 +68,18 @@ volup = 2
 voldn = 3
 
 class Action():
-  def __init__(self, key, event=evtPressed, action=None, cond=None, stop=True):
+  def __init__(self, key=None, event=evtPressed, pressPattern=None,
+               action=None, cond=None, stop=True):
     self.key = key
     self.event = event
+    self.pressPattern = pressPattern
     self.action = action
     self.cond = cond
     self.stop = stop
 
 keysPressed = set()
 actions = getActions()
+pressPattern = []
 
 def keyEvent(key, state):
   event = None
@@ -88,13 +91,27 @@ def keyEvent(key, state):
   elif state == stateOff:
     event = evtReleased
 
+  if event == evtPressed:
+    pressPattern.append(key)
+
+  finishedPressPattern = None
+  if event == evtReleased:
+    if len(pressPattern) > 0 and pressPattern[0] == key:
+      finishedPressPattern = pressPattern[:]
+      del pressPattern[:]
+
   if state == stateOn:
     keysPressed.add(key)
   elif state == stateOff:
     keysPressed.discard(key)
 
   for action in actions:
-    if action.key == key and action.event == event:
+    if action.pressPattern != None:
+      triggered = action.pressPattern == finishedPressPattern
+    else:
+      triggered = action.key == key and action.event == event
+
+    if triggered:
       if action.cond == None or action.cond():
         action.action()
         if action.stop:
