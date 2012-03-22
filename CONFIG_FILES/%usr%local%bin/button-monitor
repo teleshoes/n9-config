@@ -27,6 +27,7 @@ import re
 def getActions():
   return filter(None, [ None
   , Action([volup], cond=appOnTop("camera-ui"), action=cmd("camera-click"))
+  , Action([voldn, volup, volup], cond=screenLocked, action=cmd("torch"))
   , Action([volup], cond=screenLocked, action=cmd("udo klomp-cmd pause"))
   , Action([voldn], cond=screenLocked, action=cmd("udo klomp-cmd next"))
   ])
