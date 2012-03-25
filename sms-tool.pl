@@ -2,28 +2,59 @@
 use strict;
 use warnings;
 
+my $cutoffDate = "60 days ago";
+
 my $smsDir = "$ENV{HOME}/Code/n9/backup/backup-sms";
 my $repoDir = "$ENV{HOME}/Code/n9/backup/backup-sms/repo";
+
+sub filterMessages(\@);
+sub getMessagesFromDir($);
+sub getMessages($);
+sub messageToString($);
+sub writeMessageFile(\@$);
+sub writeContactsFiles(\@$);
+sub removeUSCountryCode(\@);
+sub removeDupes(\@);
 
 sub main(@){
   my $arg = shift;
   $arg = '' if not defined $arg;
-  die "Usage: $0 split|join\n" if $arg !~ /^(split|join)$/ or @_ > 0;
+  my @okArgs = qw(split join commit);
+  my $ok = join "|", @okArgs;
+  die "Usage: $0 $ok\n" if $arg !~ /^($ok)$/ or @_ > 0;
 
   if($arg eq 'split'){
-    my @messages = getMessagesFromDir($smsDir);
+    my @messages = (getMessagesFromDir($smsDir), getMessagesFromDir($repoDir));
+    @messages = removeDupes @messages;
     system "mkdir -p $repoDir";
     system "rm $repoDir/*.sms";
-    writeContactsFiles(\@messages, $repoDir);
+    writeContactsFiles @messages, $repoDir;
   }elsif($arg eq 'join'){
-    my @messages = getMessagesFromDir($repoDir);
-    filterMessages(\@messages);
+    my @messages = getMessagesFromDir $repoDir;
+    @messages = removeDupes @messages;
+    @messages = filterMessages @messages;
+    writeMessageFile @messages, "$smsDir/filtered.sms";
+  }elsif($arg eq 'commit'){
+    chdir $repoDir;
+    system "git add *.sms";
+    system "git --no-pager diff --cached";
+    system "git commit -m 'automatic commit'";
   }
 }
 
 sub filterMessages(\@){
+  my $targetDate = `date --date="$cutoffDate" '+%Y-%m-%d %H:%M:%S'`;
+  chomp $targetDate;
+
   my @messages = @{shift()};
-  my @newMessages
+  my @newMessages;
+  for my $msg(@messages){
+    my $date = $$msg[2];
+    if($date gt $targetDate){
+      push @newMessages, $msg;
+    }
+  }
+  return @newMessages;
 }
 
 sub getMessagesFromDir($){
@@ -42,8 +73,7 @@ sub getMessages($){
     my ($phone, $dir, $datetime, $msg) = ($1,$2,$3,$4);
     push @messages, [$1,$2,$3,$4];
   }
-  @messages = removeUSCountryCode(\@messages);
-  @messages = removeDupes(\@messages);
+  @messages = removeUSCountryCode @messages;
   return @messages;
 }
 
@@ -52,27 +82,33 @@ sub messageToString($){
   return "$phone,$dir,$datetime,$msg\n";
 }
 
+sub writeMessageFile(\@$){
+  my @messages = @{shift()};
+  my $file = shift;
+  open FH, "> $file" or die "Could not open $file\n";
+  @messages = sort {$$a[2] cmp $$b[2]} @messages;
+  for my $msg(@messages){
+    print FH messageToString $msg;
+  }
+  close FH;
+}
+
 sub writeContactsFiles(\@$){
   my @messages = @{shift()};
   my $dir = shift;
 
   my %byContact;
-
   for my $msg(@messages){
     my $phone = $$msg[0];
     $byContact{$phone} = [] if not defined $byContact{$phone};
     push @{$byContact{$phone}}, $msg;
   }
+
   for my $phone(keys %byContact){
     my $file = "$dir/$phone.sms";
     $file =~ s@:/org/freedesktop/Telepathy/Account/ring/tel/ring@@;
-    open FH, "> $file" or die "Could not open $file\n";
     my @messages = @{$byContact{$phone}};
-    @messages = sort {$$a[2] cmp $$b[2]} @messages;
-    for my $msg(@messages){
-      print FH messageToString $msg;
-    }
-    close FH;
+    writeMessageFile @messages, $file;
   }
 }
 
@@ -96,10 +132,8 @@ sub removeDupes(\@){
     my $oneline = $str;
     $oneline =~ s/[\n\r]+//g;
     if(defined $strings{$str}){
-      print "skipped dupe: $str";
       next;
     }elsif(defined $onelineStrings{$oneline}){
-      print "skipped a newline dupe: $str";
       my $prevMsg = $onelineStrings{$oneline};
       my $prevStr = messageToString $prevMsg;
 
