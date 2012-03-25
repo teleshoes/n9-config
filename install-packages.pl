@@ -7,7 +7,7 @@ my $debDir = 'debs-custom';
 my $debDestPrefix = '/opt';
 
 my @packagesToRemove = qw(
-  wxapp apnews realgolf2011 gof2
+  wxapp apnews realgolf2011 gof2 nfsshift
   angrybirdsfreemagic
 
   mp-harmattan-005-pr
