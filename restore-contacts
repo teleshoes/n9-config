@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $host = `n9`;
+chomp $host;
+my $contactDir = "$ENV{HOME}/Code/n9/backup/backup-contacts";
+
+my @files = `cd $contactDir; ls *.vcf`;
+chomp foreach @files;
+@files = sort @files;
+if(@files == 0){
+  die "No .vcf file in $contactDir\n";
+}
+my $file = $files[-1];
+print "Using: $file\n";
+system "scp", "$contactDir/$file", "root\@$host:/tmp";
+system "n9", "-s", "source /etc/profile; vcardconverter /tmp/$file";
+
+print "you may want to now run merge contacts and delete unnamed\n";
