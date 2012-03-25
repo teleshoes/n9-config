@@ -19,18 +19,20 @@ my $trackerSrcDir = "/home/user/MyDocs/backup-tracker";
 my $trackerDestDir = "$dest/backup-tracker";
 
 system "$dir/dcim-backup";
-system "$dir/sync-pidgin-logs";
-system "n9", "-s", "backup-sms";
-system "n9", "-s", "backup-contacts";
-system "n9", "-s", "backup-tracker";
 
-system "mkdir", "-p", $smsDestDir;
-system "mkdir", "-p", $contactsDestDir;
+system "$dir/sync-pidgin-logs";
+
+system "n9", "-s", "backup-tracker";
 system "mkdir", "-p", $trackerDestDir;
-system "rsync", "-av", "root\@$host:$smsSrcDir/", $smsDestDir;
-system "rsync", "-av", "root\@$host:$contactsSrcDir/", $contactsDestDir;
 system "rsync", "-av", "root\@$host:$trackerSrcDir/", $trackerDestDir;
 
+system "n9", "-s", "backup-contacts";
+system "mkdir", "-p", $contactsDestDir;
+system "rsync", "-av", "root\@$host:$contactsSrcDir/", $contactsDestDir;
+
+system "n9", "-s", "backup-sms";
+system "mkdir", "-p", $smsDestDir;
+system "rsync", "-av", "root\@$host:$smsSrcDir/", $smsDestDir;
 system "perl $dir/sms-tool.pl split";
 system "perl $dir/sms-tool.pl commit";
 
