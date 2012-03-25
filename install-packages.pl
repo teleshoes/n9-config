@@ -189,7 +189,10 @@ sub installDebs(){
     my $localDebFile = "$debDir/$deb";
     my $remoteDebFile = "$debDestPrefix/$debDir/$deb\n";
     if(not isAlreadyInstalled($localDebFile)){
-      $cmd .= "$env dpkg -i $remoteDebFile\n"
+      $cmd .= "$env dpkg -i $remoteDebFile\n";
+      $cmd .= "if [ \$? != 0 ]; then "
+              . "$env apt-get -f install -y --allow-unauthenticated; "
+              . "fi\n";
     }else{
       print "Skipping already installed $deb\n";
     }
@@ -197,7 +200,7 @@ sub installDebs(){
   
   print "\n\nInstalling debs\n";
   if($cmd ne ''){
-    $cmd .= "apt-get -f install -y --allow-unauthenticated\n";
+    print $cmd;
     system 'n9', '-s', "set -x; $cmd";
   }
 }
