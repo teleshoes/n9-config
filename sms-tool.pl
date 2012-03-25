@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-my $cutoffDate = "60 days ago";
+my $cutoffDate = "30 days ago";
 
 my $smsDir = "$ENV{HOME}/Code/n9/backup/backup-sms";
 my $repoDir = "$ENV{HOME}/Code/n9/backup/backup-sms/repo";
