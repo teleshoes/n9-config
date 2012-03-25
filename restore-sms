@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $host = `n9`;
+chomp $host;
+my $dir = "$ENV{HOME}/Code/n9";
+my $smsDir = "$dir/backup/backup-sms";
+
+system "perl $dir/sms-tool.pl join";
+
+my $joinedFile = "filtered.sms";
+
+system "scp", "$smsDir/$joinedFile", "root\@$host:/tmp";
+system "n9", "-s", "source /etc/profile; "
+  . "HOME=/home/user smsbackuprestore import /tmp/$joinedFile";
