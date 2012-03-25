@@ -22,9 +22,9 @@ system "$dir/dcim-backup";
 
 system "$dir/sync-pidgin-logs";
 
-system "n9", "-s", "backup-tracker";
-system "mkdir", "-p", $trackerDestDir;
-system "rsync", "-av", "root\@$host:$trackerSrcDir/", $trackerDestDir;
+#system "n9", "-s", "backup-tracker";
+#system "mkdir", "-p", $trackerDestDir;
+#system "rsync", "-av", "root\@$host:$trackerSrcDir/", $trackerDestDir;
 
 system "n9", "-s", "backup-contacts";
 system "mkdir", "-p", $contactsDestDir;
