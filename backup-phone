@@ -8,6 +8,9 @@ my $dest = "$dir/backup";
 my $host = `n9`;
 chomp $host;
 
+print "getting sudo pw cached\n";
+system "sudo", "echo", "ok";
+
 my $contactsSrcDir = "/home/user/MyDocs/backup-contacts";
 my $contactsDestDir = "$dest/backup-contacts";
 my $smsSrcDir = "/home/user/MyDocs/backup-sms";
@@ -17,13 +20,17 @@ my $trackerDestDir = "$dest/backup-tracker";
 
 system "$dir/dcim-backup";
 system "$dir/sync-pidgin-logs";
-system "n9", "-s", "backup-contacts";
 system "n9", "-s", "backup-sms";
+system "n9", "-s", "backup-contacts";
 system "n9", "-s", "backup-tracker";
 
-system "mkdir", "-p", $contactsDestDir;
 system "mkdir", "-p", $smsDestDir;
+system "mkdir", "-p", $contactsDestDir;
 system "mkdir", "-p", $trackerDestDir;
-system "rsync", "-av", "root\@$host:$contactsSrcDir/", $contactsDestDir;
 system "rsync", "-av", "root\@$host:$smsSrcDir/", $smsDestDir;
+system "rsync", "-av", "root\@$host:$contactsSrcDir/", $contactsDestDir;
 system "rsync", "-av", "root\@$host:$trackerSrcDir/", $trackerDestDir;
+
+system "perl $dir/sms-tool.pl split";
+system "perl $dir/sms-tool.pl commit";
+
