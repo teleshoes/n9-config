@@ -1,0 +1,35 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $host = `n9`;
+chomp $host;
+
+my $dir = "$ENV{HOME}/Code/n9";
+my $fbreaderLocal = "$dir/fbreader";
+my $fbreaderRemote = "/home/user/.FBReader";
+
+my $local = $fbreaderLocal;
+my $remote = "user\@$host:$fbreaderRemote";
+
+my @excludes = qw(
+  cache
+);
+
+my @rsyncOpts = qw(
+  -a --no-owner --no-group
+  -v
+);
+for my $exclude(@excludes){
+  push @rsyncOpts, "--exclude=$exclude";
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+run "mkdir", "-p", $fbreaderLocal;
+run "rsync", @rsyncOpts, "$remote/", $local;
+run "rsync", @rsyncOpts, "$local/", $remote;
+
