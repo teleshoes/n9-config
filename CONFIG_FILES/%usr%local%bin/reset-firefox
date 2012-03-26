@@ -1,0 +1,9 @@
+#!/bin/bash
+if [ -e /home/user/.mozilla/.git ]; then
+  cd /home/user/.mozilla
+  git clean -fd
+  git reset HEAD --hard
+else
+  echo failed, no /home/user/.mozilla/git dir
+  exit 1
+fi
