@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $host = `n9`;
+chomp $host;
+my $dir = "$ENV{HOME}/Code/n9";
+
+my $localAccounts = "$dir/accounts";
+my $remoteAccounts = "/home/user/.accounts";
+
+system "scp", "-r", "$localAccounts/", "root\@$host:$remoteAccounts.tmp";
+system "n9", "-s", "
+  set -x
+  chown -R user.users $remoteAccounts.tmp
+  rm -rf $remoteAccounts
+  mv $remoteAccounts.tmp $remoteAccounts
+";
+
