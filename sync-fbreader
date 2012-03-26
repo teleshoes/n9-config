@@ -29,7 +29,6 @@ sub run(@){
   system @_;
 }
 
-run "mkdir", "-p", $fbreaderLocal;
 run "rsync", @rsyncOpts, "$remote/", $local;
 run "rsync", @rsyncOpts, "$local/", $remote;
 
