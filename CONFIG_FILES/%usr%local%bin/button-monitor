@@ -30,6 +30,7 @@ def getActions():
   , Action([voldn, volup, volup], cond=screenLocked, action=cmd("torch"))
   , Action([volup], cond=screenLocked, action=cmd("udo klomp-cmd pause"))
   , Action([voldn], cond=screenLocked, action=cmd("udo klomp-cmd next"))
+  , Action([volup, voldn], cond=screenLocked, action=cmd("udo klomp-cmd prev"))
   ])
 
 def readProc(cmdarr):
