@@ -20,7 +20,9 @@ my $trackerDestDir = "$dest/backup-tracker";
 
 system "$dir/dcim-backup";
 
-system "$dir/sync-pidgin-logs";
+system "$dir/sync-pidgin";
+system "$dir/sync-mydocs";
+system "$dir/sync-fbreader";
 
 #system "n9", "-s", "backup-tracker";
 #system "mkdir", "-p", $trackerDestDir;
