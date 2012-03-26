@@ -1,0 +1,21 @@
+switched to default profile again
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Changes to be committed:
+#   (use "git reset HEAD <file>..." to unstage)
+#
+#	modified:   fennec/1c8xkxj0.profile/cookies.sqlite
+#	deleted:    fennec/1c8xkxj0.profile/cookies.sqlite-wal
+#	deleted:    fennec/1c8xkxj0.profile/extensions.sqlite-journal
+#	modified:   fennec/1c8xkxj0.profile/permissions.sqlite
+#	modified:   fennec/1c8xkxj0.profile/places.sqlite
+#	modified:   fennec/1c8xkxj0.profile/prefs.js
+#	deleted:    fennec/1c8xkxj0.profile/sessionstore.bak
+#	modified:   fennec/1c8xkxj0.profile/sessionstore.js
+#	new file:   fennec/1c8xkxj0.profile/startupCache/startupCache.4.little
+#	modified:   fennec/profiles.ini
+#	renamed:    fennec/1c8xkxj0.profile/cookies.sqlite-shm -> fennec/skxu7bhf.default/places.sqlite-shm
+#	new file:   fennec/skxu7bhf.default/places.sqlite-wal
+#	new file:   fennec/skxu7bhf.default/sessionstore.bak
+#

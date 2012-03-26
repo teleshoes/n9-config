@@ -1,0 +1,13 @@
+0000000000000000000000000000000000000000 f5374e636a72df84e4d3d7461af60d8ddeb392b4 Elliot Wolk <elliot.wolk@gmail.com> 1332793481 -0400	commit (initial): fennec initial commit
+f5374e636a72df84e4d3d7461af60d8ddeb392b4 8a2953e85850844b1b1ff01ab11f9ecd247b90ab Elliot Wolk <elliot.wolk@gmail.com> 1332793502 -0400	commit: loaded fennec
+8a2953e85850844b1b1ff01ab11f9ecd247b90ab b6f3f526196837ca863a8a25de72d6a4127c8f41 Elliot Wolk <elliot.wolk@gmail.com> 1332793529 -0400	commit: installed adblock plus
+b6f3f526196837ca863a8a25de72d6a4127c8f41 37670b3d839f660a62fe2cfeb1bbdc503cd316ec Elliot Wolk <elliot.wolk@gmail.com> 1332793590 -0400	commit: restarted after installing adblock
+37670b3d839f660a62fe2cfeb1bbdc503cd316ec d274f0f8edc3a3872569b6d49e1c363a36c1bbb2 Elliot Wolk <elliot.wolk@gmail.com> 1332793631 -0400	commit: loaded fennec after installing adblock
+d274f0f8edc3a3872569b6d49e1c363a36c1bbb2 f5d5679ffd7daa5120fc4bd15e6f5bac975f73d1 Elliot Wolk <elliot.wolk@gmail.com> 1332793722 -0400	commit: installed mobile profiles
+f5d5679ffd7daa5120fc4bd15e6f5bac975f73d1 b24fc89395080921a04dab9ff29b6e159640358a Elliot Wolk <elliot.wolk@gmail.com> 1332793775 -0400	commit: added new profile
+b24fc89395080921a04dab9ff29b6e159640358a f6bc4ce2ed7be737ccfc703714db1445e9514dc2 Elliot Wolk <elliot.wolk@gmail.com> 1332795369 -0400	commit: switched to new profile
+f6bc4ce2ed7be737ccfc703714db1445e9514dc2 d37b3b84f807688bf29b750028db16b1ecaad9e2 Elliot Wolk <elliot.wolk@gmail.com> 1332795416 -0400	commit: installed adblock to new profile
+d37b3b84f807688bf29b750028db16b1ecaad9e2 75080397ed4b7b51b50d9f19eb751c2a31484fe2 Elliot Wolk <elliot.wolk@gmail.com> 1332795455 -0400	commit: restarted in new profile after installing adblock
+75080397ed4b7b51b50d9f19eb751c2a31484fe2 7d0237b648ceefb6a1b7bcdb52096aa6bbba25d8 Elliot Wolk <elliot.wolk@gmail.com> 1332795519 -0400	commit: switched back to default profile
+7d0237b648ceefb6a1b7bcdb52096aa6bbba25d8 661c0450c714596d1b7b67001e52af65fd4bc94d Elliot Wolk <elliot.wolk@gmail.com> 1332795565 -0400	commit: switched to other profile
+661c0450c714596d1b7b67001e52af65fd4bc94d 541458c3008e357ac5942973f7b13a85e76eb75d Elliot Wolk <elliot.wolk@gmail.com> 1332795597 -0400	commit: switched to default profile again
