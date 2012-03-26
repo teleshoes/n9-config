@@ -1,0 +1,43 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $host = `n9`;
+chomp $host;
+
+my $dir = "$ENV{HOME}/Code/n9";
+my $myDocsLocal = "$dir/MyDocs";
+my $myDocsRemote = "/home/user/MyDocs";
+
+my $local = $myDocsLocal;
+my $remote = "user\@$host:$myDocsRemote";
+
+my @excludes = qw(
+  backup-contacts
+  backup-sms
+  backup-tracker
+  cities
+  DevIcon.fil
+  lost+found
+  Music
+  pvr_hwrec
+  .qf
+);
+
+my @rsyncOpts = qw(
+  -a --no-owner --no-group
+  -v
+);
+for my $exclude(@excludes){
+  push @rsyncOpts, "--exclude=$exclude";
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+run "mkdir", "-p", $myDocsLocal;
+run "rsync", @rsyncOpts, "$remote/", $local;
+run "rsync", @rsyncOpts, "$local/", $remote;
+
