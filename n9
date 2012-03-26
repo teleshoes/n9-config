@@ -121,9 +121,9 @@ if($ssh){
   if($bash){
     my $c = "@ARGV";
     $c =~ s/'/'\\''/g;
-    system "ssh", "root\@$hostname", "bash -c '$c'";
+    exec "ssh", "root\@$hostname", "bash -c '$c'";
   }else{
-    system "ssh", "root\@$hostname", @ARGV;
+    exec "ssh", "root\@$hostname", @ARGV;
   }
 }elsif(@ARGV > 0){
   die "Usage:
