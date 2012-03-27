@@ -13,13 +13,17 @@
 #
 
 from QmSystem import *
+from PySide.QtCore import *
 from PySide.QtGui import *
 from PySide.QtDeclarative import *
+from QtMobility.MultimediaKit import QCamera, QCameraExposure
 
 import sys
 import os
 import subprocess
 import re
+
+torchAutoShutOffTime = 5*60*1000
 
 ###############
 ###############
@@ -27,12 +31,12 @@ import re
 def getActions():
   return filter(None, [ None
   , Action([volup], cond=appOnTop("camera-ui"), action=cmd("camera-click"))
-  , Action([voldn, volup, volup], cond=screenLocked, action=cmd("torch"))
+  , Action([voldn, volup, volup], cond=screenLocked, action=torch.toggle)
   , Action([volup], cond=screenLocked, action=cmd("udo klomp-cmd pause"))
   , Action([voldn], cond=screenLocked, action=cmd("udo klomp-cmd next"))
   , Action([volup, voldn], cond=screenLocked, action=cmd("udo klomp-cmd prev"))
   ])
-
+ 
 def readProc(cmdarr):
   out, err = subprocess.Popen(cmdarr, stdout=subprocess.PIPE).communicate()
   return out
@@ -57,6 +61,56 @@ def runcmd(cmd):
 ###############
 ###############
 ###############
+
+class TorchAutoShutOff(QWidget):
+  def __init__(self, torch):
+    super(TorchAutoShutOff, self).__init__()
+    self.torch = torch
+    self.timer = QBasicTimer()
+  def schedule(self, time):
+    self.timer.start(time, self)
+  def cancel(self):
+    self.timer.stop()
+  def timerEvent(self, e):
+    self.timer.stop()
+    if self.torch.state == "on":
+      print "auto shut-off"
+      self.torch.off()
+
+class Torch():
+  def __init__(self):
+    self.state = "off"
+
+  def initCamera(self):
+    self.camera = QCamera()
+    self.autoShutOff = TorchAutoShutOff(self)
+    self.on()
+    self.autoShutOff.schedule(500)
+
+  def toggle(self):
+    if self.state == "on":
+      self.off()
+    else:
+      self.on()
+
+  def on(self):
+    print "torch on"
+    self.camera.setCaptureMode(QCamera.CaptureVideo)
+    self.camera.exposure().setFlashMode(QCameraExposure.FlashTorch)
+    self.camera.start()
+    self.state = "on"
+    self.autoShutOff.schedule(torchAutoShutOffTime)
+
+  def off(self):
+    self.autoShutOff.cancel()
+    print "torch off"
+    self.camera.setCaptureMode(QCamera.CaptureStillImage)
+    self.camera.exposure().setFlashMode(QCameraExposure.FlashManual)
+    self.camera.unlock()
+    self.camera.unload()
+    self.state = "off"
+
+torch = Torch()
 
 evtPressed = 'pressed'
 evtRepeated = 'repeated'
@@ -104,11 +158,16 @@ def keyEvent(key, state):
           action.action()
     del pattern[:]
 
+
 def main():
   app = QApplication(sys.argv)
+
+  torch.initCamera()
   keys = QmKeys()
   keys.keyEvent.connect(keyEvent)
+  
   app.exec_()
+
 
 if __name__ == "__main__":
   sys.exit(main())
