@@ -12,6 +12,7 @@ my $remoteAccounts = "/home/user/.accounts";
 system "scp", "-r", "$localAccounts/", "root\@$host:$remoteAccounts.tmp";
 system "n9", "-s", "
   set -x
+  rm -rf /home/user/.aegis
   chown -R user.users $remoteAccounts.tmp
   rm -rf $remoteAccounts
   mv $remoteAccounts.tmp $remoteAccounts
