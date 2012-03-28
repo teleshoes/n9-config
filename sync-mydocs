@@ -21,6 +21,7 @@ my @excludes = qw(
   lost+found
   Music
   pvr_hwrec
+  DCIM
   .qf
 );
 
