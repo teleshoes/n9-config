@@ -68,14 +68,9 @@ cEnd='\[\033[00m\]'
 PS1="$c1$u$h$cEnd$colon$c2\w$cEnd\$ "
 
 alias gvim='termcmd vim'
-alias shut='sudo poweroff'
-alias shutdown='poweroff'
-alias susp='sudo pm-suspend'
-alias suspend='pm-suspend'
-alias rest='sudo reboot'
-alias restart='reboot'
 alias cx='chmod +x'
 alias :q='exit'
+alias shutdown='poweroff'
 alias suod='sudo'
 alias sudp='sudo'
 alias wconnect='sudo wconnect'
@@ -86,10 +81,14 @@ alias l='ls -al --color=auto'
 alias ll='ls -al --color=auto'
 alias ld='ls -dal --color=auto'
 alias mplayer='WINDOW_TITLE=MPLAYER; mplayer'
-alias migl='miglatest'
+
+alias genservices='~/workspace/escribe/tools/genservices'
+alias migl='gvim `~/workspace/escribe/src-sql/migrations/latest-script`'
 
 ##AUTOLOGIN START##
-if [ -z "$DISPLAY" ] && [ $(tty) == "/dev/tty7" ]; then
-  exec startx
+if [ -z "$DISPLAY" ]; then
+  if [ "$tty" == "/dev/tty7" ]; then
+    exec startx
+  fi
 fi
 ##AUTOLOGIN END##
