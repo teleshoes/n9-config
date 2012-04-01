@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 my %gconf = (
-  '/Meego/System/UsbMode' => ['ovi_suite'],
+  "/Meego/System/UsbMode" => ['ovi_suite'],
 );
 
 sub gconfGetCmd($){
@@ -11,7 +11,7 @@ sub gconfGetCmd($){
 }
 sub gconfSetCmd($$$$){
   my ($key, $val, $type, $listType) = @_;
-  my $cmd = "gconftool-2 --set $key $val --type=$type";
+  my $cmd = "gconftool-2 --set '$key' '$val' --type=$type";
   if(lc $type eq 'list'){
     $cmd .= " --list-type=$listType";
   }
