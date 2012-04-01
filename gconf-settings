@@ -3,29 +3,35 @@ use strict;
 use warnings;
 
 my %gconf = (
-  '/Meego/System/UsbMode' => 'string:ovi_suite',
-#  '/Meego/System/UsbMode' => 'string:mass_storage',
-#  '/Meego/System/UsbMode' => 'string:charging_only',
-#  '/Meego/System/UsbMode' => 'string:ask',
+  '/Meego/System/UsbMode' => ['ovi_suite'],
 );
 
-sub gconfGet($){
-  my $val = `n9 -s gconftool-2 --get $_[0]`;
-  chomp $val;
-  return $val;
+sub gconfGetCmd($){
+  return "gconftool-2 --get $_[0]";
 }
-sub gconfSet($$$){
-  my ($key, $val, $type) = @_;
-  system "n9", "-s", "gconftool-2 --set $key --type=$type $val";
+sub gconfSetCmd($$$$){
+  my ($key, $val, $type, $listType) = @_;
+  my $cmd = "gconftool-2 --set $key $val --type=$type";
+  if(lc $type eq 'list'){
+    $cmd .= " --list-type=$listType";
+  }
+  return $cmd;
 }
 
-for my $key(keys %gconf){
-  my $val = $gconf{$key};
-  my $type = 'string';
-  if($val =~ /^(int|bool|float|string|list|pair):(.*)$/i){
-    $type = $1;
-    $val = $2;
+sub main(@){
+  die "Usage: $0\n" if @_ > 0;
+  my @cmds = ();
+  for my $key(keys %gconf){
+    my @arr = @{$gconf{$key}};
+    my $val = shift @arr;
+    my $type = @arr > 0 ? shift @arr : 'string';
+    my $listType = @arr > 0 ? shift @arr : undef;
+    push @cmds, "echo -n \"$key| NEW: $val OLD: \"";
+    push @cmds, gconfGetCmd($key);
+    push @cmds, gconfSetCmd($key, $val, $type, $listType);
   }
-  print "$key " . gconfGet($key) . " => " . $val . "\n";
-  gconfSet $key, $val, $type;
+  my $cmd = join "\n", @cmds;
+  print "$cmd\n\n";
+  system "n9", "-s", $cmd;
 }
+&main(@ARGV);
