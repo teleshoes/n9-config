@@ -24,46 +24,160 @@ from QtMobility.SystemInfo import QSystemDeviceInfo
 
 import sys
 import os
-import subprocess
 import re
+import time
+import subprocess
 
-torchAutoShutOffTime = 5*60*1000
+STATE_ON = 2
+STATE_OFF = 0
+
+BUTTON_VOLUME_UP = 2
+BUTTON_VOLUME_DOWN = 3
+BUTTON_POWER = 20
 
 ###############
+
+#montonic timer so that ntp adjustments cant throw off double-click timing..
+import ctypes
+__all__ = ["monotonic_time"]
+CLOCK_MONOTONIC = 1 # see <linux/time.h>
+CLOCK_MONOTONIC_RAW = 4 # see <linux/time.h>
+class timespec(ctypes.Structure):
+    _fields_ = [
+        ('tv_sec', ctypes.c_long),
+        ('tv_nsec', ctypes.c_long)
+    ]
+librt = ctypes.CDLL('librt.so.1', use_errno=True)
+clock_gettime = librt.clock_gettime
+clock_gettime.argtypes = [ctypes.c_int, ctypes.POINTER(timespec)]
+
+def monotonic_time():
+  t = timespec()
+  if clock_gettime(CLOCK_MONOTONIC_RAW, ctypes.pointer(t)) != 0:
+    errno_ = ctypes.get_errno()
+    raise OSError(errno_, os.strerror(errno_))
+  return t.tv_sec + t.tv_nsec * 1e-9
+
 ###############
+configFilePath = "/home/user/.config/n9-button-monitor.conf"
+
+class Config():
+  def __init__(self):
+    self.actions = []
+    self.torchAutoShutOffTimeMs=300000
+    self.longClickDelayMs=400
+    self.doubleClickDelayMs=400
+    self.trebleClickDelayMs=600
+  def getDefaultConfig(self):
+    return (""
+      + "#DEFAULT CONFIG\n"
+      + "torchAutoShutOffTimeMs=30000\n"
+      + "longClickDelayMs=400\n"
+      + "doubleClickDelayMs=400\n"
+      + "trebleClickDelayMs=600\n"
+      + "action=torchOn,volumeUp,longClickStart,screenLocked\n"
+      + "action=torchOff,volumeUp,longClickStop,screenLocked\n"
+      + "action=cameraFocus,volumeUp,longClickStart,cameraAppFocused\n"
+      + "action=cameraSnap,volumeUp,longClickStop,cameraAppFocused\n"
+      )
+  def getIntFieldRegex(self, fieldName):
+    return re.compile("^" + fieldName + "=" + "(\d+)" + "$")
+  def getActionRegex(self):
+    ptrn = (""
+           + "^"
+           + "\\s*action\\s*=\\s*"
+           + "(?P<actionName>" + "|".join(actions.keys()) + ")"
+           + "(?:" + "\(" + "(?P<actionParam>[^)]*)" + "\)" + ")?"
+           + "\\s*,\\s*"
+           + "(?P<button>" + "|".join(buttons.keys()) + ")"
+           + "\\s*,\\s*"
+           + "(?P<clickType>" + "|".join(clickTypes) + ")"
+           + "\\s*,\\s*"
+           + "(?P<condName>" + "|".join(conds.keys()) + ")"
+           + "(?:" + "\(" + "(?P<condParam>[^)]*)" + "\)" + ")?"
+           + "\\s*(#.*)?"
+           + "$"
+           )
+    return re.compile(ptrn)
+  def parse(self, filePath):
+    if not os.path.isfile(filePath):
+      config = self.getDefaultConfig()
+      print "WARNING: no config file at '" + filePath + "'"
+      print "Using default config:\n" + config
+    else:
+      config = open(filePath,"rb").read()
+
+    actionRe = self.getActionRegex()
+    integerRe = re.compile("^\\s*(?P<key>[a-zA-Z0-9]+)\\s*=\\s*(?P<value>\d+)\\s*(#.*)?$")
+    commentRe = re.compile("^\\s*#.*$")
+    for line in config.splitlines():
+      actionMatch = actionRe.match(line)
+      integerMatch = integerRe.match(line)
+      commentMatch = commentRe.match(line)
+      key = None
+      if integerMatch != None:
+        key = integerMatch.group("key")
+        val = int(integerMatch.group("value"))
+
+      if commentMatch != None:
+        pass
+      elif actionMatch != None:
+        self.actions.append(Action(
+          actionName = actionMatch.group("actionName"),
+          actionParam = actionMatch.group("actionParam"),
+          button = actionMatch.group("button"),
+          clickType = actionMatch.group("clickType"),
+          condName = actionMatch.group("condName"),
+          condParam = actionMatch.group("condParam")
+        ))
+      elif key == "torchAutoShutOffTimeMs":
+        self.torchAutoShutOffTimeMs = val
+      elif key == "longClickDelayMs":
+        self.longClickDelayMs = val
+      elif key == "doubleClickDelayMs":
+        self.doubleClickDelayMs = val
+      elif key == "trebleClickDelayMs":
+        self.trebleClickDelayMs = val
+      else:
+        print >> sys.stderr, "Unparseable config entry: " + line
+        sys.exit(1)
+
 ###############
-def getActions():
-  return filter(None, [ None
-  , Action([volup], cond=appOnTop("camera-ui"), action=cmd("camera-click"))
-  , Action([voldn, volup, volup], cond=screenLocked, action=torch.toggle)
-  , Action([volup], cond=screenLocked, action=cmd("udo klomp-cmd pause"))
-  , Action([voldn], cond=screenLocked, action=cmd("udo klomp-cmd next"))
-  , Action([volup, voldn], cond=screenLocked, action=cmd("udo klomp-cmd prev"))
-  ])
- 
+
+def getConds():
+  return { "screenLocked": lambda: QSystemDeviceInfo().isDeviceLocked()
+         , "cameraAppFocused": lambda: isAppOnTop("camera-ui")
+         , "appFocused": lambda x: lambda: isAppOnTop(x)
+         }
+
 def readProc(cmdarr):
   out, err = subprocess.Popen(cmdarr, stdout=subprocess.PIPE).communicate()
   return out
-
-def screenLocked():
-  return QSystemDeviceInfo().isDeviceLocked();
-def screenUnlocked():
-  return not screenLocked()
-
-def appOnTop(app):
-  return lambda: isAppOnTop(app)
 def isAppOnTop(app):
   winId = readProc(["xprop", "-root", "_NET_ACTIVE_WINDOW"]) [40:]
   winCmd = readProc(["xprop", "-id", winId, "WM_COMMAND"]) [24:-4]
   return app in winCmd
 
+###############
+
+def getActions():
+  return { "cameraSnap": lambda: drag("820x240,820x240")
+         , "cameraFocus": lambda: drag("820x240-820x100*200+5")
+         , "torchOn": lambda: torch.on()
+         , "torchOff": lambda: torch.off()
+         , "torchToggle": lambda: torch.toggle()
+         , "cmd": lambda x: lambda: cmd(x)
+         , "drag": lambda x: lambda: drag
+         }
+
+def drag(arg):
+  cmdArr=["xresponse", "-w", "1", "-d", arg]
+  print "xresponse drag command: " + str(cmdArr)
+  subprocess.Popen(cmdArr)
 def cmd(cmd):
-  return lambda: runcmd(cmd)
-def runcmd(cmd):
   print 'running cmd: "' + cmd + '"'
-  subprocess.Popen(['bash', '-c', cmd])
-###############
-###############
+  subprocess.Popen(['sh', '-c', cmd])
+
 ###############
 
 class TorchAutoShutOff(QWidget):
@@ -103,7 +217,7 @@ class Torch():
     self.camera.exposure().setFlashMode(QCameraExposure.FlashTorch)
     self.camera.start()
     self.state = "on"
-    self.autoShutOff.schedule(torchAutoShutOffTime)
+    self.autoShutOff.schedule(config.torchAutoShutOffTimeMs)
 
   def off(self):
     self.autoShutOff.cancel()
@@ -114,64 +228,136 @@ class Torch():
     self.camera.unload()
     self.state = "off"
 
-torch = Torch()
+###############
 
-evtPressed = 'pressed'
-evtRepeated = 'repeated'
-evtReleased = 'released'
+clickTypes = ["click","doubleClick","trebleClick",
+              "longClickStart","longClickStop"]
 
-stateOn = 2
-stateOff = 0
-
-power = 20
-volup = 2
-voldn = 3
+buttons = { "volumeUp": BUTTON_VOLUME_UP
+          , "volumeDown": BUTTON_VOLUME_DOWN}
 
 class Action():
-  def __init__(self, pattern, action=None, cond=None):
-    self.pattern = pattern
-    self.action = action
-    self.cond = cond
+  def __init__(self, actionName, actionParam,
+               button, clickType, condName, condParam):
+    self.key = buttons[button]
+    self.clickType = clickType
+    self.actionLambda = self.getLambda(actions, actionName, actionParam)
+    self.condLambda = self.getLambda(conds, condName, condParam)
+  def getLambda(self, lambdaDict, lambdaName, lambdaParam):
+    lam = lambdaDict[lambdaName]
+    assert self.isLambda(lam), "'" + lambdaName + "' not defined"
+    if lambdaParam != None:
+      try:
+        lam = lam(lambdaParam)
+        assert self.isLambda(lam)
+      except:
+        print >> sys.stderr, (
+          "'" + lambdaName + "' does not accept an argument\n" +
+          "{given: '" + lambdaParam + "'}")
+        sys.exit(1)
+    return lam
+  def isLambda(self, v):
+    return isinstance(v, type(lambda: None)) and v.__name__ == '<lambda>'
 
-keysPressed = set()
+
+torch = Torch()
 actions = getActions()
-pattern = []
+conds = getConds()
+config = Config()
+config.parse(configFilePath)
 
-def keyEvent(key, state):
-  event = None
-  if state == stateOn:
-    if key not in keysPressed:
-      event = evtPressed
-    else:
-      event = evtRepeated
-    keysPressed.add(key)
-  elif state == stateOff:
-    event = evtReleased
-    keysPressed.discard(key)
-
-  if event == evtRepeated:
-    return
-
-  if event == evtPressed:
-    pattern.append(key)
-
-  if event == evtReleased and len(pattern) > 0 and pattern[0] == key:
-    for action in actions:
-      if action.pattern == pattern:
-        if action.cond == None or action.cond():
-          action.action()
-    del pattern[:]
-
+class ClickTimer(QWidget):
+  def __init__(self, key):
+    super(ClickTimer, self).__init__()
+    self.timer = QBasicTimer()
+    self.key = key
+    self.presses = []
+    self.releases = []
+    self.keyPressed = False
+    self.longClickStarted = False
+  def nowMs(self):
+    return monotonic_time() * 1000
+  def receivePress(self):
+    self.presses.append(self.nowMs())
+    self.checkEvent()
+  def receiveRelease(self):
+    self.releases.append(self.nowMs())
+    self.checkEvent()
+  def checkEvent(self):
+    now = self.nowMs()
+    self.timer.stop()
+    if len(self.presses) == 0:
+      self.reset()
+      return
+    elif len(self.presses) == 1:
+      press = self.presses[0]
+      if len(self.releases) == 0:
+        if now - press > config.longClickDelayMs:
+          self.longClickStarted = True
+          self.longClickStart()
+        else:
+          self.schedule(config.longClickDelayMs - (now - press))
+          return
+      elif len(self.releases) == 1:
+        if self.longClickStarted:
+          self.longClickStop()
+        elif now - press > config.doubleClickDelayMs:
+          self.singleClick()
+        else:
+          self.schedule(config.doubleClickDelayMs - (now - press))
+      else:
+        self.singleClick()
+    elif len(self.presses) == 2:
+      press = self.presses[0]
+      if now - press > config.trebleClickDelayMs:
+        self.doubleClick()
+      else:
+        self.schedule(config.trebleClickDelayMs - (now - press))
+    elif len(self.presses) >= 3:
+      self.trebleClick()
+    self.releases
+  def schedule(self, time):
+    self.timer.start(time, self)
+  def reset(self):
+    self.timer.stop()
+    self.presses = []
+    self.releases = []
+    self.longClickStarted = False
+  def singleClick(self):
+    self.reset()
+    print str(self.key) + ": single"
+  def doubleClick(self):
+    self.reset()
+    print str(self.key) + ": double"
+  def trebleClick(self):
+    self.reset()
+    print str(self.key) + ": treble"
+  def longClickStart(self):
+    print str(self.key) + ": long-start"
+  def longClickStop(self):
+    self.reset()
+    print str(self.key) + ": long-stop"
+  def timerEvent(self, e):
+    self.timer.stop()
+    self.checkEvent()
+  def keyEvent(self, state):
+    if state == STATE_ON and not self.keyPressed:
+      self.keyPressed = True
+      self.receivePress()
+    elif state == STATE_OFF:
+      self.keyPressed = False
+      self.receiveRelease()
 
 def main():
   app = QApplication(sys.argv)
-
   torch.initCamera()
   keys = QmKeys()
-  keys.keyEvent.connect(keyEvent)
-  
+  buttonTimers = dict()
+  for b in buttons.values():
+    buttonTimers[b] = ClickTimer(b)
+  keys.keyEvent.connect(lambda k, s:
+    (k in buttonTimers and buttonTimers[k].keyEvent(s)))
   app.exec_()
-
 
 if __name__ == "__main__":
   sys.exit(main())
