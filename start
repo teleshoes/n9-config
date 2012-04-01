@@ -1,4 +1,4 @@
-A) flash an open kernel {see flashing/instructions}
+A) flash the firmware with a CLOSED kernel {see flashing/instructions}
 
 B) enable dev mode to get a terminal:
 Settings -> Security {???} -> Dev Mode
@@ -15,12 +15,15 @@ D) insert usb, select: sync and connect
 1) ssh-config
 2) set-host
 3) keygen.pl
+4) remove-disclaimer
+5) FLASH AN OPENMODE KERNEL
 ###switch to wifi now###
-4) install-packages
-5) config-files
-6) openvpn-keys
-7) launcher-buttons
-8) ext4-mydocs
-9) tweaks
-10) setup-cities
-11) reboot!!
+6) packages
+7) config-files
+8) openvpn-keys
+9) launcher-buttons
+10) ext4-mydocs
+11) tweaks
+12) setup-cities
+13) install-klomp
+14) reboot!!
