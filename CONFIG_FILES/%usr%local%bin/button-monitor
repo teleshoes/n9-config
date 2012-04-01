@@ -79,6 +79,7 @@ class Config():
       + "action=torchOff,volumeUp,longClickStop,screenLocked\n"
       + "action=cameraFocus,volumeUp,longClickStart,cameraAppFocused\n"
       + "action=cameraSnap,volumeUp,longClickStop,cameraAppFocused\n"
+      + "action=cameraSnap,volumeUp,singleClick,cameraAppFocused\n"
       )
   def getIntFieldRegex(self, fieldName):
     return re.compile("^" + fieldName + "=" + "(\d+)" + "$")
@@ -230,7 +231,7 @@ class Torch():
 
 ###############
 
-clickTypes = ["click","doubleClick","trebleClick",
+clickTypes = ["singleClick","doubleClick","trebleClick",
               "longClickStart","longClickStop"]
 
 buttons = { "volumeUp": BUTTON_VOLUME_UP
@@ -241,8 +242,19 @@ class Action():
                button, clickType, condName, condParam):
     self.key = buttons[button]
     self.clickType = clickType
+    self.actionName = actionName
+    self.actionParam = actionParam
     self.actionLambda = self.getLambda(actions, actionName, actionParam)
+    self.condName = condName
+    self.condParam = condParam
     self.condLambda = self.getLambda(conds, condName, condParam)
+  def __str__(self):
+    if self.actionParam == None:
+      param = ""
+    else:
+      param = "(" + self.actionParam + ")"
+    action = self.actionName + param
+    return (str(self.key) + "[" + self.clickType + "]: " + action)
   def getLambda(self, lambdaDict, lambdaName, lambdaParam):
     lam = lambdaDict[lambdaName]
     assert self.isLambda(lam), "'" + lambdaName + "' not defined"
@@ -275,6 +287,11 @@ class ClickTimer(QWidget):
     self.releases = []
     self.keyPressed = False
     self.longClickStarted = False
+    keyActions = filter(lambda a: a.key == self.key, config.actions)
+    self.actionsByClickType = dict()
+    for clickType in clickTypes:
+      acts = filter(lambda a: a.clickType == clickType, keyActions)
+      self.actionsByClickType[clickType] = acts
   def nowMs(self):
     return monotonic_time() * 1000
   def receivePress(self):
@@ -326,17 +343,26 @@ class ClickTimer(QWidget):
   def singleClick(self):
     self.reset()
     print str(self.key) + ": single"
+    self.performActions("singleClick")
   def doubleClick(self):
     self.reset()
     print str(self.key) + ": double"
+    self.performActions("doubleClick")
   def trebleClick(self):
     self.reset()
     print str(self.key) + ": treble"
+    self.performActions("trebleClick")
   def longClickStart(self):
     print str(self.key) + ": long-start"
+    self.performActions("longClickStart")
   def longClickStop(self):
     self.reset()
     print str(self.key) + ": long-stop"
+    self.performActions("longClickStop")
+  def performActions(self, clickType):
+    for a in self.actionsByClickType[clickType]:
+      if a.condLambda == None or a.condLambda():
+        a.actionLambda()
   def timerEvent(self, e):
     self.timer.stop()
     self.checkEvent()
