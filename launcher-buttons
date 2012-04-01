@@ -2,6 +2,9 @@
 use strict;
 use warnings;
 
+my $host = "192.168.2.15";
+chomp $host;
+
 my @config = qw(
   call-history
   messaging-ui
@@ -78,9 +81,6 @@ for(my $i=0; $i<@config; $i++){
   }
 }
 
-my $host = `n9`;
-chomp $host;
-
 my $appDir = '/usr/share/applications';
 my $unusedDir = '/opt/unused-applications';
 my $directoryDir = '/home/user/.local/share/applications';
@@ -118,7 +118,7 @@ sub launcherPath($){
 
 
 sub createAppDesktopFiles(){
-  system "n9", "-s", "
+  system "ssh", "root\@$host", "
     set -x
     mkdir -p $unusedDir
     cd $appDir
@@ -154,7 +154,7 @@ sub createDirDesktopFiles(){
     my $fileName = "$directoryDir/folder$dir.directory";
     system "scp", $tmpFile, "root\@$host:$fileName";
   }
-  system "n9", "-s", "chown user.users -R $directoryDir";
+  system "ssh", "root\@$host", "chown user.users -R $directoryDir";
 }
 
 sub createQuickLauncherDesktopFiles(){
