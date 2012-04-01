@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub run(@){
+  print "@_\n";
+  system 'n9', '-s', @_;
+}
+
+run "chown user.users -R /home/user/MyDocs";
+
+my $vfat = '\/home\/user\/MyDocs vfat.*';
+my $ext4 = '\/home\/user\/MyDocs ext4 rw,noatime,errors=remount-ro,barrier=1 0 0';
+run "cat /etc/fstab | sed 's/$vfat/$ext4/' > /tmp/fstab";
+run "mv /tmp/fstab /etc/fstab";

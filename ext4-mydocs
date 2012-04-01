@@ -2,12 +2,14 @@
 use strict;
 use warnings;
 
+my $dir = "$ENV{HOME}/Code/n9";
+
 sub run(@){
   print "@_\n";
-  system 'n9', '-s', @_;
+  system @_;
 }
 
-run "umount -l /home/user/MyDocs";
+run "n9", "-s", "umount -l /home/user/MyDocs";
 print "sleeping for 2 sex, then ill prompt you to continue\n";
 sleep 2;
 print "\n\n\n";
@@ -22,7 +24,7 @@ print "  take 1min to produce any output, then another 1min to finish\n";
 print "  OR fail immediately\n";
 print "\n\n\n";
 
-run "mkfs.ext4 /dev/mmcblk0p1";
+#run "n9", "-s", "mkfs.ext4 /dev/mmcblk0p1";
 
 print "\n\n";
 print "DID THAT SHIT WORKK!?!?! [y/N]: ";
@@ -30,10 +32,6 @@ if(lc <STDIN> ne "y\n"){
   die "fucken TOLEJA\n";
 }
 
-run "mount -t ext4 /dev/mmcblk0p1 /home/user/MyDocs";
-run "chown user.users -R /home/user/MyDocs";
+run "n9", "-s", "mount -t ext4 /dev/mmcblk0p1 /home/user/MyDocs";
 
-my $vfat = '\/home\/user\/MyDocs vfat.*';
-my $ext4 = '\/home\/user\/MyDocs ext4 rw,noatime,errors=remount-ro,barrier=1 0 0';
-run "cat /etc/fstab | sed 's/$vfat/$ext4/' > /tmp/fstab";
-run "mv /tmp/fstab /etc/fstab";
+run "$dir/ext4-mydocs-fstab";
