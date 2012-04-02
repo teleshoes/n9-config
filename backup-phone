@@ -13,8 +13,6 @@ system "sudo", "echo", "ok";
 
 my $contactsSrcDir = "/home/user/MyDocs/backup-contacts";
 my $contactsDestDir = "$dest/backup-contacts";
-my $trackerSrcDir = "/home/user/MyDocs/backup-tracker";
-my $trackerDestDir = "$dest/backup-tracker";
 
 system "$dir/dcim-backup";
 
