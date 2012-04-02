@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $dir = "$ENV{HOME}/Code/n9";
+my $dest = "$dir/backup";
+
+my $host = `n9`;
+chomp $host;
+
+my $smsSrcDir = "/home/user/MyDocs/backup-sms";
+my $smsDestDir = "$dest/backup-sms";
+
+system "n9", "-s", "backup-sms";
+system "mkdir", "-p", $smsDestDir;
+system "rsync", "-av", "root\@$host:$smsSrcDir/", $smsDestDir;
+system "perl $dir/sms-tool.pl split";
+system "perl $dir/sms-tool.pl commit";
+

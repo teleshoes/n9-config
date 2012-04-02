@@ -13,8 +13,6 @@ system "sudo", "echo", "ok";
 
 my $contactsSrcDir = "/home/user/MyDocs/backup-contacts";
 my $contactsDestDir = "$dest/backup-contacts";
-my $smsSrcDir = "/home/user/MyDocs/backup-sms";
-my $smsDestDir = "$dest/backup-sms";
 my $trackerSrcDir = "/home/user/MyDocs/backup-tracker";
 my $trackerDestDir = "$dest/backup-tracker";
 
@@ -24,17 +22,10 @@ system "$dir/sync-pidgin";
 system "$dir/sync-mydocs";
 system "$dir/sync-fbreader";
 
-#system "n9", "-s", "backup-tracker";
-#system "mkdir", "-p", $trackerDestDir;
-#system "rsync", "-av", "root\@$host:$trackerSrcDir/", $trackerDestDir;
 
 system "n9", "-s", "backup-contacts";
 system "mkdir", "-p", $contactsDestDir;
 system "rsync", "-av", "root\@$host:$contactsSrcDir/", $contactsDestDir;
 
-system "n9", "-s", "backup-sms";
-system "mkdir", "-p", $smsDestDir;
-system "rsync", "-av", "root\@$host:$smsSrcDir/", $smsDestDir;
-system "perl $dir/sms-tool.pl split";
-system "perl $dir/sms-tool.pl commit";
+system "$dir/fetch-sms";
 
