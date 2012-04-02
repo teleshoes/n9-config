@@ -3,7 +3,6 @@ use strict;
 use warnings;
 
 my $dir = "$ENV{HOME}/Code/n9";
-my $dest = "$dir/backup";
 
 my $host = `n9`;
 chomp $host;
@@ -11,19 +10,12 @@ chomp $host;
 print "getting sudo pw cached\n";
 system "sudo", "echo", "ok";
 
-my $contactsSrcDir = "/home/user/MyDocs/backup-contacts";
-my $contactsDestDir = "$dest/backup-contacts";
-
 system "$dir/dcim-backup";
 
 system "$dir/sync-pidgin";
 system "$dir/sync-mydocs";
 system "$dir/sync-fbreader";
 
-
-system "n9", "-s", "backup-contacts";
-system "mkdir", "-p", $contactsDestDir;
-system "rsync", "-av", "root\@$host:$contactsSrcDir/", $contactsDestDir;
-
+system "$dir/fetch-contacts";
 system "$dir/fetch-sms";
 
