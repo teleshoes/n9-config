@@ -35,6 +35,9 @@ BUTTON_VOLUME_UP = 2
 BUTTON_VOLUME_DOWN = 3
 BUTTON_POWER = 20
 
+MUSIC_SUITE_STATE_PLAYING = 1
+MUSIC_SUITE_STATE_PAUSED = 2
+MUSIC_SUITE_STATE_OFF = 0
 ###############
 
 #montonic timer so that ntp adjustments cant throw off double-click timing..
@@ -169,7 +172,28 @@ def getActions():
          , "torchToggle": lambda: torch.toggle()
          , "cmd": lambda x: lambda: shellCmd(x)
          , "drag": lambda x: lambda: drag
+         , "musicPlayPause": lambda: musicPlayPause()
+         , "musicNext": lambda: musicSuiteDbus("next")
+         , "musicPrev": lambda: musicSuiteDbus("previous")
          }
+
+def musicPlayPause():
+  state = musicSuiteDbus("playbackState")
+  try:
+    state = int(state.strip())
+  except e:
+    print >> sys.stderr, "ERROR READING MUSIC SUITE STATE: " + str(e)
+
+  if state == MUSIC_SUITE_STATE_PLAYING:
+    musicSuiteDbus("pausePlayback")
+  elif state == MUSIC_SUITE_STATE_PAUSED:
+    musicSuiteDbus("resumePlayback")
+
+def musicSuiteDbus(methodShortName):
+  servicename = "com.nokia.maemo.meegotouch.MusicSuiteService"
+  path = "/"
+  method = "com.nokia.maemo.meegotouch.MusicSuiteInterface." + methodShortName
+  return readProc(["qdbus", servicename, path, method])
 
 def drag(arg):
   runcmd(["xresponse", "-w", "1", "-d", arg])
