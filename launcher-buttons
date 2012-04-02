@@ -99,11 +99,10 @@ sub writeLauncherButtonsData($);
 sub main(@){
   if(@_ == 1 and $_[0] eq '-g'){
     system "n9", "-s", "
-      echo LAUNCHERS
-      ls $appDir | sed 's/.desktop//' | sort
-      echo; echo
-      echo UNUSED
-      ls $unusedDir | sed 's/.desktop//' | sort
+      ls $appDir/*.desktop $unusedDir/*.desktop | \
+        sed 's/.desktop//' | \
+        sed 's/.*\\///' | \
+        sort
     ";
     exit 0;
   }
