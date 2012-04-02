@@ -109,7 +109,8 @@ class Config():
       config = open(filePath,"rb").read()
 
     actionRe = self.getActionRegex()
-    integerRe = re.compile("^\\s*(?P<key>[a-zA-Z0-9]+)\\s*=\\s*(?P<value>\d+)\\s*(#.*)?$")
+    integerRe = re.compile(
+      "^\\s*(?P<key>[a-zA-Z0-9]+)" + "\\s*=\\s*" + "(?P<value>\d+)\\s*(#.*)?$")
     commentRe = re.compile("^\\s*#.*$")
     emptyRe = re.compile("^\\s*$")
     for line in config.splitlines():
