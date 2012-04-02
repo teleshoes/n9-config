@@ -154,9 +154,6 @@ def getConds():
          , "appFocused": lambda x: lambda: isAppOnTop(x)
          }
 
-def readProc(cmdarr):
-  out, err = subprocess.Popen(cmdarr, stdout=subprocess.PIPE).communicate()
-  return out
 def isAppOnTop(app):
   winId = readProc(["xprop", "-root", "_NET_ACTIVE_WINDOW"]) [40:]
   winCmd = readProc(["xprop", "-id", winId, "WM_COMMAND"]) [24:-4]
@@ -170,17 +167,26 @@ def getActions():
          , "torchOn": lambda: torch.on()
          , "torchOff": lambda: torch.off()
          , "torchToggle": lambda: torch.toggle()
-         , "cmd": lambda x: lambda: cmd(x)
+         , "cmd": lambda x: lambda: shellCmd(x)
          , "drag": lambda x: lambda: drag
          }
 
 def drag(arg):
-  cmdArr=["xresponse", "-w", "1", "-d", arg]
-  print "xresponse drag command: " + str(cmdArr)
+  runcmd(["xresponse", "-w", "1", "-d", arg])
+
+###############
+
+def shellCmd(cmd):
+  runcmd(['sh', '-c', cmd])
+
+def runcmd(cmdArr):
+  print 'running cmd: "' + ' '.join(cmdArr) + '"'
   subprocess.Popen(cmdArr)
-def cmd(cmd):
-  print 'running cmd: "' + cmd + '"'
-  subprocess.Popen(['sh', '-c', cmd])
+
+def readProc(cmdArr):
+  print 'running cmd: "' + ' '.join(cmdArr) + '"'
+  out, err = subprocess.Popen(cmdArr, stdout=subprocess.PIPE).communicate()
+  return out
 
 ###############
 
