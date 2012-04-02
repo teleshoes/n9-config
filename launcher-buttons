@@ -23,8 +23,7 @@ my @config = qw(
   
   clock
   dir-stuff[
-    gallery
-    video-suite
+    folder-gallery_harmattan
     calendar
     notes
     ]
