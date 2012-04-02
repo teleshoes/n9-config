@@ -1,0 +1,11 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+print "Delete tracker?\n";
+print " all contacts, SMSes, and filesystem indexes? [y/N]";
+if(lc <STDIN> eq "y\n"){
+  my $cmd = "tracker-control --hard-reset";
+  print "$cmd\n";
+  system "n9", "-s", $cmd;
+}
