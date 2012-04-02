@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-my $host = "192.168.2.15";
+my $host = `n9`;
 chomp $host;
 
 my @config = qw(
