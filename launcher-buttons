@@ -97,7 +97,17 @@ sub getData();
 sub writeLauncherButtonsData($);
 
 sub main(@){
-  die "Usage: $0\n" if @_ > 0;
+  if(@_ == 1 and $_[0] eq '-g'){
+    system "n9", "-s", "
+      echo LAUNCHERS
+      ls $appDir | sed 's/.desktop//' | sort
+      echo; echo
+      echo UNUSED
+      ls $unusedDir | sed 's/.desktop//' | sort
+    ";
+    exit 0;
+  }
+  die "Usage: $0   or  $0 -g\n" if @_ > 0;
   createAppDesktopFiles();
   createDirDesktopFiles();
   createQuickLauncherDesktopFiles();
