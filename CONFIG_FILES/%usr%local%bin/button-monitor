@@ -111,16 +111,18 @@ class Config():
     actionRe = self.getActionRegex()
     integerRe = re.compile("^\\s*(?P<key>[a-zA-Z0-9]+)\\s*=\\s*(?P<value>\d+)\\s*(#.*)?$")
     commentRe = re.compile("^\\s*#.*$")
+    emptyRe = re.compile("^\\s*$")
     for line in config.splitlines():
       actionMatch = actionRe.match(line)
       integerMatch = integerRe.match(line)
       commentMatch = commentRe.match(line)
+      emptyMatch = emptyRe.match(line)
       key = None
       if integerMatch != None:
         key = integerMatch.group("key")
         val = int(integerMatch.group("value"))
 
-      if commentMatch != None:
+      if commentMatch != None or emptyMatch != None:
         pass
       elif actionMatch != None:
         self.actions.append(Action(
