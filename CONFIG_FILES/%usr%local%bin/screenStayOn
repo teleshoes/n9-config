@@ -1,0 +1,57 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $usage = "Usage:\n"
+  . "$0 on          => force screen to stay on\n"
+  . "$0 off         => allow screen blanking\n"
+  . "$0 get  => print 'on' or 'off'\n"
+  . "{default is get}\n"
+;
+
+my $gconfKey = '/system/osso/dsm/display/inhibit_blank_mode';
+my $gconfKeyType = 'int';
+my $stayOn = '1';
+my $allowBlanking = '0';
+
+sub get(){
+  my $val = `gconftool-2 --get $gconfKey`;
+  chomp $val;
+  if($val eq "1"){
+    return 1;
+  }elsif($val eq "0"){
+    return 0;
+  }else{
+    die "Unknown value for $gconfKey {$val}\n";
+  }
+}
+sub set($){
+  my $val = shift;
+  $val = $val ? 1 : 0;
+  system "gconftool-2 --set '$gconfKey' '$val' --type=$gconfKeyType";
+}
+
+sub printGet(){
+  print "screenStayOn: " . (get() ? "on" : "off") . "\n";
+}
+
+sub main(@){
+  my $arg = shift;
+  $arg = 'get' if not defined $arg;
+  die $usage if @_ > 0;
+  
+  if($arg eq 'on'){
+    printGet;
+    set 1;
+    printGet;
+  }elsif($arg eq 'off'){
+    printGet;
+    set 0;
+    printGet;
+  }elsif($arg eq 'get'){
+    printGet;
+  }else{
+    die $usage;
+  }
+}
+&main(@ARGV);
