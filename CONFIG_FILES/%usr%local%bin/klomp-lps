@@ -8,6 +8,11 @@ my $out = `cat $f`;
 my $arg = shift;
 if($arg eq '--top'){
   if($out =~ /^artist=(.*)$/m){
+    ##HACK FOR SCREEN STAY ON##
+    if(`screenStayOn` eq "screenStayOn: on\n"){
+      print "[{*}]";
+    }
+    ##END HACK##
     print "$1";
   }
   print "-";
