@@ -5,6 +5,7 @@ use warnings;
 my $usage = "Usage:\n"
   . "$0 on          => force screen to stay on\n"
   . "$0 off         => allow screen blanking\n"
+  . "$0 toggle      => toggle screen-blanking\n"
   . "$0 get  => print 'on' or 'off'\n"
   . "{default is get}\n"
 ;
@@ -38,20 +39,20 @@ sub printGet(){
 sub main(@){
   my $arg = shift;
   $arg = 'get' if not defined $arg;
-  die $usage if @_ > 0;
+  die $usage if @_ > 0 or $arg !~ /^(on|off|toggle|get)$/;
+
+
+  printGet;
+  if($arg eq 'toggle'){
+    $arg = get() ? 'off' : 'on';
+  }
   
   if($arg eq 'on'){
-    printGet;
     set 1;
     printGet;
   }elsif($arg eq 'off'){
-    printGet;
     set 0;
     printGet;
-  }elsif($arg eq 'get'){
-    printGet;
-  }else{
-    die $usage;
   }
 }
 &main(@ARGV);
