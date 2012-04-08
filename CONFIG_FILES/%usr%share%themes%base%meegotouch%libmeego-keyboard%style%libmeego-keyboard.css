@@ -59,7 +59,7 @@ NotificationStyle#SwitchingPlugin {
 NotificationStyle#SwitchingPlugin.Portrait {
     background-opacity: 1.0;
     background-image: "Notification_bg_P" $ROUNDED_CORNERS;
-    font-size: 56;
+    font-size: 40;
     text-horizontal-alignment: hcenter;
     text-vertical-alignment: bottom;
 
@@ -78,20 +78,11 @@ MImAbstractKeyAreaStyle {
     font-color: $FONT_COLOR_KEYBOARD;
     font-opacity: 1.0;
     secondary-font: $FONT_SMALL;
-    tone-resize-factor: 2.0;
 
     key-pressed-font-color: $FONT_COLOR_KEYBOARD;
     key-selected-font-color: $COLOR_FOREGROUND;
     key-disabled-font-color: $FONT_COLOR_KEYBOARD;
     key-highlighted-font-color: $COLOR_FOREGROUND;
-
-    /*** Font colors for translucent key area ***/
-    translucent-font-opacity: 0.67;
-    translucent-font-color: $FONT_COLOR_KEYBOARD;
-    translucent-key-pressed-font-color: $COLOR_FOREGROUND;
-    translucent-key-selected-font-color: $COLOR_FOREGROUND;
-    translucent-key-disabled-font-color: $FONT_COLOR_KEYBOARD;
-    translucent-key-highlighted-font-color: $COLOR_FOREGROUND;
 
     /*** Graphical assets ***/
     background-image: "meegotouch-keyboard-background" $ROUNDED_CORNERS;
@@ -128,12 +119,6 @@ MImAbstractKeyAreaStyle {
     key-background-deadkey-selected-highlighted: "meegotouch-keyboard-key-selected-highlighted" $ROUNDED_CORNERS;
     key-background-deadkey-pressed-selected-highlighted: "meegotouch-keyboard-key-pressed-selected-highlighted" $ROUNDED_CORNERS;
 
-    /*** Translucent graphical assets ***/
-    translucent-background-image: "meegotouch-keyboard-background-translucent" $ROUNDED_CORNERS;
-    translucent-key-background: "meegotouch-keyboard-key-translucent" $ROUNDED_CORNERS;
-    translucent-key-background-highlighted: "meegotouch-keyboard-key-highlighted-translucent" $ROUNDED_CORNERS;
-    translucent-key-background-special: "meegotouch-keyboard-function-key-translucent" $ROUNDED_CORNERS;
-
     key-backspace-icon-id: "icon-m-input-methods-backspace";
     key-backspace-icon-size: 38 38;
     key-backspace-icon-id-rtl: "icon-m-rtl-input-methods-backspace";
@@ -141,34 +126,6 @@ MImAbstractKeyAreaStyle {
     key-backspace-compact-icon-size: 30 30;
     /*** FIXME: no rtl icon available ***/
     key-backspace-compact-icon-id-rtl: "icon-m-input-methods-backspace-compact";
-
-    key-left-icon-id: "icon-s-input-method-left";
-    key-left-icon-size: 32 32;
-    key-left-icon-id-rtl: "icon-s-input-method-left";
-    key-left-compact-icon-id: ;
-    key-left-compact-icon-size: 0 0;
-    key-left-compact-icon-id-rtl: ;
-
-    key-up-icon-id: "icon-s-input-method-up";
-    key-up-icon-size: 32 32;
-    key-up-icon-id-rtl: "icon-s-input-method-up";
-    key-up-compact-icon-id: ;
-    key-up-compact-icon-size: 0 0;
-    key-up-compact-icon-id-rtl: ;
-
-    key-right-icon-id: "icon-s-input-method-right";
-    key-right-icon-size: 32 32;
-    key-right-icon-id-rtl: "icon-s-input-method-right";
-    key-right-compact-icon-id: ;
-    key-right-compact-icon-size: 0 0;
-    key-right-compact-icon-id-rtl: ;
-
-    key-down-icon-id: "icon-s-input-method-down";
-    key-down-icon-size: 32 32;
-    key-down-icon-id-rtl: "icon-s-input-method-down";
-    key-down-compact-icon-id: ;
-    key-down-compact-icon-size: 0 0;
-    key-down-compact-icon-id-rtl: ;
 
     key-menu-icon-size: 48 48;
     key-menu-icon-id: "icon-m-input-methods-menu";
@@ -215,8 +172,6 @@ MImAbstractKeyAreaStyle {
     commit-previous-key-on-press: true;
     auto-padding: true;
 
-    /*when pressing keys which are near keyboard border, pause to update popup*/
-    pause-update-popup-timeout: 75;
     pan-gesture-timeout: 250;
     /*the distance betwee the first touch position and the edge of keyboard
     must be less than pan-gesture-start-threshold*/
@@ -257,37 +212,37 @@ MImAbstractKeyAreaStyle {
 
 MImAbstractKeyAreaStyle.Landscape {
     /*** Label Setttings ***/
-    label-margin-top: 0.6mm;
+    label-margin-top: 10.6mm;
     label-margin-left-with-secondary: -1; /* not used, labels are centered horizontally */
     secondary-label-separation: 0;
 
     /*** Behaviour ***/
-    touchpoint-horizontal-gravity: 32px;
-    touchpoint-vertical-gravity: 20px;
+    touchpoint-horizontal-gravity: 0px;
+    touchpoint-vertical-gravity: 0px;
 
     /*** Key Geometry ***/
     key-height-small: -1; /* unused */
-    key-height-medium: 45px;
-    key-height-large: 66px;
-    key-height-x-large: 82px;
+    key-height-medium: 50.5px;
+    key-height-large: 60.5px;
+    key-height-x-large: 70.5px;
     key-height-xx-large: -1; /* unused */
 
     key-width-small-fixed: -1; /* unused */
-    key-width-medium-fixed: 76px;
-    key-width-large-fixed: 93px;
-    key-width-x-large-fixed: 178px;
-    key-width-xx-large-fixed: 244px;
+    key-width-medium-fixed: 72.9px;
+    key-width-large-fixed: 87.9px;
+    key-width-x-large-fixed: 167.9px;
+    key-width-xx-large-fixed: 227.9px;
     key-width-stretched-fixed: -1; /* unused */
     
-    key-margin-left: 4px;
-    key-margin-top: 0px;
-    key-margin-right: 4px;
-    key-margin-bottom: 12px;
+    key-margin-left: 7px;
+    key-margin-top: 7px;
+    key-margin-right: 7px;
+    key-margin-bottom: 7px;
 
-    padding-left: 11px;
-    padding-top: 12px;
-    padding-right: 11px;
-    padding-bottom: 8px;
+    padding-left: 0px;
+    padding-top: 10px;
+    padding-right: 0px;
+    padding-bottom: 0px;
 
     /*** Key Area Geometry ***/
     size: 854 -1;
@@ -298,7 +253,6 @@ MImAbstractKeyAreaStyle.Portrait {
     label-margin-top: 1.2mm;
     label-margin-left-with-secondary: 4.6mm;
     secondary-label-separation: 0.9mm;
-    enlarged-label-font-size: 35;
 
     /*** Behaviour ***/
     touchpoint-horizontal-gravity: 17px;
@@ -404,16 +358,16 @@ MImAbstractKeyAreaStyle.Portrait:keys37 {
 MImAbstractKeyAreaStyle.Landscape:keys38 {
     use-fixed-key-width: true;
 
-    key-width-medium-fixed: 72px;
-    key-width-large-fixed: 111px;
-    key-width-x-large-fixed: 150px;
-    key-width-xx-large-fixed: 189px;
+    key-width-medium-fixed: 62.5px;
+    key-width-large-fixed: 117.5px;
+    key-width-x-large-fixed: 155.5px;
+    key-width-xx-large-fixed: 194.5px;
     
-    key-margin-left: 3px;
-    key-margin-right: 3px;
+    key-margin-left: 8.5px;
+    key-margin-right: 8.5px;
 
-    padding-left: 1px;
-    padding-right: 1px;
+    padding-left: 0px;
+    padding-right: 0px;
 }
 
 MImAbstractKeyAreaStyle.Portrait:keys38 {
@@ -434,15 +388,15 @@ MImAbstractKeyAreaStyle.Portrait:keys38 {
 MImAbstractKeyAreaStyle.Landscape:keys39 {
     use-fixed-key-width: true;
 
-    key-width-medium-fixed: 72px;
-    key-width-x-large-fixed: 111px;
-    key-width-xx-large-fixed: 150px;
+    key-width-medium-fixed: 62.5px;
+    key-width-x-large-fixed: 117.5px;
+    key-width-xx-large-fixed: 156.5px;
     
-    key-margin-left: 3px;
-    key-margin-right: 3px;
+    key-margin-left: 8.5px;
+    key-margin-right: 8.5px;
 
-    padding-left: 1px;
-    padding-right: 1px;
+    padding-left: 0px;
+    padding-right: 0px;
 }
 
 MImAbstractKeyAreaStyle.Portrait:keys39 {
@@ -462,16 +416,16 @@ MImAbstractKeyAreaStyle.Portrait:keys39 {
 MImAbstractKeyAreaStyle.Landscape:keys40 {
     use-fixed-key-width: true;
 
-    key-width-medium-fixed: 72px;
-    key-width-large-fixed: 111px;
-    key-width-x-large-fixed: 150px;
-    key-width-xx-large-fixed: 267px;
+    key-width-medium-fixed: 62.5px;
+    key-width-large-fixed: 116.5px;
+    key-width-x-large-fixed: 156.5px;
+    key-width-xx-large-fixed: 272.5px;
     
-    key-margin-left: 3px;
-    key-margin-right: 3px;
+    key-margin-left: 8.5px;
+    key-margin-right: 8.5px;
 
-    padding-left: 1px;
-    padding-right: 1px;
+    padding-left: 0px;
+    padding-right: 0px;
 }
 
 MImAbstractKeyAreaStyle.Portrait:keys40 {
@@ -487,33 +441,6 @@ MImAbstractKeyAreaStyle.Portrait:keys40 {
 
     padding-left: 1px;
     padding-right: 1px;
-}
-
-MImAbstractKeyAreaStyle.Landscape:keys45 {
-    use-fixed-key-width: true;
-
-    key-height-medium: 40px;
-
-    key-width-medium-fixed: 76px;
-    key-width-large-fixed: 111px;
-    key-width-x-large-fixed: 150px;
-    key-width-xx-large-fixed: 267px;
-
-    key-margin-left: 4px;
-    key-margin-right: 4px;
-    key-margin-top: 3px;
-    key-margin-bottom: 3px;
-
-    padding-left: 11px;
-    padding-right: 11px;
-    padding-top: 9px;
-    padding-bottom: 3px;
-}
-
-MImAbstractKeyAreaStyle.Portrait:keys45 {
-    use-fixed-key-width: true;
-
-    key-width-x-large-fixed: 88px;
 }
 
 MImAbstractKeyAreaStyle.Landscape:keys47 {
@@ -539,40 +466,23 @@ MImAbstractKeyAreaStyle.Landscape:keys47 {
 
 MImAbstractKeyAreaStyle.Portrait:keys47 {
     use-fixed-key-width: true;
-
-    key-width-x-large-fixed: 88px;
 }
 
 MImAbstractKeyAreaStyle.Landscape:hebrew {
     use-fixed-key-width: true;
-    font-size: 35;
 
-    key-width-large-fixed: 160px;
-    key-width-x-large-fixed: 202px;
-    key-width-xx-large-fixed: 286px;
+    key-width-medium-fixed: 86px;
+    key-width-x-large-fixed: 133px;
 }
 
 MImAbstractKeyAreaStyle.Portrait:hebrew {
     use-fixed-key-width: true;
-    font-size: 35;
 
-    key-width-large-fixed: 88px;
-    key-width-x-large-fixed: 112px;
-    key-width-xx-large-fixed: 160px;
-}
+    key-width-medium-fixed: 44px;
+    key-width-x-large-fixed: 70px;
 
-MImAbstractKeyAreaStyle.Landscape:vietnamese {
-}
-
-MImAbstractKeyAreaStyle.Portrait:vietnamese {
-}
-
-MImAbstractKeyAreaStyle.Portrait:bigfont {
-    font-size: 35;
-}
-
-MImAbstractKeyAreaStyle.Portrait:smallfont {
-    font-size: 28;
+    padding-left: 6px;
+    padding-right: 6px;
 }
 
 KeyboardShadowStyle {
@@ -644,11 +554,6 @@ MToolbarButtonStyle {
 
     press-feedback: ;
     release-feedback: ;
-}
-
-MToolbarButtonStyle:translucent {
-    text-color: $FONT_COLOR_KEYBOARD;
-    background-image: "meegotouch-keyboard-toolbar-button-translucent" $ROUNDED_CORNERS;
 }
 
 MToolbarButtonStyle:disabled {
@@ -873,10 +778,6 @@ MImToolbarStyle {
     margin-right: 0;
 }
 
-MImToolbarStyle:translucent {
-    background-image: "meegotouch-keyboard-toolbar-background-translucent" $ROUNDED_CORNERS;
-}
-
 MImToolbarStyle.Landscape {
     preferred-size: 100% -1;
     minimum-size: 100% -1;
@@ -891,7 +792,7 @@ MImToolbarStyle.Portrait {
 
 
 WordRibbonStyle {
-    background-image: "meegotouch-keyboard-word-ribbon";
+    background-image: "meegotouch-vkb-chinese-word-predicting-toolbar-background-landscape";
     space-between: 8;
 
     margin-left: 0;
@@ -906,10 +807,12 @@ WordRibbonStyle {
 }
 
 WordRibbonStyle.Landscape {
+    background-image: "meegotouch-vkb-chinese-word-predicting-toolbar-background-landscape";
     preferred-size: 854 65;
 }
 
 WordRibbonStyle.Portrait {
+    background-image: "meegotouch-vkb-chinese-word-predicting-toolbar-background-portrait";
     preferred-size: 480 65;
 
     padding-left: 4;
