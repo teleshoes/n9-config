@@ -1,0 +1,1283 @@
+@const HEIGHT_CANDIDATEITEM:  3.4mm;
+
+@const HEIGHT_TOOLBARITEM: 4mm;
+
+@const ROUNDED_CORNERS: 15px 15px 15px 15px;
+
+MVirtualKeyboardStyle {
+    layout-change-duration: 350;
+    layout-change-easing-curve: outcubic;
+}
+
+NotificationStyle {
+    font: $FONT_KEYBOARD;
+    font-size: 64;
+    rounding: 0;
+    background-image: ;
+    border-color: #808080;
+    background-color: #323232;
+    text-color: #FFFFFF;
+    font-opacity: 1.0;
+    text-horizontal-alignment: hcenter;
+    text-vertical-alignment: bottom;
+    text-wrap: false;
+    opacity: 1;
+    background-opacity: 0.0;
+    hold-time: 130;
+    fade-time: 200;
+
+    padding-left: 1mm;
+    padding-top: 1mm;
+    padding-right: 1mm;
+    padding-bottom: 1mm;
+
+    text-maximum-width: 0;
+
+    preferred-size: -1 -1;
+}
+
+NotificationStyle.Portrait {
+    font-size: 56;
+}
+
+NotificationStyle#SwitchingPlugin {
+    background-opacity: 1.0;
+    background-image: "Notification_bg_L" $ROUNDED_CORNERS;
+    font-size: 64;
+    text-horizontal-alignment: hcenter;
+    text-vertical-alignment: bottom;
+
+    hold-time: 250;
+
+    preferred-size: 100% 200;
+    minimum-size:   100% 200;
+    maximum-size:   100% 200;
+
+    text-maximum-width: 500;
+}
+
+NotificationStyle#SwitchingPlugin.Portrait {
+    background-opacity: 1.0;
+    background-image: "Notification_bg_P" $ROUNDED_CORNERS;
+    font-size: 56;
+    text-horizontal-alignment: hcenter;
+    text-vertical-alignment: bottom;
+
+    hold-time: 250;
+
+    preferred-size: 100% 300;
+    minimum-size:   100% 300;
+    maximum-size:   100% 300;
+
+    text-maximum-width: 360;
+}
+
+MImAbstractKeyAreaStyle {
+    /*** Font Settings ***/
+    font: $FONT_KEYBOARD;
+    font-color: $FONT_COLOR_KEYBOARD;
+    font-opacity: 1.0;
+    secondary-font: $FONT_SMALL;
+    tone-resize-factor: 2.0;
+
+    key-pressed-font-color: $FONT_COLOR_KEYBOARD;
+    key-selected-font-color: $COLOR_FOREGROUND;
+    key-disabled-font-color: $FONT_COLOR_KEYBOARD;
+    key-highlighted-font-color: $COLOR_FOREGROUND;
+
+    /*** Font colors for translucent key area ***/
+    translucent-font-opacity: 0.67;
+    translucent-font-color: $FONT_COLOR_KEYBOARD;
+    translucent-key-pressed-font-color: $COLOR_FOREGROUND;
+    translucent-key-selected-font-color: $COLOR_FOREGROUND;
+    translucent-key-disabled-font-color: $FONT_COLOR_KEYBOARD;
+    translucent-key-highlighted-font-color: $COLOR_FOREGROUND;
+
+    /*** Graphical assets ***/
+    background-image: "meegotouch-keyboard-background" $ROUNDED_CORNERS;
+    key-background: "meegotouch-keyboard-key" $ROUNDED_CORNERS;
+    key-background-disabled: "meegotouch-keyboard-key-disabled" $ROUNDED_CORNERS;
+    key-background-pressed: "meegotouch-keyboard-key-pressed" $ROUNDED_CORNERS;
+    key-background-selected: "meegotouch-keyboard-key-selected" $ROUNDED_CORNERS;
+    key-background-pressed-selected: "meegotouch-keyboard-key-pressed-selected" $ROUNDED_CORNERS;
+
+    key-background-highlighted: "meegotouch-keyboard-key-highlighted" $ROUNDED_CORNERS;
+    key-background-pressed-highlighted: "meegotouch-keyboard-key-highlighted-pressed" $ROUNDED_CORNERS;
+    key-background-selected-highlighted: "meegotouch-keyboard-key-selected-highlighted" $ROUNDED_CORNERS;
+    key-background-pressed-selected-highlighted: "meegotouch-keyboard-key-pressed-selected-highlighted" $ROUNDED_CORNERS;
+
+    key-background-special: "meegotouch-keyboard-function-key" $ROUNDED_CORNERS;
+    key-background-special-disabled: "meegotouch-keyboard-function-key-disabled" $ROUNDED_CORNERS;
+    key-background-special-pressed: "meegotouch-keyboard-function-key-pressed" $ROUNDED_CORNERS;
+    key-background-special-selected: "meegotouch-keyboard-function-key-selected" $ROUNDED_CORNERS;
+    key-background-special-pressed-selected: "meegotouch-keyboard-function-key-pressed-selected" $ROUNDED_CORNERS;
+
+    key-background-special-highlighted: "meegotouch-keyboard-function-key-selected" $ROUNDED_CORNERS;
+    key-background-special-pressed-highlighted: "meegotouch-keyboard-function-key-pressed-selected" $ROUNDED_CORNERS;
+    key-background-special-selected-highlighted: "meegotouch-keyboard-function-key-selected-highlighted" $ROUNDED_CORNERS;
+    key-background-special-pressed-selected-highlighted: "meegotouch-keyboard-function-key-pressed-selected-highlighted" $ROUNDED_CORNERS;
+
+    key-background-deadkey: "meegotouch-keyboard-key" $ROUNDED_CORNERS;
+    key-background-deadkey-pressed: "meegotouch-keyboard-key-pressed" $ROUNDED_CORNERS;
+    key-background-deadkey-disabled: "meegotouch-keyboard-key-disabled" $ROUNDED_CORNERS;
+    key-background-deadkey-selected: "meegotouch-keyboard-key-selected" $ROUNDED_CORNERS;
+    key-background-deadkey-pressed-selected: "meegotouch-keyboard-key-pressed-selected" $ROUNDED_CORNERS;
+
+    key-background-deadkey-highlighted: "meegotouch-keyboard-key-highlighted" $ROUNDED_CORNERS;
+    key-background-deadkey-pressed-highlighted: "meegotouch-keyboard-key-highlighted-pressed" $ROUNDED_CORNERS;
+    key-background-deadkey-selected-highlighted: "meegotouch-keyboard-key-selected-highlighted" $ROUNDED_CORNERS;
+    key-background-deadkey-pressed-selected-highlighted: "meegotouch-keyboard-key-pressed-selected-highlighted" $ROUNDED_CORNERS;
+
+    /*** Translucent graphical assets ***/
+    translucent-background-image: "meegotouch-keyboard-background-translucent" $ROUNDED_CORNERS;
+    translucent-key-background: "meegotouch-keyboard-key-translucent" $ROUNDED_CORNERS;
+    translucent-key-background-highlighted: "meegotouch-keyboard-key-highlighted-translucent" $ROUNDED_CORNERS;
+    translucent-key-background-special: "meegotouch-keyboard-function-key-translucent" $ROUNDED_CORNERS;
+
+    key-backspace-icon-id: "icon-m-input-methods-backspace";
+    key-backspace-icon-size: 38 38;
+    key-backspace-icon-id-rtl: "icon-m-rtl-input-methods-backspace";
+    key-backspace-compact-icon-id: "icon-m-input-methods-backspace-compact";
+    key-backspace-compact-icon-size: 30 30;
+    /*** FIXME: no rtl icon available ***/
+    key-backspace-compact-icon-id-rtl: "icon-m-input-methods-backspace-compact";
+
+    key-left-icon-id: "icon-s-input-method-left";
+    key-left-icon-size: 32 32;
+    key-left-icon-id-rtl: "icon-s-input-method-left";
+    key-left-compact-icon-id: ;
+    key-left-compact-icon-size: 0 0;
+    key-left-compact-icon-id-rtl: ;
+
+    key-up-icon-id: "icon-s-input-method-up";
+    key-up-icon-size: 32 32;
+    key-up-icon-id-rtl: "icon-s-input-method-up";
+    key-up-compact-icon-id: ;
+    key-up-compact-icon-size: 0 0;
+    key-up-compact-icon-id-rtl: ;
+
+    key-right-icon-id: "icon-s-input-method-right";
+    key-right-icon-size: 32 32;
+    key-right-icon-id-rtl: "icon-s-input-method-right";
+    key-right-compact-icon-id: ;
+    key-right-compact-icon-size: 0 0;
+    key-right-compact-icon-id-rtl: ;
+
+    key-down-icon-id: "icon-s-input-method-down";
+    key-down-icon-size: 32 32;
+    key-down-icon-id-rtl: "icon-s-input-method-down";
+    key-down-compact-icon-id: ;
+    key-down-compact-icon-size: 0 0;
+    key-down-compact-icon-id-rtl: ;
+
+    key-menu-icon-size: 48 48;
+    key-menu-icon-id: "icon-m-input-methods-menu";
+    key-menu-icon-id-rtl: "icon-m-rtl-input-methods-menu";
+    key-menu-compact-icon-id: ;
+    key-menu-compact-icon-size: 0 0;
+    key-menu-compact-icon-id-rtl: ;
+
+    key-enter-icon-size: 38 38;
+    key-enter-icon-id: "icon-m-input-methods-enter";
+    key-enter-icon-id-rtl: "icon-m-rtl-input-methods-enter";
+    key-enter-icon-id-highlighted: "icon-m-input-methods-enter-selected";
+    key-enter-icon-id-rtl-highlighted: ; /* RTL variant missing */
+    key-enter-compact-icon-id: ;
+    key-enter-compact-icon-size: 0 0;
+    key-enter-compact-icon-id-rtl: ;
+    key-enter-compact-icon-id-highlighted: ;
+    key-enter-compact-icon-id-rtl-highlighted: ;
+
+    key-shift-icon-size: 38 38;
+    key-shift-icon-id: "icon-m-input-methods-shift";
+    key-shift-icon-id-selected: "icon-m-input-methods-shift-selected";
+    key-shift-uppercase-icon-id: "icon-m-input-methods-capslock";
+    key-shift-uppercase-icon-id-selected: "icon-m-input-methods-capslock-selected";
+    key-shift-compact-icon-size: 30 30;
+    key-shift-compact-icon-id: "icon-m-input-methods-shift-compact";
+    key-shift-compact-icon-id-selected: "icon-m-input-methods-shift-compact-selected";
+    key-shift-uppercase-compact-icon-id: "icon-m-input-methods-capslock-compact";
+    key-shift-uppercase-compact-icon-id-selected: "icon-m-input-methods-capslock-compact-selected";
+
+    key-tab-icon-size: 0 0;
+    key-tab-icon-id: ; /* non-existant currently */
+    key-tab-compact-icon-id: ;
+    key-tab-compact-icon-size: 0 0;
+
+    /*** Behaviour ***/
+    long-press-timeout: 600;
+    idle-vkb-timeout: 350;
+
+    flick-gesture-timeout: 250;
+    flick-gesture-threshold-ratio: 0.25;
+
+    touchpoint-vertical-offset: 0mm;
+    commit-previous-key-on-press: true;
+    auto-padding: true;
+
+    /*when pressing keys which are near keyboard border, pause to update popup*/
+    pause-update-popup-timeout: 75;
+    pan-gesture-timeout: 250;
+    /*the distance betwee the first touch position and the edge of keyboard
+    must be less than pan-gesture-start-threshold*/
+    pan-gesture-start-threshold: 15;
+    pan-gesture-finish-threshold: 200;
+    /*the minimum movement distance of pan gesture*/
+    pan-gesture-initial-movement: 40;
+
+    /*** Key Geometry ***/
+    required-key-icon-margins: 5 5;
+    use-fixed-key-width: false;
+    key-width-small: 0.5;
+    key-width-medium: 1.0;
+    key-width-large: 1.3;
+    key-width-x-large: 1.5;
+    key-width-xx-large: 2.0;
+    key-width-stretched: -1;
+
+    key-margin-left: 0.2mm;
+    key-margin-top: 0.2mm;
+    key-margin-right: 0.2mm;
+    key-margin-bottom: 0.2mm;
+
+    padding-left: 0.4mm;
+    padding-top: 0.4mm;
+    padding-right: 0.4mm;
+    padding-bottom: 0.4mm;
+
+    /*** Miscelleanous ***/
+    sync-style-mode-with-key-count: true;
+
+    /*** Debugging ***/
+    draw-button-bounding-rects: false;
+    draw-button-rects: false;
+    debug-touch-points: false;
+    draw-reactive-areas: false;
+}
+
+MImAbstractKeyAreaStyle.Landscape {
+    /*** Label Setttings ***/
+    label-margin-top: 0.6mm;
+    label-margin-left-with-secondary: -1; /* not used, labels are centered horizontally */
+    secondary-label-separation: 0;
+
+    /*** Behaviour ***/
+    touchpoint-horizontal-gravity: 32px;
+    touchpoint-vertical-gravity: 20px;
+
+    /*** Key Geometry ***/
+    key-height-small: -1; /* unused */
+    key-height-medium: 45px;
+    key-height-large: 66px;
+    key-height-x-large: 82px;
+    key-height-xx-large: -1; /* unused */
+
+    key-width-small-fixed: -1; /* unused */
+    key-width-medium-fixed: 76px;
+    key-width-large-fixed: 93px;
+    key-width-x-large-fixed: 178px;
+    key-width-xx-large-fixed: 244px;
+    key-width-stretched-fixed: -1; /* unused */
+    
+    key-margin-left: 4px;
+    key-margin-top: 0px;
+    key-margin-right: 4px;
+    key-margin-bottom: 12px;
+
+    padding-left: 11px;
+    padding-top: 12px;
+    padding-right: 11px;
+    padding-bottom: 8px;
+
+    /*** Key Area Geometry ***/
+    size: 854 -1;
+}
+
+MImAbstractKeyAreaStyle.Portrait {
+    /*** Label Setttings ***/
+    label-margin-top: 1.2mm;
+    label-margin-left-with-secondary: 4.6mm;
+    secondary-label-separation: 0.9mm;
+    enlarged-label-font-size: 35;
+
+    /*** Behaviour ***/
+    touchpoint-horizontal-gravity: 17px;
+    touchpoint-vertical-gravity: 26px;
+
+    /*** Key Geometry ***/
+    key-height-small: -1; /* unused */
+    key-height-medium: 60px;
+    key-height-large: 82px;
+    key-height-x-large: 98px;
+    key-height-xx-large: -1; /* unused */
+
+    key-width-small-fixed: -1; /* unused */
+    key-width-medium-fixed: 40px;
+    key-width-large-fixed: 56px;
+    key-width-x-large-fixed: 104px;
+    key-width-xx-large-fixed: 136px;
+    key-width-stretched-fixed: -1; /* unused */
+   
+    key-margin-left: 4px;
+    key-margin-top: 0px;
+    key-margin-right: 4px;
+    key-margin-bottom: 18px;
+
+    padding-left: 4px;
+    padding-top: 16px;
+    padding-right: 4px;
+    padding-bottom: 8px;
+
+    /*** Key Area Geometry ***/
+    size: 480 -1;
+}
+
+MImAbstractKeyAreaStyle.Landscape:keys14 {
+    use-fixed-key-width: true;
+    key-width-large-fixed: 160px;
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys14 {
+    use-fixed-key-width: true;
+
+    key-width-medium-fixed: 147px;
+    key-width-large-fixed: 302px;
+   
+    padding-left: 11px;
+    padding-right: 12px;
+}
+
+MImAbstractKeyAreaStyle.Landscape:keys33 {
+    use-fixed-key-width: true;
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys33 {
+    use-fixed-key-width: true;
+}
+
+MImAbstractKeyAreaStyle.Landscape:keys35 {
+    use-fixed-key-width: true;
+    
+    key-width-x-large-fixed: 118px;
+    key-width-xx-large-fixed: 160px;
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys35 {
+    use-fixed-key-width: true;
+
+    key-width-x-large-fixed: 64px;
+    key-width-xx-large-fixed: 112px;
+}
+
+MImAbstractKeyAreaStyle.Landscape:keys36 {
+    use-fixed-key-width: true;
+    
+    key-width-large-fixed: 118px;
+    key-width-x-large-fixed: 160px;
+    key-width-xx-large-fixed: 286px;
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys36 {
+    use-fixed-key-width: true;
+
+    key-width-large-fixed: 88px;
+    key-width-x-large-fixed: 112px;
+    key-width-xx-large-fixed: 112px;
+}
+
+MImAbstractKeyAreaStyle.Landscape:keys37 {
+    use-fixed-key-width: true;
+
+    key-width-large-fixed: 118px;
+    key-width-x-large-fixed: 160px;
+    key-width-xx-large-fixed: 202px;
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys37 {
+    use-fixed-key-width: true;
+
+    key-width-large-fixed: 64px;
+    key-width-x-large-fixed: 112px;
+    key-width-xx-large-fixed: 88px;
+}
+
+MImAbstractKeyAreaStyle.Landscape:keys38 {
+    use-fixed-key-width: true;
+
+    key-width-medium-fixed: 72px;
+    key-width-large-fixed: 111px;
+    key-width-x-large-fixed: 150px;
+    key-width-xx-large-fixed: 189px;
+    
+    key-margin-left: 3px;
+    key-margin-right: 3px;
+
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys38 {
+    use-fixed-key-width: true;
+
+    key-width-medium-fixed: 38px;
+    key-width-large-fixed: 60px;
+    key-width-x-large-fixed: 82px;
+    key-width-xx-large-fixed: 104px;
+   
+    key-margin-left: 3px;
+    key-margin-right: 3px;
+
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
+MImAbstractKeyAreaStyle.Landscape:keys39 {
+    use-fixed-key-width: true;
+
+    key-width-medium-fixed: 72px;
+    key-width-x-large-fixed: 111px;
+    key-width-xx-large-fixed: 150px;
+    
+    key-margin-left: 3px;
+    key-margin-right: 3px;
+
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys39 {
+    use-fixed-key-width: true;
+
+    key-width-medium-fixed: 38px;
+    key-width-x-large-fixed: 60px;
+    key-width-xx-large-fixed: 126px;
+   
+    key-margin-left: 3px;
+    key-margin-right: 3px;
+
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
+MImAbstractKeyAreaStyle.Landscape:keys40 {
+    use-fixed-key-width: true;
+
+    key-width-medium-fixed: 72px;
+    key-width-large-fixed: 111px;
+    key-width-x-large-fixed: 150px;
+    key-width-xx-large-fixed: 267px;
+    
+    key-margin-left: 3px;
+    key-margin-right: 3px;
+
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys40 {
+    use-fixed-key-width: true;
+
+    key-width-medium-fixed: 38px;
+    key-width-large-fixed: 60px;
+    key-width-x-large-fixed: 126px;
+    key-width-xx-large-fixed: 104px;
+   
+    key-margin-left: 3px;
+    key-margin-right: 3px;
+
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
+MImAbstractKeyAreaStyle.Landscape:keys45 {
+    use-fixed-key-width: true;
+
+    key-height-medium: 40px;
+
+    key-width-medium-fixed: 76px;
+    key-width-large-fixed: 111px;
+    key-width-x-large-fixed: 150px;
+    key-width-xx-large-fixed: 267px;
+
+    key-margin-left: 4px;
+    key-margin-right: 4px;
+    key-margin-top: 3px;
+    key-margin-bottom: 3px;
+
+    padding-left: 11px;
+    padding-right: 11px;
+    padding-top: 9px;
+    padding-bottom: 3px;
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys45 {
+    use-fixed-key-width: true;
+
+    key-width-x-large-fixed: 88px;
+}
+
+MImAbstractKeyAreaStyle.Landscape:keys47 {
+    use-fixed-key-width: true;
+
+    key-height-medium: 40px;
+
+    key-width-medium-fixed: 76px;
+    key-width-large-fixed: 111px;
+    key-width-x-large-fixed: 150px;
+    key-width-xx-large-fixed: 267px;
+
+    key-margin-left: 4px;
+    key-margin-right: 4px;
+    key-margin-top: 3px;
+    key-margin-bottom: 3px;
+
+    padding-left: 11px;
+    padding-right: 11px;
+    padding-top: 9px;
+    padding-bottom: 3px;
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys47 {
+    use-fixed-key-width: true;
+
+    key-width-x-large-fixed: 88px;
+}
+
+MImAbstractKeyAreaStyle.Landscape:hebrew {
+    use-fixed-key-width: true;
+    font-size: 35;
+
+    key-width-large-fixed: 160px;
+    key-width-x-large-fixed: 202px;
+    key-width-xx-large-fixed: 286px;
+}
+
+MImAbstractKeyAreaStyle.Portrait:hebrew {
+    use-fixed-key-width: true;
+    font-size: 35;
+
+    key-width-large-fixed: 88px;
+    key-width-x-large-fixed: 112px;
+    key-width-xx-large-fixed: 160px;
+}
+
+MImAbstractKeyAreaStyle.Landscape:vietnamese {
+}
+
+MImAbstractKeyAreaStyle.Portrait:vietnamese {
+}
+
+MImAbstractKeyAreaStyle.Portrait:bigfont {
+    font-size: 35;
+}
+
+MImAbstractKeyAreaStyle.Portrait:smallfont {
+    font-size: 28;
+}
+
+KeyboardShadowStyle {
+    background-image: "meegotouch-keyboard-border-top";
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+
+    preferred-size: 100% 13px;
+    minimum-size: 100% 13px;
+    maximum-size: 100% 13px;
+}
+
+#InvisibleHandle.Portrait {
+    preferred-size: 480 2.5mm;
+    minimum-size:   480 2.5mm;
+    maximum-size:   480 2.5mm;
+}
+
+#InvisibleHandle.Landscape {
+    preferred-size: 854 2.5mm;
+    minimum-size:   480 2.5mm;
+    maximum-size:   854 2.5mm;
+}
+
+#KeyboardHandle {
+    background-image: "meegotouch-keyboard-handle-background";
+}
+
+#KeyboardHandle.Landscape {
+    preferred-size: 854 0;
+    minimum-size: 480 0;
+    maximum-size: 854 0;
+}
+
+#KeyboardHandle.Portrait {
+    preferred-size: 480 0;
+    minimum-size: 480 0;
+    maximum-size: 480 0;
+}
+
+
+MToolbarLabelStyle {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    minimum-size:   10% $HEIGHT_TOOLBARITEM;
+    preferred-size: 20% $HEIGHT_TOOLBARITEM;
+    maximum-size:   20% $HEIGHT_TOOLBARITEM;
+    color: $COLOR_INVERTED_FOREGROUND;
+}
+
+MToolbarButtonStyle {
+    text-color: $COLOR_INVERTED_FOREGROUND;
+    background-image: "meegotouch-keyboard-toolbar-button" $ROUNDED_CORNERS;
+    margin-left: $MARGIN_SMALL;
+    margin-right: $MARGIN_SMALL;
+    margin-top: 0;
+    margin-bottom: 0;
+    minimum-size:   20% $HEIGHT_TOOLBARITEM;
+    maximum-size:   40% $HEIGHT_TOOLBARITEM;
+    /*below reactive margins should be fixed*/
+/*  reactive-margin-left: 2;
+    reactive-margin-right: 2;
+    reactive-margin-top: 5;
+    reactive-margin-bottom: 5;*/
+
+    press-feedback: ;
+    release-feedback: ;
+}
+
+MToolbarButtonStyle:translucent {
+    text-color: $FONT_COLOR_KEYBOARD;
+    background-image: "meegotouch-keyboard-toolbar-button-translucent" $ROUNDED_CORNERS;
+}
+
+MToolbarButtonStyle:disabled {
+    background-image: "meegotouch-keyboard-toolbar-button-disabled"  $ROUNDED_CORNERS;
+}
+
+MToolbarButtonStyle:pressed {
+    background-image: "meegotouch-keyboard-toolbar-button-pressed" $ROUNDED_CORNERS;
+}
+
+MToolbarButtonStyle:selected {
+    background-image: "meegotouch-keyboard-toolbar-button-selected" $ROUNDED_CORNERS;
+}
+
+#MToolbarIconButton {
+    margin-left: $MARGIN_SMALL;
+    margin-right: $MARGIN_LARGE;
+    minimum-size:   42 $HEIGHT_TOOLBARITEM;
+    preferred-size: 42 $HEIGHT_TOOLBARITEM;
+    maximum-size:   42 $HEIGHT_TOOLBARITEM;
+}
+
+#MToolbarTextButton {
+    text-color: $COLOR_FOREGROUND;
+    background-image: "meegotouch-keyboard-toolbar-button" $ROUNDED_CORNERS;
+}
+
+#MToolbarTextButton:pressed {
+    text-color: $COLOR_FOREGROUND;
+    background-image: "meegotouch-keyboard-toolbar-button-pressed" $ROUNDED_CORNERS;
+}
+
+#MToolbarTextButton:disabled {
+    background-image: "meegotouch-keyboard-toolbar-button-disabled" $ROUNDED_CORNERS;
+}
+
+#MToolbarTextButton:selected {
+    text-color: $COLOR_INVERTED_FOREGROUND;
+    background-image: "meegotouch-keyboard-toolbar-button-selected" $ROUNDED_CORNERS;
+}
+
+#MToolbarTextButton.Landscape {
+    minimum-size:   150 $HEIGHT_TOOLBARITEM;
+    preferred-size: 150 $HEIGHT_TOOLBARITEM;
+    maximum-size:   150 $HEIGHT_TOOLBARITEM;
+}
+
+#MToolbarTextButton.Portrait {
+    minimum-size:   120 $HEIGHT_TOOLBARITEM;
+    preferred-size: 120 $HEIGHT_TOOLBARITEM;
+    maximum-size:   120 $HEIGHT_TOOLBARITEM;
+}
+
+#MToolbarIconButtonHighlighted {
+    text-color: $COLOR_INVERTED_FOREGROUND;
+    background-image: "meegotouch-keyboard-toolbar-action-key"  $ROUNDED_CORNERS;
+    minimum-size:   42 $HEIGHT_TOOLBARITEM;
+    preferred-size: 42 $HEIGHT_TOOLBARITEM;
+    maximum-size:   42 $HEIGHT_TOOLBARITEM;
+}
+
+#MToolbarIconButtonHighlighted:pressed {
+    background-image: "meegotouch-keyboard-toolbar-action-key-pressed"  $ROUNDED_CORNERS;
+}
+
+#MToolbarIconButtonHighlighted:selected {
+    background-image: "meegotouch-keyboard-toolbar-action-key-selected"  $ROUNDED_CORNERS;
+}
+
+#MToolbarIconButtonHighlighted:disabled {
+    background-image: "meegotouch-keyboard-toolbar-action-key-disabled"  $ROUNDED_CORNERS;
+}
+
+#MToolbarTextButtonHighlighted {
+    background-image: "meegotouch-keyboard-toolbar-action-key"  $ROUNDED_CORNERS;
+}
+
+#MToolbarTextButtonHighlighted:pressed {
+    background-image: "meegotouch-keyboard-toolbar-action-key-pressed"  $ROUNDED_CORNERS;
+}
+
+#MToolbarTextButtonHighlighted:selected {
+    background-image: "meegotouch-keyboard-toolbar-action-key-selected-pressed"  $ROUNDED_CORNERS;
+}
+
+#MToolbarTextButtonHighlighted:disabled {
+    background-image: "meegotouch-keyboard-toolbar-action-key-disabled"  $ROUNDED_CORNERS;
+}
+
+#MToolbarTextButtonHighlighted.Landscape {
+    minimum-size:   150 $HEIGHT_TOOLBARITEM;
+    preferred-size: 150 $HEIGHT_TOOLBARITEM;
+    maximum-size:   150 $HEIGHT_TOOLBARITEM;
+}
+
+#MToolbarTextButtonHighlighted.Portrait {
+    minimum-size:   120 $HEIGHT_TOOLBARITEM;
+    preferred-size: 120 $HEIGHT_TOOLBARITEM;
+    maximum-size:   120 $HEIGHT_TOOLBARITEM;
+}
+
+WidgetBarStyle {
+    margin-left: 0;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+
+    padding-top: 11;
+    padding-bottom: 8;
+    padding-left: 11;
+    padding-right: 11;
+}
+
+MImWordTrackerStyle {
+    background-image: "meegotouch-wordtracker-background" $ROUNDED_CORNERS;
+
+    /*word tracker pointer is no used now, so set their attributes to ivalid 0*/
+    wordtracker-pointer-image: "" 0 0 0 0;
+    wordtracker-pointer-size: 0 0;
+    wordtracker-pointer-overlap: 0;
+    wordtracker-pointer-top-margin: 0;
+    wordtracker-pointer-left-margin: 0;
+    wordtracker-pointer-right-margin: 0;
+
+    wordtracker-cursor-x-offset: 6;
+    wordtracker-cursor-y-offset: 6;
+
+    show-hide-frames: 100;
+    show-hide-time: 400;
+    show-hide-interval: 30;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+
+    wordtracker-left-margin: $MARGIN_XLARGE;
+    wordtracker-right-margin: $MARGIN_XLARGE;
+
+    padding-top:  0;
+    padding-bottom: 0;
+    padding-right: 0;
+    padding-left: 0;
+   
+    minimum-size: 7.5mm $HEIGHT_CANDIDATEITEM;
+    maximum-size: 18.6mm 100%;
+}
+
+MImWordList MContentItemStyle {
+    title-object-name: "MImWordListLabel";
+    background-image : ;
+    background-color : ;
+}
+
+MImWordList MContentItemStyle:pressed {
+    background-image : ;
+    background-color : #3D3D3D;
+}
+
+MImWordList MContentItemStyle:selected {
+    title-object-name: "MImWordListLabelSelected";
+    background-image : ;
+    background-color : #3D3D3D;
+}
+
+MImWordListItem MLabelStyle#MImWordListLabel {
+    font: $FONT_LARGE_BOLD;
+    color: $COLOR_INVERTED_FOREGROUND;
+    margin-top:    0;
+    margin-bottom: 0;
+    margin-left:   $INDENT_DEFAULT;
+    margin-right:  $INDENT_DEFAULT;
+}
+
+MImWordListItem MLabelStyle#MImWordListLabelSelected {
+    font: $FONT_LARGE_BOLD;
+    color: #0000ff;
+    margin-top:    $INDENT_DEFAULT;
+    margin-bottom: 0;
+    margin-left:   $INDENT_DEFAULT;
+    margin-right:  $INDENT_DEFAULT;
+}
+
+MImCorrectionCandidateItemStyle {
+    preferred-size: -1 $HEIGHT_CANDIDATEITEM;
+    minimum-size: 4.8mm $HEIGHT_CANDIDATEITEM;
+    maximum-size: 100% $HEIGHT_CANDIDATEITEM;
+
+    background-opacity: 1.0;
+
+    font: $FONT_DEFAULT; 
+    font-color: $COLOR_INVERTED_FOREGROUND;
+    press-timeout: 250;
+    release-miss-delta: 30;
+    long-tap-timeout: 600;
+
+    margin-top: 1.1mm;
+    margin-bottom: 1.1mm;
+    margin-left: $MARGIN_DOUBLE;
+    margin-right: $MARGIN_DOUBLE;
+
+    padding-top:  0;
+    padding-bottom: 0;
+    padding-right: 0;
+    padding-left: 0;
+}
+
+MImCorrectionCandidateItemStyle:selected {
+    background-image: meegotouch-wordtracker-selection $ROUNDED_CORNERS;
+}
+
+MImCorrectionCandidateItemStyle:pressed {
+    background-image: meegotouch-wordtracker-background-pressed $ROUNDED_CORNERS;
+}
+
+
+MImToolbarStyle {
+    background-image: "meegotouch-keyboard-toolbar-background" $ROUNDED_CORNERS;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+MImToolbarStyle:translucent {
+    background-image: "meegotouch-keyboard-toolbar-background-translucent" $ROUNDED_CORNERS;
+}
+
+MImToolbarStyle.Landscape {
+    preferred-size: 100% -1;
+    minimum-size: 100% -1;
+    maximum-size: 100% -1;
+}
+
+MImToolbarStyle.Portrait {
+    preferred-size: 100% -1;
+    minimum-size: 100% -1;
+    maximum-size: 100% -1;
+}
+
+
+WordRibbonStyle {
+    background-image: "meegotouch-keyboard-word-ribbon";
+    space-between: 8;
+
+    margin-left: 0;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+
+    padding-top: 4;
+    padding-bottom: 4;
+    padding-left: 11;
+    padding-right: 11;
+}
+
+WordRibbonStyle.Landscape {
+    preferred-size: 854 65;
+}
+
+WordRibbonStyle.Portrait {
+    preferred-size: 480 65;
+
+    padding-left: 4;
+    padding-right: 4;
+}
+
+WordRibbonStyle:dialogmode {
+    background-image: ;
+    space-between: 0;
+
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+WordRibbonItemStyle{
+    background-image: "meegotouch-vkb-chinese-candidate-button" 12px 12px 12px 12px;
+    background-image-pressed: "meegotouch-vkb-chinese-default-candidate-button-pressed" 12px 12px 12px 12px;
+    background-image-selected: "meegotouch-vkb-chinese-default-candidate-button" 12px 12px 12px 12px;
+
+    minimum-size: 76 57;
+    font: $FONT_FAMILY normal 40;
+    font-color: white;
+    pressed-font-color: black;
+    selected-font-color: black;
+
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+
+    padding-left: 8;
+    padding-right: 8;
+    padding-top: 8;
+    padding-bottom: 9;
+}
+
+WordRibbonItemStyle:ribbonstyleoneword {
+    minimum-size: 76 57;
+
+    padding-left: 18;
+    padding-right: 18;
+    padding-top: 8;
+    padding-bottom: 8;
+}
+
+WordRibbonItemStyle:ribbonstyleseveralword {
+    minimum-size: 96 57;
+
+    padding-left: 8;
+    padding-right: 8;
+    padding-top: 8;
+    padding-bottom: 8;
+}
+
+WordRibbonItemStyle.Portrait:ribbonstyleoneword {
+    minimum-size: 72 57;
+
+    padding-left: 16;
+    padding-right: 16;
+    padding-top: 8;
+    padding-bottom: 8;
+}
+
+WordRibbonItemStyle.Portrait:ribbonstyleseveralword {
+    minimum-size: 88 57;
+
+    padding-left: 4;
+    padding-right: 4;
+    padding-top: 8;
+    padding-bottom: 8;
+}
+
+WordRibbonItemStyle:dialogstyleoneword {
+    background-image: "meegotouch-list-fullwidth-inverted-background";
+    background-image-pressed: "meegotouch-list-fullwidth-inverted-background-pressed";
+    font: $FONT_FAMILY normal 34;
+    minimum-size: 136 65;
+    maximum-size: 854 480;
+
+    padding-left: 16;
+    padding-right: 86;
+    padding-top: 15;
+    padding-bottom: 15;
+}
+
+WordRibbonItemStyle:dialogstyletwoword {
+    background-image: "meegotouch-list-fullwidth-inverted-background";
+    background-image-pressed: "meegotouch-list-fullwidth-inverted-background-pressed";
+    font: $FONT_FAMILY normal 34;
+    minimum-size: 136 65;
+    maximum-size: 854 480;
+
+    padding-left: 16;
+    padding-right: 52;
+    padding-top: 15;
+    padding-bottom: 15;
+}
+
+WordRibbonItemStyle:dialogstylethreeword {
+    background-image: "meegotouch-list-fullwidth-inverted-background";
+    background-image-pressed: "meegotouch-list-fullwidth-inverted-background-pressed";
+    font: $FONT_FAMILY normal 34;
+    minimum-size: 136 65;
+    maximum-size: 854 480;
+
+    padding-left: 16;
+    padding-right: 18;
+    padding-top: 15;
+    padding-bottom: 15;
+}
+
+WordRibbonItemStyle:dialogstyleseveralword {
+    background-image: "meegotouch-list-fullwidth-inverted-background";
+    background-image-pressed: "meegotouch-list-fullwidth-inverted-background-pressed";
+    font: $FONT_FAMILY normal 34;
+    minimum-size: 136 65;
+    maximum-size: 854 480;
+
+    padding-left: 16;
+    padding-right: 16;
+    padding-top: 15;
+    padding-bottom: 15;
+}
+
+WordRibbonItemStyle.Portrait:dialogstyleoneword {
+    background-image: "meegotouch-list-fullwidth-inverted-background";
+    background-image-pressed: "meegotouch-list-fullwidth-inverted-background-pressed";
+    font: $FONT_FAMILY normal 30;
+    minimum-size: 112 65;
+    maximum-size: 480 854;
+
+    padding-left: 12;
+    padding-right: 70;
+    padding-top: 16;
+    padding-bottom: 16;
+}
+
+WordRibbonItemStyle.Portrait:dialogstyletwoword {
+    background-image: "meegotouch-list-fullwidth-inverted-background";
+    background-image-pressed: "meegotouch-list-fullwidth-inverted-background-pressed";
+    font: $FONT_FAMILY normal 30;
+    minimum-size: 112 65;
+    maximum-size: 480 854;
+
+    padding-left: 12;
+    padding-right: 40;
+    padding-top: 16;
+    padding-bottom: 16;
+}
+
+WordRibbonItemStyle.Portrait:dialogstylethreeword {
+    background-image: "meegotouch-list-fullwidth-inverted-background";
+    background-image-pressed: "meegotouch-list-fullwidth-inverted-background-pressed";
+    font: $FONT_FAMILY normal 30;
+    minimum-size: 112 65;
+    maximum-size: 480 854;
+
+    padding-left: 12;
+    padding-right: 10;
+    padding-top: 16;
+    padding-bottom: 16;
+}
+
+WordRibbonItemStyle.Portrait:dialogstyleseveralword {
+    background-image: "meegotouch-list-fullwidth-inverted-background";
+    background-image-pressed: "meegotouch-list-fullwidth-inverted-background-pressed";
+    font: $FONT_FAMILY normal 30;
+    minimum-size: 112 65;
+    maximum-size: 480 854;
+
+    padding-left: 12;
+    padding-right: 12;
+    padding-top: 16;
+    padding-bottom: 16;
+}
+
+WordRibbon MButtonStyle#MoreButton {
+    background-image: "meegotouch-vkb-chinese-more-button" 12px 12px 12px 12px;
+    minimum-size: 76 57;
+    preferred-size: 76 57;
+
+    icon-id: "icon-m-textinput-combobox-arrow";
+    icon-size: 40 41;
+    icon-align: center;
+}
+
+WordRibbon MButtonStyle.Portrait#MoreButton {
+    minimum-size: 72 57;
+    preferred-size: 72 57;
+}
+
+MKeyboardMagnifierStyle {
+    magnifier-image: "meegotouch-keyboard-magnifier-background" 24px 24px 24px 24px;
+    magnifier-button-overlap: 0;
+    magnifier-font: $FONT_KEYBOARD;
+    magnifier-font-size: 64;
+    magnifier-text-color: #505050;
+    magnifier-text-margin-top: 0mm;
+    magnifier-text-margin-bottom: 0mm;
+    magnifier-text-margin-bottom-lowercase: 0mm;
+    magnifier-hide-delay: 0;
+
+    extended-keys-offset: 0;
+    extended-keys-show-easing-curve: outexpo;
+    extended-keys-show-duration: 100;
+
+    magnifier-hide-easing-curve: inexpo;
+    magnifier-hide-duration: 100;
+}
+
+MKeyboardMagnifierStyle.Landscape {
+    magnifier-size: 112 100;
+
+    safety-margin-left: -6px;
+    safety-margin-right: -6px;
+}
+
+MKeyboardMagnifierStyle.Portrait {
+    magnifier-size: 90 112;
+
+    safety-margin-left: -2px;
+    safety-margin-right: -2px;
+}
+
+#ExtendedKeys {
+   font: $FONT_FAMILY bold 64;
+   font-opacity: 0.5;
+   background-image: "meegotouch-keyboard-accent-magnifier-background" 24 24 24 24;
+
+   key-background: ;
+   key-background-pressed: ;
+
+   padding-top: 0mm;
+   padding-bottom: 0mm;
+
+   commit-previous-key-on-press: false;
+   auto-padding: false;
+}
+
+#ExtendedKeys.Landscape {
+   key-height-medium: 100;
+   key-width-medium-fixed: 86;
+
+   padding-left: 13;
+   padding-right: 13;
+}
+
+#ExtendedKeys.Portrait {
+   key-height-medium: 112;
+   key-width-medium-fixed: 48;
+
+   padding-left: 21;
+   padding-right: 21;
+
+   key-margin-left: 1;
+   key-margin-top: 2;
+   key-margin-right: 1;
+   key-margin-bottom: 2;
+}
+
+LayoutPannerStyle {
+   commit-threshold: 342;
+   panning-animation-curve: outcubic;
+   panning-animation-duration: 300;
+   background-image:; /*"meegotouch-keyboard-background" $ROUNDED_CORNERS;*/
+   background-color: #000000;
+   background-opacity: 0.95;
+
+   initial-dimming-opacity: 0.7;
+
+   catching-up-animation-maximum-duration: 500;
+   
+   layouts-catching-up-animation-curve: outcubic;
+   /*layouts catching up animation duration = (movement pixels * multiplier)*/
+   layouts-catching-up-animation-duration-multiplier: 0.6;
+
+   notifications-catching-up-animation-curve: outcubic;
+   /*notifications catching up animation duration = (movement pixels * multiplier)*/
+   notifications-catching-up-animation-duration-multiplier: 0.6;
+   /*the puase of notifications catching up animation in its duration*/
+   notifications-catching-up-animation-pause: 0.1;
+
+   /*if the movement when playing catching up animation is bigger than
+   minimum-movement-threshold, then adjust the endValue of catching up animation*/
+   minimum-movement-threshold: 5;
+   
+   /*if sudden movement distance is bigger than sudden-movement-threshold,
+   then play catching up animation*/
+   sudden-movement-threshold: 80;
+
+   outgoing-layout-from-opacity: 1.0;
+   outgoing-layout-to-opacity: 0.0;
+
+   outgoing-layout-opacity-start-progress: 0.5;
+   outgoing-layout-opacity-end-progress: 1.0;
+
+   incoming-layout-from-opacity: 1.0;
+   incoming-layout-to-opacity: 0.0;
+}
+
+LayoutPannerStyle.Portrait {
+   commit-threshold: 192;
+   catching-up-animation-maximum-duration: 450;
+}
+
+
+NotificationAreaStyle {
+    background-image: "Notification_bg_L" $ROUNDED_CORNERS;
+    minimum-size: 100% 244;
+    preferred-size: 100% 244;
+    maximum-size: 100% 244;
+
+    initial-opacity: 0;
+    visible-opacity: 1.0;
+
+    notification-maximum-width: 500;
+
+    /*the smallest scale factor for notifications. It will be used as the from
+    scale for incoming notification, and used as the to scale for outgoing
+    notification.*/
+    small-size-scale-factor: 0.5;
+
+    /*the maximum visible width for incoming and assistant notifications
+    at the beginning of panning. It is the percent of keyboard width*/
+    initial-edge-maximum-visible-width: 0.25;
+    /*the from opacity for incoming and assistant notifications*/
+    initial-edge-opacity: 0.6;
+
+    outgoing-position-start-progress: 0.4;
+    outgoing-position-end-progress: 0.75;
+    outgoing-scale-start-progress: 0.4;
+    outgoing-scale-end-progress: 0.7;
+    outgoing-opacity-start-progress: 0.4;
+    outgoing-opacity-end-progress: 1.0;
+
+    incoming-position-start-progress: 0.08;
+    incoming-position-end-progress: 0.5;
+    incoming-scale-start-progress: 0.1;
+    incoming-scale-end-progress: 0.7;
+    incoming-opacity-start-progress: 0.3;
+    incoming-opacity-end-progress: 1.0;
+
+    outgoing-scale-mutation-progress: 0.4;
+    outgoing-scale-mutation: 0.75;
+    outgoing-opacity-mutation-progress: 0.4;
+    outgoing-opacity-mutation: 0.5;
+
+    incoming-scale-mutation-progress: 0.4;
+    incoming-scale-mutation: 1.0;
+    incoming-opacity-mutation-progress: 0.4;
+    incoming-opacity-mutation: 1.0;
+
+    show-animation-curve: outcubic;
+    show-animation-duration: 200;
+
+    hide-animation-curve: outcubic;
+    hide-animation-duration: 800;
+}
+
+NotificationAreaStyle.Portrait {
+    background-image: "Notification_bg_P" $ROUNDED_CORNERS;
+    minimum-size: 100% 536;
+    preferred-size: 100% 536;
+    maximum-size: 100% 536;
+    notification-maximum-width: 360;
+
+    position-start-progress: 0.1;
+    scale-start-progress: 0.1;
+}
