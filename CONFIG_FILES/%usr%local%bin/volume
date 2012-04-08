@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $service = 'com.nokia.mafw.renderer.MafwGstRendererPlugin.mafw_gst_renderer';
+my $path = '/com/nokia/mafw/renderer/mafw_gst_renderer';
+my $getMethod = 'get_extension_property';
+my $setMethod = 'set_extension_property';
+
+my $usage = "Usage:\n"
+  . "  $0      => print current volume, integer percent 0-100\n"
+  . "  $0 VOL  => set volume to VOL, integer percent 0-100\n"
+;
+
+
+sub get(){
+  my $out = `qdbus $service $path $getMethod volume`;
+  if($? == 0 and $out =~ /(\d+)/){
+    return $1;
+  }else{
+    die "dbus call failed\n";
+  }
+}
+sub set($){
+  my $out = `qdbus $service $path $setMethod volume $_[0]`;
+  if($? != 0 or $out !~ /true/){
+    die "dbus call failed\n";
+  }
+}
+
+sub main(@){
+  my $arg = shift;
+  die $usage if @_ > 0;
+  if(not defined $arg){
+    print get() . "\n";
+  }elsif($arg =~ /^\d+$/ and $arg >= 0 and $arg <= 100){
+    set $arg
+  }else{
+    die $usage;
+  }
+}
+
+
+&main(@ARGV);
