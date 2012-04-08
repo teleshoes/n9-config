@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE MEEGO_IM_TOOLBAR_WIDGET SYSTEM 'VirtualKeyboardToolbarDTD.dtd'>
+<input-method version="1">
+    <toolbar refuse="_close">
+        <items>
+	    <button name="addparticipants" group="addparticipants" showon="always" alignment="left" text="+" text_id="" icon_id="" toggle="false" pressed="false" enabled="true">
+                <actions>
+                    <sendkeysequence keysequence="Meta+m"> </sendkeysequence>
+                </actions>
+            </button>
+            <button name="emoticon" group="emoticon" showon="always" alignment="left" text="" text_id="" icon_id="icon-m-messaging-smiley-happy" toggle="false" pressed="false">
+                <actions>
+                    <sendkeysequence keysequence="Meta+j"> </sendkeysequence>
+                </actions>
+            </button>
+            <button name="send" group="send" showon="always" alignment="right" text="" text_id="qtn_comm_send" icon_id="" toggle="false" pressed="false" enabled="false" highlighted="true">
+                <actions>
+                    <sendkeysequence keysequence="Meta+l"> </sendkeysequence>
+                </actions>
+            </button>
+        </items>
+        <layout>
+	    <item name="addparticipants" />
+            <item name="emoticon" />
+            <item name="send" />
+        </layout>
+    </toolbar>
+</input-method>
