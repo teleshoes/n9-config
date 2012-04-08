@@ -8,6 +8,16 @@
                     <sendkeysequence keysequence="Meta+j"> </sendkeysequence>
                 </actions>
             </button>
+            <button name="Left" group="Left" showon="always" text="&#x2b05;" toggle="false" pressed="false">
+                <actions>
+                    <sendkeysequence keysequence="Left"> </sendkeysequence>
+                </actions>
+            </button>
+            <button name="Right" group="Right" showon="always" text="&#x27a1;" toggle="false" pressed="false">
+                <actions>
+                    <sendkeysequence keysequence="Right"> </sendkeysequence>
+                </actions>
+            </button>
             <label name="counter" group="counter" alignment="right" text="" text_id="">
             </label>
             <button name="send" group="send" showon="always" alignment="right" text="" text_id="qtn_comm_send" icon_id="" toggle="false" pressed="false" enabled="false" highlighted="true">
@@ -18,6 +28,8 @@
         </items>
         <layout>
             <item name="emoticon" />
+            <item name="Left" />
+            <item name="Right" />
             <item name="counter" />
             <item name="send" />
         </layout>
