@@ -9,7 +9,7 @@ my $arg = shift;
 if($arg eq '--top'){
   if($out =~ /^artist=(.*)$/m){
     ##HACK FOR SCREEN STAY ON##
-    if(`screenStayOn` eq "screenStayOn: on\n"){
+    if(`screenStayOnDaemon get` eq "ON\n"){
       print "[{*}]";
     }
     ##END HACK##
