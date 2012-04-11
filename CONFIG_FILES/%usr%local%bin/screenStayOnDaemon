@@ -1,0 +1,80 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+use POSIX 'setsid';
+
+my $usage = "Usage: $0 [on|off|toggle|get] {default is toggle}\n";
+
+my $pidfile = '/tmp/screenStayOnDaemon';
+my $delay = 10;
+
+my @dbusCmd = qw(
+  dbus-send
+    --system
+    --type=method_call
+    --print-reply
+    --dest=com.nokia.mce
+    /com/nokia/mce/request
+    com.nokia.mce.request.req_display_blanking_pause
+);
+
+sub daemonize(){
+  chdir '/'                 or die "Can't chdir to /: $!";
+  open STDIN, '/dev/null'   or die "Can't read /dev/null: $!";
+  open STDOUT, '>/dev/null' or die "Can't write to /dev/null: $!";
+
+  defined(my $pid = fork)   or die "Can't fork: $!";
+  exit if $pid;
+  setsid                    or die "Can't start a new session: $!";
+  open STDERR, '>&STDOUT'   or die "Can't dup stdout: $!";
+}
+
+sub getPid(){
+  my $pid = `cat $pidfile 2>/dev/null`;
+  chomp $pid;
+  return $pid;
+}
+sub setPid(){
+  system "echo $$ > $pidfile";
+}
+
+sub isRunning(){
+  my $pid = getPid;
+  my $psLine = `ps 2>/dev/null | grep "^$pid "`;
+  if($? == 0 and $psLine =~ /$0/){
+    return 1;
+  }else{
+    return 0;
+  }
+}
+
+sub main(@){
+  my $arg = shift;
+  $arg = 'toggle' if not defined $arg;
+  die $usage if @_ > 0 or $arg !~ /^(on|off|toggle|get)$/;
+
+  my $running = isRunning;
+  $arg = $running ? 'off' : 'on' if $arg eq 'toggle';
+
+  if($arg eq 'get'){
+    print $running ? "ON\n" : "OFF\n";
+    exit 0;
+  }
+  if($running){
+    print "stopping daemon...\n";
+    system "kill", "-9", getPid;
+  }
+  if($arg eq 'on'){
+    print "starting daemon...\n";
+    daemonize;
+    setPid;
+    while(1){
+      system @dbusCmd;
+      sleep $delay;
+    }
+  }
+}
+
+&main(@ARGV);
+
