@@ -1,0 +1,257 @@
+#!/usr/bin/perl
+#######################################################################
+# Twip Client (TWitter IP utility - client)
+# Interfaces with twip main script
+# Performs caching and identification of IP via preshared ssh key
+# Intended to be used by the client for accessing their server remotely
+#
+# Twip is for sending and retrieving IP addresses to/from twitter.
+# Intended to serve as a makeshift replacement for dynamic DNS
+#
+# Encrypts IPs weakly using OpenPGP `gpg'
+# Sends data using the Twitter API through Net::Twitter
+#
+# Copyright (c) 2010 Elliot Wolk
+#
+# Essentially a wrapper around Net::Twitter, which is:
+#   Copyright (c) 2009 Marc Mims
+#
+# The Twitter API itself is:
+#   Copyright (c) 2009 Twitter
+#
+# This script is licensed under GNU GPL version 3.0 or above
+#######################################################################
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#######################################################################
+use strict;
+use warnings;
+use Getopt::Long;
+
+sub testIP($);
+sub read_cache($);
+sub write_cache($@);
+sub get_ip($);
+
+my $CACHE_LINE_REGEX = qr/^ (\d+\. \d+\. \d+\. \d+) \t (.*) \n? $/x;
+
+
+my $usage =
+"Usage: $0 [options..]
+Options:
+ --file    Use this cache file
+           Defaults to ~/.twipcache
+ --entries Maximum number of entries allowed in cache
+           Defaults to 20
+ --test    Test the IP using ssh to make sure its correct
+           Otherwise, assume the IP in the cache is identified as your server
+           {allows client to run their own test}
+ --timeout The length of time to wait in seconds before failing IP test
+           Defaults to 2 seconds
+ --fetch   Ignore cache hits; always fetch a new ip and add it to the cache
+ --nocache Do not cache the results. Implies --fetch
+ -s/--ssh  take the user passed in and ssh to the ip returned
+           \"$0 --ssh root\"
+             is essentially the same as
+           \"ssh USER\@`$0`\"
+           If no user is specfied, default to root
+ -v        Verbose output
+ -h/--help Display this message
+
+Cache files are text files with lines of the form:
+IP\\tDATE
+
+e.g.:
+123.11.33.11  Sun Aug 20 00:00:00 EDT 2010
+124.141.12.12 Sun Aug 22 14:40:12 EDT 2010
+124.141.12.12 Sun Aug 22 14:45:36 EDT 2010
+";
+
+my ($file, $entries, $timeout, $test, $fetch,
+    $nocache, $ssh_user, $verbose, $help);
+my $result = GetOptions(
+  "file=s"    => \$file,
+  "entries=i" => \$entries,
+  "timeout=i" => \$timeout,
+  "test"      => \$test,
+  "fetch"     => \$fetch,
+  "nocache"   => \$nocache,
+  "s|ssh:s"   => \$ssh_user,
+  "v"         => \$verbose,
+  "h|help"    => \$help,
+);
+if($help or not $result){
+  print $usage;
+  exit $result;
+}
+
+#defaults
+$file = '~/.twipcache' if not $file;
+$file = `echo $file`;
+chomp $file;
+
+$entries = 20 if not $entries;
+
+$timeout = 2 if not $timeout;
+
+$fetch = 1 if $nocache;
+
+$ssh_user = 'root' if defined $ssh_user and not $ssh_user;
+
+my $ip = get_ip $file;
+if(defined $ssh_user){
+  my $cmd = "ssh $ssh_user\@$ip";
+  print "$cmd\n";
+  system $cmd;
+}else{
+  print "$ip\n";
+}
+
+sub fetch(){
+  my $twitterLib = eval { require Net::Twitter::Lite };
+  if($twitterLib){
+    print "getting IP with OAUTH\n" if $verbose;
+    return `twip --get`;
+  }else{
+    print "fetching IP with wget\n" if $verbose;
+    return `twip --fetch`;
+  }
+}
+
+
+sub testIP($){
+  my $ip = shift;
+  my $expected = 'Holy shit batman, it works';
+  my $test_cmd =
+    "ssh " .
+    "-o NumberOfPasswordPrompts=0 " .
+    "-o ConnectTimeout=$timeout " .
+    "root\@$ip " .
+    "echo $expected" .
+    "";
+  print "Testing $ip (will wait ${timeout}s before failing)\n" if $verbose;
+  my $out = `$test_cmd 2>/dev/null`;
+  print "Finished test\n" if $verbose;
+  if($out =~ /^$expected\n?$/){
+    return 1;
+  }else{
+    return 0;
+  }
+}
+
+sub read_cache($){
+  my $file = shift;
+  
+  open FH, "< $file" or die
+    "Could not open $file for reading\n$usage";
+  my @lines = <FH>;
+  close FH;
+
+  my @good_lines;
+  for(my $i=0; $i<@lines; $i++){
+    my $line = $lines[$i];
+    if($line =~ /$CACHE_LINE_REGEX/){
+      push @good_lines, "$1\t$2\n";
+    }
+  }
+
+  return \@good_lines;
+}
+
+sub write_cache($@){
+  my $file = shift;
+  my @good_lines = @{scalar shift};
+  @good_lines = reverse @good_lines;
+  while(@good_lines > $entries){
+    pop @good_lines;
+  }
+  @good_lines = reverse @good_lines;
+
+  open FH, "> $file" or die
+    "Could not open $file for writing\n$usage";
+  print FH @good_lines;
+  close FH;
+}
+
+sub get_ip($){
+  my $file = shift;
+  
+  if(not -e $file){
+    print "No cache file found, creating new\n" if $verbose;
+    system "echo > $file";
+  }
+
+  my @cache;
+  if($nocache){
+    @cache = ();
+  }else{
+    print "Reading cache\n" if $verbose;
+    @cache = @{read_cache $file};
+  }
+
+  my $ip_cache;
+  my $date_cache;
+  if(not $fetch and @cache > 0){
+    $cache[-1] =~ /$CACHE_LINE_REGEX/;
+    $ip_cache = $1;
+    $date_cache = $2;
+    print "IP $ip_cache found in cache, as of $date_cache\n" if $verbose;
+  }else{
+    if($fetch){
+      print "Ignored cache\n" if $verbose;
+    }
+    print "Cache is empty/unused\n" if $verbose;
+  }
+
+  if($test and
+     not $fetch and
+     defined $ip_cache and
+     not testIP $ip_cache
+  ){
+    print "IP test failed\n" if $verbose;
+    undef $ip_cache;
+  }
+
+  my $ip;
+  if(not $fetch and defined $ip_cache){
+    print "Successful test of cached ip\n" if $verbose;
+    $ip = $ip_cache;
+  }else{
+    print "Fetching new ip\n" if $verbose;
+    $ip_cache = fetch();
+    chomp $ip_cache;
+    print "Fetched $ip_cache\n" if $verbose;
+    $date_cache = `date`;
+    chomp $date_cache;
+    my $entry = "$ip_cache\t$date_cache\n";
+    if($entry =~ /$CACHE_LINE_REGEX/){
+      print "IP well-formed\n" if $verbose;
+      if(not $nocache){
+        print "Adding to cache\n" if $verbose;
+      }
+      $ip = $ip_cache;
+      push @cache, $entry;
+    }else{
+      print "Malformed IP\n" if $verbose;
+    }
+  }
+
+  if(not $nocache){
+    print "Writing cache\n" if $verbose;
+    write_cache $file, \@cache;
+  }
+
+  print "IP fetched or verified from cache: " if $verbose;
+  return $ip;
+}
+

@@ -1,0 +1,89 @@
+#!/usr/bin/perl
+#######################################################################
+# Twip Server (TWitter IP utility - server)
+# Interfaces with twip main script
+# Performs logging, automatic retries, and verification of tweeted IP
+# Intended to be used on the server as an automated task (e.g. cronjob)
+#
+# Twip is for sending and retrieving IP addresses to/from twitter.
+# Intended to serve as a makeshift replacement for dynamic DNS
+#
+# Encrypts IPs weakly using OpenPGP `gpg'
+# Sends data using the Twitter API through Net::Twitter
+#
+# Copyright (c) 2010 Elliot Wolk
+#
+# Essentially a wrapper around Net::Twitter, which is:
+#   Copyright (c) 2009 Marc Mims
+#
+# The Twitter API itself is:
+#   Copyright (c) 2009 Twitter
+#
+# This script is licensed under GNU GPL version 3.0 or above
+#######################################################################
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#######################################################################
+
+my $LOG_FILE = '~/.twiplog';
+my $TIMEOUT = 30;
+
+my $start;
+
+sub twiplog($){
+  my $msg = shift;
+  my $time = localtime time;
+  system "echo '$time: $msg' >> ~/.twiplog";
+}
+sub fail($){
+  my $err = shift;
+  twiplog $err;
+  die $err;
+}
+
+my $ip = '';
+$start = time;
+while($ip !~ /^([0-9]+\.)*[0-9]+$/){
+  if(time - $start >= $TIMEOUT){
+    fail 'Failure: could not obtain IP';
+  }
+  print "Trying to fetch IP...\n";
+  $ip = `extip`;
+  $ip =~ s/[ \t\n]//g;
+  print "  response: $ip\n";
+  sleep 2;
+}
+
+print "Fetched IP: $ip\n";
+
+my $newIP = '';
+$start = time;
+while($newIP ne $ip){
+  if(time - $start >= $TIMEOUT){
+    fail "Failure: could not tweet IP {$ip}";
+  }
+  print "Trying to tweet IP...\n";
+  system "twip -p --ip $ip";
+  print "Trying to verify tweeted IP...\n";
+  $newIP = `twip -g`;
+  $newIP =~ s/[ \t\n]//g;
+  print "Got from twitter: $newIP\n";
+  if($newIP ne $ip){
+    print "retrying after 5s...";
+    sleep 5;
+  }
+}
+
+twiplog "Success: $newIP";
+print "Verified tweeted IP (yay!): $newIP\n";
+

@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+my $ip =  `wget -q -O - http://checkip.dyndns.org | cut -f 2 -d \\: | cut -f 1 -d \\<`;
+$ip =~ s/^ *(.*) *$/$1/s;
+
+print $ip;
+
