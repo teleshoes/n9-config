@@ -41,7 +41,10 @@ sub setPid(){
 
 sub isRunning(){
   my $pid = getPid;
-  my $psLine = `ps 2>/dev/null | grep "^$pid "`;
+  if($pid !~ /^\d+$/){
+    return 0;
+  }
+  my $psLine = `ps 2>/dev/null | grep "^ *$pid "`;
   if($? == 0 and $psLine =~ /$0/){
     return 1;
   }else{
