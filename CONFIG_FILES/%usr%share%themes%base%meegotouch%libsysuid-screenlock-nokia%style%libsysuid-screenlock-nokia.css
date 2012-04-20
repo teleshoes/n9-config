@@ -120,7 +120,7 @@ LockScreen MImageWidgetStyle#LockScreenLowPowerModeOperatorLogo {
     margin-bottom: 0;
     margin-left: 0;
     margin-right: 0;
-    maximum-size: 12mm 12mm;
+    maximum-size: 120mm 120mm;
 }
 
 LockScreen MImageWidgetStyle#LockScreenLowPowerModeOperatorLogoHidden {
