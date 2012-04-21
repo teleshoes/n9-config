@@ -38,7 +38,8 @@ my @config = qw(
     btinput_harmattan
     toggleBT_harmattan
     ]
- 
+
+  dontgosleep
   contacts
   mail
   joikuspot
