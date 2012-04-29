@@ -62,35 +62,14 @@ my %appDirs;
 my %dirs;
 my %dirNames;
 
-my $index = 0;
-my $nextDir = 1;
-for(my $i=0; $i<@config; $i++){
-  my $item = $config[$i];
-  if($item =~ /^dir-(.*)\[$/){
-    my $dirName = $1;
-    $dirs{$nextDir} = $index++;
-    $dirNames{$nextDir} = $dirName;
-
-    my $dirIndex = 0;
-    while(++$i<@config and $config[$i] ne ']'){
-      my $app = $config[$i];
-      $appDirs{$app} = $nextDir;
-      $apps{$app} = $dirIndex++;
-    }
-
-    $nextDir++;
-  }else{
-    my $app = $config[$i];
-    $apps{$app} = $index++;
-  }
-}
-
 my $appDir = '/usr/share/applications';
 my $unusedDir = '/opt/unused-applications';
 my $directoryDir = '/home/user/.local/share/applications';
 my $quickLaunchDir = '/home/user/.local/share/applications';
 my $confFileDest = '/home/user/.config/meegotouchhome-nokia/launcherbuttons.data';
 
+sub parseConfig();
+sub getValidDesktopNames();
 sub launcherPath($);
 sub createAppDesktopFiles();
 sub createDirDesktopFiles();
@@ -107,6 +86,7 @@ sub main(@){
     exit 0;
   }
   die "Usage: $0   or  $0 -g\n" if @_ > 0;
+  parseConfig();
   createAppDesktopFiles();
   createDirDesktopFiles();
   createQuickLauncherDesktopFiles();
@@ -114,6 +94,31 @@ sub main(@){
   my $data = getData();
   system "ssh root\@$host killall meegotouchhome";
   writeLauncherButtonsData($data);
+}
+
+sub parseConfig(){
+  my $index = 0;
+  my $nextDir = 1;
+  for(my $i=0; $i<@config; $i++){
+    my $item = $config[$i];
+    if($item =~ /^dir-(.*)\[$/){
+      my $dirName = $1;
+      $dirs{$nextDir} = $index++;
+      $dirNames{$nextDir} = $dirName;
+
+      my $dirIndex = 0;
+      while(++$i<@config and $config[$i] ne ']'){
+        my $app = $config[$i];
+        $appDirs{$app} = $nextDir;
+        $apps{$app} = $dirIndex++;
+      }
+
+      $nextDir++;
+    }else{
+      my $app = $config[$i];
+      $apps{$app} = $index++;
+    }
+  }
 }
 
 sub getValidDesktopNames(){
