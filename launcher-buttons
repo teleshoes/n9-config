@@ -17,13 +17,16 @@ my @config = qw(
   duicontrolpanel
 
   nokia-drive-qml
-  xmcr
-  vmpkn9
   FBReader
+  dontgosleep
+  contacts
   
   clock
+  mail
+  joikuspot
+  folder-gallery_harmattan
+  
   dir-stuff[
-    folder-gallery_harmattan
     calendar
     notes
     ]
@@ -38,11 +41,10 @@ my @config = qw(
     btinput_harmattan
     toggleBT_harmattan
     ]
-
-  dontgosleep
-  contacts
-  mail
-  joikuspot
+  dir-apps[
+    vmpkn9
+    xmcr
+    ]  
 );
 
 my @quickLaunch = qw(
