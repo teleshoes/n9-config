@@ -24,7 +24,7 @@ my @config = qw(
   dontgosleep
   mail
   joikuspot
-  folder-gallery_harmattan
+  folder-gallery
   
   dir-stuff[
     calendar
@@ -34,16 +34,16 @@ my @config = qw(
     maps
     calc
     accountsui
-    gconfik_harmattan
+    gconfik
     ]
   dir-bluetooth[
     btinput-terminal
-    btinput_harmattan
-    toggleBT_harmattan
+    btinput
+    toggleBT
     ]
   dir-apps[
     stellarium
-    brujula_harmattan
+    brujula
     vmpkn9
     xmcr
     ]  
@@ -68,6 +68,7 @@ my $directoryDir = '/home/user/.local/share/applications';
 my $quickLaunchDir = '/home/user/.local/share/applications';
 my $confFileDest = '/home/user/.config/meegotouchhome-nokia/launcherbuttons.data';
 
+sub appendHarmattans();
 sub parseConfig();
 sub getValidDesktopNames();
 sub launcherPath($);
@@ -86,6 +87,7 @@ sub main(@){
     exit 0;
   }
   die "Usage: $0   or  $0 -g\n" if @_ > 0;
+  appendHarmattans();
   parseConfig();
   createAppDesktopFiles();
   createDirDesktopFiles();
@@ -94,6 +96,27 @@ sub main(@){
   my $data = getData();
   system "ssh root\@$host killall meegotouchhome";
   writeLauncherButtonsData($data);
+}
+
+sub appendHarmattans(){
+  my %harmattans;
+  for my $valid(getValidDesktopNames()){
+    if($valid =~ m/^(.*)_harmattan$/){
+      $harmattans{$1} = 1
+    }
+  }
+  for(my $i=0; $i<@config; $i++){
+    if(defined $harmattans{$config[$i]}){
+      $config[$i] .= "_harmattan";
+      print "appending '_harmattan' to $config[$i]\n";
+    }
+  }
+  for(my $i=0; $i<@quickLaunch; $i++){
+    if(defined $harmattans{$config[$i]}){
+      $quickLaunch[$i] .= "_harmattan";
+      print "appending '_harmattan' to $quickLaunch[$i]\n";
+    }
+  }
 }
 
 sub parseConfig(){
