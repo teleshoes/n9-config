@@ -17,11 +17,11 @@ my @config = qw(
   duicontrolpanel
 
   nokia-drive-qml
-  FBReader
-  dontgosleep
   contacts
-  
   clock
+  FBReader
+  
+  dontgosleep
   mail
   joikuspot
   folder-gallery_harmattan
