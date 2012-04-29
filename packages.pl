@@ -34,6 +34,9 @@ my %pkgGroups = (
     linux-kernel-headers
     gcc make
   )],
+  '4' => [qw(
+    brujula
+  )],
 );
 
 sub installPackages();
