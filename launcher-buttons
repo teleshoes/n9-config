@@ -103,12 +103,7 @@ sub writeLauncherButtonsData($);
 
 sub main(@){
   if(@_ == 1 and $_[0] eq '-g'){
-    system "n9", "-s", "
-      ls $appDir/*.desktop $unusedDir/*.desktop | \
-        sed 's/.desktop//' | \
-        sed 's/.*\\///' | \
-        sort
-    ";
+    print getValidDesktopNames();
     exit 0;
   }
   die "Usage: $0   or  $0 -g\n" if @_ > 0;
@@ -121,6 +116,14 @@ sub main(@){
   writeLauncherButtonsData($data);
 }
 
+sub getValidDesktopNames(){
+  my @names = `n9 -s 'ls $appDir/*.desktop $unusedDir/*.desktop'`;
+  for my $name(@names){
+    $name =~ s/.desktop$//;
+    $name =~ s/^.*\///;
+  }
+  return @names;
+}
 
 sub launcherPath($){
   my $path = shift;
