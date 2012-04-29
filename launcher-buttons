@@ -42,6 +42,8 @@ my @config = qw(
     toggleBT_harmattan
     ]
   dir-apps[
+    stellarium
+    brujula_harmattan
     vmpkn9
     xmcr
     ]  
