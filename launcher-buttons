@@ -29,6 +29,7 @@ my @config = qw(
   dir-stuff[
     calendar
     notes
+    n9-button-monitor
     ]
   dir-box[
     maps
