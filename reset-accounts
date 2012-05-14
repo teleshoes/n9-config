@@ -9,12 +9,17 @@ my $dir = "$ENV{HOME}/Code/n9";
 my $localAccounts = "$dir/accounts";
 my $remoteAccounts = "/home/user/.accounts";
 
-system "scp", "-r", "$localAccounts/", "root\@$host:$remoteAccounts.tmp";
-system "n9", "-s", "
-  set -x
-  rm -rf /home/user/.aegis
-  chown -R user.users $remoteAccounts.tmp
-  rm -rf $remoteAccounts
-  mv $remoteAccounts.tmp $remoteAccounts
-";
+print "BEST WAY OF DOING THIS CURRENTLY IS DELETE .accounts and .aegis\n";
+print "good luck with that\n";
+
+#system "scp", "-r", "$localAccounts/", "root\@$host:$remoteAccounts.tmp";
+#system "n9", "-s", "
+#  set -x
+#  rm -rf /home/user/.aegis
+#  chown -R user.users $remoteAccounts.tmp
+#  rm -rf $remoteAccounts
+#  mv $remoteAccounts.tmp $remoteAccounts
+#  rm -rf /home/user/.aegis
+#  reboot
+#";
 
