@@ -24,7 +24,7 @@ print "  take 1min to produce any output, then another 1min to finish\n";
 print "  OR fail immediately\n";
 print "\n\n\n";
 
-#run "n9", "-s", "mkfs.ext4 /dev/mmcblk0p1";
+run "n9", "-s", "mkfs.ext4 /dev/mmcblk0p1";
 
 print "\n\n";
 print "DID THAT SHIT WORKK!?!?! [y/N]: ";
