@@ -89,6 +89,8 @@ sub main(@){
     exit 0;
   }
   die "Usage: $0   or  $0 -g\n" if @_ > 0;
+  
+  system "n9 -s stop xsession/mthome";
   appendHarmattans();
   parseConfig();
   createAppDesktopFiles();
@@ -98,6 +100,7 @@ sub main(@){
   my $data = getData();
   system "ssh root\@$host killall meegotouchhome";
   writeLauncherButtonsData($data);
+  system "n9 -s start xsession/mthome";
 }
 
 sub appendHarmattans(){
