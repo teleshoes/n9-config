@@ -32,6 +32,7 @@ if(lc <STDIN> ne "y\n"){
   die "fucken TOLEJA\n";
 }
 
+run "n9", "-s", "mkdir /home/user/MyDocs";
 run "n9", "-s", "mount -t ext4 /dev/mmcblk0p1 /home/user/MyDocs";
 
 run "$dir/ext4-mydocs-fstab";
