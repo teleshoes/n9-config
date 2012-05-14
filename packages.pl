@@ -52,7 +52,7 @@ sub main(@){
   }
   if($arg =~ /^(all|repos)$/){
     if(setupRepos()){
-      system 'n9', '-s', $env, 'apt-get', 'update';
+      system 'n9', '-s', "$env apt-get update";
     }
   }
   installPackages() if $arg =~ /^(all|packages)$/;
@@ -143,7 +143,7 @@ sub removePackages(){
   for my $pkg(@packagesToRemove){
     delete $deps{$pkg};
   }
-  my $depInstallCmd = "apt-get install \\\n";
+  my $depInstallCmd = "$env apt-get install \\\n";
   for my $dep(keys %deps){
     $depInstallCmd .= "  $dep \\\n";
   }
