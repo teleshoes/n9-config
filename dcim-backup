@@ -13,3 +13,5 @@ sub run(@){
 }
 
 run 'rsync', "-av", "root\@$host:$src/", $dest;
+
+run 'rsync', "-av", "root\@$host:/home/user/Pictures", $dest;
