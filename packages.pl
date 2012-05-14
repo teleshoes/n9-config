@@ -92,11 +92,11 @@ sub installPackages(){
   for my $pkgGroup(sort keys %pkgGroups){
     my @packages = @{$pkgGroups{$pkgGroup}}; 
     print "Installing group[$pkgGroup]:\n----\n@packages\n----\n";
-    my @cmd = ('n9', '-s', $env, 'apt-get',
-      'install', @packages,
-      '-y', '--allow-unauthenticated',
-    );
-    system @cmd;
+    system "n9", "-s", ''
+      . "yes |"
+      . " $env apt-get install"
+      . " -y --allow-unauthenticated"
+      . " @packages";
   }
 }
 
