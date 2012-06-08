@@ -13,7 +13,7 @@ my $smsDestDir = "$dest/backup-sms";
 
 system "n9", "-s", "backup-sms";
 system "mkdir", "-p", $smsDestDir;
-system "rsync", "-av", "root\@$host:$smsSrcDir/", $smsDestDir;
+system "rsync", "-avP", "root\@$host:$smsSrcDir/", $smsDestDir;
 system "perl $dir/sms-tool.pl split";
 system "perl $dir/sms-tool.pl commit";
 

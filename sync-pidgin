@@ -17,7 +17,7 @@ my $loc = $localPurpleDir;
 
 my @opts = qw(
   -a  --no-owner --no-group
-  -v
+  -v  -P
   -z
 );
 

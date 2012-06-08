@@ -27,7 +27,7 @@ my @excludes = qw(
 
 my @rsyncOpts = qw(
   -a --no-owner --no-group
-  -v
+  -v -P
 );
 for my $exclude(@excludes){
   push @rsyncOpts, "--exclude=$exclude";

@@ -12,6 +12,6 @@ sub run(@){
   system @_;
 }
 
-run 'rsync', "-av", "root\@$host:$src/", $dest;
+run 'rsync', "-avP", "root\@$host:$src/", $dest;
 
-run 'rsync', "-av", "root\@$host:/home/user/Pictures", $dest;
+run 'rsync', "-avP", "root\@$host:/home/user/Pictures", $dest;

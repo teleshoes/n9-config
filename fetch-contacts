@@ -13,5 +13,5 @@ my $contactsDestDir = "$dest/backup-contacts";
 
 system "n9", "-s", "backup-contacts";
 system "mkdir", "-p", $contactsDestDir;
-system "rsync", "-av", "root\@$host:$contactsSrcDir/", $contactsDestDir;
+system "rsync", "-avP", "root\@$host:$contactsSrcDir/", $contactsDestDir;
 
