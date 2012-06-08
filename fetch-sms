@@ -11,9 +11,15 @@ chomp $host;
 my $smsSrcDir = "/home/user/MyDocs/backup-sms";
 my $smsDestDir = "$dest/backup-sms";
 
-system "n9", "-s", "backup-sms";
-system "mkdir", "-p", $smsDestDir;
-system "rsync", "-avP", "root\@$host:$smsSrcDir/", $smsDestDir;
-system "perl $dir/sms-tool.pl split";
-system "perl $dir/sms-tool.pl commit";
+sub run(@){
+  print "@_\n";
+  system @_;
+  die "failed" if $? != 0;
+}
+
+run "n9", "-s", "backup-sms";
+run "mkdir", "-p", $smsDestDir;
+run "rsync", "-avP", "root\@$host:$smsSrcDir/", $smsDestDir;
+run "perl $dir/sms-tool.pl split";
+run "perl $dir/sms-tool.pl commit";
 

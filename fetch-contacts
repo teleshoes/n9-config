@@ -12,6 +12,9 @@ my $contactsSrcDir = "/home/user/MyDocs/backup-contacts";
 my $contactsDestDir = "$dest/backup-contacts";
 
 system "n9", "-s", "backup-contacts";
+die "failed" if $? != 0;
 system "mkdir", "-p", $contactsDestDir;
+die "failed" if $? != 0;
 system "rsync", "-avP", "root\@$host:$contactsSrcDir/", $contactsDestDir;
+die "failed" if $? != 0;
 

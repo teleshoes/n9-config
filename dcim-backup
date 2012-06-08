@@ -10,8 +10,9 @@ my $dest = "$ENV{HOME}/Code/n9/DCIM";
 sub run(@){
   print "@_\n";
   system @_;
+  die "failed" if $? != 0;
 }
 
 run 'rsync', "-avP", "root\@$host:$src/", $dest;
-
 run 'rsync', "-avP", "root\@$host:/home/user/Pictures", $dest;
+

@@ -36,6 +36,7 @@ for my $exclude(@excludes){
 sub run(@){
   print "@_\n";
   system @_;
+  die "failed" if $? != 0;
 }
 
 run "rsync", @rsyncOpts, "$remote/", $local;
