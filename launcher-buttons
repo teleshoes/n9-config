@@ -30,6 +30,7 @@ my @config = qw(
     calendar
     notes
     n9-button-monitor
+    diskgallery
     CameraPro
     ]
   dir-box[
