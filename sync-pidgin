@@ -27,11 +27,12 @@ sub run(@){
   die "failed" if $? != 0;
 }
 
-run "n9", "-s", "test -e $remotePurpleDir";
+system "n9", "-s", "test -e $remotePurpleDir";
 if($? != 0){
   print "!!no purple at all, syncing purple\n";
   run "rsync", @opts, "--exclude=logs", "$loc/", $rem;
-  run "ssh", "root\@$host", "chown -R $remoteUserGroup $remotePurpleDir/";
+  run "n9", "-s", "mkdir $remotePurpleDir/logs";
+  run "n9", "-s", "chown -R $remoteUserGroup $remotePurpleDir/";
 }
 
 print "\n\nlogs REMOTE => LOCAL\n";
