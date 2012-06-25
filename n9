@@ -20,6 +20,7 @@ my %ssidIps = (
   'flipsafad' => '192.168.1.6',
   'da5id'     => '192.168.11.56',
   'athena'    => '192.168.20.1',
+  'jimbo'     => '192.168.2.7',
 );
 
 if(@ARGV >= 1 and $ARGV[0] eq '-vnc'){
