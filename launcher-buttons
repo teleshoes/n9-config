@@ -35,6 +35,7 @@ my @config = qw(
     ]
   dir-box[
     maps
+    NokiaPt
     calc
     accountsui
     gconfik
