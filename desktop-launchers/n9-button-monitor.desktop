@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Btn Monitor
+Icon=icon-m-service-dopplr
+Exec=python /opt/n9-button-monitor/n9-button-monitor.py -g
+OnlyShowIn=X-MeeGo;

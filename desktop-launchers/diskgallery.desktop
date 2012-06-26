@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Name=EmuMaster
+Exec=/usr/bin/invoker --type=e -s -S /opt/emumaster/data/splash.png -L /opt/emumaster/data/splash-l.png /opt/emumaster/bin/diskgallery
+Icon=/opt/emumaster/data/diskgallery.png
+Categories=Game;Emulator;

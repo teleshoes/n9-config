@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Drive
+Exec=/usr/bin/drive-qml
+#Exec=/usr/bin/invoker --type=d --type=m /usr/bin/drive-qml
+Icon=icon-l-drive
+OnlyShowIn=X-MeeGo;
+# logical name of "Search"
+X-MeeGo-Logical-Id=qtn_drive_drive_name
+# the catalog name
+X-MeeGo-Translation-Catalog=drive

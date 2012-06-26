@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Conversations
+X-MeeGo-Logical-Id=qtn_comm_appname_msg
+X-MeeGo-Translation-Catalog=messaging
+X-Maemo-Service=com.nokia.messaging-ui
+X-Maemo-Fixed-Args=-inbox
+Icon=icon-l-conversation
+Exec=/usr/bin/invoker --type=m /usr/bin/messaging-ui
+OnlyShownIn=X-MeeGo

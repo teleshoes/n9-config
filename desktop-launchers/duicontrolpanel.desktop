@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Settings
+X-MeeGo-Logical-Id=qtn_sett_launcher
+X-MeeGo-Translation-Catalog=settings
+Icon=icon-l-settings
+Exec=/usr/bin/invoker --type=m --splash=/usr/share/themes/blanco/meegotouch/images/splash/meegotouch-settings-splash.jpg /usr/bin/duicontrolpanel.launch -outprocess
+X-Maemo-Service=com.nokia.DuiControlPanel

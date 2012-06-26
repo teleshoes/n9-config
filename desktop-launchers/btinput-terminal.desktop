@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=BTinput Term
+Comment=BTinput Terminal Emulator for MeeGo
+Icon=icon-l-terminal
+Exec=/opt/btinput-terminal/bin/btinput-terminal
+Type=Application
+Categories=Development;

@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=0.1
+Type=Application
+Name=Fenix Mail
+Icon=icon-l-email
+Exec=/usr/bin/invoker --global-syms --wait-term --type=m /usr/bin/fenix %U
+MimeType=x-maemo-highlight/email-address;x-maemo-urischeme/mailto;x-maemo-urischeme/qmf;x-maemo-nepomuk/email;message/rfc822;
+Categories=Office;X-MeeGo;X-Messages;Email;
+OnlyShowIn=X-MeeGo;
+X-MeeGo-Logical-Id=qtn_comm_appname_mail
+X-MeeGo-Translation-Catalog=accountssso,activesync,common,mail,transfer
+X-Maemo-Service=com.nokia.fenix

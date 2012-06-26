@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Phone
+Exec=/usr/bin/invoker --type=m /usr/bin/call-history
+Icon=icon-l-telephony
+X-MeeGo-Logical-Id=qtn_comm_appname_call
+X-Maemo-Service=com.nokia.telephony.callhistory
+OnlyShownIn=X-MeeGo;

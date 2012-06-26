@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Service accounts
+Icon=icon-l-accounts
+Exec=/usr/bin/invoker --single-instance --type=m --splash=/usr/share/themes/blanco/meegotouch/images/splash/meegotouch-accounts-splash.jpg /usr/bin/accounts-ui
+X-MeeGo-Logical-Id=qtn_comm_appname_acc
+X-MeeGo-Translation-Catalog=common
+X-MeeGo-Service=com.nokia.accounts-ui
+

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Camera
+Icon=icon-l-camera
+Exec=/usr/bin/invoker --type=m /usr/bin/camera-ui
+OnlyShowIn=X-MeeGo;
+X-Maemo-Service=com.nokia.maemo.CameraService
+X-MeeGo-Logical-Id=qtn_comm_appname_cam
+X-MeeGo-Translation-Catalog=camera

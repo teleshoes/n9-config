@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=0.1
+Type=Application
+Name=Calendar
+Exec=/usr/bin/invoker --type=m /usr/bin/organiser
+Categories=X-MeeGo;
+OnlyShowIn=X-MeeGo;
+MimeType=text/calendar;x-maemo-nepomuk/calendar-event;x-maemo-nepomuk/calendar-todo;
+X-MeeGo-Logical-Id=qtn_comm_appname_caln
+X-MeeGo-Translation-Catalog=calendar
+X-Maemo-Method=com.nokia.maemo.meegotouch.CalendarInterface.open
+Icon=icon-l-calendar-25

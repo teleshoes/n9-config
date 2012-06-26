@@ -1,0 +1,21 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Terminal=false
+Name=Maps
+
+MimeType=x-maemo-urischeme/geo;x-maemo-highlight/geo;x-maemo-highlight/maps-url;
+#X-Maemo-Service=com.nokia.maps
+#X-Maemo-Method=com.nokia.maps.launch
+
+Exec=/usr/bin/invoker --type=e /usr/bin/maps -u %U
+
+Icon=icon-l-maps
+X-Window-Icon=
+X-HildonDesk-ShowInToolbar=true
+X-Osso-Type=application/x-executable
+# Logical name of "Maps"
+X-MeeGo-Logical-Id=qtn_maps_maps
+# Translation catalog name
+X-MeeGo-Translation-Catalog=mapsAppName

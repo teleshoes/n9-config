@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Clock
+Icon=icon-l-clock
+Exec=/usr/bin/invoker --single-instance --splash /usr/share/themes/blanco/meegotouch/images/splash/meegotouch-clock-splash.jpg --type=m /usr/bin/clock
+Categories=X-MeeGo;
+OnlyShownIn=X-MeeGo;
+X-MeeGo-Logical-Id=qtn_comm_appname_cloc
+X-MeeGo-Translation-Catalog=clock
+X-Maemo-Service=com.nokia.clock

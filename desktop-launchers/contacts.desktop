@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Contacts
+X-MeeGo-Logical-Id=qtn_comm_appname_cont
+X-MeeGo-Translation-Catalog=contacts
+X-Maemo-Service=com.nokia.contacts
+Icon=icon-l-contacts
+Exec=/usr/bin/invoker --type=m /usr/bin/contacts
+OnlyShowIn=X-MeeGo;

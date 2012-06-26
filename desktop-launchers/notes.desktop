@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=0.
+Type=Application
+Name=Notes
+Icon=icon-l-notes
+Exec=/usr/bin/invoker --wait-term --delay=10 --type=m /usr/bin/notes -showWindow %U
+Categories=X-MeeGo;
+OnlyShowIn=X-MeeGo;
+MimeType=x-maemo-nepomuk/calendar-journal;
+X-MeeGo-Logical-Id=qtn_comm_appname_note
+X-MeeGo-Translation-Catalog=notes
+X-Maemo-Method=com.nokia.maemo.meegotouch.NotesInterface.openNote

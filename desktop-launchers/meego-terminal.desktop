@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Terminal
+Comment=Terminal Emulator for MeeGo
+Icon=icon-l-terminal
+Exec=/usr/bin/meego-terminal
+Type=Application
+Categories=Development;

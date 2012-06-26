@@ -1,0 +1,14 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0.6
+Type=Application
+Terminal=false
+Name=Wi-Fi Hotspot
+#Name[zh]=WLAN热点
+#Name[zh_CN]=WLAN热点
+#Name[zh_TW]=WLAN熱點
+#Name[zh_HK]=WLAN熱點
+Exec=invoker --type=e --single-instance --splash=/opt/joikuspot/hotspot_splashscreen.png  --splash-landscape=/opt/joikuspot/hotspot_splashscreen_landscape.png /opt/joikuspot/joikuspot
+Icon=/opt/joikuspot/share/icons/hotspot.svg
+X-MeeGo-Logical-Id=qtn_joikuspot_appname
+X-MeeGo-Translation-Catalog=joikuspotApp
