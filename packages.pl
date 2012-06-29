@@ -9,6 +9,7 @@ my $debDestPrefix = '/opt';
 my @packagesToRemove = qw(
   wxapp apnews realgolf2011 gof2 nfsshift
   angrybirdsfreemagic
+  ovi-music-store morpheus morpheus-guard
 
   mp-harmattan-005-pr
   facebook twitter twitter-qml
