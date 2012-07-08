@@ -28,3 +28,8 @@ D) insert usb, select: sync and connect
 13) setup-cities
 14) install-klomp
 15) reboot!!
+16) restore-contacts
+17) restore-sms
+18) sync-mydocs
+19) sync-pidgin
+20) klomp-sync user@`n9`
