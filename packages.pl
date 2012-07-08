@@ -181,7 +181,7 @@ sub isAlreadyInstalled($){
 }
 
 sub installDebs(){
-  my @debs = `cd $debDir; ls *.deb`;
+  my @debs = `cd $debDir; ls */*.deb`;
   chomp foreach @debs;
   
   print "\n\nSyncing $debDestPrefix/$debDir to $debDestPrefix on dest:\n";
