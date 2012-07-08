@@ -173,7 +173,7 @@ sub createAppDesktopFiles(){
     set -x
     mkdir -p $unusedDir
     cd $appDir
-    bash -c 'find -maxdepth 1 -name \\*.desktop -execdir mv {} $unusedDir \\;'
+    mv *.desktop $unusedDir
     rm -rf $appDir
     mkdir -p $appDir
   ";
