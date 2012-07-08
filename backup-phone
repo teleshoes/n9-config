@@ -18,7 +18,7 @@ system "$dir/sync-pidgin";
 die "failed" if $? != 0;
 system "$dir/sync-mydocs";
 die "failed" if $? != 0;
-system "$dir/sync-fbreader";
+system "$dir/sync-fbreader backup";
 die "failed" if $? != 0;
 
 system "$dir/fetch-contacts";

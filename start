@@ -32,4 +32,5 @@ D) insert usb, select: sync and connect
 17) restore-sms
 18) sync-mydocs
 19) sync-pidgin
-20) klomp-sync user@`n9`
+20) sync-fbreader restore
+21) klomp-sync user@`n9`

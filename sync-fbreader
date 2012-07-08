@@ -2,6 +2,9 @@
 use strict;
 use warnings;
 
+my $arg = shift();
+die "Usage: $0 [backup|restore]\n" if $arg !~ /^(backup|restore)$/;
+
 my $host = `n9`;
 chomp $host;
 
@@ -19,6 +22,7 @@ my @excludes = qw(
 my @rsyncOpts = qw(
   -a --no-owner --no-group
   -v -P
+  --del
 );
 for my $exclude(@excludes){
   push @rsyncOpts, "--exclude=$exclude";
@@ -30,6 +34,9 @@ sub run(@){
   die "failed" if $? != 0;
 }
 
-run "rsync", @rsyncOpts, "$remote/", $local;
-run "rsync", @rsyncOpts, "$local/", $remote;
+if($arg eq 'backup'){
+  run "rsync", @rsyncOpts, "$remote/", $local;
+}elsif($arg eq 'restore'){
+  run "rsync", @rsyncOpts, "$local/", $remote;
+}
 
