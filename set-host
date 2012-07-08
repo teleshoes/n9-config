@@ -8,12 +8,12 @@ chomp $host;
 system 'ssh-keygen', '-f', "$ENV{HOME}/.ssh/known_hosts", '-R', $host;
 
 system 'n9', '-s', "
-  OLD=`hostname`
-  echo $host | tee /etc/hostname
-  cat /etc/hosts | sed s/\$OLD/$host/g > /tmp/new_hosts
-  mv /tmp/new_hosts /etc/hosts
-  sysctl -w kernel.hostname=$host
-  echo OLD: \$OLD
-  echo NEW: `hostname`
+  OLD=`hostname`;
+  echo $host | tee /etc/hostname;
+  cat /etc/hosts | sed \"s/\$OLD/$host/g\" > /tmp/new_hosts;
+  mv /tmp/new_hosts /etc/hosts;
+  sysctl -w kernel.hostname=$host;
+  echo OLD: \$OLD;
+  echo NEW: `hostname`;
 ";
 
