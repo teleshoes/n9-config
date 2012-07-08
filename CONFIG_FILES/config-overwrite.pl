@@ -55,7 +55,7 @@ sub overwriteFile($$){
   }else{
     system 'rsync', @rsyncOpts, "$src", "$dest";
   }
-  if($destDir =~ /^\/home\/pi/){
+  if($destDir =~ /^\/home\/$user/){
     system "chown -R $user.$group $dest";
     system "chown $user.$group $destDir";
   }else{
