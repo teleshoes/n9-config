@@ -17,13 +17,14 @@ D) insert usb, select: sync and connect
 3) keygen.pl
 4) remove-disclaimer
 5) FLASH AN OPENMODE KERNEL
+6) rm -rf /home/user/.aegis /home/user/.accounts
 ###switch to wifi now###
-6) packages
-7) config-files
-8) openvpn-keys
-9) launcher-buttons
-10) ext4-mydocs
-11) gconf-settings
-12) setup-cities
-13) install-klomp
-14) reboot!!
+7) packages
+8) config-files
+9) openvpn-keys
+10) launcher-buttons
+11) ext4-mydocs
+12) gconf-settings
+13) setup-cities
+14) install-klomp
+15) reboot!!
