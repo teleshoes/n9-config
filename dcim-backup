@@ -13,6 +13,7 @@ sub run(@){
   die "failed" if $? != 0;
 }
 
-run 'rsync', "-avP", "root\@$host:$src/", $dest;
-run 'rsync', "-avP", "root\@$host:/home/user/Pictures", $dest;
+print "\n\n\n\n\MANUALLY BACKUP DCIM!!!!!\n\n\n\n\n";
+#run 'rsync', "-avP", "root\@$host:$src/", $dest;
+#run 'rsync', "-avP", "root\@$host:/home/user/Pictures", $dest;
 
