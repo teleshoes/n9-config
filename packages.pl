@@ -188,6 +188,13 @@ sub installDebs(){
   print "---\n@debs\n---\n";
   system "rsync $debDir root@`n9`:$debDestPrefix -av --progress --delete";
 
+  my $mtToggles = `cd $debDir; ls */mt-toggles*.deb`;
+  my $systemUi = `cd $debDir; ls */system-ui*.deb`;
+  if(not isAlreadyInstalled "$debDir/$mtToggles"){
+    print "mt-toggles isnt installed, so reinstalling system-ui\n";
+    system 'n9', '-s', "$env dpkg -i $debDestPrefix/$debDir/$systemUi";
+  }
+
   print "\n\nChecking installed versions\n";
   my $cmd = '';
   for my $deb(@debs){
