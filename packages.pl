@@ -197,6 +197,7 @@ sub installDebs(){
 
   print "\n\nChecking installed versions\n";
   my $cmd = '';
+  $cmd .= "stop xsession/sysuid\n";
   for my $deb(@debs){
     my $localDebFile = "$debDir/$deb";
     my $remoteDebFile = "$debDestPrefix/$debDir/$deb\n";
@@ -209,6 +210,7 @@ sub installDebs(){
       print "Skipping already installed $deb\n";
     }
   }
+  $cmd .= "start xsession/sysuid\n";
   
   print "\n\nInstalling debs\n";
   if($cmd ne ''){
