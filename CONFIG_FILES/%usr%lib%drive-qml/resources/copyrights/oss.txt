@@ -1,0 +1,604 @@
+
+This release includes certain open source software. Please see below for 
+applicable copyright- and other notices, permissions, and acknowledgements.
+
+
+
+Portions of this software are copyright ? 1996-2002 The FreeType
+Project (www.freetype.org).  All rights reserved.
+
+"this software is based in part on the work of
+ the Independent JPEG Group".
+
+"This product includes software written by Tim Hudson (tjh@cryptsoft.com)"
+
+"This product includes software developed by Bodo Moeller."
+
+
+====================================================================
+
+The Apache Software License, Version 1.1
+
+Copyright (c) 1999-2003 The Apache Software Foundation.  All rights
+reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+
+3. The end-user documentation included with the redistribution, if
+   any, must include the following acknowlegement:
+      "This product includes software developed by the
+       Apache Software Foundation (http://www.apache.org/)."
+   Alternately, this acknowlegement may appear in the software itself,
+   if and wherever such third-party acknowlegements normally appear.
+
+4. The names "The Jakarta Project", "Commons", and "Apache Software
+   Foundation" must not be used to endorse or promote products derived
+   from this software without prior written permission. For written
+   permission, please contact apache@apache.org.
+
+5. Products derived from this software may not be called "Apache"
+   nor may "Apache" appear in their names without prior written
+   permission of the Apache Group.
+
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
+ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+====================================================================
+
+This software consists of voluntary contributions made by many
+individuals on behalf of the Apache Software Foundation.  For more
+information on the Apache Software Foundation, please see
+<http://www.apache.org/>.
+
+----
+
+Copyright 1990, 1994, 1998  The Open Group
+
+Permission to use, copy, modify, distribute, and sell this software and its
+documentation for any purpose is hereby granted without fee, provided that
+the above copyright notice appear in all copies and that both that
+copyright notice and this permission notice appear in supporting
+documentation.
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+OPEN GROUP BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Except as contained in this notice, the name of The Open Group shall not be
+used in advertising or otherwise to promote the sale, use or other dealings
+in this Software without prior written authorization from The Open Group.
+
+----
+
+copyright (C) 1999 by Willem van Schaik <willem@schaik.com>
+
+Permission to use, copy, modify, and distribute this software and
+its documentation for any purpose and without fee is hereby granted,
+provided that the above copyright notice appear in all copies and
+that both that copyright notice and this permission notice appear in
+supporting documentation. This software is provided "as is" without
+express or implied warranty.
+
+----
+
+Copyright (C) 2005 by George Williams
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.
+
+Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
+
+The name of the author may not be used to endorse or promote products
+derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+----
+
+Copyright (c) 1995, 1996, 1997, 1998, 1999, 2004 Kungliga Tekniska H?gskolan
+(Royal Institute of Technology, Stockholm, Sweden).
+Copyright (c) 2004 - 2006 Daniel Stenberg
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+3. Neither the name of the Institute nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+
+----
+
+Copyright (c) 1998-2008 Greg Roelofs.  All rights reserved.
+
+This software is provided "as is," without warranty of any kind,
+express or implied.  In no event shall the author or contributors
+be held liable for any damages arising in any way from the use of
+this software.
+
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute
+it freely, subject to the following restrictions:
+
+1. Redistributions of source code must retain the above copyright
+   notice, disclaimer, and this list of conditions.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, disclaimer, and this list of conditions in the documenta-
+   tion and/or other materials provided with the distribution.
+3. All advertising materials mentioning features or use of this
+   software must display the following acknowledgment:
+
+      This product includes software developed by Greg Roelofs
+      and contributors for the book, "PNG: The Definitive Guide,"
+      published by O'Reilly and Associates.
+
+----
+Copyright (c) 2004, Richard Levitte <richard@levitte.org>
+Copyright (c) 2002 Bob Beck <beck@openbsd.org>
+Copyright (c) 2002 Theo de Raadt
+Copyright (c) 2002 Markus Friedl
+Copyright (c) 2007 KISA(Korea Information Security Agency).
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, disclaimer, and this list of conditions.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+
+----
+
+Copyright (c) 2006, CRYPTOGAMS by <appro@openssl.org> All rights reserved. 
+
+Redistribution and use in source and binary forms, with or without 
+modification, are permitted provided that the following conditions 
+are met: 
+* Redistributions of source code must retain copyright notices, this list 
+of conditions and the following disclaimer. 
+* Redistributions in binary form must reproduce the above copyright 
+notice, this list of conditions and the following disclaimer in the 
+documentation and/or other materials provided with the distribution. 
+* Neither the name of the CRYPTOGAMS nor the names of its copyright holder 
+and contributors may be used to endorse or promote products derived from 
+this software without specific prior written permission. 
+
+ALTERNATIVELY, provided that this notice is retained in full, this 
+product may be distributed under the terms of the GNU General Public 
+License (GPL), in which case the provisions of the GPL apply INSTEAD OF 
+those given above. 
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS" 
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+POSSIBILITY OF SUCH DAMAGE. 
+
+----
+
+Copyright (C) 2009, Vaclav Haisman. All rights reserved.
+Copyright (c) 2008 Andy Polyakov <appro@openssl.org>
+
+Redistribution and use in source and binary forms, with or without modifica-
+tion, are permitted provided that the following conditions are met:
+
+1. Redistributions of  source code must  retain the above copyright  notice,
+   this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS  FOR A PARTICULAR  PURPOSE ARE  DISCLAIMED.  IN NO  EVENT SHALL  THE
+APACHE SOFTWARE  FOUNDATION  OR ITS CONTRIBUTORS  BE LIABLE FOR  ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL,  EXEMPLARY, OR CONSEQUENTIAL  DAMAGES (INCLU-
+DING, BUT NOT LIMITED TO, PROCUREMENT  OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR  PROFITS; OR BUSINESS  INTERRUPTION)  HOWEVER CAUSED AND ON
+ANY  THEORY OF LIABILITY,  WHETHER  IN CONTRACT,  STRICT LIABILITY,  OR TORT
+(INCLUDING  NEGLIGENCE OR  OTHERWISE) ARISING IN  ANY WAY OUT OF THE  USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+----
+
+Copyright 2006 NTT (Nippon Telegraph and Telephone Corporation) . 
+ALL RIGHTS RESERVED.
+
+Intellectual Property information for Camellia:
+    http://info.isl.ntt.co.jp/crypt/eng/info/chiteki.html
+
+News Release for Announcement of Camellia open source:
+    http://www.ntt.co.jp/news/news06e/0604/060413a.html
+
+The Camellia Code included herein is developed by
+NTT (Nippon Telegraph and Telephone Corporation), and is contributed
+to the OpenSSL project.
+
+The Camellia Code is licensed pursuant to the OpenSSL open source
+license provided below.
+
+----
+
+Copyright 2002 Sun Microsystems, Inc. ALL RIGHTS RESERVED.
+
+The Elliptic Curve Public-Key Crypto Library (ECC Code) included
+herein is developed by SUN MICROSYSTEMS, INC., and is contributed
+to the OpenSSL project.
+
+The ECC Code is licensed pursuant to the OpenSSL open source
+license provided below.
+
+The ECDH software is originally written by Douglas Stebila of
+Sun Microsystems Laboratories.
+
+----
+
+Copyright (C) 1995-1997 Eric Young (eay@cryptsoft.com)
+All rights reserved.
+
+This package is an SSL implementation written
+by Eric Young (eay@cryptsoft.com).
+The implementation was written so as to conform with Netscapes SSL.
+
+This library is free for commercial and non-commercial use as long as
+the following conditions are aheared to.  The following conditions
+apply to all code found in this distribution, be it the RC4, RSA,
+lhash, DES, etc., code; not just the SSL code.  The SSL documentation
+included with this distribution is covered by the same copyright terms
+except that the holder is Tim Hudson (tjh@cryptsoft.com).
+
+Copyright remains Eric Young's, and as such any Copyright notices in
+the code are not to be removed.
+If this package is used in a product, Eric Young should be given attribution
+as the author of the parts of the library used.
+This can be in the form of a textual message at program startup or
+in documentation (online or textual) provided with the package.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. All advertising materials mentioning features or use of this software
+   must display the following acknowledgement:
+   "This product includes cryptographic software written by
+    Eric Young (eay@cryptsoft.com)"
+   The word 'cryptographic' can be left out if the rouines from the library
+   being used are not cryptographic related :-).
+4. If you include any Windows specific code (or a derivative thereof) from
+   the apps directory (application code) you must include an acknowledgement:
+   "This product includes software written by Tim Hudson (tjh@cryptsoft.com)"
+
+THIS SOFTWARE IS PROVIDED BY ERIC YOUNG ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+
+The licence and distribution terms for any publically available version or
+derivative of this code cannot be changed.  i.e. this code cannot simply be
+copied and put under another distribution licence
+[including the GNU Public Licence.]
+
+====================================================================
+Copyright 2002 Sun Microsystems, Inc. ALL RIGHTS RESERVED.
+
+Portions of the attached software ("Contribution") are developed by
+SUN MICROSYSTEMS, INC., and are contributed to the OpenSSL project.
+
+The Contribution is licensed pursuant to the Eric Young open source
+license provided above.
+
+The binary polynomial arithmetic software is originally written by
+Sheueling Chang Shantz and Douglas Stebila of Sun Microsystems Laboratories.
+
+----
+
+Copyright (c) 1998-2003 The OpenSSL Project.  All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+
+3. All advertising materials mentioning features or use of this
+   software must display the following acknowledgment:
+   "This product includes software developed by the OpenSSL Project
+   for use in the OpenSSL Toolkit. (http://www.openssl.org/)"
+
+4. The names "OpenSSL Toolkit" and "OpenSSL Project" must not be used to
+   endorse or promote products derived from this software without
+   prior written permission. For written permission, please contact
+   openssl-core@openssl.org.
+
+5. Products derived from this software may not be called "OpenSSL"
+   nor may "OpenSSL" appear in their names without prior written
+   permission of the OpenSSL Project.
+
+6. Redistributions of any form whatsoever must retain the following
+   acknowledgment:
+   "This product includes software developed by the OpenSSL Project
+   for use in the OpenSSL Toolkit (http://www.openssl.org/)"
+
+THIS SOFTWARE IS PROVIDED BY THE OpenSSL PROJECT ``AS IS'' AND ANY
+EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE OpenSSL PROJECT OR
+ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+OF THE POSSIBILITY OF SUCH DAMAGE.
+====================================================================
+
+This product includes cryptographic software written by Eric Young
+(eay@cryptsoft.com).  This product includes software written by Tim
+Hudson (tjh@cryptsoft.com).
+
+====================================================================
+Copyright 2002 Sun Microsystems, Inc. ALL RIGHTS RESERVED.
+
+Portions of the attached software ("Contribution") are developed by
+SUN MICROSYSTEMS, INC., and are contributed to the OpenSSL project.
+
+The Contribution is licensed pursuant to the OpenSSL open source
+license provided above.
+
+The elliptic curve binary polynomial software is originally written by
+Sheueling Chang Shantz and Douglas Stebila of Sun Microsystems Laboratories.
+
+----
+
+Written by Corinne Dive-Reclus(cdive@baltimore.com)
+
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer. 
+
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+
+3. All advertising materials mentioning features or use of this
+   software must display the following acknowledgment:
+   "This product includes software developed by the OpenSSL Project
+   for use in the OpenSSL Toolkit. (http://www.OpenSSL.org/)"
+
+4. The names "OpenSSL Toolkit" and "OpenSSL Project" must not be used to
+   endorse or promote products derived from this software without
+   prior written permission. For written permission, please contact
+   licensing@OpenSSL.org.
+
+5. Products derived from this software may not be called "OpenSSL"
+   nor may "OpenSSL" appear in their names without prior written
+   permission of the OpenSSL Project.
+
+6. Redistributions of any form whatsoever must retain the following
+   acknowledgment:
+   "This product includes software developed by the OpenSSL Project
+   for use in the OpenSSL Toolkit (http://www.OpenSSL.org/)"
+
+Written by Corinne Dive-Reclus(cdive@baltimore.com)
+
+Copyright (c) 2001 Baltimore Technologies Ltd.
+All right Reserved.
+
+THIS FILE IS PROVIDED BY BALTIMORE TECHNOLOGIES ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL BALTIMORE TECHNOLOGIES BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+
+----
+
+This file is Copyright 1998-2000 nCipher Corporation Limited.
+
+Redistribution and use in source and binary forms, with opr without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the copyright notice,
+   this list of conditions, and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above
+   copyright notice, this list of conditions, and the following
+   disclaimer, in the documentation and/or other materials provided
+   with the distribution
+
+IN NO EVENT SHALL NCIPHER CORPORATION LIMITED (`NCIPHER') AND/OR
+ANY OTHER AUTHORS OR DISTRIBUTORS OF THIS FILE BE LIABLE for any
+damages arising directly or indirectly from this file, its use or
+this licence.  Without prejudice to the generality of the
+foregoing: all liability shall be excluded for direct, indirect,
+special, incidental, consequential or other damages or any loss of
+profits, business, revenue goodwill or anticipated savings;
+liability shall be excluded even if nCipher or anyone else has been
+advised of the possibility of damage.  In any event, if the
+exclusion of liability is not effective, the liability of nCipher
+or any author or distributor shall be limited to the lesser of the
+price paid and 1,000 pounds sterling. This licence only fails to
+exclude or limit liability for death or personal injury arising out
+of negligence, and only to the extent that such an exclusion or
+limitation is not effective.
+ 
+NCIPHER AND THE AUTHORS AND DISTRIBUTORS SPECIFICALLY DISCLAIM ALL
+AND ANY WARRANTIES (WHETHER EXPRESS OR IMPLIED), including, but not
+limited to, any implied warranties of merchantability, fitness for
+a particular purpose, satisfactory quality, and/or non-infringement
+of any third party rights.
+
+US Government use: This software and documentation is Commercial
+Computer Software and Computer Software Documentation, as defined in
+sub-paragraphs (a)(1) and (a)(5) of DFAR 252.227-7014, "Rights in
+Noncommercial Computer Software and Noncommercial Computer Software
+Documentation."  Use, duplication or disclosure by the Government is
+subject to the terms and conditions specified here.
+
+By using or distributing this file you will be accepting these
+terms and conditions, including the limitation of liability and
+lack of warranty.  If you do not wish to accept these terms and
+conditions, DO NOT USE THE FILE.
+
+----
+
+Copyright (c) 1990-2005 Info-ZIP. All rights reserved.
+
+For the purposes of this copyright and license, "Info-ZIP" is 
+defined as the following set of individuals:
+
+    Mark Adler, John Bush, Karl Davis, Harald Denker, Jean-Michel 
+Dubois, Jean-loup Gailly, Hunter Goatley, Ed Gordon, Ian Gorman, 
+Chris Herborth, Dirk Haase, Greg Hartwig, Robert Heath, Jonathan 
+Hudson, Paul Kienitz, David Kirschbaum, Johnny Lee, Onno van der 
+Linden, Igor Mandrichenko, Steve P. Miller, Sergio Monesi, Keith 
+Owens, George Petrov, Greg Roelofs, Kai Uwe Rommel, Steve 
+Salisbury, Dave Smith, Steven M. Schweda, Christian Spieler, 
+Cosmin Truta, Antoine Verheijen, Paul von Behren, Rich Wales, 
+Mike White 
+
+This software is provided "as is," without warranty of any kind, 
+express or implied. In no event shall Info-ZIP or its contributors 
+be held liable for any direct, indirect, incidental, special or 
+consequential damages arising out of the use of or inability to 
+use this software.
+
+Permission is granted to anyone to use this software for any 
+purpose, including commercial applications, and to alter it and 
+redistribute it freely, subject to the following restrictions:
+
+   1. Redistributions of source code must retain the above 
+copyright notice, definition, disclaimer, and this list of 
+conditions.
+   2. Redistributions in binary form (compiled executables) must 
+reproduce the above copyright notice, definition, disclaimer, and 
+this list of conditions in documentation and/or other materials 
+provided with the distribution. The sole exception to this 
+condition is redistribution of a standard UnZipSFX binary 
+(including SFXWiz) as part of a self-extracting archive; that is 
+permitted without inclusion of this license, as long as the 
+normal SFX banner has not been removed from the binary or disabled.
+   3. Altered versions--including, but not limited to, ports to 
+new operating systems, existing ports with new graphical 
+interfaces, and dynamic, shared, or static library versions--must 
+be plainly marked as such and must not be misrepresented as 
+being the original source. Such altered versions also must not 
+be misrepresented as being Info-ZIP releases--including, but not 
+limited to, labeling of the altered versions with the names 
+"Info-ZIP" (or any variation thereof, including, but not limited 
+to, different capitalizations), "Pocket UnZip," "WiZ" or "MacZip" 
+without the explicit permission of Info-ZIP. Such altered versions 
+are further prohibited from misrepresentative use of the Zip-Bugs 
+or Info-ZIP e-mail addresses or of the Info-ZIP URL(s).
+   4. Info-ZIP retains the right to use the names "Info-ZIP," 
+"Zip," "UnZip," "UnZipSFX," "WiZ," "Pocket UnZip," "Pocket Zip," 
+and "MacZip" for its own source and binary releases. 

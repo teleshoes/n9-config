@@ -1,0 +1,15 @@
+AppSettingsModel 1.0 AppSettingsModel.qml
+AssistanceModel 1.0 AssistanceModel.qml
+FavoritesModel 1.0 FavoritesModel.qml
+GuidanceModel 1.0 GuidanceModel.qml
+MapModel 1.0 MapModel.qml
+MapSettingsModel 1.0 MapSettingsModel.qml
+ModelFactory 1.0 ModelFactory.qml
+PositioningModel 1.0 PositioningModel.qml
+RoutingModel 1.0 RoutingModel.qml
+SearchHistoryModel 1.0 SearchHistoryModel.qml
+SearchModel 1.0 SearchModel.qml
+SpeedLevelModel 1.0 SpeedLevelModel.qml
+SSOManager 1.0 SSOManager.qml
+SyncShareService 1.0 SyncShareService.qml
+TrafficModel 1.0 TrafficModel.qml
