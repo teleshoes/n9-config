@@ -241,7 +241,7 @@ Page {
         name: (positioningModel && positioningModel.currentStreetName) ? positioningModel.currentStreetName : ""
         hasGPS: (positioningModel && positioningModel.hasGPS) ? positioningModel.hasGPS : false
         // TODO: Uncomment when management makes up their minds
-        loadingTraffic: false //trafficModel === undefined ? false : trafficModel.isLoadingTraffic
+        loadingTraffic: trafficModel === undefined ? false : trafficModel.isLoadingTraffic
     }
 
     Dashboard {
@@ -388,7 +388,7 @@ Page {
         }
 
         // TODO: Uncomment when management makes up their minds
-        //setupTraffic(firstShow);
+        setupTraffic(firstShow);
 
         minimap.initializeMap();                                        //gotta do it again because showOnMap will override our map settings
         page.state != "mapInteraction" && (guidanceModel.mapUpdateMode = Guidance.MAP_UPDATE_ROADVIEW);
@@ -399,8 +399,8 @@ Page {
 
     onBeforeHide: {
         // TODO: Uncomment when management makes up their minds
-        //trafficModel.trafficError.disconnect(onTrafficReady);
-        //trafficModel.trafficError.disconnect(onTrafficError);
+        trafficModel.trafficError.disconnect(onTrafficReady);
+        trafficModel.trafficError.disconnect(onTrafficError);
         guidanceModel.mapUpdateMode = Guidance.MAP_UPDATE_NONE;     //For the sake of transitions, stop the map movement
         minimap.setTransitionMap();
         minimap.stopMapAnimation();

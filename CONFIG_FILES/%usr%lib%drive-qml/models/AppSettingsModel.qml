@@ -20,7 +20,7 @@ QtObject {
         routeOptions: 63,
         serviceAgreedOn: "",
         ssoDone: false,
-        traffic: false, //true,  // TODO: change back when management makes up their mind
+        traffic: true,  // TODO: change back when management makes up their mind
         trafficUpdateInterval: 5,
         unitSystem: ""
     }
@@ -163,7 +163,7 @@ QtObject {
         gpsPowersaving = get('gpsPowersaving');
 
         // TODO: change back when management makes up their minds
-        trafficOn = false; //get('traffic');
+        trafficOn = get('traffic');
 
         mapSensorEnabled = get('mapSensor');
         trafficUpdateInterval = get('trafficUpdateInterval');
@@ -178,7 +178,7 @@ QtObject {
         Units.currentSystem = getUnitSystem();
 
         // TODO: change back when management makes up their minds
-        trafficOn = false; //get('allowConnections') && get('mapSensor') && get('traffic') && device.online;
+        trafficOn = get('allowConnections') && get('mapSensor') && get('traffic') && device.online;
     }
 
     Component.onCompleted: {

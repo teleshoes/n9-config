@@ -38,7 +38,7 @@ Page {
         ListElement { _itemId: "destination"; _targetPage: "locationPicker.qml" }
         ListElement { _itemId: "saveLocation"; _hideArrow: true }
 //        TODO: Uncomment when management makes up their minds
-//        ListElement { _itemId: "traffic_on"; _hideArrow: true }
+        ListElement { _itemId: "traffic_on"; _hideArrow: true }
         ListElement { _itemId: "settings"; _targetPage: "settings/settingsPage.qml" }
         ListElement { _itemId: "about"; _targetPage: "aboutPage.qml" }
         ListElement { _itemId: "feedback"; _targetPage: "npsPage.qml" }

@@ -91,7 +91,7 @@ Page {
             minimap.show();
 
             // TODO: Uncomment when management makes up their minds
-            //setupTraffic(false, restartTraffic);
+            setupTraffic(false, restartTraffic);
         } else {
             mapModel.center = minimap.map.center;
             minimap.startupInitialization();
@@ -117,15 +117,15 @@ Page {
 
             // TODO: Uncomment when management makes up their minds
             // Setup traffic after application startup
-            //setupTraffic(true, false);
+            setupTraffic(true, false);
             application.setup();
         }
     }
 
     onBeforeHide: {
         // TODO: Uncomment when management makes up their minds
-        //trafficModel.trafficError.disconnect(onTrafficError);
-        //trafficModel.trafficError.disconnect(onTrafficReady);
+        trafficModel.trafficError.disconnect(onTrafficError);
+        trafficModel.trafficError.disconnect(onTrafficReady);
         trackingHelper.pauseTracking();
         minimap.setTransitionMap();
         minimap.stopMapAnimation();
@@ -431,7 +431,7 @@ Page {
         name: (positioningModel && positioningModel.currentStreetName) ? positioningModel.currentStreetName : ""
         hasGPS: (positioningModel && positioningModel.hasGPS) ? positioningModel.hasGPS : false
         // TODO: Uncomment when management makes up their minds
-        loadingTraffic: false //(trafficModel && trafficModel.isLoadingTraffic) ? trafficModel.isLoadingTraffic : false
+        loadingTraffic: (trafficModel && trafficModel.isLoadingTraffic) ? trafficModel.isLoadingTraffic : false
     }
 
     // dashboard

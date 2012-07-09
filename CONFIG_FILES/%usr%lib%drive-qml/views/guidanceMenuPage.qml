@@ -14,8 +14,8 @@ Page {
     property variant stopGuidanceDialog
 
     // TODO: Uncomment when management makes up their minds
-    //property string trafficTxt: modelFactory.getModel("AppSettingsModel").trafficOn ? qsTrId("qtn_drive_trafficoff_item") : qsTrId("qtn_drive_trafficon_item")
-    //property string trafficIcon: modelFactory.getModel("AppSettingsModel").trafficOn ? "traffic_off.png" : "traffic_on.png"
+    property string trafficTxt: modelFactory.getModel("AppSettingsModel").trafficOn ? qsTrId("qtn_drive_trafficoff_item") : qsTrId("qtn_drive_trafficon_item")
+    property string trafficIcon: modelFactory.getModel("AppSettingsModel").trafficOn ? "traffic_off.png" : "traffic_on.png"
 
     VisualItemModel {
         id: listModel
@@ -42,7 +42,7 @@ Page {
         }
 
         // TODO: Uncomment when management makes up their minds
-        /**
+        
         ButtonItem {
             id: toggletraffic
             itemId: "toggletraffic"
@@ -50,7 +50,7 @@ Page {
             iconUrl: Components.imagePath + "traffic/list_item/"+trafficIcon
             hideArrow: true
         }
-        */
+        
 
         ButtonItem {
             id: settings

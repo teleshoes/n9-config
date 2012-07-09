@@ -69,7 +69,7 @@ Page {
             subtitle: ""
         }
 
-        /** TODO: uncomment when management makes up their minds
+        
         ButtonItem {
             id: traffic
             itemId: "traffic"
@@ -77,7 +77,7 @@ Page {
             subtitle: trafficSettingsSubtitle();
             iconUrl: "../../resources/traffic/list_item/traffic_on.png"
         }
-        */
+        
 
         ButtonItem {
             id: home
