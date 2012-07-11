@@ -25,6 +25,7 @@ prependPath() {
     *) export PATH=$@:$PATH
   esac
 }
+prependPath /usr/local/bin
 prependPath $HOME/bin
 prependPath $HOME/.cabal/bin
 meego_gnu=/opt/gnu-utils
@@ -47,6 +48,7 @@ if [ "$DISPLAY" == "" ]; then
     "wolk-desktop"            ) h='@desk' ;;
     "wolke-n9"                ) h='@n9' ;;
     "wolke-n900"              ) h='@n900' ;;
+    "raspberrypi"             ) h='@raspi' ;;
     "Benjamins-MacBook-Pro"   ) h='@bensmac' ;;
     *                         ) h='@\h' ;;
   esac
@@ -54,11 +56,9 @@ else
   #if display is set, you probably know where you are
   h=""
 fi
-if [ "$USER" == "BenjaminAguayza" ]; then
-  u=ben
-else
-  u="\u"
-fi
+
+u="\u"
+if [ "$USER" == "BenjaminAguayza" ]; then u=ben; fi
 colon=":"
 c1='\[\033[01;32m\]'
 c2='\[\033[01;34m\]'
@@ -67,20 +67,27 @@ cEnd='\[\033[00m\]'
 #the n9 fucks with that line on reboot
 PS1="$c1$u$h$cEnd$colon$c2\w$cEnd\$ "
 
+for cmd in wconnect tether resolv mnt
+do alias $cmd="sudo $cmd"; done
+
+for sudoTypo in suod sudp
+do alias $sudoTypo='sudo'; done
+
+for exitTypo in exot exut
+do alias $exitTypo='exit'; done
+
 alias gvim='termcmd vim'
 alias cx='chmod +x'
 alias :q='exit'
 alias shutdown='poweroff'
-alias suod='sudo'
-alias sudp='sudo'
-alias wconnect='sudo wconnect'
-alias resolv='sudo resolv'
-alias exot='exit'
-alias exut='exit'
 alias l='ls -al --color=auto'
 alias ll='ls -al --color=auto'
 alias ld='ls -dal --color=auto'
 alias mplayer='WINDOW_TITLE=MPLAYER; mplayer'
+alias perms='stat -c %a'
+function spawn       { $@ & disown ; }
+function spawnex     { $@ & disown && exit 0 ; }
+function spawnexsudo { gksudo $@ & disown && exit 0 ; }
 
 alias genservices='~/workspace/escribe/tools/genservices'
 alias migl='gvim `~/workspace/escribe/src-sql/migrations/latest-script`'
