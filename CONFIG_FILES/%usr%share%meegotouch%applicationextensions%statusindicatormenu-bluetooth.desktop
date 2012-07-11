@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=X-MeeGoApplicationExtension
+Name=Status Indicator Menu Bluetooth Extension
+
+[X-MeeGoApplicationExtension]
+Interface=com.meego.core.MStatusIndicatorMenuExtensionInterface/1.0
+Extension=libstatusindicatormenu-bluetooth.so
