@@ -1,2 +1,0 @@
-PATH=/usr/local/bin:$PATH
-exec klomp
