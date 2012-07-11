@@ -21,7 +21,7 @@ D) insert usb, select: sync and connect
 ###switch to wifi now###
 7) packages
 8) config-files
-9) openvpn-keys
+9) secret-keys
 10) launcher-buttons
 11) ext4-mydocs
 12) gconf-settings
