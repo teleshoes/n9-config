@@ -35,6 +35,7 @@ my %pkgGroups = (
   '3' => [qw(
     linux-kernel-headers
     gcc make
+    curl
   )],
   '4' => [qw(
     brujula
