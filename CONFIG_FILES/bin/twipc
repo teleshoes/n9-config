@@ -1,39 +1,7 @@
 #!/usr/bin/perl
-#######################################################################
-# Twip Client (TWitter IP utility - client)
-# Interfaces with twip main script
-# Performs caching and identification of IP via preshared ssh key
-# Intended to be used by the client for accessing their server remotely
-#
-# Twip is for sending and retrieving IP addresses to/from twitter.
-# Intended to serve as a makeshift replacement for dynamic DNS
-#
-# Encrypts IPs weakly using OpenPGP `gpg'
-# Sends data using the Twitter API through Net::Twitter
-#
-# Copyright (c) 2010 Elliot Wolk
-#
-# Essentially a wrapper around Net::Twitter, which is:
-#   Copyright (c) 2009 Marc Mims
-#
-# The Twitter API itself is:
-#   Copyright (c) 2009 Twitter
-#
-# This script is licensed under GNU GPL version 3.0 or above
-#######################################################################
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#######################################################################
+# twipc: TWitter IP Client (this file is part of Twip)
+# Copyright 2010,2012 Elliot Wolk
+# License: GNU GPL version 3 or any later version
 use strict;
 use warnings;
 use Getopt::Long;
