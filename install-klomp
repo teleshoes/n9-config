@@ -26,26 +26,3 @@ run "n9", "-b", "
   cd /root/klomp
   ./install.pl /usr
 ";
-
-print "\n\n";
-
-my $exitCode = `n9 -s  'perl -e "use Term::ReadKey" 2>/dev/null; echo \$?'`;
-if($exitCode == 0){
-  print "Term::ReadKey seems ok\n";
-}else{
-  print "i believe Term::ReadKey perm module is missing, installing\n";
-
-  run "n9", "-s", "rm -rf /root/TermReadKey*";
-  run "scp $depsDir/TermReadKey-*.tar.gz root@`n9`:/root";
-  run "n9", "-s", "
-    set -x
-    cd /root
-    gunzip TermReadKey-*.tar.gz
-    tar -xf TermReadKey-*.tar
-    cd TermReadKey*
-    perl Makefile.PL
-    make
-    make install
-    rm -rf /root/TermReadKey*
-  ";
-}
