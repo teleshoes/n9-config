@@ -1,0 +1,110 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $localDCIM = "$ENV{HOME}/Desktop/DCIM";
+my $remoteDCIM = "/home/user/MyDocs/DCIM";
+
+my @filetypes = qw(jpg jpeg mp4);
+
+sub md5sumMaps(\@);
+sub runMd5sum($);
+sub updateMd5sums();
+sub wrapQuotes($);
+
+sub main(@){
+  chdir $localDCIM;
+  my @remoteMd5sums = `n9 -s md5sum $remoteDCIM/*`;
+  print "\n\nall:\n" . join "", @remoteMd5sums;
+
+  my ($byMd5sum, $byFile) = md5sumMaps @remoteMd5sums;
+
+  my (@backedUp, @needsBackUp);
+  my $localByMd5sum = updateMd5sums;
+  for my $md5sum(keys %$byMd5sum){
+    my $file = $$byMd5sum{$md5sum};
+    if(defined $$localByMd5sum{$md5sum}){
+      push @backedUp, $file;
+    }else{
+      push @needsBackUp, $file;
+    }
+  }
+  for my $file(@backedUp){
+    my $md5sum = $$byFile{$file};
+    my $localFile = $$localByMd5sum{$md5sum};
+    my $newRemoteFile = "$remoteDCIM/$localFile";
+    my $dir = $newRemoteFile;
+    $dir =~ s/\/[^\/]*$//;
+    if($dir eq "$remoteDCIM/."){
+      next;
+    }
+    $dir = wrapQuotes $dir;
+    $file = wrapQuotes $file;
+    $newRemoteFile = wrapQuotes $newRemoteFile;
+    my $cmd = "mkdir -p $dir; mv $file $newRemoteFile\n";
+    print "$cmd";
+    system "n9", "-s", $cmd;
+  }
+  print "\n\nNEEDS BACKUP:\n" . join "\n", @needsBackUp;
+
+  if(@needsBackUp > 0){
+    system "rsync -avP root@`n9`:$remoteDCIM/*.* $localDCIM";
+  }
+}
+
+sub md5sumMaps(\@){
+  my %byMd5sum;
+  my %byFile;
+  my @md5sumLines = @{shift()};
+  for my $line(@md5sumLines){
+    if($line =~ /^([0-9a-f]{32})  (.+)\n$/){
+      $byFile{$2} = $1;
+      $byMd5sum{$1} = $2;
+    }
+  }
+  return (\%byMd5sum, \%byFile);
+}
+
+sub runMd5sum($){
+  my $file = shift;
+  $file = wrapQuotes $file;
+  return `md5sum $file`;
+}
+
+sub wrapQuotes($){
+  my $s = shift;
+  $s =~ s/'/'\\''/g;
+  $s = "'$s'";
+  return $s;
+}
+
+sub updateMd5sums(){
+  my @lines = `cat $localDCIM/md5sums`;
+  my ($byMd5sum, $byFile) = md5sumMaps @lines;
+
+  my $find = "find -false";
+  $find .= " -or -iname '*.$_'" foreach @filetypes;
+  my @files = `$find`;
+  chomp $_ foreach @files;
+  @files = grep {not defined $$byFile{$_}} @files;
+
+  @lines = map {runMd5sum $_} @files;
+  print @lines;
+
+  my ($extraByMd5sum, $extraByFile) = md5sumMaps @lines;
+  my %newByMd5sum = (%$byMd5sum, %$extraByMd5sum);
+  my %newByFile = (%$byFile, %$extraByFile);
+
+  my $out;
+  for my $file(keys %newByFile){
+    $out .= "$newByFile{$file}  $file\n";
+  }
+
+  open FH, "> $localDCIM/md5sums";
+  print FH $out;
+  close FH;
+
+  return \%newByMd5sum;
+}
+
+&main(@ARGV);
