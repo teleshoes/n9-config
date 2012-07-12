@@ -1,0 +1,120 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $titleArgs = "-t|--title|-T|-title";
+my $cwdArgs = "--working-directory|-cd";
+
+my $usage = "Usage:
+  $0 [OPTS] [CMD [ARG ARG ... ]]
+  $0 [OPTS] SHELLCMD
+  $0 -h|--help
+  
+  Provids a consistent cli to several terminal emulators.
+  Spawns the terminal and disowns it {this is bash-specific}
+  If SHELLCMD has a space in it, its executed in bash.
+  e.g.:
+    $0 \"echo 'bananas; apples; oranges'; sleep 2\"
+    $0 --title 'log search' --working-directory / find -iname '*.log'
+
+  OPTS
+    $titleArgs TITLE
+      sets the window title on terminals that support it
+    $cwdArgs PATH
+      sets the current working directory on terminals that support it
+";
+
+sub wrapToken($){
+  my $s = shift;
+  $s =~ s/'/'\\''/g;
+  return "'$s'";
+}
+
+sub urxvt($$){
+  my %args = %{shift()};
+  my @cmd = @{shift()};
+
+  @cmd = ("-e", @cmd) if @cmd > 0;
+  @cmd = ('-title', $args{title}, @cmd) if defined $args{title};
+  @cmd = ('-cd', $args{cwd}, @cmd) if defined $args{cwd};
+  @cmd = ('urxvt', @cmd);
+
+  return @cmd;
+}
+
+sub meegoTerminal($$){
+  my %args = %{shift()};
+  my @cmd = @{shift()};
+
+  if(@cmd > 0){
+    my $c = "@cmd";
+    $c =~ s/"/\\"/g;
+    @cmd = ("-e", "bash", "-c", "\"sleep 0.5; $c\"");
+  }
+  @cmd = ('meego-terminal', '-n', @cmd);
+
+  return @cmd;
+}
+
+sub gnomeTerminal($$){
+  my %args = %{shift()};
+  my @cmd = @{shift()};
+
+  @cmd = ("-x", @cmd) if @cmd > 0;
+  @cmd = ('--title', $args{title}, @cmd) if defined $args{title};
+  @cmd = ('--working-directory', $args{cwd}, @cmd) if defined $args{cwd};
+  @cmd = ('gnome-terminal', '--disable-factory', @cmd);
+
+  return @cmd;
+}
+
+sub xterm($$){
+  my %args = %{shift()};
+  my @cmd = @{shift()};
+
+  @cmd = ("-e", @cmd) if @cmd > 0;
+  @cmd = ('-title', $args{title}, @cmd) if defined $args{title};
+  @cmd = ('xterm', @cmd);
+
+  return @cmd;
+}
+
+sub isInstalled($){
+  my $term = shift;
+  system "bash -c 'command -v $term' > /dev/null 2>&1";
+  return $? == 0;
+}
+
+sub main(@){
+  die $usage if @_ == 1 and $_[0] =~ /^(-h|--help)$/;
+  
+  my %termArgs;
+  while(1){
+    if(@_ > 1 and $_[0] =~ /^($titleArgs)$/){
+      shift;
+      $termArgs{title} = wrapToken(shift());
+    }elsif(@_ > 1 and $_[0] =~ /^($cwdArgs)$/){
+      shift;
+      $termArgs{cwd} = wrapToken(shift());
+    }else{
+      last;
+    }
+  }
+
+  my @cmd = map {wrapToken $_} @_;
+  
+  @cmd = ("bash", "-c", @cmd) if @cmd == 1 and $cmd[0] =~ / /;
+
+  if(isInstalled "urxvt"){
+    @cmd = urxvt \%termArgs, \@cmd;
+  }elsif(isInstalled "meego-terminal"){
+    @cmd = meegoTerminal \%termArgs, \@cmd;
+  }elsif(isInstalled "gnome-terminal"){
+    @cmd = gnomeTerminal \%termArgs, \@cmd;
+  }elsif(isInstalled "xterm"){
+    @cmd = xterm \%termArgs, \@cmd;
+  }
+  exec "bash", "-c", "@cmd & disown";
+}
+
+&main(@ARGV);
