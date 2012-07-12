@@ -1,1 +1,0 @@
-AEGIS_FIXED_ORIGIN=com.nokia.maemo /usr/bin/dpkg $@

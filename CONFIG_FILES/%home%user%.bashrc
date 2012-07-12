@@ -25,7 +25,6 @@ prependPath() {
     *) export PATH=$@:$PATH
   esac
 }
-prependPath /usr/local/bin
 prependPath $HOME/bin
 prependPath $HOME/.cabal/bin
 meego_gnu=/opt/gnu-utils
@@ -38,6 +37,11 @@ if [ -d $meego_gnu ]; then
   prependPath $meego_gnu/bin
   prependPath $meego_gnu/usr/bin
   prependPath $meego_gnu/usr/sbin
+fi
+
+if [ `hostname -s` == "wolke-n9" ]; then
+  alias apt-get="AEGIS_FIXED_ORIGIN=com.nokia.maemo apt-get"
+  alias dpkg="AEGIS_FIXED_ORIGIN=com.nokia.maemo dpkg"
 fi
 
 #command prompt
