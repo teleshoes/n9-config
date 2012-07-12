@@ -5,7 +5,7 @@ use warnings;
 my $DIR = '/opt/CONFIG_FILES';
 my $user = 'user';
 my $group = 'users';
-my $binTarget = '/usr/local/bin';
+my $binTarget = '/usr/bin';
 
 my @rsyncOpts = qw(
   -a  --no-owner --no-group
