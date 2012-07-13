@@ -1,0 +1,77 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $host = `n9`;
+chomp $host;
+
+my @config = (
+  volume     => 'libstatusindicatormenu-volume-nokia.so',
+  brightness => 'libstatusindicatormenu-brightness.so',
+  internet   => 'libstatusindicatormenu-internetconnection.so',
+  call       => 'libstatusindicatormenu-call.so',
+  transfer   => 'libtransfereventextension.so',
+);
+my %configMap = @config;
+my @order;
+for(my $i=0; $i<@config; $i+=2){
+  push @order, $config[$i];
+}
+
+my $desktopDir = '/usr/share/meegotouch/applicationextensions';
+my $tmpDesktopDir = '/tmp/status-menu-desktop-files';
+
+my $orderConf = '/etc/status-menu-items-order.conf';
+my $tmpOrderConf = '/tmp/status-menu-order.conf';
+
+my $sysuidJob = "xsession/sysuid";
+
+sub clearDesktopFiles();
+sub createDesktopFiles();
+sub createOrderConf();
+
+sub main(@){
+  system "n9", "-s", "stop $sysuidJob";
+  clearDesktopFiles();
+  createDesktopFiles();
+  createOrderConf();
+  system "n9", "-s", "start $sysuidJob";
+}
+
+sub createOrderConf(){
+  open FH, "> $tmpOrderConf" or die "Couldnt write to $tmpOrderConf\n";
+  my @desktops = map{"statusindicatormenu-$_.desktop\n"} @order;
+  print FH @desktops;
+  close FH;
+  system "scp", $tmpOrderConf, "root\@$host:$orderConf";
+}
+sub clearDesktopFiles(){
+  system "n9", "-s", "rm $desktopDir/statusindicatormenu*.desktop";
+}
+
+sub createDesktopFiles(){
+  system "rm", "-rf", $tmpDesktopDir;
+  system "mkdir", "-p", $tmpDesktopDir;
+
+  for my $name(@order){
+    my $lib = $configMap{$name};
+    my $desktopFile = "$tmpDesktopDir/statusindicatormenu-$name.desktop";
+    my $content = '' 
+      . "[Desktop Entry]\n"
+      . "Type=X-MeeGoApplicationExtension\n"
+      . "Name=Status Indicator Menu " . ucfirst($name) . "\n"
+      . "\n"
+      . "[X-MeeGoApplicationExtension]\n"
+      . "Interface=com.meego.core.MStatusIndicatorMenuExtensionInterface/1.0\n"
+      . "Extension=$lib\n"
+    ;
+
+    open FH, "> $desktopFile" or die "Couldnt write to $desktopFile\n";
+    print FH $content;
+    close FH;
+  }
+
+  system "rsync", "-rP", "$tmpDesktopDir/", "root\@$host:$desktopDir";
+}
+
+&main(@ARGV);
