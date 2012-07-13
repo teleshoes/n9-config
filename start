@@ -23,14 +23,15 @@ D) insert usb, select: sync and connect
 8) config-files
 9) secret-keys
 10) launcher-buttons
-11) ext4-mydocs
-12) gconf-settings
-13) setup-cities
-14) install-klomp
-15) reboot!!
-16) restore-contacts
-17) restore-sms
-18) sync-mydocs
-19) sync-pidgin
-20) sync-fbreader restore
-21) klomp-sync user@`n9`
+12) status-menu
+13) ext4-mydocs
+14) gconf-settings
+15) setup-cities
+16) install-klomp
+17) reboot!!
+18) restore-contacts
+19) restore-sms
+20) sync-mydocs
+21) sync-pidgin
+22) sync-fbreader restore
+23) klomp-sync user@`n9`
