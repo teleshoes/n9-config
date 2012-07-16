@@ -193,7 +193,6 @@ sub installDebs(){
   chomp foreach @debs;
   
   print "\n\nSyncing $debDestPrefix/$debDir to $debDestPrefix on dest:\n";
-  print "---\n@debs\n---\n";
   system "rsync $debDir root@`n9`:$debDestPrefix -av --progress --delete";
 
   my $mtToggles = `cd $debDir; ls */mt-toggles*.deb`;
@@ -214,6 +213,7 @@ sub installDebs(){
     my $remoteDebFile = "$debDestPrefix/$debDir/$deb\n";
     if(not isAlreadyInstalled($localDebFile)){
       $count++;
+      print "...adding $localDebFile\n";
       $cmd .= "$env dpkg -i $remoteDebFile\n";
       $cmd .= "if [ \$? != 0 ]; then "
               . "$env apt-get -f install -y --allow-unauthenticated; "
