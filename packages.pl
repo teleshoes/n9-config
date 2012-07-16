@@ -111,15 +111,19 @@ sub installPackages(){
 }
 
 sub getInstalledVersion($){
-  my $pkg = shift;
-  my $cmd = "n9 -s apt-cache show $pkg 2>&1";
-  my $status = `$cmd`;
-  if($status =~ /^Status: install ok installed$/m){
-    if($status =~ /^Version: (.*)/m){
-      return $1;
+  my $name = shift;
+  our %packages;
+  if(keys %packages == 0){
+    my $dpkgStatus = `n9 -s cat /var/lib/dpkg/status`;
+    for my $pkg(split "\n\n", $dpkgStatus){
+      my $name = ($pkg =~ /Package: (.*)\n/) ? $1 : '';
+      my $status = ($pkg =~ /Status: (.*)\n/) ? $1 : '';
+      my $version = ($pkg =~ /Version: (.*)\n/) ? $1 : '';
+
+      $packages{$name} = $version if $status eq "install ok installed";
     }
   }
-  return undef;
+  return $packages{$name};
 }
 
 sub getArchiveVersion($){
