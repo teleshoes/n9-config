@@ -1,4 +1,5 @@
 """filetype plugin indent on
+set backspace=2
 set uc=0 """no swapfile
 set ic
 set history=9000
@@ -105,6 +106,21 @@ imap <F12> <ESC>"rpi
 vmap <F12>      "rp
 """"""
 
+""":Wc  msg => save, git ci FILENAME -m msg
+""":Wcq msg => save, git ci FILENAME -m msg, quit
+command -nargs=1 Wc  call Wc(<f-args>, "noquit")
+command -nargs=1 Wcq call Wc(<f-args>, "quit")
+cabbrev wc  <c-r>=(getcmdtype()==':' && getcmdpos()==1 ? 'Wc'  : 'wc' )<CR>
+cabbrev wcq <c-r>=(getcmdtype()==':' && getcmdpos()==1 ? 'Wcq' : 'wcq')<CR>
+function Wc(msg, maybeQuit)
+    w
+    let msg = "'" . substitute(a:msg, "'", "'\\\\''", "g") . "'"
+    let cmd = "! git ci % -m " . msg
+    execute cmd
+    if a:maybeQuit == "quit"
+      q
+    endif
+endfunction
 
 command -nargs=* RUN call RUN(<f-args>)
 function RUN(...)
