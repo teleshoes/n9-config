@@ -31,7 +31,7 @@ my @config = qw(
     notes
     n9-button-monitor
     diskgallery
-    CameraPro
+    conky
     ]
   dir-box[
     maps
