@@ -203,6 +203,7 @@ sub installDebs(){
     system 'n9', '-s', "$env dpkg -i $debDestPrefix/$debDir/$systemUi";
   }
 
+  my $count = 0;
   print "\n\nChecking installed versions\n";
   my $cmd = '';
   for my $job(@jobs){
@@ -212,6 +213,7 @@ sub installDebs(){
     my $localDebFile = "$debDir/$deb";
     my $remoteDebFile = "$debDestPrefix/$debDir/$deb\n";
     if(not isAlreadyInstalled($localDebFile)){
+      $count++;
       $cmd .= "$env dpkg -i $remoteDebFile\n";
       $cmd .= "if [ \$? != 0 ]; then "
               . "$env apt-get -f install -y --allow-unauthenticated; "
@@ -225,8 +227,7 @@ sub installDebs(){
   }
 
   print "\n\nInstalling debs\n";
-  if($cmd ne ''){
-    print $cmd;
+  if($count > 0){
     system 'n9', '-s', "set -x; $cmd";
   }
 }
