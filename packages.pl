@@ -6,6 +6,13 @@ my $repoDir = 'repos';
 my $debDir = 'debs-custom';
 my $debDestPrefix = '/opt';
 
+my @jobs = qw(
+  xsession/applauncherd
+  xsession/applifed
+  xsession/conndlgs
+  xsession/sysuid
+);
+
 my @packagesToRemove = qw(
   wxapp apnews realgolf2011 gof2 nfsshift
   angrybirdsfreemagic
@@ -198,7 +205,9 @@ sub installDebs(){
 
   print "\n\nChecking installed versions\n";
   my $cmd = '';
-  $cmd .= "stop xsession/sysuid\n";
+  for my $job(@jobs){
+    $cmd .= "stop $job\n";
+  }
   for my $deb(@debs){
     my $localDebFile = "$debDir/$deb";
     my $remoteDebFile = "$debDestPrefix/$debDir/$deb\n";
@@ -211,8 +220,10 @@ sub installDebs(){
       print "Skipping already installed $deb\n";
     }
   }
-  $cmd .= "start xsession/sysuid\n";
-  
+  for my $job(@jobs){
+    $cmd .= "start $job\n";
+  }
+
   print "\n\nInstalling debs\n";
   if($cmd ne ''){
     print $cmd;
