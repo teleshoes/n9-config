@@ -39,6 +39,7 @@ my @config = qw(
     calc
     accountsui
     gconfik
+    kmplayer
     ]
   dir-bluetooth[
     btinput-terminal
