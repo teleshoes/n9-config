@@ -58,6 +58,7 @@ sub main(@){
     system "mkdir -p $dir";
     system "rsync -avP root@`n9`:$remoteDCIM/*.* $dir/";
   }
+  system "n9", "-s", "chown user.metadata-users -R $remoteDCIM";
 }
 
 sub md5sumMaps(\@){
