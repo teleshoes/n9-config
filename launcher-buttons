@@ -41,6 +41,7 @@ my @config = qw(
     gconfik
     kmplayer
     forum-tmo
+    transmission
     ]
   dir-bluetooth[
     btinput-terminal
