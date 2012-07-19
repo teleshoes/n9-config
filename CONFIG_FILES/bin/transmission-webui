@@ -1,0 +1,5 @@
+#!/bin/bash
+HOST=`twipc`
+PORT=9091
+
+firefox http://$HOST:$PORT/transmission/web/
