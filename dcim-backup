@@ -14,8 +14,8 @@ sub wrapQuotes($);
 
 sub main(@){
   chdir $localDCIM;
-  my @remoteMd5sums = `n9 -s md5sum $remoteDCIM/*`;
   print "\n\nall:\n" . join "", @remoteMd5sums;
+  my @remoteMd5sums = `n9 -s md5sum $remoteDCIM/*.* 2>/dev/null`;
 
   my ($byMd5sum, $byFile) = md5sumMaps @remoteMd5sums;
 
