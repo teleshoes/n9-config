@@ -1,13 +1,58 @@
-#!/bin/bash
-test -z $1 && echo "need magnet link!
-$0 <magnet link>" && exit -1
- 
-HOST=`twipc`
-PORT=9091
-USER=pi
-PASS=raspberry
- 
-LINK="$1"
-PAUSED="false"
-SESSID=$(curl --silent --anyauth --user $USER:$PASS "http://$HOST:$PORT/transmission/rpc" | sed 's/.*<code>//g;s/<\/code>.*//g')
-curl --silent --anyauth --user $USER:$PASS --header "$SESSID" "http://$HOST:$PORT/transmission/rpc" -d "{\"method\":\"torrent-add\",\"arguments\":{\"paused\":${PAUSED},\"filename\":\"${LINK}\"}}"
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $host=`twipc`;
+chomp $host;
+my $port="9091";
+my $user="pi";
+my $pw="raspberry";
+
+my $rpcUrl = "http://$host:$port/transmission/rpc";
+
+my $paused = 'false';
+
+my $usage = "$0 magnet [magnet magnet ..]\n";
+
+sub main(@){
+  die $usage if @_ == 0 or $_[0] =~ /^(-h|--help)$/;
+  my $magnet = shift;
+
+  my @sessIdCmd = curlCmd();
+  my $sessIdResponse = `@sessIdCmd`;
+
+  my $sessIdHeader = "";
+  if($sessIdResponse =~ /X-Transmission-Session-Id: [a-zA-Z0-9\+\-\\\/]+/){
+    my $header = $&;
+    for my $magnet(@_){
+      $magnet = "magnet:?xt=urn:btih:$magnet" if $magnet =~ /^[0-9a-f]+$/i;
+      
+      my $data = ''
+        . "{"
+        .   "\"method\":\"torrent-add\","
+        .   "\"arguments\":{"
+        .     "\"paused\":$paused,"
+        .     "\"filename\":\"$magnet\""
+        .   "}"
+        . "}";
+
+      my @addTorrentCmd = curlCmd($header, $data);
+      system @addTorrentCmd;
+    }
+  }else{
+    die "No sess id\n";
+  }
+}
+
+sub curlCmd(;$$){
+  my ($header, $data) = @_;
+  $header = '' if not defined $header;
+  $data = '' if not defined $data;
+  
+  my @cmd = ("curl", "--silent", "--anyauth", "--user", "$user:$pw", $rpcUrl);
+  @cmd = (@cmd, "--header", $header) if length $header > 0;
+  @cmd = (@cmd, "--data", $data) if length $data > 0;
+  return @cmd;
+}
+
+&main(@ARGV);
