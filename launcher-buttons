@@ -28,7 +28,7 @@ my @config = qw(
   
   dir-stuff[
     calendar
-    notes
+    qtodo
     n9-button-monitor
     diskgallery
     conky
