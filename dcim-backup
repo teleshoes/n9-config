@@ -14,8 +14,10 @@ sub wrapQuotes($);
 
 sub main(@){
   chdir $localDCIM;
-  print "\n\nall:\n" . join "", @remoteMd5sums;
+  print "Getting md5sums of files in root of remote DCIM\n";
   my @remoteMd5sums = `n9 -s md5sum $remoteDCIM/*.* 2>/dev/null`;
+  print "===all:\n" . join "", @remoteMd5sums;
+  print "===\n\n";
 
   my ($byMd5sum, $byFile) = md5sumMaps @remoteMd5sums;
 
@@ -49,7 +51,9 @@ sub main(@){
     print "\n\n$reorganizeCmd";
     system "n9", "-s", $reorganizeCmd;
   }
-  print "\n\nNEEDS BACKUP:\n" . join "\n", @needsBackUp;
+
+  print "\n\n===NEEDS BACKUP:\n" . join "\n", @needsBackUp;
+  print "===\n\n";
 
   if(@needsBackUp > 0){
     my $now = `date +\%s`;
@@ -97,6 +101,7 @@ sub updateMd5sums(){
   chomp $_ foreach @files;
   @files = grep {not defined $$byFile{$_}} @files;
 
+  print "md5summing local files\n";
   @lines = map {runMd5sum $_} @files;
   print @lines;
 
