@@ -20,6 +20,8 @@ system "$dir/sync-mydocs";
 die "failed" if $? != 0;
 system "$dir/sync-fbreader backup";
 die "failed" if $? != 0;
+system "$dir/sync-qtodo backup";
+die "failed" if $? != 0;
 
 system "$dir/fetch-contacts";
 die "failed" if $? != 0;
