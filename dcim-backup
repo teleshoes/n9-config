@@ -106,7 +106,11 @@ sub updateMd5sums(){
 
   my $out;
   for my $file(keys %newByFile){
-    $out .= "$newByFile{$file}  $file\n";
+    if(-e "$localDCIM/$file"){
+      $out .= "$newByFile{$file}  $file\n";
+    }else{
+      print "removing md5sum for $file\n";
+    }
   }
 
   open FH, "> $localDCIM/md5sums";
