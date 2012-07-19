@@ -29,26 +29,34 @@ sub main(@){
       push @needsBackUp, $file;
     }
   }
+
+  my $reorganizeCmd = '';
   for my $file(@backedUp){
     my $md5sum = $$byFile{$file};
     my $localFile = $$localByMd5sum{$md5sum};
     my $newRemoteFile = "$remoteDCIM/$localFile";
     my $dir = $newRemoteFile;
     $dir =~ s/\/[^\/]*$//;
-    if($dir eq "$remoteDCIM/."){
+    if($dir =~ /$remoteDCIM\/\.\/backup_\d+$/x){
       next;
     }
     $dir = wrapQuotes $dir;
     $file = wrapQuotes $file;
     $newRemoteFile = wrapQuotes $newRemoteFile;
-    my $cmd = "mkdir -p $dir; mv $file $newRemoteFile\n";
-    print "$cmd";
-    system "n9", "-s", $cmd;
+    $reorganizeCmd .= "mkdir -p $dir; mv $file $newRemoteFile;\n";
+  }
+  if(length $reorganizeCmd > 0){
+    print "\n\n$reorganizeCmd";
+    system "n9", "-s", $reorganizeCmd;
   }
   print "\n\nNEEDS BACKUP:\n" . join "\n", @needsBackUp;
 
   if(@needsBackUp > 0){
-    system "rsync -avP root@`n9`:$remoteDCIM/*.* $localDCIM";
+    my $now = `date +\%s`;
+    chomp $now;
+    my $dir = "$localDCIM/backup_$now";
+    system "mkdir -p $dir";
+    system "rsync -avP root@`n9`:$remoteDCIM/*.* $dir/";
   }
 }
 
