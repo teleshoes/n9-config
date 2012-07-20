@@ -24,7 +24,7 @@ my @config = qw(
   dontgosleep
   mail
   joikuspot
-  folder-gallery
+  meeseepics
   
   dir-stuff[
     calendar
