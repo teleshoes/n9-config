@@ -38,6 +38,7 @@ my @config = qw(
     NokiaPt
     calc
     accountsui
+    DictionaryStar
     gconfik
     kmplayer
     forum-tmo
