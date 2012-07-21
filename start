@@ -19,10 +19,11 @@ D) insert usb, select: sync and connect
 5) FLASH AN OPENMODE KERNEL
 6) rm -rf /home/user/.aegis /home/user/.accounts
 ###switch to wifi now###
-7) packages
-8) config-files
-9) secret-keys
-10) launcher-buttons
+7) respawn-limit
+8) packages
+9) config-files
+10) secret-keys
+11) launcher-buttons
 12) status-menu
 13) ext4-mydocs
 14) gconf-settings
