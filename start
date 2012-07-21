@@ -28,11 +28,12 @@ D) insert usb, select: sync and connect
 13) ext4-mydocs
 14) gconf-settings
 15) setup-cities
-16) install-klomp
-17) reboot!!
-18) restore-contacts
-19) restore-sms
-20) sync-mydocs
-21) sync-pidgin
-22) sync-fbreader restore
-23) klomp-sync user@`n9`
+16) config-files again...
+17) install-klomp
+18) reboot!!
+19) restore-contacts
+20) restore-sms
+21) sync-mydocs
+22) sync-pidgin
+23) sync-fbreader restore
+24) klomp-sync user@`n9`
