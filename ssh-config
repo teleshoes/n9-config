@@ -50,7 +50,7 @@ killall sshd
 
 
 system 'ssh-keygen', '-f', "$ENV{HOME}/.ssh/known_hosts", '-R', '192.168.2.15';
-system 'ssh-keygen', '-f', "$ENV{HOME}/.ssh/known_hosts", '-R', `cat .hostname`;
+system 'ssh-keygen', '-f', "$ENV{HOME}/.ssh/known_hosts", '-R', `n9 --host`;
 system 'sudo', 'ifconfig', 'usb0', '192.168.2.14', 'netmask', '255.255.255.0', 'up';
 
 open FH, "> $sshDefaultFileName"
