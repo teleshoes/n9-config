@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-my $host = `n9`;
+my $host = `n9 --host`;
 chomp $host;
 
 system 'ssh-keygen', '-f', "$ENV{HOME}/.ssh/known_hosts", '-R', $host;
