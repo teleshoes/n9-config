@@ -6,10 +6,29 @@ my $regex = 'respawn limit [0-9]\+ [0-9]\+';
 my $limitNum = 75;
 my $limitTime = 300;
 
+sub getLimits(){
+  my %lim;
+  my $out = `n9 -s "find /etc/init -name '*.conf' | xargs grep '$regex'"`;
+  for my $line(split /\n/, $out){
+    if($line =~ /(.*):respawn limit (\d+) (\d+)/){
+      $lim{$1} = "$2x $3s";
+    }
+  }
+  return %lim;
+}
+
 my $cmd = ''
   . "find /etc/init -name '*.conf'"
   . " | xargs sed -i -e 's/$regex/respawn limit $limitNum $limitTime/'"
   ;
 
 print "running: $cmd\n";
+my %old = getLimits();
 system "n9", "-s", $cmd;
+my %new = getLimits();
+
+for my $file(keys %old){
+  if($old{$file} ne $new{$file}){
+    print "$file: $old{$file} => $new{$file}\n";
+  }
+}
