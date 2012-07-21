@@ -49,7 +49,11 @@ sub meegoTerminal($$){
   if(@cmd > 0){
     my $c = "@cmd";
     $c =~ s/"/\\"/g;
-    @cmd = ("-e", "bash", "-c", "\"sleep 0.5; $c\"");
+    if(isInstalled("aegis-exec")){
+      @cmd = ("-e", "aegis-exec bash -i -c \"$c\"");
+    }else{
+      @cmd = ("-e", "bash -i -c \"$c\"");
+    }
   }
   @cmd = ('meego-terminal', '-n', @cmd);
 
