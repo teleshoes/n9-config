@@ -9,11 +9,11 @@ my $host = `n9`;
 chomp $host;
 
 my $dir = "$ENV{HOME}/Code/n9";
-my $fbreaderLocal = "$dir/fbreader";
-my $fbreaderRemote = "/home/user/.FBReader";
+my $localDir = "$dir/fbreader";
+my $remoteDir = "/home/user/.FBReader";
 
-my $local = $fbreaderLocal;
-my $remote = "user\@$host:$fbreaderRemote";
+my $local = $localDir;
+my $remote = "user\@$host:$remoteDir";
 
 my @excludes = qw(
   cache

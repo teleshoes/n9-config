@@ -9,11 +9,11 @@ my $host = `n9`;
 chomp $host;
 
 my $dir = "$ENV{HOME}/Code/n9";
-my $fbreaderLocal = "$dir/qtodo";
-my $fbreaderRemote = "/home/user/to-do-o";
+my $localDir = "$dir/qtodo";
+my $remoteDir = "/home/user/to-do-o";
 
-my $local = $fbreaderLocal;
-my $remote = "user\@$host:$fbreaderRemote";
+my $local = $localDir;
+my $remote = "user\@$host:$remoteDir";
 
 my @excludes = qw(
   cache
@@ -34,7 +34,7 @@ sub run(@){
   die "failed" if $? != 0;
 }
 
-system "n9", "-s", "mkdir $fbreaderRemote; chown user.users $fbreaderRemote";
+system "n9", "-s", "mkdir $remoteDir; chown user.users $remoteDir";
 if($arg eq 'backup'){
   run "rsync", @rsyncOpts, "$remote/", $local;
 }elsif($arg eq 'restore'){
