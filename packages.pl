@@ -165,17 +165,11 @@ sub removePackages(){
   system 'n9', '-s', $depInstallCmd;
 
   print "\n\nChecking uninstalled packages\n";
-  my $removeCmd = '';
+  my $removeCmd = "$env dpkg --purge --force-all";
   for my $pkg(@packagesToRemove){
-    if(defined getInstalledVersion $pkg){
-      $removeCmd .= "$env dpkg --purge $pkg\n";
-    }else{
-      print "Skipped already uninstalled package $pkg\n";
-    }
+    $removeCmd .= " $pkg";
   }
-  print "\n\nRemoving bad packages\n";
-  if($removeCmd ne ''){
-    print $removeCmd;
+  if(@packagesToRemove > 0){
     system 'n9', '-s', $removeCmd;
   }
 }
