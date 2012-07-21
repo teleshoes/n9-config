@@ -34,6 +34,7 @@ sub run(@){
   die "failed" if $? != 0;
 }
 
+system "n9", "-s", "mkdir $fbreaderRemote; chown user.users $fbreaderRemote";
 if($arg eq 'backup'){
   run "rsync", @rsyncOpts, "$remote/", $local;
 }elsif($arg eq 'restore'){
