@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $regex = 'respawn limit [0-9]\+ [0-9]\+';
+my $limitNum = 75;
+my $limitTime = 300;
+
+my $cmd = ''
+  . "find /etc/init -name '*.conf'"
+  . " | xargs sed -i -e 's/$regex/respawn limit $limitNum $limitTime/'"
+  ;
+
+print "running: $cmd\n";
+system "n9", "-s", $cmd;
