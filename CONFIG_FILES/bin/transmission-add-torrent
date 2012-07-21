@@ -16,7 +16,6 @@ my $usage = "$0 magnet [magnet magnet ..]\n";
 
 sub main(@){
   die $usage if @_ == 0 or $_[0] =~ /^(-h|--help)$/;
-  my $magnet = shift;
 
   my @sessIdCmd = curlCmd();
   my $sessIdResponse = `@sessIdCmd`;
