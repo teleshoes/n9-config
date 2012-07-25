@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE MEEGO_INPUT_METHOD SYSTEM 'VirtualKeyboardToolbarDTD.dtd'>
+<input-method version="1">
+    <toolbar>
+        <items>
+            <button name="Ctrl" group="Ctrl" showon="always" text="Ctrl" toggle="true" pressed="false">
+                <actions>
+                    <sendkeysequence keysequence="Ctrl+Shift+Alt+C"> </sendkeysequence>
+                </actions>
+            </button>
+            <button name="Tab" group="Tab" showon="always" text="Tab" toggle="false" pressed="false">
+                <actions>
+		  <sendkeysequence keysequence="Tab"> </sendkeysequence>
+                </actions>
+            </button>
+            <button name="Esc" group="Esc" showon="always" text="Esc" toggle="false" pressed="false">
+                <actions>
+                    <sendkeysequence keysequence="Esc"> </sendkeysequence>
+                </actions>
+            </button>
+            <button name="Pipe" group="Pipe" showon="always" text=" | " toggle="false" pressed="false">
+                <actions>
+                    <sendstring string="|"> </sendstring>
+                </actions>
+            </button>
+            <button name="Asterisk" group="Asterisk" showon="always" text="*" toggle="false" pressed="false">
+                <actions>
+                    <sendstring string="*"> </sendstring>
+                </actions>
+            </button>
+            <button name="Tilde" group="Tilde" showon="always" text="~" toggle="false" pressed="false">
+                <actions>
+                    <sendstring string="~"> </sendstring>
+                </actions>
+            </button>
+            <button name="Ampersand" group="Ampersand" showon="always" text="&amp;" toggle="false" pressed="false">
+                <actions>
+                    <sendstring string="&amp;"> </sendstring>
+                </actions>
+            </button>
+            <button name="LessThan" group="LessThan" showon="always" text="&lt; " toggle="false" pressed="false">
+                <actions>
+                    <sendstring string="&lt;"> </sendstring>
+                </actions>
+            </button>
+            <button name="GreaterThan" group="GreaterThan" showon="always" text=" >" toggle="false" pressed="false">
+                <actions>
+                    <sendstring string=">"> </sendstring>
+                </actions>
+            </button>
+            <button name="Hyphen" group="Hyphen" showon="always" text="-" toggle="false" pressed="false">
+                <actions>
+                    <sendstring string="-"> </sendstring>
+                </actions>
+            </button>
+            <button name="ForwardSlash" group="ForwardSlash" showon="always" text="/" toggle="false" pressed="false">
+                <actions>
+                    <sendstring string="/"> </sendstring>
+                </actions>
+            </button>
+            <button name="Dollar" group="Dollar" showon="always" text="$" toggle="false" pressed="false">
+                <actions>
+                    <sendstring string="$"> </sendstring>
+                </actions>
+            </button>
+            <button name="EqualsSign" group="EqualsSign" showon="always" text="=" toggle="false" pressed="false">
+                <actions>
+                    <sendstring string="="> </sendstring>
+                </actions>
+            </button>
+            <button name="Alt" group="Alt" showon="always" text="Alt" toggle="true" pressed="false">
+                <actions>
+                    <sendkeysequence keysequence="Ctrl+Shift+Alt+A"> </sendkeysequence>
+                </actions>
+            </button>
+        </items>
+        <layout>
+            <item name="Tab" />
+            <item name="Ctrl" />
+            <item name="Esc" />
+            <item name="Alt" />
+            <item name="Pipe" />
+            <item name="LessThan" />
+            <item name="GreaterThan" />
+            <item name="Ampersand" />
+            <item name="Dollar" />
+            <item name="Asterisk" />
+            <item name="Tilde" />
+            <item name="Hyphen" />
+            <item name="EqualsSign" />
+            <item name="ForwardSlash" />
+        </layout>
+    </toolbar>
+</input-method>
