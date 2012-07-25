@@ -3,11 +3,6 @@
 <input-method version="1">
     <toolbar  refuse="_close">
         <items>
-            <button name="emoticon" group="emoticon" showon="always" alignment="left" text="" text_id="" icon_id="icon-m-messaging-smiley-happy" toggle="false" pressed="false">
-                <actions>
-                    <sendkeysequence keysequence="Meta+j"> </sendkeysequence>
-                </actions>
-            </button>
             <label name="counter" group="counter" alignment="right" text="" text_id="">
             </label>
             <button name="send" group="send" showon="always" alignment="right" text="" text_id="qtn_comm_send" icon_id="" toggle="false" pressed="false" enabled="false" highlighted="true">
@@ -17,7 +12,6 @@
             </button>
         </items>
         <layout>
-            <item name="emoticon" />
             <item name="counter" />
             <item name="send" />
         </layout>

@@ -8,11 +8,6 @@
                     <sendkeysequence keysequence="Meta+m"> </sendkeysequence>
                 </actions>
             </button>
-            <button name="emoticon" group="emoticon" showon="always" alignment="left" text="" text_id="" icon_id="icon-m-messaging-smiley-happy" toggle="false" pressed="false">
-                <actions>
-                    <sendkeysequence keysequence="Meta+j"> </sendkeysequence>
-                </actions>
-            </button>
             <button name="send" group="send" showon="always" alignment="right" text="" text_id="qtn_comm_send" icon_id="" toggle="false" pressed="false" enabled="false" highlighted="true">
                 <actions>
                     <sendkeysequence keysequence="Meta+l"> </sendkeysequence>
@@ -21,7 +16,6 @@
         </items>
         <layout>
 	    <item name="addparticipants" />
-            <item name="emoticon" />
             <item name="send" />
         </layout>
     </toolbar>

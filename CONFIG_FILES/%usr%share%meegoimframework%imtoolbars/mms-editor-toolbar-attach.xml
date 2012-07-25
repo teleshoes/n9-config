@@ -3,11 +3,6 @@
 <input-method version="1">
     <toolbar>
         <items>
-            <button name="emoticon" group="emoticon" showon="always" alignment="left" text="" text_id="" icon_id="icon-m-messaging-smiley-happy" toggle="false" pressed="false">
-                <actions>
-                    <sendkeysequence keysequence="Meta+j"> </sendkeysequence>
-                </actions>
-            </button>
             <button name="attach" group="attach" priority="1" showon="always" alignment="left" text="" text_id="" icon_id="icon-m-conversation-attachment" toggle="false" pressed="false">
                 <actions>
                     <sendkeysequence keysequence="Meta+k"> </sendkeysequence>
@@ -22,7 +17,6 @@
         </items>
         <layout> 
             <item name="attach" />
-            <item name="emoticon" />
             <item name="mms_prompt" />
             <item name="send" />
         </layout>
