@@ -11,7 +11,7 @@ my @config = qw(
   meego-terminal
   fennec 
 
-  pidgin
+  finch
   klomp
   camera-ui
   duicontrolpanel
@@ -41,6 +41,7 @@ my @config = qw(
     DictionaryStar
     gconfik
     kmplayer
+    pidgin
     forum-tmo
     kmplayer
     rawcam
