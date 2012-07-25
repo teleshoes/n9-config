@@ -45,7 +45,7 @@ my %pkgGroups = (
     curl
   )],
   '4' => [qw(
-    qtodo rawcam brujula forum-tmo
+    qtodo rawcam brujula forum-tmo dropcache-mdn
   )],
 );
 

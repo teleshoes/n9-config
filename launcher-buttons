@@ -44,6 +44,7 @@ my @config = qw(
     forum-tmo
     kmplayer
     rawcam
+    dropcache-mdn
     transmission
     ]
   dir-bluetooth[
