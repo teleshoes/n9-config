@@ -3,17 +3,17 @@
 <input-method version="1">
     <toolbar>
         <items>
-            <button name="Ctrl" group="Ctrl" showon="always" text="Ctrl" toggle="true" pressed="false">
+            <button name="Ctrl" group="Tab" showon="always" text="c" toggle="true" pressed="false">
                 <actions>
                     <sendkeysequence keysequence="Ctrl+Shift+Alt+C"> </sendkeysequence>
                 </actions>
             </button>
-            <button name="Tab" group="Tab" showon="always" text="Tab" toggle="false" pressed="false">
+            <button name="Tab" group="Tab" showon="always" text="t" toggle="false" pressed="false">
                 <actions>
 		  <sendkeysequence keysequence="Tab"> </sendkeysequence>
                 </actions>
             </button>
-            <button name="Esc" group="Esc" showon="always" text="Esc" toggle="false" pressed="false">
+            <button name="Esc" group="Esc" showon="always" text="e" toggle="false" pressed="false">
                 <actions>
                     <sendkeysequence keysequence="Esc"> </sendkeysequence>
                 </actions>
@@ -38,12 +38,22 @@
                     <sendkeysequence keysequence="Right"> </sendkeysequence>
                 </actions>
             </button>
-            <button name="PgUp" group="PgUp" showon="always" text="PgUp" toggle="false" pressed="false">
+            <button name="Home" group="Home" showon="always" text="h" toggle="false" pressed="false">
+                <actions>
+                    <sendkeysequence keysequence="Home"> </sendkeysequence>
+                </actions>
+            </button>
+            <button name="End" group="End" showon="always" text="e" toggle="false" pressed="false">
+                <actions>
+                    <sendkeysequence keysequence="End"> </sendkeysequence>
+                </actions>
+            </button>
+            <button name="PgUp" group="PgUp" showon="always" text="u" toggle="false" pressed="false">
                 <actions>
                     <sendkeysequence keysequence="PgUp"> </sendkeysequence>
                 </actions>
             </button>
-            <button name="PgDn" group="PgDn" showon="always" text="PgDn" toggle="false" pressed="false">
+            <button name="PgDn" group="PgDn" showon="always" text="d" toggle="false" pressed="false">
                 <actions>
                     <sendkeysequence keysequence="PgDown"> </sendkeysequence>
                 </actions>
@@ -53,10 +63,12 @@
             <item name="Tab" />
             <item name="Ctrl" />
             <item name="Esc" />
-	    <item name="Up" />
+            <item name="Up" />
             <item name="Down" />
             <item name="Left" />
             <item name="Right" />
+            <item name="Home" />
+            <item name="End" />
             <item name="PgUp" />
             <item name="PgDn" />
         </layout>
