@@ -45,7 +45,7 @@ my %pkgGroups = (
     curl
   )],
   '4' => [qw(
-    brujula forum-tmo
+    rawcam brujula forum-tmo
   )],
 );
 
