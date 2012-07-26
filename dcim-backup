@@ -45,7 +45,7 @@ sub main(@){
     $dir = wrapQuotes $dir;
     $file = wrapQuotes $file;
     $newRemoteFile = wrapQuotes $newRemoteFile;
-    $reorganizeCmd .= "mkdir -p $dir; mv $file $newRemoteFile;\n";
+    $reorganizeCmd .= "mkdir -p $dir; mv -n $file $newRemoteFile;\n";
   }
   if(length $reorganizeCmd > 0){
     print "\n\n$reorganizeCmd";
