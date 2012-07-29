@@ -43,6 +43,7 @@ my %pkgGroups = (
     linux-kernel-headers
     gcc make
     curl
+    screen
   )],
   '4' => [qw(
     qtodo rawcam brujula forum-tmo dropcache-mdn
