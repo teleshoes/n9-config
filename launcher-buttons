@@ -47,6 +47,7 @@ my @config = qw(
     rawcam
     dropcache-mdn
     transmission
+    redak
     ]
   dir-bluetooth[
     btinput-terminal
