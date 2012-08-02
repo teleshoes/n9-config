@@ -1,0 +1,2 @@
+#!/bin/bash
+DISPLAY=:0 udo /opt/dontgosleep/bin/dontgosleep &
