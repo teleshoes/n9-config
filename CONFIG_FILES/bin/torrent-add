@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-my $host=`twipc`;
+my $host=`twipc --fetch`;
 chomp $host;
 my $port="9091";
 my $user="pi";

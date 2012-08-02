@@ -1,5 +1,5 @@
 #!/bin/bash
-ip=`twipc`
+ip=`twipc --fetch`
 echo IP: $ip
 url="$ip:9091/transmission"
 echo URL: $url
