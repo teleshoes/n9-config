@@ -29,15 +29,17 @@ my $remoteCur = modS "$dir/.klompcur", "remote";
 my $localList = modS "$dir/.klomplist", "local";
 my $remoteList = modS "$dir/.klomplist", "remote";
 
-print "$remoteList $remoteCur\n";
+print "        cur                        list\n";
+print "loc: " . localtime($localCur) . "   " . localtime($localList) . "\n";
+print "rem: " . localtime($remoteCur) . "   " . localtime($remoteList) . "\n";
 
 system "mkdir -p $dir";
 system "n9u", "-b", "mkdir -p $dir";
 
-if($localCur < $remoteCur and $localList < $remoteList){
+if($localCur < $remoteCur and $localList <= $remoteList){
   print "remote => local\n";
   system "rsync -avP user@`n9`:$dir/ $dir";
-}elsif($localCur > $remoteCur and $localList > $remoteList){
+}elsif($localCur > $remoteCur and $localList >= $remoteList){
   print "local => remote\n";
   system "rsync -avP $dir/ user@`n9`:$dir";
 }else{
