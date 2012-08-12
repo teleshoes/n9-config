@@ -18,7 +18,8 @@ use strict;
 use warnings;
 
 my $DATE_FILTER = "30 days ago";
-my $LAST_FILTER = 5;
+my $LAST_EACH_FILTER = 3;
+my $LAST_EACH_DATE_CUTOFF = "1 year ago";
 
 my $smsDir = "$ENV{HOME}/Code/n9/backup/backup-sms";
 my $repoDir = "$ENV{HOME}/Code/n9/backup/backup-sms/repo";
@@ -83,8 +84,11 @@ sub getNewMessages($\@){
   return @newMessages;
 }
 
-sub getLastMessages($\@){
+sub getLastEachMessages($$\@){
   my $count = shift;
+  my $cutoffDate = shift;
+  my $targetDate = `date --date="$cutoffDate" '+%Y-%m-%d %H:%M:%S'`;
+  chomp $targetDate;
   my @messages = @{shift()};
 
   my %byContact;
@@ -99,7 +103,11 @@ sub getLastMessages($\@){
     my @msgs = @{$byContact{$contact}};
     @msgs = sort {$$b[2] cmp $$a[2]} @msgs;
     for(my $i=0; $i<$count and $i<@msgs; $i++){
-      push @newMessages, $msgs[$i];
+      my $msg = $msgs[$i];
+      my $date = $$msg[2];
+      if($date gt $targetDate){
+        push @newMessages, $msg;
+      }
     }
   }
   return @newMessages;
@@ -108,12 +116,12 @@ sub getLastMessages($\@){
 sub filterMessages(\@){
   my @messages = @{shift()};
   @messages = removeDupes @messages;
-  @messages = (
+  my @newMessages = (
     getNewMessages($DATE_FILTER, @messages),
-    getLastMessages($LAST_FILTER, @messages),
+    getLastEachMessages($LAST_EACH_FILTER, $LAST_EACH_DATE_CUTOFF, @messages),
   );
-  @messages = removeDupes @messages;
-  return \@messages;
+  @newMessages = removeDupes @newMessages;
+  return @newMessages;
 }
 
 sub getMessagesFromDir($){
