@@ -81,6 +81,8 @@ sub getNewMessages($\@){
       push @newMessages, $msg;
     }
   }
+  my $total = @newMessages + 0;
+  print "All messages since $cutoffDate: $total\n";
   return @newMessages;
 }
 
@@ -110,6 +112,8 @@ sub getLastEachMessages($$\@){
       }
     }
   }
+  my $total = @newMessages + 0;
+  print "Last $count messages for each contact since $cutoffDate: $total\n";
   return @newMessages;
 }
 
@@ -121,6 +125,9 @@ sub filterMessages(\@){
     getLastEachMessages($LAST_EACH_FILTER, $LAST_EACH_DATE_CUTOFF, @messages),
   );
   @newMessages = removeDupes @newMessages;
+
+  my $total = @newMessages + 0;
+  print "Total after removing dupes: $total\n";
   return @newMessages;
 }
 
