@@ -18,6 +18,7 @@ use strict;
 use warnings;
 
 my $DATE_FILTER = "30 days ago";
+my $LAST_FILTER = 5;
 
 my $smsDir = "$ENV{HOME}/Code/n9/backup/backup-sms";
 my $repoDir = "$ENV{HOME}/Code/n9/backup/backup-sms/repo";
@@ -82,11 +83,34 @@ sub getNewMessages($\@){
   return @newMessages;
 }
 
+sub getLastMessages($\@){
+  my $count = shift;
+  my @messages = @{shift()};
+
+  my %byContact;
+  for my $msg(@messages){
+    my $phone = $$msg[0];
+    $byContact{$phone} = [] if not defined $byContact{$phone};
+    push @{$byContact{$phone}}, $msg;
+  }
+
+  my @newMessages = ();
+  for my $contact(keys %byContact){
+    my @msgs = @{$byContact{$contact}};
+    @msgs = sort {$$b[2] cmp $$a[2]} @msgs;
+    for(my $i=0; $i<$count and $i<@msgs; $i++){
+      push @newMessages, $msgs[$i];
+    }
+  }
+  return @newMessages;
+}
+
 sub filterMessages(\@){
   my @messages = @{shift()};
   @messages = removeDupes @messages;
   @messages = (
     getNewMessages($DATE_FILTER, @messages),
+    getLastMessages($LAST_FILTER, @messages),
   );
   @messages = removeDupes @messages;
   return \@messages;
