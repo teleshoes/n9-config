@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-my $cutoffDate = "30 days ago";
+my $DATE_FILTER = "30 days ago";
 
 my $smsDir = "$ENV{HOME}/Code/n9/backup/backup-sms";
 my $repoDir = "$ENV{HOME}/Code/n9/backup/backup-sms/repo";
@@ -49,7 +49,6 @@ sub main(@){
     writeContactsFiles @messages, $repoDir;
   }elsif($arg eq 'join'){
     my @messages = getMessagesFromDir $repoDir;
-    @messages = removeDupes @messages;
     @messages = filterMessages @messages;
     writeMessageFile @messages, "$smsDir/filtered.sms";
   }elsif($arg eq 'commit'){
@@ -67,7 +66,8 @@ sub main(@){
   }
 }
 
-sub filterMessages(\@){
+sub getNewMessages($\@){
+  my $cutoffDate = shift;
   my $targetDate = `date --date="$cutoffDate" '+%Y-%m-%d %H:%M:%S'`;
   chomp $targetDate;
 
@@ -80,6 +80,16 @@ sub filterMessages(\@){
     }
   }
   return @newMessages;
+}
+
+sub filterMessages(\@){
+  my @messages = @{shift()};
+  @messages = removeDupes @messages;
+  @messages = (
+    getNewMessages($DATE_FILTER, @messages),
+  );
+  @messages = removeDupes @messages;
+  return \@messages;
 }
 
 sub getMessagesFromDir($){
