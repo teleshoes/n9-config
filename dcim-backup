@@ -39,9 +39,6 @@ sub main(@){
     my $newRemoteFile = "$remoteDCIM/$localFile";
     my $dir = $newRemoteFile;
     $dir =~ s/\/[^\/]*$//;
-    if($dir =~ /$remoteDCIM\/\.\/backup_\d+$/x){
-      next;
-    }
     $dir = wrapQuotes $dir;
     $file = wrapQuotes $file;
     $newRemoteFile = wrapQuotes $newRemoteFile;
