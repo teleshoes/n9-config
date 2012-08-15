@@ -39,9 +39,13 @@ system "n9u", "-b", "mkdir -p $dir";
 if($localCur < $remoteCur and $localList <= $remoteList){
   print "remote => local\n";
   system "rsync -avP user@`n9`:$dir/ $dir";
+  print "books on local\n";
+  system "klomp-cmd", "playlist", "books";
 }elsif($localCur > $remoteCur and $localList >= $remoteList){
   print "local => remote\n";
   system "rsync -avP $dir/ user@`n9`:$dir";
+  print "books on remote\n";
+  system "n9u", "-s", "klomp-cmd", "playlist", "books";
 }else{
   print "not updating\n";
 }
