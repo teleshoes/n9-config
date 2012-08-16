@@ -1,0 +1,4 @@
+#!/bin/sh
+query="search=$@&language=en&go=Go"
+url="http://www.wikipedia.org/search-redirect.php?$query"
+moz "$url"

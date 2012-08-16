@@ -1,0 +1,3 @@
+#!/bin/sh
+cd /opt/xulrunner/lib/xulrunner-*/
+MOZ_ACCELERATED=1 ./qtMozQmlEmbed -url "$@"
