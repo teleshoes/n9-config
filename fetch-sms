@@ -17,7 +17,8 @@ sub run(@){
   die "failed" if $? != 0;
 }
 
-run "n9", "-s", "killall -9 smsbackuprestore; backup-sms";
+run "n9", "-s", "killall -9 smsbackuprestore";
+run "n9", "-b", "backup-sms";
 run "mkdir", "-p", $smsDestDir;
 run "rsync", "-avP", "root\@$host:$smsSrcDir/", $smsDestDir;
 run "perl $dir/sms-tool.pl split";
