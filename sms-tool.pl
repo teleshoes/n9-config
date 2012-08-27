@@ -141,6 +141,7 @@ sub getMessagesFromDir($){
   my $content = '';
   for my $file(`ls $dir/*.sms`){
     $content .= `cat $file`;
+    $content .= "\n";
   }
   return getMessages($content);
 }
@@ -148,7 +149,7 @@ sub getMessagesFromDir($){
 sub getMessages($){
   my $content = shift;
   my @messages;
-  while($content =~ /^([^,]+),([^,]+),([^,]+),("(?:[^"]|"")*")\n/gm){
+  while($content =~ /^([^,]+),([^,]+),([^,]+),("(?:[^"]|"")*")\n+/gm){
     my ($phone, $dir, $datetime, $msg) = ($1,$2,$3,$4);
     push @messages, [$1,$2,$3,$4];
   }
