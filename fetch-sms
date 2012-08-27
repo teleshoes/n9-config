@@ -21,6 +21,7 @@ sub runOrDie(@){
 }
 
 run "n9", "-s", "killall -9 smsbackuprestore";
+run "n9", "-s", "/opt/dropcache-mdn/bin/dropcache.sh --3";
 runOrDie "n9", "-b", "backup-sms";
 runOrDie "mkdir", "-p", $smsDestDir;
 runOrDie "rsync", "-avP", "root\@$host:$smsSrcDir/", $smsDestDir;
