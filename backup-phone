@@ -26,5 +26,9 @@ die "failed" if $? != 0;
 system "$dir/fetch-contacts";
 die "failed" if $? != 0;
 system "$dir/fetch-sms";
+if($? != 0){
+  print "\n\nfetch-sms failed, RETRYING fetch-sms one more time\n";
+  system "$dir/fetch-sms";
+}
 die "failed" if $? != 0;
 
