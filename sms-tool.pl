@@ -33,6 +33,11 @@ sub writeContactsFiles(\@$);
 sub removeUSCountryCode(\@);
 sub removeDupes(\@);
 
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
 sub main(@){
   my $arg = shift;
   $arg = '' if not defined $arg;
@@ -41,13 +46,13 @@ sub main(@){
   die "Usage: $0 $ok\n" if $arg !~ /^($ok)$/ or @_ > 0;
 
   if($arg eq 'split'){
-    system "mkdir $repoDir -p";
+    run "mkdir $repoDir -p";
     my @messages = (
       getMessagesFromDir($smsDir),
       getMessagesFromDir($repoDir));
     @messages = removeDupes @messages;
-    system "mkdir -p $repoDir";
-    system "rm $repoDir/*.sms";
+    run "mkdir -p $repoDir";
+    run "rm $repoDir/*.sms";
     writeContactsFiles @messages, $repoDir;
   }elsif($arg eq 'join'){
     my @messages = getMessagesFromDir $repoDir;
@@ -56,15 +61,15 @@ sub main(@){
   }elsif($arg eq 'commit'){
     chdir $repoDir;
     if(not -d '.git'){
-      system "git init";
+      run "git init";
     }
-    system "git add *.sms";
-    system "git --no-pager diff --cached";
-    system "git commit -m 'automatic commit'";
+    run "git add *.sms";
+    run "git --no-pager diff --cached";
+    run "git commit -m 'automatic commit'";
   }elsif($arg eq 'backup'){
-    system "mkdir $smsDir -p";
+    run "mkdir $smsDir -p";
     chdir $smsDir;
-    system "smsbackuprestore", "export", time . ".sms";
+    run "smsbackuprestore", "export", time . ".sms";
   }
 }
 
