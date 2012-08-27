@@ -14,13 +14,16 @@ my $smsDestDir = "$dest/backup-sms";
 sub run(@){
   print "@_\n";
   system @_;
+}
+sub runOrDie(@){
+  run @_;
   die "failed" if $? != 0;
 }
 
-run "n9", "-s", "killall -9 smsbackuprestore || echo";
-run "n9", "-b", "backup-sms";
-run "mkdir", "-p", $smsDestDir;
-run "rsync", "-avP", "root\@$host:$smsSrcDir/", $smsDestDir;
-run "perl $dir/sms-tool.pl split";
-run "perl $dir/sms-tool.pl commit";
+run "n9", "-s", "killall -9 smsbackuprestore";
+runOrDie "n9", "-b", "backup-sms";
+runOrDie "mkdir", "-p", $smsDestDir;
+runOrDie "rsync", "-avP", "root\@$host:$smsSrcDir/", $smsDestDir;
+runOrDie "perl $dir/sms-tool.pl split";
+runOrDie "perl $dir/sms-tool.pl commit";
 
