@@ -5,7 +5,10 @@ DefaultForeground=@Variant(\0\0\0\x43\x1\xff\xff\x00\x00\xff\xff\x00\x00\0\0)
 HorizontalSpacing=2
 Tickless=true
 VerticalSpacing=1
-formatString=%batIcon{} %batPercent{} %icon{calendar.png} %date{} %newline{} %batCurrent{}
+formatString=\
+  %batIcon{} %batPercent{%} %icon{gear.png} %batCurrent{mA} %icon{calendar.png} %date{MM/dd} %newline{}\
+  %cmd{klomp-lps --top} %newline{}\
+  %cmd{klomp-lps --bot}
 minWaitTime=0
 maxWaitTime=60
 heartbeatDelta=5
