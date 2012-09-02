@@ -1,0 +1,15 @@
+[General]
+DefaultBackground=@Variant(\0\0\0\x43\x1\0\0\0\0\0\0\0\0\0\0)
+DefaultFont=@Variant(\0\0\0@\0\0\0\x16\0\x44\0\x65\0j\0\x61\0V\0u\0 \0S\0\x61\0n\0s@8\0\0\0\0\0\0\xff\xff\xff\xff\x5\x1\0\0\x10)
+DefaultForeground=@Variant(\0\0\0\x43\x1\xff\xff\xff\xff\xff\xff\xff\xff\0\0)
+HorizontalSpacing=2
+Tickless=true
+VerticalSpacing=1
+formatString=%batIcon{} %batPercent{} %icon{calendar.png} %date{} %newline{} %batCurrent{}
+minWaitTime=0
+maxWaitTime=60
+heartbeatDelta=5
+
+[LowPowerScreen]
+ImageHeight=100
+ImageWidth=450
