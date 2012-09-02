@@ -10,7 +10,7 @@ formatString=\
   %cmd{klomp-lps --top} %newline{}\
   %cmd{klomp-lps --bot}
 minWaitTime=0
-maxWaitTime=10
+maxWaitTime=30
 heartbeatDelta=5
 
 [LowPowerScreen]
