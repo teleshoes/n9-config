@@ -107,7 +107,7 @@ sub updateMd5sums(){
   my %newByFile = (%$byFile, %$extraByFile);
 
   my $out;
-  for my $file(keys %newByFile){
+  for my $file(sort keys %newByFile){
     if(-e "$localDCIM/$file"){
       $out .= "$newByFile{$file}  $file\n";
     }else{
