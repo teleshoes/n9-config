@@ -26,7 +26,7 @@ sub main(@){
   backup "sync-fbreader backup";
   backup "sync-qtodo backup";
   backup "fetch-contacts";
-  backup "fetch-sms", 1;
+  backup "fetch-sms", 2;
 }
 
 sub backup($;$){
