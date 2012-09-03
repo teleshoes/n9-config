@@ -17,6 +17,7 @@ sub main(@){
   chdir $localDCIM;
   print "Getting md5sums of files in root of remote DCIM\n";
   my @remoteMd5sums = `n9 -s md5sum $remoteDCIM/*.* 2>/dev/null`;
+
   print "===all:\n" . join "", @remoteMd5sums;
   print "===\n\n";
 
@@ -47,6 +48,7 @@ sub main(@){
     system "mkdir -p $dir";
     system "rsync -avP root@`n9`:$remoteDCIM/*.* $dir/";
     die "failed rsync backup\n" if $? != 0;
+
     print "updating local md5sums again and re-reorganizing remote\n";
     $localByMd5sum = updateMd5sums;
 
