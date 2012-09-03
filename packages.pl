@@ -44,7 +44,6 @@ my %pkgGroups = (
     gcc make
     curl
     screen
-    redak
   )],
   '4' => [qw(
     qtodo rawcam brujula forum-tmo dropcache-mdn
