@@ -24,8 +24,11 @@ my @excludes = qw(
 
   cities
   DevIcon.fil
+  Playlists
   pvr_hwrec
+  .thumbnails/
   .qf
+  .wallpapers/
   lost+found
 );
 
