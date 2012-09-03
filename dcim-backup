@@ -7,6 +7,7 @@ my $remoteDCIM = "/home/user/MyDocs/DCIM";
 
 my @filetypes = qw(jpg jpeg mp4);
 
+sub reorganizeBackedUpRemotes($$$$);
 sub md5sumMaps(\@);
 sub runMd5sum($);
 sub updateMd5sums();
