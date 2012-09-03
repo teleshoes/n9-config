@@ -47,6 +47,11 @@ sub main(@){
     system "mkdir -p $dir";
     system "rsync -avP root@`n9`:$remoteDCIM/*.* $dir/";
     die "failed rsync backup\n" if $? != 0;
+    print "updating local md5sums again and re-reorganizing remote\n";
+    $localByMd5sum = updateMd5sums;
+
+    reorganizeBackedUpRemotes(\@needsBackUp,
+      $localByMd5sum, $remoteByMd5sum, $remoteByFile);
   }
   system "n9", "-s", "chown user.metadata-users -R $remoteDCIM";
 }
@@ -62,6 +67,10 @@ sub reorganizeBackedUpRemotes($$$$){
   for my $file(@backedUpFiles){
     my $md5sum = $$remoteByFile{$file};
     my $localFile = $$localByMd5sum{$md5sum};
+    if(not defined $localFile){
+      print "\n\n\n\nSERIOUS ERROR: local backup doesnt exist: $file!\n";
+      next;
+    }
     my $newRemoteFile = "$remoteDCIM/$localFile";
     my $dir = $newRemoteFile;
     $dir =~ s/\/[^\/]*$//;
