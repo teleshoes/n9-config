@@ -43,6 +43,7 @@ my @config = qw(
     dropcache-mdn
     transmission
     dcim-reindex
+    screenshotmee
     ]
   dir-bluetooth[
     btinput-terminal
