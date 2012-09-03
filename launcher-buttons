@@ -40,7 +40,6 @@ my @config = qw(
     accountsui
     DictionaryStar
     gconfik
-    kmplayer
     pidgin
     forum-tmo
     kmplayer
