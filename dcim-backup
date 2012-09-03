@@ -33,9 +33,31 @@ sub main(@){
     }
   }
 
+  reorganizeBackedUpRemotes(\@backedUp,
+    $localByMd5sum, $remoteByMd5sum, $remoteByFile);
+
+  print "\n\n===NEEDS BACKUP:\n" . join "\n", @needsBackUp;
+  print "===\n\n";
+
+  if(@needsBackUp > 0){
+    my $now = `date +\%s`;
+    chomp $now;
+    my $dir = "$localDCIM/backup_$now";
+    system "mkdir -p $dir";
+    system "rsync -avP root@`n9`:$remoteDCIM/*.* $dir/";
+  }
+  system "n9", "-s", "chown user.metadata-users -R $remoteDCIM";
+}
+
+sub reorganizeBackedUpRemotes($$$$){
+  my @backedUpFiles = @{shift()};
+  my $localByMd5sum = shift;
+  my $remoteByMd5sum = shift;
+  my $remoteByFile = shift;
+
   my $count = 0;
   my $reorganizeCmd = '';
-  for my $file(@backedUp){
+  for my $file(@backedUpFiles){
     my $md5sum = $$remoteByFile{$file};
     my $localFile = $$localByMd5sum{$md5sum};
     my $newRemoteFile = "$remoteDCIM/$localFile";
@@ -52,18 +74,6 @@ sub main(@){
     print "\n\n$reorganizeCmd";
     system "n9", "-s", $reorganizeCmd;
   }
-
-  print "\n\n===NEEDS BACKUP:\n" . join "\n", @needsBackUp;
-  print "===\n\n";
-
-  if(@needsBackUp > 0){
-    my $now = `date +\%s`;
-    chomp $now;
-    my $dir = "$localDCIM/backup_$now";
-    system "mkdir -p $dir";
-    system "rsync -avP root@`n9`:$remoteDCIM/*.* $dir/";
-  }
-  system "n9", "-s", "chown user.metadata-users -R $remoteDCIM";
 }
 
 sub md5sumMaps(\@){
