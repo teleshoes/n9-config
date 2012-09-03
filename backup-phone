@@ -2,33 +2,43 @@
 use strict;
 use warnings;
 
+sub backup($;$);
+
 my $dir = "$ENV{HOME}/Code/n9";
 
 my $host = `n9`;
 chomp $host;
 
-print "getting sudo pw cached\n";
-system "sudo", "echo", "ok";
-die "failed" if $? != 0;
+sub main(@){
+  print "getting sudo pw cached\n";
+  system "sudo", "echo", "ok";
+  die "failed" if $? != 0;
 
-system "$dir/dcim-backup";
-die "failed" if $? != 0;
 
-system "$dir/sync-pidgin";
-die "failed" if $? != 0;
-system "$dir/sync-mydocs";
-die "failed" if $? != 0;
-system "$dir/sync-fbreader backup";
-die "failed" if $? != 0;
-system "$dir/sync-qtodo backup";
-die "failed" if $? != 0;
+  backup "dcim-backup";
 
-system "$dir/fetch-contacts";
-die "failed" if $? != 0;
-system "$dir/fetch-sms";
-if($? != 0){
-  print "\n\nfetch-sms failed, RETRYING fetch-sms one more time\n";
-  system "$dir/fetch-sms";
+  backup "sync-pidgin";
+  backup "sync-mydocs";
+  backup "sync-fbreader backup";
+  backup "sync-qtodo backup";
+  backup "fetch-contacts";
+  backup "fetch-sms", 1;
 }
-die "failed" if $? != 0;
 
+sub backup($;$){
+  my ($backupScript, $retries) = @_;
+  $retries = 0 if not defined $retries;
+
+  system "$dir/$backupScript";
+
+  if($? != 0){
+    if($retries > 0){
+      print "\n\n\n!!! $backupScript failed, RETRYING $retries more time(s)\n";
+      backup $backupScript, $retries-1;
+    }else{
+      die "$backupScript failed";
+    }
+  }
+}
+
+&main(@ARGV);
