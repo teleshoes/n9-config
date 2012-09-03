@@ -1,0 +1,14 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+system "gallery";
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+for my $f(@ARGV){
+  run "tracker-control", "-f", $f;
+}

@@ -48,6 +48,7 @@ my @config = qw(
     dropcache-mdn
     transmission
     redak
+    dcim-reindex
     ]
   dir-bluetooth[
     btinput-terminal
