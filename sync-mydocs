@@ -13,17 +13,20 @@ my $local = $myDocsLocal;
 my $remote = "user\@$host:$myDocsRemote";
 
 my @excludes = qw(
+  DCIM
   DCIM-pixmirror
+
+  Music
+
   backup-contacts
   backup-sms
   backup-tracker
+
   cities
   DevIcon.fil
-  lost+found
-  Music
   pvr_hwrec
-  DCIM
   .qf
+  lost+found
 );
 
 my @rsyncOpts = qw(
