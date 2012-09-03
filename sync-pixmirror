@@ -1,0 +1,32 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $localDCIM = "$ENV{HOME}/Desktop/DCIM";
+my $localPixmirror = "$ENV{HOME}/Desktop/DCIM-pixmirror";
+
+my $remotePixmirror = "/home/user/MyDocs/DCIM-pixmirror";
+my $remoteSym = "/home/user/pixmirror";
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+print "making dir remotely\n";
+system "n9u", "-s", "
+  set -x
+  mkdir -p $remotePixmirror
+  rm $remoteSym 2>/dev/null
+  ln -s $remotePixmirror $remoteSym
+";
+
+run "pixmirror", $localDCIM, $localPixmirror;
+die "pixmirror failed\n" if $? != 0;
+
+my $host = `n9`;
+chomp $host;
+run "rsync", "-avP", "--del",
+  "$localPixmirror/",
+  "user\@$host:$remotePixmirror";
+die "rsync failed\n" if $? != 0;

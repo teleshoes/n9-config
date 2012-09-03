@@ -13,6 +13,7 @@ my $local = $myDocsLocal;
 my $remote = "user\@$host:$myDocsRemote";
 
 my @excludes = qw(
+  DCIM-pixmirror
   backup-contacts
   backup-sms
   backup-tracker
