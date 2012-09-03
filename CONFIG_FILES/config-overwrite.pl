@@ -13,6 +13,11 @@ my @rsyncOpts = qw(
   --out-format=%n
 );
 
+my $bgDir = '/usr/share/themes/blanco/meegotouch/images/backgrounds';
+my %symlinksToReplace = map {$_ => 1} (
+  "$bgDir/meegotouch-desktop-bg.jpg",
+);
+
 sub overwriteFile($$);
 sub removeFile($);
 
@@ -55,6 +60,12 @@ sub overwriteFile($$){
   }else{
     system 'rsync', @rsyncOpts, "$src", "$dest";
   }
+
+  if(defined $symlinksToReplace{$dest} and -l $dest){
+    my $realDest = readlink $dest;
+    system "cp", $realDest, $dest;
+  }
+
   if($destDir =~ /^\/home\/$user/){
     system "chown -R $user.$group $dest";
     system "chown $user.$group $destDir";
