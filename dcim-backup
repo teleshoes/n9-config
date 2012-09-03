@@ -32,6 +32,7 @@ sub main(@){
     }
   }
 
+  my $count = 0;
   my $reorganizeCmd = '';
   for my $file(@backedUp){
     my $md5sum = $$byFile{$file};
@@ -42,9 +43,10 @@ sub main(@){
     $dir = wrapQuotes $dir;
     $file = wrapQuotes $file;
     $newRemoteFile = wrapQuotes $newRemoteFile;
+    $count++;
     $reorganizeCmd .= "mkdir -p $dir; mv -n $file $newRemoteFile;\n";
   }
-  if(length $reorganizeCmd > 0){
+  if($count > 0){
     print "\n\n$reorganizeCmd";
     system "n9", "-s", $reorganizeCmd;
   }
