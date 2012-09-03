@@ -43,7 +43,6 @@ my @config = qw(
     accountsui
     DictionaryStar
     pidgin
-    forum-tmo
     dropcache-mdn
     transmission
     dcim-reindex
