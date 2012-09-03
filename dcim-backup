@@ -19,12 +19,13 @@ sub main(@){
   print "===all:\n" . join "", @remoteMd5sums;
   print "===\n\n";
 
-  my ($byMd5sum, $byFile) = md5sumMaps @remoteMd5sums;
+  my $localByMd5sum = updateMd5sums;
+
+  my ($remoteByMd5sum, $remoteByFile) = md5sumMaps @remoteMd5sums;
 
   my (@backedUp, @needsBackUp);
-  my $localByMd5sum = updateMd5sums;
-  for my $md5sum(keys %$byMd5sum){
-    my $file = $$byMd5sum{$md5sum};
+  for my $md5sum(keys %$remoteByMd5sum){
+    my $file = $$remoteByMd5sum{$md5sum};
     if(defined $$localByMd5sum{$md5sum}){
       push @backedUp, $file;
     }else{
@@ -35,7 +36,7 @@ sub main(@){
   my $count = 0;
   my $reorganizeCmd = '';
   for my $file(@backedUp){
-    my $md5sum = $$byFile{$file};
+    my $md5sum = $$remoteByFile{$file};
     my $localFile = $$localByMd5sum{$md5sum};
     my $newRemoteFile = "$remoteDCIM/$localFile";
     my $dir = $newRemoteFile;
