@@ -5,6 +5,10 @@ use warnings;
 my $host = `n9`;
 chomp $host;
 
+my %replacements = (
+  'emumaster' => 'diskgallery',
+);
+
 my @config = qw(
   call-history
   messaging-ui
@@ -30,7 +34,7 @@ my @config = qw(
     calendar
     qtodo
     n9-button-monitor
-    diskgallery
+    emumaster
     ]
   dir-box[
     maps
@@ -56,6 +60,12 @@ my @config = qw(
     xmcr
     ]  
 );
+
+for my $entry(@config){
+  if(defined $replacements{$entry}){
+    $entry = $replacements{$entry};
+  }
+}
 
 my @quickLaunch = qw(
   call-history
