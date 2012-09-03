@@ -46,6 +46,7 @@ sub main(@){
     $count++;
     $reorganizeCmd .= "mkdir -p $dir; mv -n $file $newRemoteFile;\n";
   }
+  print "\n\nReorganizing $count remote files to match local\n";
   if($count > 0){
     print "\n\n$reorganizeCmd";
     system "n9", "-s", $reorganizeCmd;
