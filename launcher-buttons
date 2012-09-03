@@ -31,7 +31,6 @@ my @config = qw(
     qtodo
     n9-button-monitor
     diskgallery
-    conky
     ]
   dir-box[
     maps
@@ -39,14 +38,10 @@ my @config = qw(
     calc
     accountsui
     DictionaryStar
-    gconfik
     pidgin
     forum-tmo
-    kmplayer
-    rawcam
     dropcache-mdn
     transmission
-    redak
     dcim-reindex
     ]
   dir-bluetooth[
@@ -55,7 +50,6 @@ my @config = qw(
     toggleBT
     ]
   dir-apps[
-    stellarium
     brujula
     vmpkn9
     xmcr
