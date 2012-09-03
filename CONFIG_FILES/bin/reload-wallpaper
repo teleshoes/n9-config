@@ -1,0 +1,3 @@
+#!/bin/bash
+initctl restart xsession/mthemedaemon
+initctl restart xsession/mthome
