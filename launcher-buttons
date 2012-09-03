@@ -31,13 +31,10 @@ my @config = qw(
   meeseepics
   
   dir-stuff[
-    calendar
     qtodo
-    n9-button-monitor
     emumaster
     ]
   dir-box[
-    maps
     NokiaPt
     calc
     accountsui
