@@ -32,6 +32,7 @@ sub backup($;$){
   my ($backupScript, $retries) = @_;
   $retries = 0 if not defined $retries;
 
+  print "\n\n\n=========$backupScript\n";
   system "$dir/$backupScript";
 
   if($? != 0){
