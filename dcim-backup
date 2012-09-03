@@ -46,6 +46,7 @@ sub main(@){
     my $dir = "$localDCIM/backup_$now";
     system "mkdir -p $dir";
     system "rsync -avP root@`n9`:$remoteDCIM/*.* $dir/";
+    die "failed rsync backup\n" if $? != 0;
   }
   system "n9", "-s", "chown user.metadata-users -R $remoteDCIM";
 }
@@ -74,6 +75,7 @@ sub reorganizeBackedUpRemotes($$$$){
   if($count > 0){
     print "\n\n$reorganizeCmd";
     system "n9", "-s", $reorganizeCmd;
+    die "failed reorganizing remotes\n" if $? != 0;
   }
 }
 
@@ -93,7 +95,9 @@ sub md5sumMaps(\@){
 sub runMd5sum($){
   my $file = shift;
   $file = wrapQuotes $file;
-  return `md5sum $file`;
+  my $md5sum = `md5sum $file`;
+  die "failed generating md5sum for $file\n" if $? != 0;
+  return $md5sum;
 }
 
 sub wrapQuotes($){
