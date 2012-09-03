@@ -46,7 +46,7 @@ my %pkgGroups = (
     screen
   )],
   '4' => [qw(
-    qtodo rawcam brujula forum-tmo dropcache-mdn
+    qtodo brujula forum-tmo dropcache-mdn
   )],
 );
 
