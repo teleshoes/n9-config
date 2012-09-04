@@ -2,8 +2,6 @@
 use strict;
 use warnings;
 
-system "gallery";
-
 sub run(@){
   print "@_\n";
   system @_;
