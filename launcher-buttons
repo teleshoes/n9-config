@@ -30,31 +30,31 @@ my @config = qw(
   joikuspot
   meeseepics
   
-  dir-stuff[
-    qtodo
-    emumaster
-    ]
-  dir-box[
-    NokiaPt
-    accountsui
-    DictionaryStar
-    pidgin
+  dir-tools[
     dropcache-mdn
-    transmission
     dcim-reindex
     dontgosleep
     screenshotmee
-    ]
-  dir-bluetooth[
+  ]
+  dir-useful[
+    qtodo
+    brujula
+    DictionaryStar
+    transmission
+  ]
+  dir-cute[
+    NokiaPt
+    vmpkn9
+    xmcr
+    emumaster
+  ]
+  dir-junk[
+    accountsui
     btinput-terminal
     btinput
     toggleBT
-    ]
-  dir-apps[
-    brujula
-    vmpkn9
-    xmcr
-    ]  
+    pidgin
+  ]
 );
 
 for my $entry(@config){
