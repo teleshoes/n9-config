@@ -19,6 +19,8 @@ my %symlinksToReplace = map {$_ => 1} (
 );
 
 my %changedTriggers = (
+  "/usr/share/backgrounds" =>  'reload-wallpaper',
+  "$bgDir/meegotouch-desktop-bg.jpg" => 'reload-wallpaper',
 );
 
 sub overwriteFile($$);
