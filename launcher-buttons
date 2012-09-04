@@ -57,6 +57,7 @@ my @config = qw(
     calendar
     ovistoreclient
     pidgin
+    remote-klomp-next
     n9-button-monitor
   ]
 );
