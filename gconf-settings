@@ -2,10 +2,13 @@
 use strict;
 use warnings;
 
+my $lockScreenBG = '/usr/share/backgrounds/lockscreen.jpg';
+
 my $display = '/system/osso/dsm/display';
 my $locks = '/system/osso/dsm/locks';
 my %gconf = (
   "/Meego/System/UsbMode" => ['ovi_suite'],
+  "/desktop/meego/background/portrait/picture_filename" => [$lockScreenBG],
   "$locks/tklock_double_tap_gesture" => ['0', 'int'],
   "$display/display_dim_timeout" => [240,'int'],
   "$display/possible_display_dim_timeouts" =>
