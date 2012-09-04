@@ -25,7 +25,7 @@ my @config = qw(
   clock
   FBReader
   
-  dontgosleep
+  calc
   mail
   joikuspot
   meeseepics
@@ -36,13 +36,13 @@ my @config = qw(
     ]
   dir-box[
     NokiaPt
-    calc
     accountsui
     DictionaryStar
     pidgin
     dropcache-mdn
     transmission
     dcim-reindex
+    dontgosleep
     screenshotmee
     ]
   dir-bluetooth[
