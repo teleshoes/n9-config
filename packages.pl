@@ -83,16 +83,13 @@ sub setupRepos(){
   my $host = `n9`;
   chomp $host;
 
-  my @repos = `ls $repoDir/*.list`;
-  foreach my $repo(@repos){
-    chomp $repo;
-    print "copying $repo:\n";
-    print "====\n";
-    system 'cat', $repo;
-    print "====\n\n";
-  }
+  print "Installing repos to /etc/apt/sources.list.d\n";
+  system "ls $repoDir/*.list";
+  print "\n\n";
+  system "cat $repoDir/*.list";
+  print "\n\n";
 
-  system 'scp', @repos, "root\@$host:/etc/apt/sources.list.d/";
+  system "scp $repoDir/* root\@$host:/etc/apt/sources.list.d/";
   
   my $after = getRepos();
   return $before ne $after;
