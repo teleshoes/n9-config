@@ -83,13 +83,14 @@ sub setupRepos(){
   my $host = `n9`;
   chomp $host;
 
-  print "Installing repos to /etc/apt/sources.list.d\n";
-  system "ls $repoDir/*.list";
+  print "Copying $repoDir => remote\n";
+  system "scp $repoDir/* root\@$host:/etc/apt/sources.list.d/";
   print "\n\n";
+
+  print "Content of the copied lists:\n";
   system "cat $repoDir/*.list";
   print "\n\n";
 
-  system "scp $repoDir/* root\@$host:/etc/apt/sources.list.d/";
   
   my $after = getRepos();
   return $before ne $after;
