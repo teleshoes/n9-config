@@ -91,6 +91,13 @@ sub setupRepos(){
   system "cat $repoDir/*.list";
   print "\n\n";
 
+  system 'n9', '-s', '
+    echo INSTALLING KEYS:
+    for x in /etc/apt/sources.list.d/*.key; do
+      echo $x
+      apt-key add "$x"
+    done
+  ';
   
   my $after = getRepos();
   return $before ne $after;
