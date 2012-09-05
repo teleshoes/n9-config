@@ -19,7 +19,7 @@ my @packagesToRemove = qw(
   ovi-music-store morpheus morpheus-guard
 
   mp-harmattan-005-pr
-  facebook twitter twitter-qml
+  facebook facebookqml libqt-facebook facebook-meego twitter twitter-qml
 );
 
 my $env = 'AEGIS_FIXED_ORIGIN=com.nokia.maemo';
