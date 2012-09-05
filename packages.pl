@@ -46,6 +46,7 @@ my %pkgGroups = (
     screen
   )],
   '4' => [qw(
+    snowshoe-mobile
     qtodo brujula dropcache-mdn
   )],
 );
