@@ -49,7 +49,6 @@ my @config = qw(
     emumaster
   ]
   dir-junk[
-    snowshoe
     accountsui
     btinput-terminal
     btinput
