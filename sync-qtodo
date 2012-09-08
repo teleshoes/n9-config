@@ -10,8 +10,10 @@ sub getTodos();
 
 sub main(@){
   my @todos = getTodos;
+  print "Adding qtodos to $todoFile\n";
   system "todo-parse", "--add", @todos;
   print "\n\n";
+  print "Replacing qtodo xml {backed up} from ${todoFile}'s git history\n";
   my $xml = `todo-parse --qtodo`;
   my $tmpFile = "/tmp/qtodo_" . time();
   open FH, "> $tmpFile" or die "Couldnt write $tmpFile\n";
