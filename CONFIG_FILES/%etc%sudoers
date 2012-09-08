@@ -2,5 +2,5 @@
 Defaults env_check+="HOME DISPLAY"
 Defaults env_keep+="HOME DISPLAY"
 Defaults env_reset
-user ALL = (ALL) ALL
+user ALL = (ALL) NOPASSWD: ALL
 ### Automatically added by update-sudoers end ###
