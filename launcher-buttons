@@ -59,6 +59,7 @@ my @config = qw(
     pidgin
     remote-klomp-next
     n9-button-monitor
+    snowshoe
   ]
 );
 
