@@ -1,3 +1,5 @@
-#!/bin/sh
-PW="d"
-echo $PW | devel-su -c "$*"
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+exec "sudo", "/usr/bin/aegis-exec", "-s", "-u", "root", "bash", "-c", "@ARGV";
