@@ -2,42 +2,49 @@
 use strict;
 use warnings;
 
-my $arg = shift();
-die "Usage: $0 [backup|restore]\n" if $arg !~ /^(backup|restore)$/;
+my $todoFile = "$ENV{HOME}/TODO";
+my $remoteDir = "/home/user/to-do-o";
+my $remoteFile = "$remoteDir/default.xml";
 
 my $host = `n9`;
 chomp $host;
 
-my $dir = "$ENV{HOME}/Code/n9";
-my $localDir = "$dir/qtodo";
-my $remoteDir = "/home/user/to-do-o";
+sub getTodos();
 
-my $local = $localDir;
-my $remote = "user\@$host:$remoteDir";
-
-my @excludes = qw(
-  cache
-);
-
-my @rsyncOpts = qw(
-  -a --no-owner --no-group
-  -v -P
-  --del
-);
-for my $exclude(@excludes){
-  push @rsyncOpts, "--exclude=$exclude";
+sub main(@){
+  my @todos = getTodos;
+  system "todo-parse", "--add", @todos;
+  print "\n\n";
+  my $xml = `todo-parse --qtodo`;
+  my $tmpFile = "/tmp/qtodo_" . time();
+  open FH, "> $tmpFile" or die "Couldnt write $tmpFile\n";
+  print FH $xml;
+  close FH;
+  system "scp", $tmpFile, "user\@$host:$remoteFile";
 }
 
-sub run(@){
-  print "@_\n";
-  system @_;
-  die "failed" if $? != 0;
+sub getTodos(){
+  my $xml = `n9 -s cat $remoteDir/default.xml`;
+  my $now = time();
+  system "n9", "-s", "
+    mkdir -p $remoteDir
+    chown user.users $remoteDir
+    file=\"$remoteFile\"
+    bak=\"${remoteFile}_bak_$now\"
+    mv \$file \$bak
+  ";
+  my @todos;
+  while($xml =~ /<to-do\ (done="true")?  [^>]* >  ([^<]*) /gmx){
+    push @todos, $2;
+  }
+  for my $todo(@todos){
+    $todo = lc $todo;
+    $todo =~ s/\&lt;/</g;
+    $todo =~ s/\&amp;/\&/g;
+    $todo =~ s/^\s*//;
+    $todo =~ s/\s*$//;
+  }
+  return @todos;
 }
 
-system "n9", "-s", "mkdir $remoteDir; chown user.users $remoteDir";
-if($arg eq 'backup'){
-  run "rsync", @rsyncOpts, "$remote/", $local;
-}elsif($arg eq 'restore'){
-  run "rsync", @rsyncOpts, "$local/", $remote;
-}
-
+&main(@ARGV);
