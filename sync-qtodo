@@ -6,9 +6,6 @@ my $todoFile = "$ENV{HOME}/TODO";
 my $remoteDir = "/home/user/to-do-o";
 my $remoteFile = "$remoteDir/default.xml";
 
-my $host = `n9`;
-chomp $host;
-
 sub getTodos();
 
 sub main(@){
@@ -20,6 +17,8 @@ sub main(@){
   open FH, "> $tmpFile" or die "Couldnt write $tmpFile\n";
   print FH $xml;
   close FH;
+  my $host = `n9`;
+  chomp $host;
   system "scp", $tmpFile, "user\@$host:$remoteFile";
 }
 
