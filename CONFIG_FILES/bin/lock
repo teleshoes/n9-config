@@ -12,7 +12,7 @@ my $usage = "Usage:
     determined by dbus method com.nokia.mce.request.get_tklock_mode
   $0 [-l|--lock|lock]
     if 'get' returns unlocked, simulates pushing the power-button
-  $0 [-u|--unlock|lock]
+  $0 [-u|--unlock|unlock]
     if 'get' returns locked, simulates pushing the power-button
 ";
 
@@ -64,7 +64,7 @@ sub main(@){
     powerButton;
   }elsif($arg =~ /^(-l|--lock|lock)$/){
     powerButton if getLock eq 'unlocked';
-  }elsif($arg =~ /^(-l|--unlock|unlock)$/){
+  }elsif($arg =~ /^(-u|--unlock|unlock)$/){
     powerButton if getLock eq 'locked';
   }elsif($arg =~ /^(-g|--get|get)$/){
     print getLock() . "\n";
