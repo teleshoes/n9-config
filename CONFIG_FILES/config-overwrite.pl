@@ -21,6 +21,8 @@ my %symlinksToReplace = map {$_ => 1} (
 my %changedTriggers = (
   "/usr/share/backgrounds" =>  'reload-wallpaper',
   "$bgDir/meegotouch-desktop-bg.jpg" => 'reload-wallpaper',
+  "/home/user/.config/ProfileMatic/rules.conf" =>
+    "initctl restart apps/profilematicd",
 );
 
 sub overwriteFile($$);
