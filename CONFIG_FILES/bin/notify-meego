@@ -27,7 +27,10 @@ sub main(@){
   my $message = "@_";
   my $header = '';
 
-  run @unlockCmd if $unlock;
+  if($unlock){
+    run @unlockCmd;
+    sleep 1;
+  }
   qdbus 'addNotification', 0, 0, 'device', '$header',
     $message,
     'icon-m-toolbar-done',  #automatically gets the notification removed
