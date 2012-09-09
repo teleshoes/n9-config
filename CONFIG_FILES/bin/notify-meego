@@ -1,0 +1,46 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $service = 'com.meego.core.MNotificationManager';
+my $path = '/notificationmanager';
+my $methodPrefix = $service;
+
+my @unlockCmd = qw(sudo lock --unlock);
+
+sub run(@);
+sub qdbus($;@);
+
+my $usage = "Usage:
+  $0 [-u|--unlock] TEXT [TEXT ..]
+    Show a short-lived banner with 'TEXT TEXT ..' as the message.
+    If -u or --unlock is specified,
+      calls '@unlockCmd' first to ensure the phone is unlocked.
+  $0 -h|--help
+    Print this usage
+";
+
+sub main(@){
+  die $usage if @_ == 1 and $_[0] =~ /^(-h|--help)$/;
+  my $unlock = (@_ > 0 and $_[0] =~ /^(-u|--unlock)$/) ? shift : 0;
+
+  my $message = "@_";
+  my $header = '';
+
+  run @unlockCmd if $unlock;
+  qdbus 'addNotification', 0, 0, 'device', '$header',
+    $message,
+    'icon-m-toolbar-done',  #automatically gets the notification removed
+    0, '';
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+sub qdbus($;@){
+  my $method = shift;
+  run ("qdbus", $service, $path, "$methodPrefix.$method", @_);
+}
+
+&main(@ARGV);
