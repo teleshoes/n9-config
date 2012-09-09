@@ -30,6 +30,7 @@ my %pkgGroups = (
   )],
   '2' => [qw(
     perl bash-completion python python-apt
+    htop
     mcetools bzip2 sqlite3
     x11-utils xresponse
     meecast
