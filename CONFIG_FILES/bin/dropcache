@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $dropcacheExec = '/opt/dropcache-mdn/bin/dropcache.sh';
+my @dropcacheArgs = ('--3');
+
+sub formatFree(){
+  my $out = `free -m`;
+  if($out =~ /^Mem: \s+(\d+) \s+(\d+) \s+(\d+) \s+(\d+) \s+(\d+) $/mx){
+    my ($total, $used, $free, $shared, $buffers) = ($1, $2, $3, $4, $5);
+    my $per = int($free / $total * 100.0 + 0.5);
+    return "$free ($per%)";
+  }else{
+    return "unknown";
+  }
+}
+
+my $preFree = formatFree;
+system $dropcacheExec, @dropcacheArgs;
+my $postFree = formatFree;
+
+my $msg = "mem: $preFree => $postFree";
+
+print "$msg\n";
+system "notify-meego", $msg;
