@@ -10,8 +10,7 @@ sub formatFree(){
   my $out = `free -m`;
   if($out =~ /^Mem: \s+(\d+) \s+(\d+) \s+(\d+) \s+(\d+) \s+(\d+) $/mx){
     my ($total, $used, $free, $shared, $buffers) = ($1, $2, $3, $4, $5);
-    my $per = int($free / $total * 100.0 + 0.5);
-    return "$free ($per%)";
+    return "$free";
   }else{
     return "unknown";
   }
