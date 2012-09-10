@@ -4,6 +4,7 @@ use warnings;
 
 my $dropcacheExec = '/opt/dropcache-mdn/bin/dropcache.sh';
 my @dropcacheArgs = ('--3');
+my $logFile = '/var/log/dropcache.log';
 
 sub formatFree(){
   my $out = `free -m`;
@@ -23,4 +24,11 @@ my $postFree = formatFree;
 my $msg = "mem: $preFree => $postFree";
 
 print "$msg\n";
+
 system "notify-meego", $msg;
+
+my $time = `date`;
+chomp $time;
+open FH, "| sudo tee -a $logFile";
+print FH "$time: $msg\n";
+close FH;
