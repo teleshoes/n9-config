@@ -22,7 +22,7 @@ my $postFree = formatFree;
 
 my $msg = "mem: $preFree => $postFree";
 if($preFree =~ /^\d+$/ and $postFree =~ /^\d+$/){
-  $msg .= " (" . ($postFree - $preFree) . ")";
+  $msg .= " (" . ($postFree - $preFree) . "mb)";
 }
 
 print "$msg\n";
