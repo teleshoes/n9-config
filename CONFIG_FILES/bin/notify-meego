@@ -31,7 +31,7 @@ sub main(@){
     run @unlockCmd;
     sleep 1;
   }
-  qdbus 'addNotification', 0, 0, 'device', '$header',
+  qdbus 'addNotification', 0, 0, 'device', $header,
     $message,
     'icon-m-toolbar-done',  #automatically gets the notification removed
     0, '';
