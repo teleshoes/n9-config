@@ -1,0 +1,16 @@
+#!/usr/bin/python
+import sys
+from QtMobility.SystemInfo import QSystemBatteryInfo
+from PySide.QtGui import QApplication
+
+def main():
+    app = QApplication(sys.argv)
+    b = QSystemBatteryInfo()
+    print "%i   %i%% (%i/%i)" % (
+      b.currentFlow(),
+      b.remainingCapacityPercent(),
+      b.remainingCapacity(), b.nominalCapacity()
+      )
+
+if __name__ == '__main__':
+    main()
