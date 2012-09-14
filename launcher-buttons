@@ -43,12 +43,13 @@ my @config = qw(
     transmission
   ]
   dir-cute[
-    NokiaPt
+    qtbigtext
     vmpkn9
     xmcr
     emumaster
   ]
   dir-junk[
+    NokiaPt
     accountsui
     btinput-terminal
     btinput
