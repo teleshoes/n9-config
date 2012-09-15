@@ -24,7 +24,7 @@ sub main(@){
   backup "sync-pidgin";
   backup "sync-mydocs";
   backup "sync-fbreader backup";
-  backup "sync-qtodo backup";
+  backup "sync-qtodo";
   backup "fetch-contacts";
   backup "fetch-sms", 2;
 }
