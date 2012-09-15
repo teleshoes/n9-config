@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE MEEGO_INPUT_METHOD SYSTEM 'VirtualKeyboardToolbarDTD.dtd'>
+<input-method version="1">
+    <toolbar>
+        <items>
+            <button name="Ctrl" group="Ctrl" showon="always" text="Ctrl" toggle="true" pressed="false">
+                <actions>
+                    <sendkeysequence keysequence="Ctrl+Shift+Alt+C"> </sendkeysequence>
+                </actions>
+            </button>
+            <button name="Tab" group="Tab" showon="always" text="Tab" toggle="false" pressed="false">
+                <actions>
+		  <sendkeysequence keysequence="Tab"> </sendkeysequence>
+                </actions>
+            </button>
+            <button name="Esc" group="Esc" showon="always" text="Esc" toggle="false" pressed="false">
+                <actions>
+                    <sendkeysequence keysequence="Esc"> </sendkeysequence>
+                </actions>
+            </button>
+            <button name="Up" group="Up" showon="always" text="&#x2b06;" toggle="false" pressed="false">
+                <actions>
+		  <sendkeysequence keysequence="Up"> </sendkeysequence>
+                </actions>
+            </button>
+            <button name="Down" group="Down" showon="always" text="&#x2b07;" toggle="false" pressed="false">
+                <actions>
+                    <sendkeysequence keysequence="Down"> </sendkeysequence>
+                </actions>
+            </button>
+            <button name="Left" group="Left" showon="always" text="&#x2b05;" toggle="false" pressed="false">
+                <actions>
+                    <sendkeysequence keysequence="Left"> </sendkeysequence>
+                </actions>
+            </button>
+            <button name="Right" group="Right" showon="always" text="&#x27a1;" toggle="false" pressed="false">
+                <actions>
+                    <sendkeysequence keysequence="Right"> </sendkeysequence>
+                </actions>
+            </button>
+            <button name="PgUp" group="PgUp" showon="always" text="PgUp" toggle="false" pressed="false">
+                <actions>
+                    <sendkeysequence keysequence="PgUp"> </sendkeysequence>
+                </actions>
+            </button>
+            <button name="PgDn" group="PgDn" showon="always" text="PgDn" toggle="false" pressed="false">
+                <actions>
+                    <sendkeysequence keysequence="PgDown"> </sendkeysequence>
+                </actions>
+            </button>
+        </items>
+        <layout>
+            <item name="Tab" />
+            <item name="Ctrl" />
+            <item name="Esc" />
+	    <item name="Up" />
+            <item name="Down" />
+            <item name="Left" />
+            <item name="Right" />
+            <item name="PgUp" />
+            <item name="PgDn" />
+        </layout>
+    </toolbar>
+</input-method>
