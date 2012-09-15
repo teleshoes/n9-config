@@ -12,7 +12,7 @@ my %replacements = (
 my @config = qw(
   call-history
   messaging-ui
-  meego-terminal
+  mtermite
   fennec 
 
   finch
