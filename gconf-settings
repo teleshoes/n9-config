@@ -7,7 +7,15 @@ sub gconfSetCmd($$$$);
 sub listInt($);
 sub listString($);
 
+my $swype = 0;
 my $lockScreenBG = '/usr/share/backgrounds/lockscreen.jpg';
+
+my @vkbNormal = ('libmeego-keyboard.so', 'en_us.xml');
+my @vkbSwype = ('libswype-keyboard.so' , 'Swype');
+
+my $vkbEnabled = listString [$swype ? (@vkbNormal, @vkbSwype) : (@vkbNormal)];
+my $vkbActive = listString [$swype ? (@vkbSwype) : (@vkbNormal)];
+
 
 my $display = '/system/osso/dsm/display';
 my $locks = '/system/osso/dsm/locks';
@@ -18,7 +26,8 @@ my %gconf = (
   "$display/display_dim_timeout" => [240,'int'],
   "$display/possible_display_dim_timeouts" =>
     listInt [15, 30, 60, 120, 180, 240],
-
+  "/meegotouch/inputmethods/onscreen/enabled" => $vkbEnabled,
+  "/meegotouch/inputmethods/onscreen/active" => $vkbActive,
 );
 
 sub main(@){
