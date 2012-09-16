@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 
+sub listInt($);
 my $lockScreenBG = '/usr/share/backgrounds/lockscreen.jpg';
 
 my $display = '/system/osso/dsm/display';
@@ -12,7 +13,7 @@ my %gconf = (
   "$locks/tklock_double_tap_gesture" => ['0', 'int'],
   "$display/display_dim_timeout" => [240,'int'],
   "$display/possible_display_dim_timeouts" =>
-    ['[15, 30, 60, 120, 180, 240]', 'list', 'init'],
+    listInt [15, 30, 60, 120, 180, 240],
 
 );
 
@@ -26,6 +27,11 @@ sub gconfSetCmd($$$$){
     $cmd .= " --list-type=$listType";
   }
   return $cmd;
+}
+sub listInt($){
+  my @list = @{shift()};
+  my $val = '[' . (join ',', @list) . ']';
+  return [$val, 'list', 'int'];
 }
 
 sub main(@){
