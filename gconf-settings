@@ -2,6 +2,8 @@
 use strict;
 use warnings;
 
+sub gconfGetCmd($);
+sub gconfSetCmd($$$$);
 sub listInt($);
 my $lockScreenBG = '/usr/share/backgrounds/lockscreen.jpg';
 
@@ -16,23 +18,6 @@ my %gconf = (
     listInt [15, 30, 60, 120, 180, 240],
 
 );
-
-sub gconfGetCmd($){
-  return "gconftool-2 --get $_[0]";
-}
-sub gconfSetCmd($$$$){
-  my ($key, $val, $type, $listType) = @_;
-  my $cmd = "gconftool-2 --set '$key' '$val' --type=$type";
-  if(lc $type eq 'list'){
-    $cmd .= " --list-type=$listType";
-  }
-  return $cmd;
-}
-sub listInt($){
-  my @list = @{shift()};
-  my $val = '[' . (join ',', @list) . ']';
-  return [$val, 'list', 'int'];
-}
 
 sub main(@){
   die "Usage: $0\n" if @_ > 0;
@@ -49,5 +34,22 @@ sub main(@){
   my $cmd = join "\n", @cmds;
   print "$cmd\n\n";
   system "n9", "-s", $cmd;
+}
+
+sub gconfGetCmd($){
+  return "gconftool-2 --get $_[0]";
+}
+sub gconfSetCmd($$$$){
+  my ($key, $val, $type, $listType) = @_;
+  my $cmd = "gconftool-2 --set '$key' '$val' --type=$type";
+  if(lc $type eq 'list'){
+    $cmd .= " --list-type=$listType";
+  }
+  return $cmd;
+}
+sub listInt($){
+  my @list = @{shift()};
+  my $val = '[' . (join ',', @list) . ']';
+  return [$val, 'list', 'int'];
 }
 &main(@ARGV);
