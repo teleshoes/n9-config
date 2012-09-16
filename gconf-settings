@@ -66,8 +66,6 @@ sub listInt($){
 }
 sub listString($){
   my @list = @{shift()};
-  $_ =~ s/"/""/g foreach @list;
-  $_ = "\"$_\"" foreach @list;
   my $val = '[' . (join ',', @list) . ']';
   return [$val, 'list', 'string'];
 }
