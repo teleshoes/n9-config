@@ -7,7 +7,7 @@ sub gconfSetCmd($$$$);
 sub listInt($);
 sub listString($);
 
-my $swype = 0;
+my $swype = 1;
 my $lockScreenBG = '/usr/share/backgrounds/lockscreen.jpg';
 
 my @vkbNormal = ('libmeego-keyboard.so', 'en_us.xml');
