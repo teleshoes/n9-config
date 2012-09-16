@@ -5,6 +5,8 @@ use warnings;
 sub gconfGetCmd($);
 sub gconfSetCmd($$$$);
 sub listInt($);
+sub listString($);
+
 my $lockScreenBG = '/usr/share/backgrounds/lockscreen.jpg';
 
 my $display = '/system/osso/dsm/display';
@@ -47,9 +49,18 @@ sub gconfSetCmd($$$$){
   }
   return $cmd;
 }
+
 sub listInt($){
   my @list = @{shift()};
   my $val = '[' . (join ',', @list) . ']';
   return [$val, 'list', 'int'];
 }
+sub listString($){
+  my @list = @{shift()};
+  $_ =~ s/"/""/g foreach @list;
+  $_ = "\"$_\"" foreach @list;
+  my $val = '[' . (join ',', @list) . ']';
+  return [$val, 'list', 'string'];
+}
+
 &main(@ARGV);
