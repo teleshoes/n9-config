@@ -1,58 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE MEEGO_INPUT_METHOD SYSTEM 'VirtualKeyboardToolbarDTD.dtd'>
 <input-method version="1">
-    <toolbar>
-        <items>
-            <button name="_Tab" group="Tab" showon="always" text="t" toggle="false" pressed="false">
-                <actions>
-                    <sendkeysequence keysequence="Tab"> </sendkeysequence>
-                </actions>
-            </button>
-            <button name="_Ctrl" group="Ctrl" showon="always" text="c" toggle="false" pressed="false">
-                <actions>
-                    <sendkeysequence keysequence="Ctrl+Shift+Alt+C"> </sendkeysequence>
-                </actions>
-            </button>
-            <button name="_Alt" group="Alt" showon="always" text="a" toggle="false" pressed="false">
-                <actions>
-                    <sendkeysequence keysequence="Ctrl+Shift+Alt+A"> </sendkeysequence>
-                </actions>
-            </button>
-            <button name="_Esc" group="Esc" showon="always" text="e" toggle="false" pressed="false">
-                <actions>
-                    <sendkeysequence keysequence="Esc"> </sendkeysequence>
-                </actions>
-            </button>
-            <button name="_Up" group="Up" showon="always" text="&#x2b06;" toggle="false" pressed="false">
-                <actions>
-                    <sendkeysequence keysequence="Up"> </sendkeysequence>
-                </actions>
-            </button>
-            <button name="_Down" group="Down" showon="always" text="&#x2b07;" toggle="false" pressed="false">
-                <actions>
-                    <sendkeysequence keysequence="Down"> </sendkeysequence>
-                </actions>
-            </button>
-            <button name="_Left" group="Left" showon="always" text="&#x2b05;" toggle="false" pressed="false">
-                <actions>
-                    <sendkeysequence keysequence="Left"> </sendkeysequence>
-                </actions>
-            </button>
-            <button name="_Right" group="Right" showon="always" text="&#x27a1;" toggle="false" pressed="false">
-                <actions>
-                    <sendkeysequence keysequence="Right"> </sendkeysequence>
-                </actions>
-            </button>
-        </items>
-        <layout>
-            <item name="_Tab" />
-            <item name="_Ctrl" />
-            <item name="_Alt" />
-            <item name="_Esc" />
-            <item name="_Up" />
-            <item name="_Down" />
-            <item name="_Left" />
-            <item name="_Right" />
-        </layout>
-    </toolbar>
+  <toolbar>
+    <items>
+      <button name="_Tab" group="Tab" showon="always" text="t" toggle="false" pressed="false">
+        <actions>
+          <sendkeysequence keysequence="Tab"> </sendkeysequence>
+        </actions>
+      </button>
+      <button name="_Ctrl" group="Ctrl" showon="always" text="c" toggle="false" pressed="false">
+        <actions>
+          <sendkeysequence keysequence="Ctrl+Shift+Alt+C"> </sendkeysequence>
+        </actions>
+      </button>
+      <button name="_Alt" group="Alt" showon="always" text="a" toggle="false" pressed="false">
+        <actions>
+          <sendkeysequence keysequence="Ctrl+Shift+Alt+A"> </sendkeysequence>
+        </actions>
+      </button>
+      <button name="_Esc" group="Esc" showon="always" text="e" toggle="false" pressed="false">
+        <actions>
+          <sendkeysequence keysequence="Esc"> </sendkeysequence>
+        </actions>
+      </button>
+      <button name="_Up" group="Up" showon="always" text="&#x2b06;" toggle="false" pressed="false">
+        <actions>
+          <sendkeysequence keysequence="Up"> </sendkeysequence>
+        </actions>
+      </button>
+      <button name="_Down" group="Down" showon="always" text="&#x2b07;" toggle="false" pressed="false">
+        <actions>
+          <sendkeysequence keysequence="Down"> </sendkeysequence>
+        </actions>
+      </button>
+      <button name="_Left" group="Left" showon="always" text="&#x2b05;" toggle="false" pressed="false">
+        <actions>
+          <sendkeysequence keysequence="Left"> </sendkeysequence>
+        </actions>
+      </button>
+      <button name="_Right" group="Right" showon="always" text="&#x27a1;" toggle="false" pressed="false">
+        <actions>
+          <sendkeysequence keysequence="Right"> </sendkeysequence>
+        </actions>
+      </button>
+    </items>
+    <layout>
+      <item name="_Tab" />
+      <item name="_Ctrl" />
+      <item name="_Alt" />
+      <item name="_Esc" />
+      <item name="_Up" />
+      <item name="_Down" />
+      <item name="_Left" />
+      <item name="_Right" />
+    </layout>
+  </toolbar>
 </input-method>
