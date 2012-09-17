@@ -3,42 +3,42 @@
 <input-method version="1">
   <toolbar>
     <items>
-      <button name="_Tab" group="Tab" showon="always" text="t" toggle="false" pressed="false">
+      <button name="_Tab" text="t">
         <actions>
           <sendkeysequence keysequence="Tab"> </sendkeysequence>
         </actions>
       </button>
-      <button name="_Ctrl" group="Ctrl" showon="always" text="c" toggle="false" pressed="false">
+      <button name="_Ctrl" text="c">
         <actions>
           <sendkeysequence keysequence="Ctrl+Shift+Alt+C"> </sendkeysequence>
         </actions>
       </button>
-      <button name="_Alt" group="Alt" showon="always" text="a" toggle="false" pressed="false">
+      <button name="_Alt" text="a">
         <actions>
           <sendkeysequence keysequence="Ctrl+Shift+Alt+A"> </sendkeysequence>
         </actions>
       </button>
-      <button name="_Esc" group="Esc" showon="always" text="e" toggle="false" pressed="false">
+      <button name="_Esc" text="e">
         <actions>
           <sendkeysequence keysequence="Esc"> </sendkeysequence>
         </actions>
       </button>
-      <button name="_Up" group="Up" showon="always" text="&#x2b06;" toggle="false" pressed="false">
+      <button name="_Up" text="&#x2b06;">
         <actions>
           <sendkeysequence keysequence="Up"> </sendkeysequence>
         </actions>
       </button>
-      <button name="_Down" group="Down" showon="always" text="&#x2b07;" toggle="false" pressed="false">
+      <button name="_Down" text="&#x2b07;">
         <actions>
           <sendkeysequence keysequence="Down"> </sendkeysequence>
         </actions>
       </button>
-      <button name="_Left" group="Left" showon="always" text="&#x2b05;" toggle="false" pressed="false">
+      <button name="_Left" text="&#x2b05;">
         <actions>
           <sendkeysequence keysequence="Left"> </sendkeysequence>
         </actions>
       </button>
-      <button name="_Right" group="Right" showon="always" text="&#x27a1;" toggle="false" pressed="false">
+      <button name="_Right" text="&#x27a1;">
         <actions>
           <sendkeysequence keysequence="Right"> </sendkeysequence>
         </actions>
