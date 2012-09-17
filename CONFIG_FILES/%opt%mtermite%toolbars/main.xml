@@ -38,16 +38,6 @@
                     <sendkeysequence keysequence="Right"> </sendkeysequence>
                 </actions>
             </button>
-            <button name="PgUp" group="PgUp" showon="always" text="PgUp" toggle="false" pressed="false">
-                <actions>
-                    <sendkeysequence keysequence="PgUp"> </sendkeysequence>
-                </actions>
-            </button>
-            <button name="PgDn" group="PgDn" showon="always" text="PgDn" toggle="false" pressed="false">
-                <actions>
-                    <sendkeysequence keysequence="PgDown"> </sendkeysequence>
-                </actions>
-            </button>
         </items>
         <layout>
             <item name="Tab" />
@@ -57,8 +47,6 @@
             <item name="Down" />
             <item name="Left" />
             <item name="Right" />
-            <item name="PgUp" />
-            <item name="PgDn" />
         </layout>
     </toolbar>
 </input-method>
