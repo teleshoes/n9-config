@@ -3,6 +3,11 @@
 <input-method version="1">
     <toolbar>
         <items>
+            <button name="_Tab" group="Tab" showon="always" text="t" toggle="false" pressed="false">
+                <actions>
+                    <sendkeysequence keysequence="Tab"> </sendkeysequence>
+                </actions>
+            </button>
             <button name="_Ctrl" group="Ctrl" showon="always" text="c" toggle="false" pressed="false">
                 <actions>
                     <sendkeysequence keysequence="Ctrl+Shift+Alt+C"> </sendkeysequence>
@@ -11,11 +16,6 @@
             <button name="_Alt" group="Alt" showon="always" text="a" toggle="false" pressed="false">
                 <actions>
                     <sendkeysequence keysequence="Ctrl+Shift+Alt+A"> </sendkeysequence>
-                </actions>
-            </button>
-            <button name="_Tab" group="Tab" showon="always" text="t" toggle="false" pressed="false">
-                <actions>
-                    <sendkeysequence keysequence="Tab"> </sendkeysequence>
                 </actions>
             </button>
             <button name="_Esc" group="Esc" showon="always" text="e" toggle="false" pressed="false">
