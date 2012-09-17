@@ -3,50 +3,50 @@
 <input-method version="1">
     <toolbar>
         <items>
-            <button name="Ctrl" group="Ctrl" showon="always" text="Ctrl" toggle="true" pressed="false">
+            <button name="_Ctrl" group="Ctrl" showon="always" text="Ctrl" toggle="false" pressed="false">
                 <actions>
                     <sendkeysequence keysequence="Ctrl+Shift+Alt+C"> </sendkeysequence>
                 </actions>
             </button>
-            <button name="Tab" group="Tab" showon="always" text="Tab" toggle="false" pressed="false">
+            <button name="_Tab" group="Tab" showon="always" text="Tab" toggle="false" pressed="false">
                 <actions>
-		  <sendkeysequence keysequence="Tab"> </sendkeysequence>
+                    <sendkeysequence keysequence="Tab"> </sendkeysequence>
                 </actions>
             </button>
-            <button name="Esc" group="Esc" showon="always" text="Esc" toggle="false" pressed="false">
+            <button name="_Esc" group="Esc" showon="always" text="Esc" toggle="false" pressed="false">
                 <actions>
                     <sendkeysequence keysequence="Esc"> </sendkeysequence>
                 </actions>
             </button>
-            <button name="Up" group="Up" showon="always" text="&#x2b06;" toggle="false" pressed="false">
+            <button name="_Up" group="Up" showon="always" text="&#x2b06;" toggle="false" pressed="false">
                 <actions>
-		  <sendkeysequence keysequence="Up"> </sendkeysequence>
+                    <sendkeysequence keysequence="Up"> </sendkeysequence>
                 </actions>
             </button>
-            <button name="Down" group="Down" showon="always" text="&#x2b07;" toggle="false" pressed="false">
+            <button name="_Down" group="Down" showon="always" text="&#x2b07;" toggle="false" pressed="false">
                 <actions>
                     <sendkeysequence keysequence="Down"> </sendkeysequence>
                 </actions>
             </button>
-            <button name="Left" group="Left" showon="always" text="&#x2b05;" toggle="false" pressed="false">
+            <button name="_Left" group="Left" showon="always" text="&#x2b05;" toggle="false" pressed="false">
                 <actions>
                     <sendkeysequence keysequence="Left"> </sendkeysequence>
                 </actions>
             </button>
-            <button name="Right" group="Right" showon="always" text="&#x27a1;" toggle="false" pressed="false">
+            <button name="_Right" group="Right" showon="always" text="&#x27a1;" toggle="false" pressed="false">
                 <actions>
                     <sendkeysequence keysequence="Right"> </sendkeysequence>
                 </actions>
             </button>
         </items>
         <layout>
-            <item name="Tab" />
-            <item name="Ctrl" />
-            <item name="Esc" />
-	    <item name="Up" />
-            <item name="Down" />
-            <item name="Left" />
-            <item name="Right" />
+            <item name="_Tab" />
+            <item name="_Ctrl" />
+            <item name="_Esc" />
+            <item name="_Up" />
+            <item name="_Down" />
+            <item name="_Left" />
+            <item name="_Right" />
         </layout>
     </toolbar>
 </input-method>
