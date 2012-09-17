@@ -8,6 +8,11 @@
                     <sendkeysequence keysequence="Ctrl+Shift+Alt+C"> </sendkeysequence>
                 </actions>
             </button>
+            <button name="_Alt" group="Alt" showon="always" text="a" toggle="false" pressed="false">
+                <actions>
+                    <sendkeysequence keysequence="Ctrl+Shift+Alt+A"> </sendkeysequence>
+                </actions>
+            </button>
             <button name="_Tab" group="Tab" showon="always" text="t" toggle="false" pressed="false">
                 <actions>
                     <sendkeysequence keysequence="Tab"> </sendkeysequence>
@@ -42,6 +47,7 @@
         <layout>
             <item name="_Tab" />
             <item name="_Ctrl" />
+            <item name="_Alt" />
             <item name="_Esc" />
             <item name="_Up" />
             <item name="_Down" />
