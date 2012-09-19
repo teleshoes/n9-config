@@ -3,14 +3,14 @@ use strict;
 use warnings;
 
 my @buttons = (
-  ['t'       => 'tab'    => 'Tab'],
-  ['c'       => 'ctrl'   => 'Ctrl+Shift+Alt+C'],
-  ['a'       => 'alt'    => 'Ctrl+Shift+Alt+A'],
-  ['e'       => 'escape' => 'Esc'],
-  ['&#9653;' => 'up'     => 'Up'],
-  ['&#9663;' => 'down'   => 'Down'],
-  ['&#9667;' => 'left'   => 'Left'],
-  ['&#9657;' => 'right'  => 'Right'],
+  ['t'       => 'tab'     => 'default' => 'Tab'],
+  ['c'       => 'ctrl'    => 'default' => 'Ctrl+Shift+Alt+C'],
+  ['a'       => 'alt'     => 'default' => 'Ctrl+Shift+Alt+A'],
+  ['e'       => 'escape ' => 'default' => 'Esc'],
+  ['&#9653;' => 'up'      => 'default' => 'Up'],
+  ['&#9663;' => 'down'    => 'default' => 'Down'],
+  ['&#9667;' => 'left'    => 'default' => 'Left'],
+  ['&#9657;' => 'right'   => 'default' => 'Right'],
 );
 
 my $toolbarDir = '/opt/mtermite/toolbars';
@@ -36,22 +36,42 @@ sub main(@){
 sub getButtons(){
   my $buttonXml = '';
   for my $btn(@buttons){
-    my ($text, $name, $key) = @$btn;
-    $buttonXml .= ''
-      . "      <button name=\"_$name\" text=\"$text\">\n"
-      . "        <actions> <sendkeysequence keysequence=\"$key\"/> </actions>\n"
-      . "      </button>\n"
-      ;
+    if(@$btn == 3){
+      my ($name, $fromGroup, $toGroup) = @$btn;
+      $buttonXml .= ''
+        . "      <button name=\"_$name\" text=\"?\" group=\"$fromGroup\">\n"
+        . "        <actions>\n"
+        . "          <hidegroup group=\"$fromGroup\"/>\n"
+        . "          <showgroup group=\"$toGroup\"/>\n"
+        . "        </actions>\n"
+        . "      </button>\n"
+        ;
+    }else{
+      my ($text, $name, $group, $key) = @$btn;
+      $buttonXml .= ''
+        . "      <button name=\"_$name\" text=\"$text\" group=\"$group\">\n"
+        . "        <actions> <sendkeysequence keysequence=\"$key\"/> </actions>\n"
+        . "      </button>\n"
+        ;
+    }
   }
   return $buttonXml;
 }
 sub getItems(){
   my $itemXml = '';
   for my $btn(@buttons){
-    my ($text, $name, $key) = @$btn;
-    $itemXml .= ''
-      . "      <item name=\"_$name\"/>\n"
-      ;
+    if(@$btn == 3){
+      my ($name, $fromGroup, $toGroup) = @$btn;
+      $itemXml .= ''
+        . "      <item name=\"_$name\"/>\n"
+        ;
+
+    }else{
+      my ($text, $name, $group, $key) = @$btn;
+      $itemXml .= ''
+        . "      <item name=\"_$name\"/>\n"
+        ;
+    }
   }
   return $itemXml;
 }
