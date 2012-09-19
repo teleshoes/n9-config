@@ -11,6 +11,17 @@ my @buttons = (
   ['&#9663;' => 'down'    => 'default' => 'Down'],
   ['&#9667;' => 'left'    => 'default' => 'Left'],
   ['&#9657;' => 'right'   => 'default' => 'Right'],
+  ['SHOW'    => 'default' => 'more'],
+
+  ['*'       => 'star'    => 'more'    => "*"],
+  ['/'       => 'slash'   => 'more'    => "/"],
+  ['|'       => 'pipe'    => 'more'    => "|"],
+  ['$'       => 'dollar'  => 'more'    => "\$"],
+  ['&amp;'   => 'amp'     => 'more'    => "&amp;"],
+  ['&lt;'    => 'less'    => 'more'    => "&lt;"],
+  ['>'       => 'greater' => 'more'    => ">"],
+  ['-'       => 'hyphen'  => 'more'    => "-"],
+  ['HIDE'    => 'more'    => 'default'],
 );
 
 my $toolbarDir = '/opt/mtermite/toolbars';
