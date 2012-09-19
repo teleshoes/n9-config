@@ -42,6 +42,24 @@ sub urxvt($$){
   return @cmd;
 }
 
+sub mtermite($$){
+  my %args = %{shift()};
+  my @cmd = @{shift()};
+
+  if(@cmd > 0){
+    my $c = "@cmd";
+    $c =~ s/"/\\"/g;
+    if(isInstalled("aegis-exec")){
+      @cmd = ("-e", "aegis-exec bash -i -c \"$c\"");
+    }else{
+      @cmd = ("-e", "bash -i -c \"$c\"");
+    }
+  }
+  @cmd = ('/opt/mtermite/bin/mtermite', '-n', @cmd);
+
+  return @cmd;
+}
+
 sub meegoTerminal($$){
   my %args = %{shift()};
   my @cmd = @{shift()};
@@ -111,6 +129,8 @@ sub main(@){
 
   if(isInstalled "urxvt"){
     @cmd = urxvt \%termArgs, \@cmd;
+  }elsif(isInstalled "/opt/mtermite/bin/mtermite"){
+    @cmd = mtermite \%termArgs, \@cmd;
   }elsif(isInstalled "meego-terminal"){
     @cmd = meegoTerminal \%termArgs, \@cmd;
   }elsif(isInstalled "gnome-terminal"){
