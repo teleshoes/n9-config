@@ -26,7 +26,7 @@ my $env = 'AEGIS_FIXED_ORIGIN=com.nokia.maemo';
 
 my %pkgGroups = (
   '1' => [qw(
-    bash vim rsync wget git openvpn netcat
+    bash vim rsync wget git openvpn
   )],
   '2' => [qw(
     perl bash-completion python python-apt
