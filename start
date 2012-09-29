@@ -36,4 +36,6 @@ restore-sms
 sync-mydocs
 sync-pidgin
 sync-fbreader restore
+sync-swype restore
+vkb-toolbar.pl
 klomp-sync user@`n9`
