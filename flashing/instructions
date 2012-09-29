@@ -12,6 +12,11 @@ sudo dpkg -i flasher*.deb
 
 =================================
 TO GET FIRMWARE IMAGE or EMMC IMAGE:
+here are the md5sums for pr1.3 global:
+37883898bd9140fa3e909c5385d3f0ca  DFL61_HARMATTAN_40.2012.13-7.NOMAPS_EMMC_NOMAPS.bin
+53fcefc0033875661c19160e16999b3e  DFL61_HARMATTAN_40.2012.21-3_PR_LEGACY_001-OEM1-958_ARM.bin
+
+-download the global {05K3S0} or row {059H2M6}
 -get your product variant code {most look like 059****} from the sim card tray
   {mine, the australian 64 GB, is 059J233}
 -{you can get NaviFirmEx here: https://code.google.com/p/navifirmex/}
