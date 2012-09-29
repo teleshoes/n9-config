@@ -13,7 +13,7 @@ sudo dpkg -i flasher*.deb
 =================================
 TO GET FIRMWARE IMAGE or EMMC IMAGE:
 -get your product variant code {most look like 059****} from the sim card tray
-  {mine, the malaysian 64 GB, is 059J238}
+  {mine, the australian 64 GB, is 059J233}
 -{you can get NaviFirmEx here: https://code.google.com/p/navifirmex/}
 -run:
 wine NaviFirmEx/NaviFirmEx.exe
