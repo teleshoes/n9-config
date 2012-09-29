@@ -18,7 +18,7 @@ my @packagesToRemove = qw(
   angrybirdsfreemagic
   ovi-music-store morpheus morpheus-guard
 
-  mp-harmattan-005-pr
+  mp-harmattan-001-pr
   facebook facebookqml libqt-facebook facebook-meego twitter twitter-qml
 );
 
