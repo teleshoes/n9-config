@@ -1,10 +1,10 @@
 #!/bin/bash
 source /etc/profile
 pkill -f .*qtbigtext.py.*
-if [ $1 == "-k" ]; then
+if [ "$1" == "-k" ]; then
   exit 0
 fi
-if [ -e $1 ]; then
+if [ "$#" -eq "1" ] && [ -e $1 ]; then
   exec cat "$1" | /opt/qtbigtext/qtbigtext.py 1>/dev/null 2>/dev/null &
 else
   exec /opt/qtbigtext/qtbigtext.py "$@" 1>/dev/null 2>/dev/null &
