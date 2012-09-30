@@ -24,24 +24,19 @@ my @buttons = (
   ['TOGGLE'  => '&#8634;' => 'more' => 'default'],
 );
 
-my $toolbarDir = '/opt/mtermite/toolbars';
-my $toolbarFile = "main.xml";
+my $toolbarFile = "toolbar.xml";
 
 sub getButtons();
 sub getItems();
 sub getXml();
 
-my $usage = "Usage: $0   overwrites $toolbarFile\n";
+my $usage = "Usage:
+  $0 generate a vkb toolbar for meego-terminal or variants";
 
 sub main(@){
-  system "n9", "-s", "rm $toolbarDir/*";
-  my $tmpFile = "/tmp/vkb-toolbar-tmp.xml";
-  open FH, "> $tmpFile" or die "Couldnt write $tmpFile\n";
+  open FH, "> $toolbarFile" or die "Couldnt write $toolbarFile\n";
   print FH getXml();
   close FH;
-  my $host = `n9`;
-  chomp $host;
-  system "scp", $tmpFile, "root\@$host:$toolbarDir/$toolbarFile";
 }
 
 sub getButtons(){
