@@ -11,17 +11,17 @@ my @buttons = (
   ['&#9663;' => 'down'    => 'default' => 'Down'],
   ['&#9667;' => 'left'    => 'default' => 'Left'],
   ['&#9657;' => 'right'   => 'default' => 'Right'],
-  ['SHOW'    => 'default' => 'more'],
+  ['TOGGLE'  => '&#8635;' => 'default' => 'more'],
 
-  ['*'       => 'star'    => 'more'    => "*"],
-  ['/'       => 'slash'   => 'more'    => "/"],
-  ['|'       => 'pipe'    => 'more'    => "|"],
-  ['$'       => 'dollar'  => 'more'    => "\$"],
-  ['&amp;'   => 'amp'     => 'more'    => "&amp;"],
-  ['&lt;'    => 'less'    => 'more'    => "&lt;"],
-  ['>'       => 'greater' => 'more'    => ">"],
-  ['-'       => 'hyphen'  => 'more'    => "-"],
-  ['HIDE'    => 'more'    => 'default'],
+  ['*'       => 'star'    => 'more' => "*"],
+  ['/'       => 'slash'   => 'more' => "/"],
+  ['|'       => 'pipe'    => 'more' => "|"],
+  ['$'       => 'dollar'  => 'more' => "\$"],
+  ['&amp;'   => 'amp'     => 'more' => "&amp;"],
+  ['&lt;'    => 'less'    => 'more' => "&lt;"],
+  ['>'       => 'greater' => 'more' => ">"],
+  ['-'       => 'hyphen'  => 'more' => "-"],
+  ['TOGGLE'  => '&#8634;' => 'more' => 'default'],
 );
 
 my $toolbarDir = '/opt/mtermite/toolbars';
@@ -47,10 +47,11 @@ sub main(@){
 sub getButtons(){
   my $buttonXml = '';
   for my $btn(@buttons){
-    if(@$btn == 3){
-      my ($name, $fromGroup, $toGroup) = @$btn;
+    if($$btn[0] eq 'TOGGLE'){
+      my ($type, $text, $fromGroup, $toGroup) = @$btn;
+      my $name = "$fromGroup-to-$toGroup";
       $buttonXml .= ''
-        . "      <button name=\"_$name\" text=\"?\" group=\"$fromGroup\">\n"
+        . "      <button name=\"_$name\" text=\"$text\" group=\"$fromGroup\">\n"
         . "        <actions>\n"
         . "          <hidegroup group=\"$fromGroup\"/>\n"
         . "          <showgroup group=\"$toGroup\"/>\n"
@@ -71,8 +72,9 @@ sub getButtons(){
 sub getItems(){
   my $itemXml = '';
   for my $btn(@buttons){
-    if(@$btn == 3){
-      my ($name, $fromGroup, $toGroup) = @$btn;
+    if($$btn[0] eq 'TOGGLE'){
+      my ($type, $text, $fromGroup, $toGroup) = @$btn;
+      my $name = "$fromGroup-to-$toGroup";
       $itemXml .= ''
         . "      <item name=\"_$name\"/>\n"
         ;
