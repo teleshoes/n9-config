@@ -37,5 +37,5 @@ sync-mydocs
 sync-pidgin
 sync-fbreader restore
 sync-swype restore
-vkb-toolbar.pl
+setup-vkb-toolbar
 klomp-sync user@`n9`

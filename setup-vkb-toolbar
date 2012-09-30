@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $dir = '/opt/mtermite/toolbars';
+my $file = "toolbar.xml";
+
+sub main(@){
+  system "n9", "-s", "
+    rm $dir/*
+    vkb-toolbar.pl
+    mv $file $dir
+  ";
+}
+
+&main(@ARGV);
