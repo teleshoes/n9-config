@@ -13,6 +13,11 @@ run "mkdir -p $dest";
 my $name = `date +%Y_%m_%d-%s`;
 chomp $name;
 
-run "su user -c 'source /etc/profile; smsbackuprestore export $dest/$name.sms'";
+my $cmd = ''
+  . " smsbackuprestore export $dest/$name.sms"
+  . " 2>&1"
+  . " | grep -v \"Not cleaning up obsolete resources for nao:hasTag\"";
+
+run "su user -c 'source /etc/profile; $cmd'";
 
 run "chown", "user.users", "-R", $dest;
