@@ -43,4 +43,4 @@ run "rsync", @opts, "$loc/logs/", "$rem/logs";
 print "\n\nCHOWN REMOTE\n";
 run "ssh", "root\@$host", "chown -R $remoteUserGroup $remotePurpleDir/logs";
 print "\n\nCHOWN LOCAL\n";
-run "sudo", "chown", "-R", $localUserGroup, "$localPurpleDir/logs";
+run "chown", "-R", $localUserGroup, "$localPurpleDir/logs";
