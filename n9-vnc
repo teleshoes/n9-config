@@ -17,7 +17,7 @@ while(@ARGV > 0){
 }
 my @clientArgs = @ARGV;
 
-open FH, "n9 -s vnc-netview @serverArgs 2>&1 |"
+open FH, "n9u -s vnc-netview @serverArgs 2>&1 |"
   or die "Error running vnc-netview\n";
 while(<FH>){
   if(/^The VNC desktop is:\s*(.*)$/m){
