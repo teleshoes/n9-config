@@ -10,10 +10,6 @@ my $host = `n9`;
 chomp $host;
 
 sub main(@){
-  print "getting sudo pw cached\n";
-  system "sudo", "echo", "ok";
-  die "failed" if $? != 0;
-
   print "making sure n9 is ssh-able\n";
   system "n9", "-s", "echo found n9!\n";
   die "failed" if $? != 0;
