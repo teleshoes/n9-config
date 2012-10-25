@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=klomp pause
+Comment=klomp-cmd
+Icon=icon-m-toolbar-mediacontrol-pause-dimmed-white
+Exec=udo klomp-cmd pause
+Type=Application

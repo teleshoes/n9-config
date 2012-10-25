@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=klomp next
+Comment=klomp-cmd
+Icon=icon-m-toolbar-mediacontrol-next-dimmed-white
+Exec=udo klomp-cmd next
+Type=Application

@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=remote seek +10
+Comment=klomp-cmd
+Icon=icon-m-toolbar-mediacontrol-forward-white
+Exec=udo remote-klomp-cmd seek 10
+Type=Application

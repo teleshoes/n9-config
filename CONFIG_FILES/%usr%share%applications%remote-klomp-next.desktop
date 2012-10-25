@@ -1,6 +1,0 @@
-[Desktop Entry]
-Name=remote klomp next
-Comment=remote-klomp-cmd
-Icon=remote-klomp-cmd
-Exec=udo remote-klomp-cmd next
-Type=Application

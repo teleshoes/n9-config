@@ -43,8 +43,21 @@ my @config = qw(
     transmission
   ]
   dir-cute[
+    klomp-prev
+    klomp-next
+    klomp-seek-bwd
+    klomp-seek-fwd
+
+    klomp-prev-remote
+    klomp-next-remote
+    klomp-seek-bwd-remote
+    klomp-seek-fwd-remote
+    
+    klomp-pause-remote
+    klomp-pause
     qtbigtext
     vmpkn9
+
     xmcr
     emumaster
   ]
@@ -58,7 +71,6 @@ my @config = qw(
     calendar
     ovistoreclient
     pidgin
-    remote-klomp-next
     n9-button-monitor
     profilematic
     snowshoe

@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=remote pause
+Comment=klomp-cmd
+Icon=icon-m-toolbar-mediacontrol-pause-white
+Exec=udo remote-klomp-cmd pause
+Type=Application
