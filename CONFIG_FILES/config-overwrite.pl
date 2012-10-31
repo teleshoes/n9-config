@@ -2,6 +2,8 @@
 use strict;
 use warnings;
 
+my $hostName = "wolke-n9";
+
 my $DIR = '/opt/CONFIG_FILES';
 my $user = 'user';
 my $group = 'users';
@@ -31,6 +33,8 @@ sub md5sum($);
 
 sub main(@){
   die "Usage: $0\n" if @_ > 0;
+  die "hostname must be $hostName" if `hostname` ne "$hostName\n";
+
   my @boingFiles = `cd $DIR; ls -d %*`;
   chomp foreach @boingFiles;
   my @binFiles = `cd $DIR/bin; ls -d *`;
