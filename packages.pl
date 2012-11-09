@@ -52,9 +52,11 @@ my $env = 'AEGIS_FIXED_ORIGIN=com.nokia.maemo';
 
 sub runPhone(@){
   system "n9", "-s", @_;
+  die "error running 'n9 -s @_'\n" if $? != 0;
 }
 sub readProcPhone(@){
   return `n9 -s @_`;
+  die "error running 'n9 -s @_'\n" if $? != 0;
 }
 sub host(){
   my $host = `n9`;
@@ -167,8 +169,10 @@ sub removePackages(){
   print "\n\nInstalling the deps for removed packages to unmarkauto\n";
   my %deps;
   for my $line(readProcPhone "apt-cache depends @packagesToRemove"){
-    if($line =~ /  Depends: (.*)/){
-      $deps{$1} = 1;
+    if($line =~ /  Depends: ([^<>]*)/){
+      my $pkg = $1;
+      chomp $pkg;
+      $deps{$pkg} = 1;
     }
   }
   for my $pkg(@packagesToRemove){
