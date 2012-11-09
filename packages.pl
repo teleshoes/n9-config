@@ -86,7 +86,8 @@ sub main(@){
 
 sub getRepos(){
   #important to sort the files and not the lines
-  return readProcPhone "ls /etc/apt/sources.list.d/*.list | sort | xargs cat'";
+  my $cmd = "'ls /etc/apt/sources.list.d/*.list | sort | xargs cat'";
+  return readProcPhone $cmd;
 }
 
 sub setupRepos(){
