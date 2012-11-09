@@ -50,6 +50,18 @@ my $debDir = 'debs-custom';
 my $debDestPrefix = '/opt';
 my $env = 'AEGIS_FIXED_ORIGIN=com.nokia.maemo';
 
+sub runPhone(@){
+  system "n9", "-s", @_;
+}
+sub readProcPhone(@){
+  return `n9 -s @_`;
+}
+sub host(){
+  my $host = `n9`;
+  chomp $host;
+  return $host;
+}
+
 sub installPackages();
 sub removePackages();
 sub setupRepos();
@@ -63,7 +75,7 @@ sub main(@){
   }
   if($arg =~ /^(all|repos)$/){
     if(setupRepos()){
-      system 'n9', '-s', "$env apt-get update";
+      runPhone "$env apt-get update";
     }
   }
   installPackages() if $arg =~ /^(all|packages)$/;
@@ -74,14 +86,12 @@ sub main(@){
 
 sub getRepos(){
   #important to sort the files and not the lines
-  my $cmd = 'ls /etc/apt/sources.list.d/*.list | sort | xargs cat';
-  return `n9 -s '$cmd'`;
+  return readProcPhone "ls /etc/apt/sources.list.d/*.list | sort | xargs cat'";
 }
 
 sub setupRepos(){
   my $before = getRepos();
-  my $host = `n9`;
-  chomp $host;
+  my $host = host();
 
   print "Copying $repoDir => remote\n";
   system "scp $repoDir/* root\@$host:/etc/apt/sources.list.d/";
@@ -91,7 +101,7 @@ sub setupRepos(){
   system "cat $repoDir/*.list";
   print "\n\n";
 
-  system 'n9', '-s', '
+  runPhone '
     echo INSTALLING KEYS:
     for x in /etc/apt/sources.list.d/*.key; do
       echo $x
@@ -108,7 +118,7 @@ sub installPackages(){
   for my $pkgGroup(sort keys %pkgGroups){
     my @packages = @{$pkgGroups{$pkgGroup}}; 
     print "Installing group[$pkgGroup]:\n----\n@packages\n----\n";
-    system "n9", "-s", ''
+    runPhone ''
       . "yes |"
       . " $env apt-get install"
       . " -y --allow-unauthenticated"
@@ -120,7 +130,7 @@ sub getInstalledVersion($){
   my $name = shift;
   our %packages;
   if(keys %packages == 0){
-    my $dpkgStatus = `n9 -s cat /var/lib/dpkg/status`;
+    my $dpkgStatus = readProcPhone "cat /var/lib/dpkg/status";
     for my $pkg(split "\n\n", $dpkgStatus){
       my $name = ($pkg =~ /Package: (.*)\n/) ? $1 : '';
       my $status = ($pkg =~ /Status: (.*)\n/) ? $1 : '';
@@ -155,7 +165,7 @@ sub getArchivePackageName($){
 sub removePackages(){
   print "\n\nInstalling the deps for removed packages to unmarkauto\n";
   my %deps;
-  for my $line(`n9 -s apt-cache depends @packagesToRemove`){
+  for my $line(readProcPhone "apt-cache depends @packagesToRemove"){
     if($line =~ /  Depends: (.*)/){
       $deps{$1} = 1;
     }
@@ -168,7 +178,7 @@ sub removePackages(){
     $depInstallCmd .= "  $dep \\\n";
   }
   print $depInstallCmd;
-  system 'n9', '-s', $depInstallCmd;
+  runPhone $depInstallCmd;
 
   print "\n\nChecking uninstalled packages\n";
   my $removeCmd = "$env dpkg --purge --force-all";
@@ -176,7 +186,7 @@ sub removePackages(){
     $removeCmd .= " $pkg";
   }
   if(@packagesToRemove > 0){
-    system 'n9', '-s', $removeCmd;
+    runPhone $removeCmd;
   }
 }
 
@@ -197,13 +207,14 @@ sub installDebs(){
   chomp foreach @debs;
   
   print "\n\nSyncing $debDestPrefix/$debDir to $debDestPrefix on dest:\n";
-  system "rsync $debDir root@`n9`:$debDestPrefix -av --progress --delete";
+  my $host = host();
+  system "rsync $debDir root\@$host:$debDestPrefix -av --progress --delete";
 
   my $mtToggles = `cd $debDir; ls */mt-toggles*.deb`;
   my $systemUi = `cd $debDir; ls */system-ui*.deb`;
   if(not isAlreadyInstalled "$debDir/$mtToggles"){
     print "mt-toggles isnt installed, so reinstalling system-ui\n";
-    system 'n9', '-s', "$env dpkg -i $debDestPrefix/$debDir/$systemUi";
+    runPhone "$env dpkg -i $debDestPrefix/$debDir/$systemUi";
   }
 
   my $count = 0;
@@ -232,7 +243,7 @@ sub installDebs(){
 
   print "\n\nInstalling debs\n";
   if($count > 0){
-    system 'n9', '-s', "set -x; $cmd";
+    runPhone "set -x; $cmd";
   }
 }
 
