@@ -2,10 +2,6 @@
 use strict;
 use warnings;
 
-my $repoDir = 'repos';
-my $debDir = 'debs-custom';
-my $debDestPrefix = '/opt';
-
 my @jobs = qw(
   xsession/applauncherd
   xsession/applifed
@@ -21,8 +17,6 @@ my @packagesToRemove = qw(
   mp-harmattan-001-pr
   facebook facebookqml libqt-facebook facebook-meego twitter twitter-qml
 );
-
-my $env = 'AEGIS_FIXED_ORIGIN=com.nokia.maemo';
 
 my %pkgGroups = (
   '1' => [qw(
@@ -50,6 +44,11 @@ my %pkgGroups = (
     qtodo brujula dropcache-mdn
   )],
 );
+
+my $repoDir = 'repos';
+my $debDir = 'debs-custom';
+my $debDestPrefix = '/opt';
+my $env = 'AEGIS_FIXED_ORIGIN=com.nokia.maemo';
 
 sub installPackages();
 sub removePackages();
