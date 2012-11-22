@@ -20,29 +20,32 @@ my @packagesToRemove = qw(
 
 my %pkgGroups = (
   '1' => [qw(
-    bash vim rsync wget git openvpn
+    bash vim rsync wget git
   )],
   '2' => [qw(
-    perl bash-completion python python-apt
+    perl bash-completion python
     htop
-    mcetools bzip2 sqlite3
     x11-utils xresponse
     meecast
     xmimd
     imagemagick
-    libterm-readkey-perl
     python-pyside.qtgui python-qmsystem python-pyside.qtdeclarative
     python-qtmobility.multimediakit
   )],
   '3' => [qw(
-    linux-kernel-headers
-    gcc make
-    curl
     screen
   )],
   '4' => [qw(
     qtodo brujula dropcache-mdn
   )],
+#  '5harmattan-dev' => [qw(
+#    linux-kernel-headers
+#    gcc make
+#    curl openvpn
+#    libterm-readkey-perl
+#    python-apt
+#    mcetools bzip2 sqlite3
+#  )],
 );
 
 my $repoDir = 'repos';
