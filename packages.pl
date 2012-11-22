@@ -195,9 +195,30 @@ sub removePackages(){
   }
 }
 
-sub isAlreadyInstalled($){
+sub isVirtualProvided($$){
+  my $pkg = shift;
+  my $virtualPkg = shift;
+  my @provides = readProcPhone "apt-cache show $pkg | grep ^Provides";
+  for my $line(@provides){
+    if($line =~ / $virtualPkg(,|$)/){
+      return 1;
+    }
+  }
+  return 0;
+}
+
+sub isAlreadyInstalled($$){
   my $debFile = shift;
+  my %virtualPackages = %{shift()};
+
   my $packageName = getArchivePackageName $debFile;
+  if(defined $virtualPackages{$packageName}){
+    my $virt = $virtualPackages{$packageName};
+    if(not isVirtualProvided($packageName, $virt)){
+      print "  {virtual package $virt not provided by $packageName}\n";
+      return 0;
+    }
+  }
   my $archiveVersion = getArchiveVersion $debFile;
   my $installedVersion = getInstalledVersion $packageName;
   if(not defined $archiveVersion or not defined $installedVersion){
@@ -215,12 +236,9 @@ sub installDebs(){
   my $host = host();
   system "rsync $debDir root\@$host:$debDestPrefix -av --progress --delete";
 
-  my $mtToggles = `cd $debDir; ls */mt-toggles*.deb`;
-  my $systemUi = `cd $debDir; ls */system-ui*.deb`;
-  if(not isAlreadyInstalled "$debDir/$mtToggles"){
-    print "mt-toggles isnt installed, so reinstalling system-ui\n";
-    runPhone "$env dpkg -i $debDestPrefix/$debDir/$systemUi";
-  }
+  my %virtualPackages = (
+    'system-ui' => 'unrestricted-system-ui'
+  );
 
   my $count = 0;
   print "\n\nChecking installed versions\n";
@@ -231,7 +249,7 @@ sub installDebs(){
   for my $deb(@debs){
     my $localDebFile = "$debDir/$deb";
     my $remoteDebFile = "$debDestPrefix/$debDir/$deb\n";
-    if(not isAlreadyInstalled($localDebFile)){
+    if(not isAlreadyInstalled($localDebFile, \%virtualPackages)){
       $count++;
       print "...adding $localDebFile\n";
       $cmd .= "$env dpkg -i $remoteDebFile\n";
