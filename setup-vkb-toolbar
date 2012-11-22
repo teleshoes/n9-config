@@ -7,6 +7,7 @@ my $file = "toolbar.xml";
 
 sub main(@){
   system "n9", "-s", "
+    set -x
     rm $dir/*
     vkb-toolbar.pl
     mv $file $dir
