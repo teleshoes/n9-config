@@ -19,6 +19,10 @@ sub main(@){
   my $del = shift if @_ == 1 and $_[0] eq '--del';
   die $usage if @_ > 0;
 
+  system "n9u", "-s", "
+    mkdir -p $remoteDir
+    touch $remoteFile
+  ";
   my @todos = getTodos;
   if(not defined $del and @todos > 0){
     print "Adding qtodos to $todoFile\n";
