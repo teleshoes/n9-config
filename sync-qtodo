@@ -20,7 +20,7 @@ sub main(@){
   die $usage if @_ > 0;
 
   my @todos = getTodos;
-  if(not defined $del){
+  if(not defined $del and @todos > 0){
     print "Adding qtodos to $todoFile\n";
     system "todo-parse", "--add", @todos;
     print "\n\n";
