@@ -16,11 +16,18 @@ my @vkbSwype = ('libswype-keyboard.so' , 'Swype');
 my $vkbEnabled = listString [$swype ? (@vkbNormal, @vkbSwype) : (@vkbNormal)];
 my $vkbActive = listString [$swype ? (@vkbSwype) : (@vkbNormal)];
 
+my %usbModes = (
+  ask => 'ask',
+  sdk => 'windows_network',
+  sync => 'ovi_suite',
+  storage => 'mass_storage',
+);
+
 
 my $display = '/system/osso/dsm/display';
 my $locks = '/system/osso/dsm/locks';
 my %gconf = (
-  "/Meego/System/UsbMode" => ['ovi_suite'],
+  "/Meego/System/UsbMode" => [$usbModes{sync}],
   "/desktop/meego/background/portrait/picture_filename" => [$lockScreenBG],
   "$locks/tklock_double_tap_gesture" => [0, 'int'],
   "$display/display_dim_timeout" => [240, 'int'],
