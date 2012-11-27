@@ -23,6 +23,7 @@ sub main(@){
   backup "sync-swype backup";
   backup "sync-qtodo";
   backup "fetch-contacts";
+  backup "fetch-calls", 2;
   backup "fetch-sms", 2;
 }
 

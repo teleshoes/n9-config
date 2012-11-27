@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $host = `n9`;
+chomp $host;
+my $dir = "$ENV{HOME}/Code/n9";
+my $callsDir = "$dir/backup/backup-calls";
+
+system "perl $dir/calls-tool.pl join";
+
+my $joinedFile = "filtered.calls";
+
+system "scp", "$callsDir/$joinedFile", "root\@$host:/tmp";
+system "n9", "-s", "source /etc/profile; "
+  . "HOME=/home/user callbackuprestore import /tmp/$joinedFile";

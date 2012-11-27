@@ -20,6 +20,7 @@ my @excludes = qw(
 
   backup-contacts
   backup-sms
+  backup-calls
   backup-tracker
 
   cities
