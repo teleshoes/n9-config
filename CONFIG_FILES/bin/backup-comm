@@ -25,3 +25,6 @@ my $cmd = ''
 run "su user -c 'source /etc/profile; $cmd'";
 
 run "chown", "user.users", "-R", $dest;
+
+my @lines = `cat $dest/$name.$type`;
+print "exported " . @lines . " items\n";
