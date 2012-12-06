@@ -32,7 +32,7 @@ while($line = <CMD>){
 }
 close CMD;
 
-run "chown", "user.users", "-R", $dest;
+die "$exec failed\n" if $? != 0;
 
 my @lines = `cat $dest/$name.$type`;
 print "exported " . @lines . " items\n";
