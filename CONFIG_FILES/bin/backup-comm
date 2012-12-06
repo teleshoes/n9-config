@@ -21,18 +21,20 @@ run "mkdir -p $dest";
 my $name = `date +%Y_%m_%d-%s`;
 chomp $name;
 
+$| = 1;
 my $cmd = "$exec export $dest/$name.$type 2>&1";
 open CMD, "$cmd |";
 my $line;
 while($line = <CMD>){
-  if($line =~ /Not cleaning up obsolete resources for nao:hasTag/){
-    next;
+  if($line =~ /Not cleaning up obsolete resources for nao:hasTag/i){
+    print '.';
+  }else{
+    print $line;
   }
-  print $line;
 }
 close CMD;
 
-die "$exec failed\n" if $? != 0;
+die "\n$exec failed\n" if $? != 0;
 
 my @lines = `cat $dest/$name.$type`;
-print "exported " . @lines . " items\n";
+print "\nexported " . @lines . " items\n";
