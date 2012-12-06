@@ -22,7 +22,7 @@ my $name = `date +%Y_%m_%d-%s`;
 chomp $name;
 
 $| = 1;
-my $cmd = "$exec export $dest/$name.$type 2>&1";
+my $cmd = "timedkill 1200 $exec export $dest/$name.$type 2>&1";
 open CMD, "$cmd |";
 my $line;
 while($line = <CMD>){
