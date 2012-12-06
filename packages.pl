@@ -38,14 +38,14 @@ my %pkgGroups = (
   '4' => [qw(
     qtodo brujula dropcache-mdn
   )],
-#  '5harmattan-dev' => [qw(
-#    linux-kernel-headers
-#    gcc make
-#    curl openvpn
-#    libterm-readkey-perl
-#    python-apt
-#    mcetools bzip2 sqlite3
-#  )],
+  '5harmattan-dev' => [qw(
+    linux-kernel-headers
+    gcc make
+    curl openvpn
+    libterm-readkey-perl
+    python-apt
+    mcetools bzip2 sqlite3
+  )],
 );
 
 my $repoDir = 'repos';
