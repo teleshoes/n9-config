@@ -2,7 +2,11 @@
 use strict;
 use warnings;
 
-my $dest = '/home/user/MyDocs/backup-call';
+my $type = shift() || '';
+die "Usage: $0 [sms|call]\n" if $type !~ /^(sms|call)$/;
+
+my $dest = "/home/user/MyDocs/backup-$type";
+my $exec = "${type}backuprestore";
 
 sub run(@){
   print "@_\n";
@@ -14,7 +18,7 @@ my $name = `date +%Y_%m_%d-%s`;
 chomp $name;
 
 my $cmd = ''
-  . " callbackuprestore export $dest/$name.call"
+  . " $exec export $dest/$name.$type"
   . " 2>&1"
   . " | grep -v \"Not cleaning up obsolete resources for nao:hasTag\"";
 
