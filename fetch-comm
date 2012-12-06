@@ -1,0 +1,34 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $type = shift() || '';
+die "Usage: $0 [sms|call]\n" if $type !~ /^(sms|call)$/;
+
+my $dir = "$ENV{HOME}/Code/n9";
+my $dest = "$dir/backup";
+my $qtcommExec = "${type}backuprestore";
+my $parseTool = "${type}-tool.pl";
+
+my $host = `n9`;
+chomp $host;
+
+my $srcDir = "/home/user/MyDocs/backup-$type";
+my $destDir = "$dest/backup-$type";
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+sub runOrDie(@){
+  run @_;
+  die "failed" if $? != 0;
+}
+
+run "n9", "-s", "killall -9 $qtcommExec";
+run "n9", "-s", "/opt/dropcache-mdn/bin/dropcache.sh --3";
+runOrDie "n9", "-b", "backup-comm $type";
+runOrDie "mkdir", "-p", $destDir;
+runOrDie "rsync", "-avP", "root\@$host:$srcDir/", $destDir;
+runOrDie "perl $dir/$parseTool split";
+runOrDie "perl $dir/$parseTool commit";
