@@ -1,0 +1,30 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $dir = "$ENV{HOME}/Code/n9";
+my $dest = "$dir/backup";
+
+my $host = `n9`;
+chomp $host;
+
+my $callSrcDir = "/home/user/MyDocs/backup-call";
+my $callDestDir = "$dest/backup-call";
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+sub runOrDie(@){
+  run @_;
+  die "failed" if $? != 0;
+}
+
+run "n9", "-s", "killall -9 callbackuprestore";
+run "n9", "-s", "/opt/dropcache-mdn/bin/dropcache.sh --3";
+runOrDie "n9", "-b", "backup-call";
+runOrDie "mkdir", "-p", $callDestDir;
+runOrDie "rsync", "-avP", "root\@$host:$callSrcDir/", $callDestDir;
+runOrDie "perl $dir/call-tool.pl split";
+runOrDie "perl $dir/call-tool.pl commit";
+

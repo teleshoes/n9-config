@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#n9-calls-tool v0.1
+#n9-call-tool v0.1
 #Copyright 2012 Elliot Wolk
 #This program is free software: you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -21,8 +21,8 @@ my $DATE_FILTER = "30 days ago";
 my $LAST_EACH_FILTER = 3;
 my $LAST_EACH_DATE_CUTOFF = "1 year ago";
 
-my $callsDir = "$ENV{HOME}/Code/n9/backup/backup-calls";
-my $repoDir = "$ENV{HOME}/Code/n9/backup/backup-calls/repo";
+my $callDir = "$ENV{HOME}/Code/n9/backup/backup-call";
+my $repoDir = "$ENV{HOME}/Code/n9/backup/backup-call/repo";
 
 sub filterMessages(\@);
 sub getMessagesFromDir($);
@@ -48,28 +48,28 @@ sub main(@){
   if($arg eq 'split'){
     run "mkdir $repoDir -p";
     my @messages = (
-      getMessagesFromDir($callsDir),
+      getMessagesFromDir($callDir),
       getMessagesFromDir($repoDir));
     @messages = removeDupes @messages;
     run "mkdir -p $repoDir";
-    run "rm $repoDir/*.calls";
+    run "rm $repoDir/*.call";
     writeContactsFiles @messages, $repoDir;
   }elsif($arg eq 'join'){
     my @messages = getMessagesFromDir $repoDir;
     @messages = filterMessages @messages;
-    writeMessageFile @messages, "$callsDir/filtered.calls";
+    writeMessageFile @messages, "$callDir/filtered.call";
   }elsif($arg eq 'commit'){
     chdir $repoDir;
     if(not -d '.git'){
       run "git init";
     }
-    run "git add *.calls";
+    run "git add *.call";
     run "git --no-pager diff --cached";
     run "git commit -m 'automatic commit'";
   }elsif($arg eq 'backup'){
-    run "mkdir $callsDir -p";
-    chdir $callsDir;
-    run "callsbackuprestore", "export", time . ".calls";
+    run "mkdir $callDir -p";
+    chdir $callDir;
+    run "callbackuprestore", "export", time . ".call";
   }
 }
 
@@ -139,7 +139,7 @@ sub filterMessages(\@){
 sub getMessagesFromDir($){
   my $dir = shift;
   my $content = '';
-  for my $file(`ls $dir/*.calls`){
+  for my $file(`ls $dir/*.call`){
     $content .= `cat $file`;
     $content .= "\n";
   }
@@ -186,7 +186,7 @@ sub writeContactsFiles(\@$){
   }
 
   for my $phone(keys %byContact){
-    my $file = "$dir/$phone.calls";
+    my $file = "$dir/$phone.call";
     $file =~ s@:/org/freedesktop/Telepathy/Account/ring/tel/ring@@;
     my @messages = @{$byContact{$phone}};
     writeMessageFile @messages, $file;
