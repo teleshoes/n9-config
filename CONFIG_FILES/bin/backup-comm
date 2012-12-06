@@ -12,15 +12,6 @@ die "Usage: $0 [sms|call]\n" if $type !~ /^(sms|call)$/;
 my $dest = "/home/user/MyDocs/backup-$type";
 my $exec = "${type}backuprestore";
 
-my $grepCmd;
-
-my $gnuGrep = "/opt/gnu-utils/bin/grep";
-if(-x $gnuGrep){
-  $grepCmd = "$gnuGrep --line-buffered";
-}else{
-  $grepCmd = "grep";
-}
-
 sub run(@){
   print "@_\n";
   system @_;
@@ -30,12 +21,16 @@ run "mkdir -p $dest";
 my $name = `date +%Y_%m_%d-%s`;
 chomp $name;
 
-my $cmd = ''
-  . " $exec export $dest/$name.$type"
-  . " 2>&1"
-  . " | $grepCmd -v \"Not cleaning up obsolete resources for nao:hasTag\"";
-
-run $cmd;
+my $cmd = "$exec export $dest/$name.$type 2>&1";
+open CMD, "$cmd |";
+my $line;
+while($line = <CMD>){
+  if($line =~ /Not cleaning up obsolete resources for nao:hasTag/){
+    next;
+  }
+  print $line;
+}
+close CMD;
 
 run "chown", "user.users", "-R", $dest;
 
