@@ -13,14 +13,14 @@ my @buttons = (
   ['&#9657;' => 'right'   => 'default' => 'Right'],
   ['TOGGLE'  => '&#8635;' => 'default' => 'more'],
 
-  ['*'       => 'star'    => 'more' => "*"],
-  ['/'       => 'slash'   => 'more' => "/"],
-  ['|'       => 'pipe'    => 'more' => "|"],
   ['$'       => 'dollar'  => 'more' => "\$"],
   ['&amp;'   => 'amp'     => 'more' => "&amp;"],
   ['&lt;'    => 'less'    => 'more' => "&lt;"],
   ['>'       => 'greater' => 'more' => ">"],
+  ['|'       => 'pipe'    => 'more' => "|"],
   ['-'       => 'hyphen'  => 'more' => "-"],
+  ['/'       => 'slash'   => 'more' => "/"],
+  ['*'       => 'star'    => 'more' => "*"],
   ['TOGGLE'  => '&#8634;' => 'more' => 'default'],
 );
 
