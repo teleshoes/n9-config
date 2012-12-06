@@ -33,6 +33,7 @@ my @config = qw(
   dir-tools[
     dropcache-mdn
     dcim-reindex
+    restart-wifi
     dontgosleep
     screenshotmee
   ]
