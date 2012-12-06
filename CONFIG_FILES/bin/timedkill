@@ -1,0 +1,40 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+$SIG{CHLD} = "IGNORE";
+my $checkDelay = 1;  #seconds to sleep between checking child process
+
+my $usage = "Usage:
+  $0 TIME CMD [ARG ARG ..]
+  Run CMD with ARGs, and kill it after TIME seconds.
+";
+
+sub main(@){
+  die $usage if @_ < 2 or $_[0] !~ /^\d+$/;
+  my $limit = shift;
+  my $cmd = shift;
+  my @args = @_;
+
+  my $start = time;
+  my $pid = fork();
+  if($pid == 0){
+    exec $cmd, @args;
+  }else{
+    while(time() - $start < $limit){
+      if(kill(0 => $pid)){
+        #child is doing fine
+        sleep $checkDelay;
+      }else{
+        #child is dead
+        exit 0;
+      }
+    }
+    if(kill(0 => $pid)){
+      kill 9, $pid;
+      die "killed '$cmd @args' after waiting $limit seconds\n";
+    }
+  }
+}
+
+&main(@ARGV);
