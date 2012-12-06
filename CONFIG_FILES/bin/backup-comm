@@ -2,6 +2,10 @@
 use strict;
 use warnings;
 
+if(`whoami` eq "root\n"){
+  exec "su", "user", "-c", "source /etc/profile; $0 @ARGV";
+}
+
 my $type = shift() || '';
 die "Usage: $0 [sms|call]\n" if $type !~ /^(sms|call)$/;
 
@@ -31,7 +35,7 @@ my $cmd = ''
   . " 2>&1"
   . " | $grepCmd -v \"Not cleaning up obsolete resources for nao:hasTag\"";
 
-run "su user -c 'source /etc/profile; $cmd'";
+run $cmd;
 
 run "chown", "user.users", "-R", $dest;
 
