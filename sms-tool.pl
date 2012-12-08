@@ -17,6 +17,9 @@
 use strict;
 use warnings;
 
+my $okArgs = join "|", qw(split join commit backup);
+my $usage = "Usage: $0 $okArgs\n";
+
 my $DATE_FILTER = "30 days ago";
 my $LAST_EACH_FILTER = 3;
 my $LAST_EACH_DATE_CUTOFF = "1 year ago";
@@ -41,9 +44,7 @@ sub run(@){
 sub main(@){
   my $arg = shift;
   $arg = '' if not defined $arg;
-  my @okArgs = qw(split join commit backup);
-  my $ok = join "|", @okArgs;
-  die "Usage: $0 $ok\n" if $arg !~ /^($ok)$/ or @_ > 0;
+  die $usage if $arg !~ /^($okArgs)$/ or @_ > 0;
 
   if($arg eq 'split'){
     run "mkdir $repoDir -p";
