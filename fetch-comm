@@ -8,7 +8,7 @@ die "Usage: $0 [sms|call]\n" if $type !~ /^(sms|call)$/;
 my $dir = "$ENV{HOME}/Code/n9";
 my $dest = "$dir/backup";
 my $qtcommExec = "${type}backuprestore";
-my $parseTool = "${type}-tool.pl";
+my $parseTool = "comm-tool.pl $type";
 
 my $host = `n9`;
 chomp $host;

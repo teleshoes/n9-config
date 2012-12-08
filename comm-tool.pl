@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#n9-call-tool v0.1
+#n9-comm-tool v0.1
 #Copyright 2012 Elliot Wolk
 #This program is free software: you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -17,21 +17,23 @@
 use strict;
 use warnings;
 
+my $okArgs = join "|", qw(split join commit backup);
+my $usage = "Usage: $0 sms|call $okArgs\n";
+
 my $DATE_FILTER = "30 days ago";
 my $LAST_EACH_FILTER = 3;
 my $LAST_EACH_DATE_CUTOFF = "1 year ago";
 
-my $callDir = "$ENV{HOME}/Code/n9/backup/backup-call";
-my $repoDir = "$ENV{HOME}/Code/n9/backup/backup-call/repo";
+my $backupRoot = "$ENV{HOME}/Code/n9/backup";
 
-sub filterMessages(\@);
-sub getMessagesFromDir($);
-sub getMessages($);
-sub messageToString($);
-sub writeMessageFile(\@$);
-sub writeContactsFiles(\@$);
+sub filterMessages($\@);
+sub getMessagesFromDir($$);
+sub getMessages($$);
+sub messageToString($$);
+sub writeMessageFile($\@$);
+sub writeContactsFiles($\@$);
 sub removeUSCountryCode(\@);
-sub removeDupes(\@);
+sub removeDupes($\@);
 
 sub run(@){
   print "@_\n";
@@ -39,37 +41,40 @@ sub run(@){
 }
 
 sub main(@){
+  my $type = shift;
+  $type = '' if not defined $type;
   my $arg = shift;
   $arg = '' if not defined $arg;
-  my @okArgs = qw(split join commit backup);
-  my $ok = join "|", @okArgs;
-  die "Usage: $0 $ok\n" if $arg !~ /^($ok)$/ or @_ > 0;
+  die $usage if $type !~ /^(sms|call)$/ or $arg !~ /^($okArgs)$/ or @_ > 0;
+  my $bakDir = "$backupRoot/backup-$type";
+  my $repoDir = "$backupRoot/backup-$type/repo";
+
 
   if($arg eq 'split'){
     run "mkdir $repoDir -p";
     my @messages = (
-      getMessagesFromDir($callDir),
-      getMessagesFromDir($repoDir));
-    @messages = removeDupes @messages;
+      getMessagesFromDir($type, $bakDir),
+      getMessagesFromDir($type, $repoDir));
+    @messages = removeDupes $type, @messages;
     run "mkdir -p $repoDir";
-    run "rm $repoDir/*.call";
-    writeContactsFiles @messages, $repoDir;
+    run "rm $repoDir/*.$type";
+    writeContactsFiles $type, @messages, $repoDir;
   }elsif($arg eq 'join'){
-    my @messages = getMessagesFromDir $repoDir;
-    @messages = filterMessages @messages;
-    writeMessageFile @messages, "$callDir/filtered.call";
+    my @messages = getMessagesFromDir($type, $repoDir);
+    @messages = filterMessages $type, @messages;
+    writeMessageFile $type, @messages, "$bakDir/filtered.$type";
   }elsif($arg eq 'commit'){
     chdir $repoDir;
     if(not -d '.git'){
       run "git init";
     }
-    run "git add *.call";
+    run "git add *.$type";
     run "git --no-pager diff --cached";
     run "git commit -m 'automatic commit'";
   }elsif($arg eq 'backup'){
-    run "mkdir $callDir -p";
-    chdir $callDir;
-    run "callbackuprestore", "export", time . ".call";
+    run "mkdir $bakDir -p";
+    chdir $bakDir;
+    run "${type}backuprestore", "export", time . ".$type";
   }
 }
 
@@ -122,59 +127,77 @@ sub getLastEachMessages($$\@){
   return @newMessages;
 }
 
-sub filterMessages(\@){
+sub filterMessages($\@){
+  my $type = shift;
   my @messages = @{shift()};
-  @messages = removeDupes @messages;
+  @messages = removeDupes $type, @messages;
   my @newMessages = (
     getNewMessages($DATE_FILTER, @messages),
     getLastEachMessages($LAST_EACH_FILTER, $LAST_EACH_DATE_CUTOFF, @messages),
   );
-  @newMessages = removeDupes @newMessages;
+  @newMessages = removeDupes $type, @newMessages;
 
   my $total = @newMessages + 0;
   print "Total after removing dupes: $total\n";
   return @newMessages;
 }
 
-sub getMessagesFromDir($){
+sub getMessagesFromDir($$){
+  my $type = shift;
   my $dir = shift;
   my $content = '';
-  for my $file(`ls $dir/*.call`){
+  for my $file(`ls $dir/*.$type`){
     $content .= `cat $file`;
     $content .= "\n";
   }
-  return getMessages($content);
+  return getMessages($type, $content);
 }
 
-sub getMessages($){
+sub getMessages($$){
+  my $type = shift;
   my $content = shift;
   my @messages;
-  while($content =~ /^([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)\n+/gm){
-    my ($telepathyKey, $phone, $dir, $start, $end) = ($1,$2,$3,$4,$5);
-    push @messages, [$phone, $dir, $start, $end, $telepathyKey];
+  if($type eq 'sms'){
+    while($content =~ /^([^,]+),([^,]+),([^,]+),("(?:[^"]|"")*")\n+/gm){
+      my ($phone, $dir, $datetime, $msg) = ($1,$2,$3,$4);
+      push @messages, [$phone, $dir, $datetime, $msg];
+    }
+  }elsif($type eq 'call'){
+    while($content =~ /^([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)\n+/gm){
+      my ($telepathyKey, $phone, $dir, $start, $end) = ($1,$2,$3,$4,$5);
+      push @messages, [$phone, $dir, $start, $end, $telepathyKey];
+    }
   }
   @messages = removeUSCountryCode @messages;
   return @messages;
 }
 
-sub messageToString($){
-  my ($phone, $dir, $start, $end, $telepathyKey) = @{$_[0]};
-  $end =~ s/\n//g;
-  return "$telepathyKey, $phone,$dir,$start,$end\n";
+sub messageToString($$){
+  my $type = shift;
+  if($type eq 'sms'){
+    my ($phone, $dir, $datetime, $msg) = @{$_[0]};
+    return "$phone,$dir,$datetime,$msg\n";
+  }elsif($type eq 'call'){
+    my ($phone, $dir, $start, $end, $telepathyKey) = @{$_[0]};
+    $end =~ s/\n//g;
+    return "$telepathyKey, $phone,$dir,$start,$end\n";
+  }
 }
 
-sub writeMessageFile(\@$){
+sub writeMessageFile($\@$){
+  my $type = shift;
   my @messages = @{shift()};
   my $file = shift;
   open FH, "> $file" or die "Could not open $file\n";
   @messages = sort {$$a[2] cmp $$b[2]} @messages;
   for my $msg(@messages){
-    print FH messageToString $msg;
+    print FH messageToString($type, $msg);
   }
   close FH;
 }
 
-sub writeContactsFiles(\@$){
+sub writeContactsFiles($\@$){
+  my $type = shift;
   my @messages = @{shift()};
   my $dir = shift;
 
@@ -186,10 +209,10 @@ sub writeContactsFiles(\@$){
   }
 
   for my $phone(keys %byContact){
-    my $file = "$dir/$phone.call";
+    my $file = "$dir/$phone.$type";
     $file =~ s@:/org/freedesktop/Telepathy/Account/ring/tel/ring@@;
     my @messages = @{$byContact{$phone}};
-    writeMessageFile @messages, $file;
+    writeMessageFile $type, @messages, $file;
   }
 }
 
@@ -204,12 +227,13 @@ sub removeUSCountryCode(\@){
   return @messages;
 }
 
-sub removeDupes(\@){
+sub removeDupes($\@){
+  my $type = shift;
   my @messages = @{shift()};
   my %strings;
   my %onelineStrings;
   for my $msg(@messages){
-    my $str = messageToString $msg;
+    my $str = messageToString $type, $msg;
     
     my $oneline = $str;
     $oneline =~ s/[\n\r]+//g;
@@ -217,7 +241,7 @@ sub removeDupes(\@){
       next;
     }elsif(defined $onelineStrings{$oneline}){
       my $prevMsg = $onelineStrings{$oneline};
-      my $prevStr = messageToString $prevMsg;
+      my $prevStr = messageToString $type, $prevMsg;
 
       my $strLines = @{[$str =~ /([\n\r])/g]};
       my $prevStrLines = @{[$prevStr =~ /([\n\r])/g]};
