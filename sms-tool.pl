@@ -24,8 +24,7 @@ my $DATE_FILTER = "30 days ago";
 my $LAST_EACH_FILTER = 3;
 my $LAST_EACH_DATE_CUTOFF = "1 year ago";
 
-my $smsDir = "$ENV{HOME}/Code/n9/backup/backup-sms";
-my $repoDir = "$ENV{HOME}/Code/n9/backup/backup-sms/repo";
+my $backupRoot = "$ENV{HOME}/Code/n9/backup";
 
 sub filterMessages(\@);
 sub getMessagesFromDir($);
@@ -45,6 +44,8 @@ sub main(@){
   my $arg = shift;
   $arg = '' if not defined $arg;
   die $usage if $arg !~ /^($okArgs)$/ or @_ > 0;
+  my $smsDir = "$backupRoot/backup-sms";
+  my $repoDir = "$backupRoot/backup-sms/repo";
 
   if($arg eq 'split'){
     run "mkdir $repoDir -p";
