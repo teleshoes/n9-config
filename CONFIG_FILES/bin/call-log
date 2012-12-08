@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+use Term::ANSIColor;
 
 my $usage = "Usage:
   $0
@@ -9,7 +10,7 @@ my $usage = "Usage:
     Parse the indicated call-file
 ";
 
-sub formatCall($$$$);
+sub formatCall($$$$$);
 sub dateToEpoch($);
 sub hms($);
 sub padr($$);
@@ -24,23 +25,27 @@ sub main(@){
   }
 
   my @lines = `cat $f`;
+  my $index = 0;
   for my $line(@lines){
     my $date = "\\d+-\\d+-\\d+ \\d+:\\d+:\\d+";
-    if($line =~ /,\s*(\d+),(0|1),($date),($date)$/){
+    if($line =~ /^[^,]*,\s*(\d+),(0|1),($date),($date)$/){
       my ($num, $dir, $start, $end) = ($1, $2, $3, $4);
-      print formatCall($num, $dir, $start, $end);
+      print formatCall($num, $dir, $start, $end, $index++);
     }
   }
 }
 
-sub formatCall($$$$){
-  my ($number, $dir, $start, $end) = @_;
+sub formatCall($$$$$){
+  my ($number, $dir, $start, $end, $index) = @_;
   my $durSex = dateToEpoch($end) - dateToEpoch($start);
+  my $color = $dir ? 'green bold underline' : 'white bold underline';
   return ''
+    . color($color)
     . padr($number, 13)
-    . ($dir == 0 ? '->' : '<-') . '  '
+    . ($dir ? '<-' : '->') . '  '
     . $start . '  '
     . hms($durSex)
+    . color('reset')
     . "\n";
 }
 sub dateToEpoch($){
