@@ -14,14 +14,16 @@ my @buttons = (
   ['TOGGLE'  => '&#8635;' => 'default' => 'more'],
 
   ['$'       => 'dollar'  => 'more' => "\$"],
-  ['&amp;'   => 'amp'     => 'more' => "&amp;"],
   ['&lt;'    => 'less'    => 'more' => "&lt;"],
   ['>'       => 'greater' => 'more' => ">"],
   ['|'       => 'pipe'    => 'more' => "|"],
-  ['-'       => 'hyphen'  => 'more' => "-"],
   ['/'       => 'slash'   => 'more' => "/"],
   ['*'       => 'star'    => 'more' => "*"],
+  ['H'       => 'home'    => 'more' => 'Home'],
+  ['E'       => 'end'     => 'more' => 'End'],
   ['TOGGLE'  => '&#8634;' => 'more' => 'default'],
+  ['&amp;'   => 'amp'     => 'more' => "&amp;"],
+  ['-'       => 'hyphen'  => 'more' => "-"],
 );
 
 my $toolbarFile = "toolbar.xml";
