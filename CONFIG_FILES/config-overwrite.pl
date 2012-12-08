@@ -32,7 +32,10 @@ sub removeFile($);
 sub md5sum($);
 
 sub main(@){
-  die "Usage: $0\n" if @_ > 0;
+  my $type = shift;
+  $type = 'all' if not defined $type;
+  my $okTypes = join "|", qw(boing bin remove all);
+  die "Usage: $0 [$okTypes]\n" if @_ > 0 or $type !~ /^($okTypes)$/;
   die "hostname must be $hostName" if `hostname` ne "$hostName\n";
 
   my @boingFiles = `cd $DIR; ls -d %*`;
@@ -44,33 +47,39 @@ sub main(@){
 
   my %triggers;
 
-  print "\n ---handling boing files...\n";
-  for my $file(@boingFiles){
-    my $dest = $file;
-    $dest =~ s/%/\//g;
-    my ($old, $new);
-    if(defined $changedTriggers{$dest}){
-      $old = md5sum $dest;
-    }
-    overwriteFile "$DIR/$file", $dest;
-    if(defined $changedTriggers{$dest}){
-      $new = md5sum $dest;
-      if($old ne $new){
-        print "   ADDED TRIGGER: $changedTriggers{$dest}\n";
-        $triggers{$changedTriggers{$dest}} = 1;
+  if($type =~ /^(boing|all)$/){
+    print "\n ---handling boing files...\n";
+    for my $file(@boingFiles){
+      my $dest = $file;
+      $dest =~ s/%/\//g;
+      my ($old, $new);
+      if(defined $changedTriggers{$dest}){
+        $old = md5sum $dest;
+      }
+      overwriteFile "$DIR/$file", $dest;
+      if(defined $changedTriggers{$dest}){
+        $new = md5sum $dest;
+        if($old ne $new){
+          print "   ADDED TRIGGER: $changedTriggers{$dest}\n";
+          $triggers{$changedTriggers{$dest}} = 1;
+        }
       }
     }
   }
 
-  print "\n ---handling bin files...\n";
-  for my $file(@binFiles){
-    overwriteFile "$DIR/bin/$file", "$binTarget/$file";
+  if($type =~ /^(bin|all)$/){
+    print "\n ---handling bin files...\n";
+    for my $file(@binFiles){
+      overwriteFile "$DIR/bin/$file", "$binTarget/$file";
+    }
   }
 
-  print "\n ---removing files to remove...\n";
-  for my $file(@filesToRemove){
-    chomp $file;
-    removeFile $file;
+  if($type =~ /^(remove|all)$/){
+    print "\n ---removing files to remove...\n";
+    for my $file(@filesToRemove){
+      chomp $file;
+      removeFile $file;
+    }
   }
 
   print "\n ---running triggers...\n";

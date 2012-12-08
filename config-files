@@ -2,6 +2,11 @@
 use strict;
 use warnings;
 
+my $type = shift;
+$type = 'all' if not defined $type;
+my $okTypes = join "|", qw(boing bin remove all);
+die "Usage: $0 [$okTypes]\n" if @_ > 0 or $type !~ /^($okTypes)$/;
+
 my $src = 'CONFIG_FILES';
 my $dest = '/opt/CONFIG_FILES';
 my $host = `n9`;
@@ -15,4 +20,4 @@ system 'rsync',
 
 system 'ssh', "root\@$host", "chown root.root -R $dest";
 
-system 'ssh', "root\@$host", "$dest/config-overwrite.pl";
+system 'ssh', "root\@$host", "$dest/config-overwrite.pl $type";
