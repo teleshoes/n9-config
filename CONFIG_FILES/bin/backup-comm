@@ -7,10 +7,16 @@ if(`whoami` eq "root\n"){
 }
 
 my $type = shift() || '';
-die "Usage: $0 [sms|call]\n" if $type !~ /^(sms|call)$/;
+die "Usage: $0 sms|call [file]\n" if $type !~ /^(sms|call)$/ or @_ > 1;
 
 my $dest = "/home/user/MyDocs/backup-$type";
 my $exec = "${type}backuprestore";
+
+my $file = shift;
+my $name = `date +%Y_%m_%d-%s`;
+chomp $name;
+$file = "$dest/$name.$type" if not defined $file;
+
 
 sub run(@){
   print "@_\n";
@@ -18,11 +24,9 @@ sub run(@){
 }
 
 run "mkdir -p $dest";
-my $name = `date +%Y_%m_%d-%s`;
-chomp $name;
 
 $| = 1;
-my $cmd = "timedkill 1200 $exec export $dest/$name.$type 2>&1";
+my $cmd = "timedkill 1200 $exec export $file 2>&1";
 open CMD, "$cmd |";
 my $line;
 while($line = <CMD>){
@@ -42,5 +46,5 @@ close CMD;
 
 die "\n$exec failed\n" if $? != 0;
 
-my @lines = `cat $dest/$name.$type`;
+my @lines = `cat $file`;
 print "\nexported " . @lines . " items\n";
