@@ -1,0 +1,71 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $usage = "Usage:
+  $0
+    Run callbackuprestore and parse it
+  $0 call-file
+    Parse the indicated call-file
+";
+
+sub formatCall($$$$);
+sub dateToEpoch($);
+sub hms($);
+sub padr($$);
+
+sub main(@){
+  my $f = shift;
+  die $usage if @_ > 0;
+
+  if(not defined $f){
+    $f = '/tmp/call-tmp-' . time;
+    system "backup-comm", "call", $f;
+  }
+
+  my @lines = `cat $f`;
+  for my $line(@lines){
+    my $date = "\\d+-\\d+-\\d+ \\d+:\\d+:\\d+";
+    if($line =~ /,\s*(\d+),(0|1),($date),($date)$/){
+      my ($num, $dir, $start, $end) = ($1, $2, $3, $4);
+      print formatCall($num, $dir, $start, $end);
+    }
+  }
+}
+
+sub formatCall($$$$){
+  my ($number, $dir, $start, $end) = @_;
+  my $durSex = dateToEpoch($end) - dateToEpoch($start);
+  return ''
+    . padr($number, 13)
+    . ($dir == 0 ? '->' : '<-') . '  '
+    . $start . '  '
+    . hms($durSex)
+    . "\n";
+}
+sub dateToEpoch($){
+  my $d = shift;
+  my $out = `date +%s -d "$d"`;
+  chomp $out;
+  return $out;
+}
+sub hms($){
+  my $t = shift;
+  $t = int(0.5 + $t);
+  my $h = int($t / (60*60));
+  my $m = int($t % (60*60) / (60));
+  my $s = $t - ($m*60) - ($h*60*60);
+  $s = "0$s" if $s < 10;
+  if($h == 0){
+    return "$m:$s";
+  }else{
+    $m = "0$m" if $m < 10;
+    return "$h:$m:$s";
+  }
+}
+sub padr($$){
+  my ($s, $len) = @_;
+  return $s . (' ' x ($len - length($s)));
+}
+
+&main(@ARGV);
