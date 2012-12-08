@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $type = shift() || '';
+die "Usage: $0 [sms|call]\n" if $type !~ /^(sms|call)$/;
+
+my $host = `n9`;
+chomp $host;
+my $dir = "$ENV{HOME}/Code/n9";
+my $bakDir = "$dir/backup/backup-$type";
+
+system "perl $dir/comm-tool.pl $type join";
+
+my $joinedFile = "filtered.$type";
+
+system "scp", "$bakDir/$joinedFile", "root\@$host:/tmp";
+system "n9", "-s", "source /etc/profile; "
+  . "HOME=/home/user ${type}backuprestore import /tmp/$joinedFile";

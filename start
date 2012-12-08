@@ -32,7 +32,8 @@ config-files again...
 install-klomp
 ### reboot!!
 restore-contacts
-restore-sms
+restore-comm sms
+restore-comm call
 sync-mydocs
 sync-pidgin
 sync-fbreader restore
