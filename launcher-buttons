@@ -39,6 +39,7 @@ my @config = qw(
   ]
   dir-useful[
     qtodo
+    call-log
     brujula
     DictionaryStar
     transmission
