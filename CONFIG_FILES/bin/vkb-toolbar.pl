@@ -6,7 +6,7 @@ my @buttons = (
   ['t'       => 'tab'     => 'default' => 'Tab'],
   ['c'       => 'ctrl'    => 'default' => 'Ctrl+Shift+Alt+C'],
   ['a'       => 'alt'     => 'default' => 'Ctrl+Shift+Alt+A'],
-  ['e'       => 'escape ' => 'default' => 'Esc'],
+  ['e'       => 'escape' => 'default'  => 'Esc'],
   ['&#9653;' => 'up'      => 'default' => 'Up'],
   ['&#9663;' => 'down'    => 'default' => 'Down'],
   ['&#9667;' => 'left'    => 'default' => 'Left'],
