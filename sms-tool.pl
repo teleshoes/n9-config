@@ -151,7 +151,7 @@ sub getMessages($){
   my @messages;
   while($content =~ /^([^,]+),([^,]+),([^,]+),("(?:[^"]|"")*")\n+/gm){
     my ($phone, $dir, $datetime, $msg) = ($1,$2,$3,$4);
-    push @messages, [$1,$2,$3,$4];
+    push @messages, [$phone, $dir, $datetime, $msg];
   }
   @messages = removeUSCountryCode @messages;
   return @messages;
@@ -196,6 +196,7 @@ sub removeUSCountryCode(\@){
   my @messages = @{shift()};
   for my $msg(@messages){
     my $phone = $$msg[0];
+    $phone =~ s/^\s*//;
     $phone =~ s/^\+?1(\d\d\d\d\d\d\d\d\d\d)$/$1/;
     $$msg[0] = $phone;
   }
