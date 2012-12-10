@@ -2,5 +2,5 @@
 Name=call-log
 Comment=callbackuprestore parser
 Icon=call-log
-Exec=term 'call-log | more'
+Exec=term 'call-log | less -r'
 Type=Application
