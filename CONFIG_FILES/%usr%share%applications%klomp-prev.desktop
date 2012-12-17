@@ -1,6 +1,0 @@
-[Desktop Entry]
-Name=klomp prev
-Comment=klomp-cmd
-Icon=icon-m-toolbar-mediacontrol-previous-dimmed-white
-Exec=udo klomp-cmd prev
-Type=Application

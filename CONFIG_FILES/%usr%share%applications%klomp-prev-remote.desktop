@@ -1,6 +1,0 @@
-[Desktop Entry]
-Name=remote prev
-Comment=klomp-cmd
-Icon=icon-m-toolbar-mediacontrol-previous-white
-Exec=udo remote-klomp-cmd prev
-Type=Application

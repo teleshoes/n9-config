@@ -1,6 +1,0 @@
-[Desktop Entry]
-Name=klomp seek +10
-Comment=klomp-cmd
-Icon=icon-m-toolbar-mediacontrol-forward-dimmed-white
-Exec=udo klomp-cmd seek 10
-Type=Application

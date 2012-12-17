@@ -1,6 +1,0 @@
-[Desktop Entry]
-Name=remote next
-Comment=klomp-cmd
-Icon=icon-m-toolbar-mediacontrol-next-white
-Exec=udo remote-klomp-cmd next
-Type=Application
