@@ -27,12 +27,12 @@ prependPath() {
 }
 prependPath $HOME/bin
 prependPath $HOME/.cabal/bin
+prependPath /sbin
+prependPath /usr/sbin
+prependPath /usr/local/bin
+prependPath /usr/local/sbin
 meego_gnu=/opt/gnu-utils
 if [ -d $meego_gnu ]; then
-  prependPath /usr/local/bin
-  prependPath /usr/local/sbin
-  prependPath /sbin
-  prependPath /usr/sbin
   prependPath /usr/libexec/git-core
   prependPath $meego_gnu/bin
   prependPath $meego_gnu/usr/bin
@@ -71,7 +71,7 @@ cEnd='\[\033[00m\]'
 #the n9 fucks with that line on reboot
 PS1="$c1$u$h$cEnd$colon$c2\w$cEnd\$ "
 
-for cmd in wconnect tether resolv mnt
+for cmd in wconnect wauto tether resolv mnt optimus xorg-conf bluetooth fan
 do alias $cmd="sudo $cmd"; done
 
 for sudoTypo in suod sudp
@@ -80,7 +80,8 @@ do alias $sudoTypo='sudo'; done
 for exitTypo in exot exut
 do alias $exitTypo='exit'; done
 
-alias gvim='termcmd vim'
+alias killjobs='kill -9 `jobs -p` 2>/dev/null; sleep 0.1; echo'
+alias gvim='term vim'
 alias cx='chmod +x'
 alias :q='exit'
 alias shutdown='poweroff'
@@ -89,6 +90,8 @@ alias ll='ls -al --color=auto'
 alias ld='ls -dal --color=auto'
 alias mplayer='WINDOW_TITLE=MPLAYER; mplayer'
 alias perms='stat -c %a'
+alias glxgears='vblank_mode=0 glxgears'
+alias mnto='sudo mnt --other --no-usb --no-card'
 function spawn       { $@ & disown ; }
 function spawnex     { $@ & disown && exit 0 ; }
 function spawnexsudo { gksudo $@ & disown && exit 0 ; }
@@ -98,7 +101,7 @@ alias migl='gvim `~/workspace/escribe/src-sql/migrations/latest-script`'
 
 ##AUTOLOGIN START##
 if [ -z "$DISPLAY" ]; then
-  if [ "$(tty)" == "/dev/tty7" ]; then
+  if [ "$(tty)" == "/dev/tty6" ]; then
     exec startx
   fi
 fi
