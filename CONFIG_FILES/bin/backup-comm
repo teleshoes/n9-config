@@ -6,6 +6,16 @@ if(`whoami` eq "root\n"){
   exec "su", "user", "-c", "source /etc/profile; $0 @ARGV";
 }
 
+my $usage = "
+  Usage: $0 sms|call [--retry N] [file]
+    backup texts or calls to file, or to a file in default backup dir
+    if the libqtcontacts background thread dies, retry N times {default is 0}.
+";
+
+sub run(@);
+sub backupComm($$);
+sub attemptBackupComm($$$);
+
 sub run(@){
   print "@_\n";
   system @_;
@@ -35,9 +45,32 @@ sub backupComm($$){
   return $?;
 }
 
+sub attemptBackupComm($$$){
+  my ($exec, $file, $retries) = @_;
+
+  my $exitCode = backupComm $exec, $file;
+  if($exitCode == 0){
+    my @lines = `cat $file`;
+    print "\nexported " . @lines . " items\n";
+  }elsif($retries > 0){
+    print "\n\n\n!!! $exec failed, RETRYING $retries more time(s)\n";
+    attemptBackupComm($exec, $file, $retries - 1);
+  }else{
+    die "$exec failed\n";
+  }
+}
+
 sub main(@){
   my $type = shift() || '';
+  my $retries = 0;
+  if(@_ >= 2 and $_[0] eq '--retry' and $_[1] =~ /^\d+$/){
+    shift;
+    $retries = shift();
+  }
   my $file = shift();
+
+  die $usage if $type !~ /^(sms|call)$/ or @_ > 0;
+
   my $dest = "/home/user/MyDocs/backup-$type";
   my $exec = "${type}backuprestore";
 
@@ -47,17 +80,10 @@ sub main(@){
     $file = "$dest/$name.$type";
   }
 
-  die "Usage: $0 sms|call [file]\n" if $type !~ /^(sms|call)$/ or @_ > 0;
-
   run "mkdir -p $dest";
-
   $| = 1; #autoflush
-  my $exitCode = backupComm $exec, $file;
 
-  die "\n$exec failed\n" if $exitCode != 0;
-
-  my @lines = `cat $file`;
-  print "\nexported " . @lines . " items\n";
+  attemptBackupComm $exec, $file, $retries;
 }
 
 &main(@ARGV);
