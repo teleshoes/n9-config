@@ -14,6 +14,10 @@ my %dirMap = (
   0 => 'out',
   1 => 'inc',
 );
+my %dirColor = (
+  0 => 'white bold underline',
+  1 => 'green bold underline',
+);
 
 sub formatCall($$$$$);
 sub dateToEpoch($);
@@ -43,9 +47,8 @@ sub main(@){
 sub formatCall($$$$$){
   my ($number, $dir, $start, $end, $index) = @_;
   my $durSex = dateToEpoch($end) - dateToEpoch($start);
-  my $color = $dir ? 'green bold underline' : 'white bold underline';
   return ''
-    . color($color)
+    . color($dirColor{$dir})
     . padr($number, 13)
     . $dirMap{$dir} . ' '
     . $start . '  '
