@@ -6,45 +6,58 @@ if(`whoami` eq "root\n"){
   exec "su", "user", "-c", "source /etc/profile; $0 @ARGV";
 }
 
-my $type = shift() || '';
-die "Usage: $0 sms|call [file]\n" if $type !~ /^(sms|call)$/ or @_ > 1;
-
-my $dest = "/home/user/MyDocs/backup-$type";
-my $exec = "${type}backuprestore";
-
-my $file = shift;
-my $name = `date +%Y_%m_%d-%s`;
-chomp $name;
-$file = "$dest/$name.$type" if not defined $file;
-
-
 sub run(@){
   print "@_\n";
   system @_;
 }
 
-run "mkdir -p $dest";
+sub backupComm($$){
+  my ($exec, $file) = @_;
 
-$| = 1;
-my $cmd = "timedkill 1200 $exec export $file 2>&1";
-open CMD, "$cmd |";
-my $line;
-while($line = <CMD>){
-  if($line =~ /Not cleaning up obsolete resources for nao:hasTag/i){
-    print '.';
-  }elsif($line =~ /The task queue's background thread stalled/i){
-    print $line;
-    print "ugh libqtcontacts, killing $exec\n";
-    run "pkill", $exec;
-    close CMD;
-    die "thread stall error\n";
-  }else{
-    print $line;
+  my $cmd = "timedkill 1200 $exec export $file 2>&1";
+  open CMD, "$cmd |";
+  my $line;
+  while($line = <CMD>){
+    if($line =~ /Not cleaning up obsolete resources for nao:hasTag/i){
+      print '.';
+    }elsif($line =~ /The task queue's background thread stalled/i){
+      print $line;
+      print "ugh libqtcontacts, killing $exec\n";
+      run "pkill", $exec;
+      close CMD;
+      print "thread stall error\n";
+      return 1;
+    }else{
+      print $line;
+    }
   }
+  close CMD;
+  return $?;
 }
-close CMD;
 
-die "\n$exec failed\n" if $? != 0;
+sub main(@){
+  my $type = shift() || '';
+  my $file = shift();
+  my $dest = "/home/user/MyDocs/backup-$type";
+  my $exec = "${type}backuprestore";
 
-my @lines = `cat $file`;
-print "\nexported " . @lines . " items\n";
+  if(not defined $file){
+    my $name = `date +%Y_%m_%d-%s`;
+    chomp $name;
+    $file = "$dest/$name.$type";
+  }
+
+  die "Usage: $0 sms|call [file]\n" if $type !~ /^(sms|call)$/ or @_ > 0;
+
+  run "mkdir -p $dest";
+
+  $| = 1; #autoflush
+  my $exitCode = backupComm $exec, $file;
+
+  die "\n$exec failed\n" if $exitCode != 0;
+
+  my @lines = `cat $file`;
+  print "\nexported " . @lines . " items\n";
+}
+
+&main(@ARGV);
