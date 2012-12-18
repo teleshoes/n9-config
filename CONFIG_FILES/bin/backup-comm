@@ -75,12 +75,12 @@ sub main(@){
   my $exec = "${type}backuprestore";
 
   if(not defined $file){
+    run "mkdir -p $dest";
     my $name = `date +%Y_%m_%d-%s`;
     chomp $name;
     $file = "$dest/$name.$type";
   }
 
-  run "mkdir -p $dest";
   $| = 1; #autoflush
 
   attemptBackupComm $exec, $file, $retries;
