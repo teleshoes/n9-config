@@ -10,6 +10,11 @@ my $usage = "Usage:
     Parse the indicated call-file
 ";
 
+my %dirMap = (
+  0 => 'out',
+  1 => 'inc',
+);
+
 sub formatCall($$$$$);
 sub dateToEpoch($);
 sub hms($);
@@ -42,7 +47,7 @@ sub formatCall($$$$$){
   return ''
     . color($color)
     . padr($number, 13)
-    . ($dir ? '<-' : '->') . '  '
+    . $dirMap{$dir} . ' '
     . $start . '  '
     . hms($durSex)
     . color('reset')
