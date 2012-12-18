@@ -24,25 +24,17 @@ sub main(@){
   backup "sync-swype backup";
   backup "sync-qtodo";
   backup "fetch-contacts";
-  backup "fetch-comm call", 2;
-  backup "fetch-comm sms", 2;
+  backup "fetch-comm call";
+  backup "fetch-comm sms";
 }
 
-sub backup($;$){
-  my ($backupScript, $retries) = @_;
-  $retries = 0 if not defined $retries;
+sub backup($){
+  my $backupScript = shift;
 
   print "\n\n\n=========$backupScript\n";
   system "$dir/$backupScript";
 
-  if($? != 0){
-    if($retries > 0){
-      print "\n\n\n!!! $backupScript failed, RETRYING $retries more time(s)\n";
-      backup $backupScript, $retries-1;
-    }else{
-      die "$backupScript failed";
-    }
-  }
+  die "$backupScript failed" if $? != 0;
 }
 
 &main(@ARGV);
