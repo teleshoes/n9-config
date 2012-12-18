@@ -13,10 +13,12 @@ my $usage = "Usage:
 my %dirMap = (
   0 => 'out',
   1 => 'inc',
+  2 => 'mis',
 );
 my %dirColor = (
   0 => 'white bold underline',
   1 => 'green bold underline',
+  2 => 'red bold underline',
 );
 
 sub formatCall($$$$$);
@@ -37,7 +39,7 @@ sub main(@){
   my $index = 0;
   for my $line(@lines){
     my $date = "\\d+-\\d+-\\d+ \\d+:\\d+:\\d+";
-    if($line =~ /^[^,]*,\s*(\d+),(0|1),($date),($date)$/){
+    if($line =~ /^[^,]*,\s*(\d+),(0|1|2),($date),($date)$/){
       my ($num, $dir, $start, $end) = ($1, $2, $3, $4);
       print formatCall($num, $dir, $start, $end, $index++);
     }
