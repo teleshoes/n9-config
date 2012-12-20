@@ -32,7 +32,7 @@ sub main(@){
 
   if(not defined $f){
     $f = '/tmp/call-tmp-' . time;
-    system "backup-comm", "call", "--retry", 2, $f;
+    system "backup-comm", "call", "--retry", 5, $f;
   }
 
   my @lines = `cat $f`;
