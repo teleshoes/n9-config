@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-sub backup($;$);
+sub backup($);
 
 my $dir = "$ENV{HOME}/Code/n9";
 
