@@ -52,6 +52,7 @@ my @config = qw(
     emumaster
   ]
   dir-junk[
+    mymoves
     NokiaPt
     accountsui
     btinput-terminal
