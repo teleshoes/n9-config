@@ -37,11 +37,11 @@ sub main(@){
     print "$fmt\n";
     if(@intervals > 0 and $intervals[0] > $rem){
       shift @intervals;
-      system "bigtext $fmt >/dev/null 2>/dev/null";
+      #system "bigtext $fmt >/dev/null 2>/dev/null";
     }
     sleep 1;
   }
-  system "bigtext", "-k";
+  #system "bigtext", "-k";
   system "alarm";
 }
 &main(@ARGV);
