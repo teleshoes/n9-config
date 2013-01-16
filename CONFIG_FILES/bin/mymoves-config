@@ -1,0 +1,43 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $confFile = "/home/user/.config/mymoves.conf";
+my @moves = qw(
+  up down left right
+  B C beta N O P S Z
+);
+
+my %double = (
+  O => ['clock', '/usr/bin/invoker --type=d -s /usr/bin/clock'],
+);
+
+my %triple = (
+);
+
+sub main(@){
+  die "Usage: $0\n" if @_ > 0;
+  for my $m(keys %double){
+    print "two-finger '$m' => ${$double{$m}}[0]: ${$double{$m}}[1]\n";
+  }
+  for my $m(keys %triple){
+    print "three-finger '$m' => ${$triple{$m}}[0]: ${$triple{$m}}[1]\n";
+  }
+  my $fmt = "1\n" . fmt('d', \%double) . fmt('t', \%triple);
+  open FH, "> $confFile";
+  print FH $fmt;
+  close FH;
+  system "chown", "user.users", $confFile;
+}
+
+sub fmt($$){
+  my ($prefix, $actions) = @_;
+  my $out = '';
+  for(my $i=0; $i<@moves; $i++){
+    my $act = $$actions{$moves[$i]};
+    $act = ['',''] if not defined $act;
+    $out .= "$prefix$i###$$act[0]###$$act[1]\n";
+  }
+  return $out;
+}
+&main(@ARGV);

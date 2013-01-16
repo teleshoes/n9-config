@@ -39,4 +39,5 @@ sync-pidgin
 sync-fbreader restore
 sync-swype restore
 setup-vkb-toolbar
+n9u -s mymoves-config
 klomp-sync user@`n9`
