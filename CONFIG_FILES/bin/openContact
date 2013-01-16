@@ -1,0 +1,51 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $trackerDb = "/home/user/.cache/tracker/meta.db";
+
+sub openContactCard($);
+sub lookupId(@);
+
+sub main(@){
+  my $id = lookupId @_;
+  if(defined $id){
+    print "opening $id\n";
+    openContactCard $id;
+  }
+}
+
+sub openContactCard($){
+  my $id = shift;
+  my @cmd = qw(
+    dbus-send
+    --type=method_call
+    --dest=com.nokia.contacts
+    /
+    com.nokia.maemo.meegotouch.ContactsInterface.openContactCard
+  );
+  system @cmd, "int32:$id";
+}
+
+sub lookupId(@){
+  my @words = @_;
+
+  my $whole = "@words";
+  my $sql = "select * from 'nco:PersonContact'";
+  my @lines = `sudo sqlite3 $trackerDb "$sql"`;
+  for my $line(@lines){
+    my $ok = 1;
+    if($line !~ /\|\Q$whole\E\|/i){
+      for my $word(@words){
+        if($line !~ /\|\Q$word\E\|/i){
+          $ok = 0;
+          last;
+        }
+      }
+    }
+    next if not $ok or $line !~ /^(\d+)/;
+    return $1;
+  }
+}
+
+&main(@ARGV);
