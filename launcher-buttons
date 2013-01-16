@@ -27,7 +27,7 @@ my @config = qw(
 
   qtbtn-klomp
   mail
-  joikuspot
+  contact-emily
   meeseepics
   
   dir-tools[
@@ -45,13 +45,14 @@ my @config = qw(
     transmission
   ]
   dir-cute[
+    joikuspot
     qtbigtext
     vmpkn9
-
     xmcr
     emumaster
   ]
   dir-junk[
+    contact-coocoo
     mymoves
     NokiaPt
     accountsui
