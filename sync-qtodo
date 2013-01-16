@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 my $todoFile = "$ENV{HOME}/TODO";
+my $notesFile = "$ENV{HOME}/NOTES";
 my $remoteDir = "/home/user/to-do-o";
 my $remoteFile = "$remoteDir/default.xml";
 
@@ -24,6 +25,8 @@ sub main(@){
     touch $remoteFile
   ";
   my @todos = getTodos;
+  my %notes = map {chomp; $_ => 1} `cat $notesFile`;
+  @todos = grep {not defined $notes{$_}} @todos;
   if(not defined $del and @todos > 0){
     print "Adding qtodos to $todoFile\n";
     system "todo-parse", "--add", @todos;
