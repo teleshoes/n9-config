@@ -1,0 +1,47 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub pad2($){
+  my $x = shift;
+  $x = "0$x" if $x < 10;
+  return $x;
+}
+
+sub getIntervals($){
+  my $t = shift;
+  my @intervals;
+  while($t > 0){
+    push @intervals, $t;
+    $t -= 5;
+  }
+  return @intervals;
+}
+
+sub main(@){
+  my $time = shift() || '';
+  die "Usage: $0 SECONDS\n" if @_ > 0 or $time !~ /^\d+$/;
+
+  my $start = time;
+  my @intervals = getIntervals $time;
+  while(1){
+    my $now = time;
+    my $elapsed = $now - $start;
+    if($elapsed > $time){
+      last;
+    }
+    my $rem = $time - $elapsed;
+    my $min = int($rem / 60);
+    my $sec = int($rem % 60);
+    my $fmt = pad2($min) . ":" . pad2($sec);
+    print "$fmt\n";
+    if(@intervals > 0 and $intervals[0] > $rem){
+      shift @intervals;
+      system "bigtext $fmt >/dev/null 2>/dev/null";
+    }
+    sleep 1;
+  }
+  system "bigtext", "-k";
+  system "alarm";
+}
+&main(@ARGV);
