@@ -47,6 +47,7 @@ my @config = qw(
   dir-cute[
     joikuspot
     qtbigtext
+    teatime
     vmpkn9
     xmcr
     emumaster
