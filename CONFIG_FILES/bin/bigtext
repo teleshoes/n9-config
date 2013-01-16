@@ -1,11 +1,16 @@
 #!/bin/bash
 source /etc/profile
-pkill -f .*qtbigtext.py.*
 if [ "$1" == "-k" ]; then
+  pkill -f .*qtbigtext.py.*
   exit 0
 fi
 if [ "$#" -eq "1" ] && [ -e $1 ]; then
+  pkill -f .*qtbigtext.py.*
   exec cat "$1" | /opt/qtbigtext/qtbigtext.py 1>/dev/null 2>/dev/null &
 else
-  exec /opt/qtbigtext/qtbigtext.py "$@" 1>/dev/null 2>/dev/null &
+  qdbus org.teleshoes.qtbigtext / setText "$@"
+  if [ $? != 0 ]; then
+    pkill -f .*qtbigtext.py.*
+    exec /opt/qtbigtext/qtbigtext.py "$@" 1>/dev/null 2>/dev/null &
+  fi
 fi
