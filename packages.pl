@@ -75,17 +75,18 @@ sub installDebs();
 sub main(@){
   my $arg = shift;
   $arg = 'all' if not defined $arg;
-  if(@_ > 0 or $arg !~ /^(all|repos|packages|remove|debs)$/){
-    die "Usage: $0 [all|repos|packages|remove|debs]\n";
+  my $valid = join '|', qw(all repos packages remove debs);
+  if(@_ > 0 or $arg !~ /^($valid)/){
+    die "Usage: $0 TYPE {type must start with one of: $valid}\n";
   }
-  if($arg =~ /^(all|repos)$/){
+  if($arg =~ /^(all|repos)/){
     if(setupRepos()){
       runPhone "$env apt-get update";
     }
   }
-  installPackages() if $arg =~ /^(all|packages)$/;
-  removePackages() if $arg =~ /^(all|remove)$/;
-  installDebs() if $arg =~ /^(all|debs)$/;
+  installPackages() if $arg =~ /^(all|packages)/;
+  removePackages() if $arg =~ /^(all|remove)/;
+  installDebs() if $arg =~ /^(all|debs|debs-custom)/;
 }
 
 
