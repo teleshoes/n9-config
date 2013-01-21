@@ -36,6 +36,7 @@ my %pkgGroups = (
     screen
   )],
   '4' => [qw(
+    ad-hac
     qtodo brujula dropcache-mdn
   )],
   '5harmattan-dev' => [qw(
