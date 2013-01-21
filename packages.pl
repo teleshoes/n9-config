@@ -46,6 +46,11 @@ my %pkgGroups = (
     python-apt
     mcetools bzip2 sqlite3
   )],
+  '6inceptedrepo' => [qw(
+    busybox-power-noaegis
+    system-ui-brightness-control
+    mt-toggles bluetooth-toggle flashlight-toggle
+  )],
 );
 
 my $repoDir = 'repos';
