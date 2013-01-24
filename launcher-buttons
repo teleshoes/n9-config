@@ -41,7 +41,7 @@ my @config = qw(
     qtodo
     call-log
     brujula
-    DictionaryStar
+    dingmee
     transmission
   ]
   dir-cute[
