@@ -1,0 +1,9 @@
+  _repo_lists(){
+      local cur
+
+      COMPREPLY=( $( find /etc/apt/sources.list.d/ -name "*$cur*.list" \
+          -exec basename {} \; 2> /dev/null ) )
+      return 0
+  }
+
+  complete -F _repo_lists update-repo
