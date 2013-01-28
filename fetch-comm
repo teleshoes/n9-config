@@ -27,7 +27,7 @@ sub runOrDie(@){
 
 run "n9", "-s", "killall -9 $qtcommExec";
 run "n9", "-s", "/opt/dropcache-mdn/bin/dropcache.sh --3";
-runOrDie "n9", "-b", "backup-comm $type --retry 5";
+runOrDie "n9", "-b", "backup-comm $type --retry 20";
 runOrDie "mkdir", "-p", $destDir;
 runOrDie "rsync", "-avP", "root\@$host:$srcDir/", $destDir;
 runOrDie "perl $dir/$parseTool split";
