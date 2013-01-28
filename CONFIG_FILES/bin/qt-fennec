@@ -1,6 +1,0 @@
-#!/bin/sh
-url=$1
-cd /opt/mozbuildhm
-export LD_LIBRARY_PATH=./
-if [ "$url" = "" ]; then url="http://www.google.com/"; fi
-./qmlMozEmbedTest -url $url
