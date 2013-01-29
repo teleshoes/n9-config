@@ -20,6 +20,9 @@ if($arg eq '--top'){
     print $1;
   }
 }elsif($arg eq '--bot'){
+  if($out =~ /^number=(\d+)/m){
+    print "$1 ";
+  }
   if($out =~ /^title=(.*)$/m){
     print $1;
   }
