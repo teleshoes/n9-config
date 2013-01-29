@@ -9,7 +9,7 @@ my @moves = qw(
 );
 
 my %double = (
-  O => ['clock', '/usr/bin/invoker --type=d -s /usr/bin/clock'],
+#  O => ['clock', '/usr/bin/invoker --type=d -s /usr/bin/clock'],
 );
 
 my %triple = (
