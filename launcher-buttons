@@ -54,7 +54,6 @@ my @config = qw(
   ]
   dir-junk[
     contact-coocoo
-    qt-fennec
     mymoves
     NokiaPt
     accountsui
