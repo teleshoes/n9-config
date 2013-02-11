@@ -13,7 +13,7 @@ my @config = qw(
   call-history
   messaging-ui
   mtermite
-  fennec 
+  fennec-qml
 
   finch
   klomp
@@ -54,6 +54,7 @@ my @config = qw(
   ]
   dir-junk[
     contact-coocoo
+    fennec
     mymoves
     NokiaPt
     accountsui
