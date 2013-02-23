@@ -23,7 +23,7 @@ reset-accounts
 respawn-limit
 packages
 config-files
-n9 -t
+n9 -t #and remove/add usb cable
 secret-keys
 launcher-buttons
 status-menu
