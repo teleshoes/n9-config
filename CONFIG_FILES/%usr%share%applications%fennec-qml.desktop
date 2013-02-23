@@ -1,14 +1,14 @@
 [Desktop Entry]
 Version=0.1
 Encoding=UTF-8
-Name=qt-fennec
+Name=fennec-qml
 StartupWMClass=Navigator
 StartupNotify=true
 Terminal=false
 Type=Application
 Categories=Application;Network;
-Exec=/usr/bin/qt-fennec
-Icon=/usr/share/themes/blanco/meegotouch/icons/icon-l-fennec.png
+Exec=/usr/bin/qmlMozEmbedTest
+Icon=/usr/share/themes/blanco/meegotouch/icons/fennec-qml.png
 Categories=X-MeeGo;
 OnlyShownIn=X-MeeGo;
 MimeType=x-maemo-urischeme/http;x-maemo-urischeme/https;x-maemo-urischeme/ftp;x-maemo-urischeme/file;text/html;x-maemo-highlight/ftp-url;x-maemo-highlight/http-url;
