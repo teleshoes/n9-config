@@ -17,7 +17,7 @@ set-host
 keygen.pl
 remove-disclaimer
 ### FLASH AN OPENMODE KERNEL
-rm -rf /home/user/.aegis /home/user/.accounts
+reset-accounts
 ### switch to wifi now
 respawn-limit
 packages
