@@ -37,6 +37,7 @@ my %pkgGroups = (
   )],
   '4' => [qw(
     ad-hac
+    wireless-tools
     qtodo brujula dropcache-mdn
   )],
   '5harmattan-dev' => [qw(
