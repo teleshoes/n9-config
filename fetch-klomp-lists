@@ -1,0 +1,40 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $arg = shift();
+die "Usage: $0 [backup|restore]\n" if $arg !~ /^(backup|restore)$/;
+
+my $host = `n9`;
+chomp $host;
+
+my $dir = "$ENV{HOME}/Code/n9";
+my $localDir = "$dir/backup/klomp";
+my $remoteDir = "/home/user/";
+
+my @rsyncOpts = qw(
+  -avP --no-owner --no-group
+);
+my @excludes = qw(
+  .klompdb
+  .klomplib
+);
+for my $exclude(@excludes){
+  push @rsyncOpts, "--exclude=$exclude";
+}
+
+
+sub run(@){
+  print "@_\n";
+  system @_;
+  die "failed" if $? != 0;
+}
+
+if($arg eq 'backup'){
+  system "rm", "-r", $localDir;
+  system "mkdir", "-p", $localDir;
+  run "rsync", @rsyncOpts, "root\@$host:$remoteDir/.klomp*", $localDir;
+}elsif($arg eq 'restore'){
+  run "rsync", @rsyncOpts, "$localDir/", "root\@$host:$remoteDir/";
+}
+
