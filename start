@@ -12,6 +12,7 @@ passwd user #any password
 
 D) insert usb, select: sync and connect
 
+n9 -t 192.168.2.15
 ssh-config
 set-host
 keygen.pl
@@ -22,6 +23,7 @@ reset-accounts
 respawn-limit
 packages
 config-files
+n9 -t
 secret-keys
 launcher-buttons
 status-menu
