@@ -33,6 +33,7 @@ my %pkgGroups = (
     python-qtmobility.multimediakit
   )],
   '3' => [qw(
+    qmlmozbrowser
     screen
   )],
   '4' => [qw(
