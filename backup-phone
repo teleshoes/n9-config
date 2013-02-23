@@ -27,6 +27,7 @@ sub main(@){
   backup "fetch-contacts";
   backup "fetch-comm call";
   backup "fetch-comm sms";
+  system "klomp-sync user@`n9`";
 }
 
 sub backup($){
