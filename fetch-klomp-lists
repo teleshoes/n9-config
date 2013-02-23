@@ -13,7 +13,7 @@ my $localDir = "$dir/backup/klomp";
 my $remoteDir = "/home/user/";
 
 my @rsyncOpts = qw(
-  -avP --no-owner --no-group
+  -avP --no-owner --no-group --no-perms
 );
 my @excludes = qw(
   .klompdb
