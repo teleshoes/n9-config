@@ -39,6 +39,7 @@ restore-comm call
 sync-mydocs
 sync-pidgin
 sync-fbreader restore
+fetch-klomp-lists restore
 sync-swype restore
 setup-vkb-toolbar
 n9u -s mymoves-config
