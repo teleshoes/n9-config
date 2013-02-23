@@ -33,8 +33,8 @@ sub run(@){
 if($arg eq 'backup'){
   system "rm", "-r", $localDir;
   system "mkdir", "-p", $localDir;
-  run "rsync", @rsyncOpts, "root\@$host:$remoteDir/.klomp*", $localDir;
+  run "rsync", @rsyncOpts, "user\@$host:$remoteDir/.klomp*", $localDir;
 }elsif($arg eq 'restore'){
-  run "rsync", @rsyncOpts, "$localDir/", "root\@$host:$remoteDir/";
+  run "rsync", @rsyncOpts, "$localDir/", "user\@$host:$remoteDir/";
 }
 
