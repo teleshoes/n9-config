@@ -44,7 +44,7 @@ my %pkgGroups = (
   '5harmattan-dev' => [qw(
     linux-kernel-headers
     gcc make
-    curl openvpn
+    nmap curl openvpn
     libterm-readkey-perl
     python-apt
     mcetools bzip2 sqlite3
