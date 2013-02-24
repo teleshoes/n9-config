@@ -13,7 +13,7 @@ my @config = qw(
   call-history
   messaging-ui
   mtermite
-  fennec-qml
+  QmlMozBrowser
 
   finch
   klomp
