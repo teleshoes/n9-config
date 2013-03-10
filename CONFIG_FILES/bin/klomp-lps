@@ -3,24 +3,27 @@ use strict;
 use warnings;
 
 my $f = "/home/user/.klompcur";
-my $out = `cat $f`;
+my $cur = `cat $f`;
 
-my $arg = shift;
-if($arg eq '--top'){
-  if($out =~ /^artist=(.*)$/m){
-    print "$1";
+my $atts = join "|", qw(album artist number title);
+
+my $usage = "Usage:
+  $0 [ARG ARG ARG ..]
+    print args separated by spaces
+    ARG is [playlist|$atts]
+\n";
+
+my $out = '';
+for my $arg(@ARGV){
+  $out .= ' ' if $out ne '';
+  if($arg eq 'playlist'){
+    my $pl = `klomp-cmd playlist`;
+    chomp $pl;
+    $out .= "<$pl>" if $pl ne 'main';
+  }elsif($arg =~ /^($atts)$/){
+    $out .= $1 if $cur =~ /^$arg=(.*)$/m;
+  }else{
+    die "Usage: $0 [arg arg arg]\n\n";
   }
-  print "-";
-  if($out =~ /^album=(.*)$/m){
-    print $1;
-  }
-}elsif($arg eq '--bot'){
-  if($out =~ /^number=(\d+)/m){
-    print "$1 ";
-  }
-  if($out =~ /^title=(.*)$/m){
-    print $1;
-  }
-}else{
-  die "Usage: $0 [--top|--bot]\n";
 }
+print $out;

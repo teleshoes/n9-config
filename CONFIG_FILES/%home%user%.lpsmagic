@@ -7,8 +7,9 @@ Tickless=false
 VerticalSpacing=1
 formatString=\
   %batIcon{} %batPercent{%} %icon{gear.png} %batCurrent{mA} %icon{calendar.png} %date{MM/dd} %newline{}\
-  %cmd{klomp-lps --top} %newline{}\
-  %cmd{klomp-lps --bot}
+  %cmd{klomp-lps playlist album} %newline{}\
+  %cmd{klomp-lps artist} %newline{}\
+  %cmd{klomp-lps number title}
 minWaitTime=0
 maxWaitTime=30
 heartbeatDelta=5
