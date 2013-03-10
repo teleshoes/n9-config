@@ -14,5 +14,5 @@ maxWaitTime=30
 heartbeatDelta=5
 
 [LowPowerScreen]
-ImageHeight=110
+ImageHeight=150
 ImageWidth=450
