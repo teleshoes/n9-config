@@ -38,6 +38,7 @@ my @config = qw(
     screenshotmee
   ]
   dir-useful[
+    qtbtn-power
     qtodo
     call-log
     brujula
