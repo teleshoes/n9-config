@@ -67,7 +67,6 @@ my @config = qw(
     pidgin
     n9-button-monitor
     profilematic
-    snowshoe
   ]
 );
 
