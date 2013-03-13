@@ -221,7 +221,7 @@ sub removeUSCountryCode(\@){
   for my $msg(@messages){
     my $phone = $$msg[0];
     $phone =~ s/^\s*//;
-    $phone =~ s/^\+?1(\d\d\d\d\d\d\d\d\d\d)$/$1/;
+    $phone =~ s/^\+?1?(\d{10})$/$1/;
     $$msg[0] = $phone;
   }
   return @messages;
