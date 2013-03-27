@@ -7,7 +7,7 @@ Tickless=false
 VerticalSpacing=1
 formatString=\
   %batIcon{} %batPercent{%} %icon{gear.png} %batCurrent{mA} %icon{calendar.png} %date{MM/dd} %newline{}\
-  %cmd{klomp-info -n playlist album} %newline{}\
+  %cmd{klomp-info -n ended percent playlist album} %newline{}\
   %cmd{klomp-info -n artist} %newline{}\
   %cmd{klomp-info -n number title}
 minWaitTime=0
