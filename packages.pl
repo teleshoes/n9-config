@@ -2,6 +2,8 @@
 use strict;
 use warnings;
 
+my $pkgConfig = '/etc/package-manager/config';
+
 my @jobs = qw(
   xsession/applauncherd
   xsession/applifed
@@ -275,10 +277,17 @@ sub installDebs(){
   for my $job(@jobs){
     $cmd .= "start $job\n";
   }
+  $cmd = "
+    set -x;
+    DR=`cat $pkgConfig | grep disableReboot | sed s/disableReboot=//`
+    sed -i s/disableReboot=.*/disableReboot=1/ $pkgConfig
+    $cmd
+    sed -i s/disableReboot=.*/disableReboot=\$DR/ $pkgConfig
+  ";
 
   print "\n\nInstalling debs\n";
   if($count > 0){
-    runPhone "set -x; $cmd";
+    runPhone $cmd;
   }
 }
 
