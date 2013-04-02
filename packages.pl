@@ -20,7 +20,7 @@ my @packagesToRemove = qw(
   facebook facebookqml libqt-facebook facebook-meego twitter twitter-qml
 );
 
-my %pkgGroups = (
+my $normalPackages = {
   '1' => [qw(
     bash vim rsync wget git
   )],
@@ -51,12 +51,14 @@ my %pkgGroups = (
     python-apt
     mcetools bzip2 sqlite3
   )],
+};
+my $extraPackages = {
   '6inceptedrepo' => [qw(
     busybox-power-noaegis
     system-ui-brightness-control
     mt-toggles bluetooth-toggle flashlight-toggle
   )],
-);
+};
 
 my $repoDir = 'repos';
 my $debDir = 'debs-custom';
@@ -77,7 +79,7 @@ sub host(){
   return $host;
 }
 
-sub installPackages();
+sub installPackages($);
 sub removePackages();
 sub setupRepos();
 sub installDebs();
@@ -85,7 +87,7 @@ sub installDebs();
 sub main(@){
   my $arg = shift;
   $arg = 'all' if not defined $arg;
-  my $valid = join '|', qw(all repos packages remove debs);
+  my $valid = join '|', qw(all repos packages extra remove debs);
   if(@_ > 0 or $arg !~ /^($valid)/){
     die "Usage: $0 TYPE {type must start with one of: $valid}\n";
   }
@@ -94,9 +96,10 @@ sub main(@){
       runPhone "$env apt-get update";
     }
   }
-  installPackages() if $arg =~ /^(all|packages)/;
+  installPackages($normalPackages) if $arg =~ /^(all|packages)/;
   removePackages() if $arg =~ /^(all|remove)/;
   installDebs() if $arg =~ /^(all|debs|debs-custom)/;
+  installPackages($extraPackages) if $arg =~ /^(all|extra)/;
 }
 
 
@@ -130,10 +133,11 @@ sub setupRepos(){
   return $before ne $after;
 }
 
-sub installPackages(){
+sub installPackages($){
+  my $pkgGroups = shift;
   print "\n\n";
-  for my $pkgGroup(sort keys %pkgGroups){
-    my @packages = @{$pkgGroups{$pkgGroup}}; 
+  for my $pkgGroup(sort keys %$pkgGroups){
+    my @packages = @{$$pkgGroups{$pkgGroup}};
     print "Installing group[$pkgGroup]:\n----\n@packages\n----\n";
     runPhone ''
       . "yes |"
