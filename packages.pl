@@ -36,6 +36,7 @@ my $normalPackages = {
   )],
   '3' => [qw(
     qmlmozbrowser
+    waze
     screen
   )],
   '4' => [qw(
