@@ -57,6 +57,7 @@ my @config = qw(
     contact-coocoo
     fennec
     mymoves
+    waze
     NokiaPt
     accountsui
     btinput-terminal
