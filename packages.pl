@@ -187,6 +187,10 @@ sub getArchivePackageName($){
 }
 
 sub removePackages(){
+  if(@packagesToRemove == 0){
+    print "skipping removal, no packages to remove\n";
+    return;
+  }
   print "\n\nInstalling the deps for removed packages to unmarkauto\n";
   my %deps;
   for my $line(readProcRemote "apt-cache depends @packagesToRemove"){
