@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 my $pkgConfig = '/etc/package-manager/config';
+my $ipmagicCmd = "n9";
 
 my @jobs = qw(
   xsession/applauncherd
@@ -66,16 +67,16 @@ my $debDir = 'debs-custom';
 my $debDestPrefix = '/opt';
 my $env = 'AEGIS_FIXED_ORIGIN=com.nokia.maemo';
 
-sub runPhone(@){
-  system "n9", "-s", @_;
-  die "error running 'n9 -s @_'\n" if $? != 0;
+sub runRemote(@){
+  system $ipmagicCmd, "-s", @_;
+  die "error running '$ipmagicCmd -s @_'\n" if $? != 0;
 }
-sub readProcPhone(@){
-  return `n9 -s @_`;
-  die "error running 'n9 -s @_'\n" if $? != 0;
+sub readProcRemote(@){
+  return `$ipmagicCmd -s @_`;
+  die "error running '$ipmagicCmd -s @_'\n" if $? != 0;
 }
 sub host(){
-  my $host = `n9`;
+  my $host = `$ipmagicCmd`;
   chomp $host;
   return $host;
 }
@@ -94,7 +95,7 @@ sub main(@){
   }
   if($arg =~ /^(all|repos)/){
     if(setupRepos()){
-      runPhone "$env apt-get update";
+      runRemote "$env apt-get update";
     }
   }
   installPackages($normalPackages) if $arg =~ /^(all|packages)/;
@@ -107,7 +108,7 @@ sub main(@){
 sub getRepos(){
   #important to sort the files and not the lines
   my $cmd = "'ls /etc/apt/sources.list.d/*.list | sort | xargs cat'";
-  return readProcPhone $cmd;
+  return readProcRemote $cmd;
 }
 
 sub setupRepos(){
@@ -122,7 +123,7 @@ sub setupRepos(){
   system "cat $repoDir/*.list";
   print "\n\n";
 
-  runPhone '
+  runRemote '
     echo INSTALLING KEYS:
     for x in /etc/apt/sources.list.d/*.key; do
       echo $x
@@ -140,7 +141,7 @@ sub installPackages($){
   for my $pkgGroup(sort keys %$pkgGroups){
     my @packages = @{$$pkgGroups{$pkgGroup}};
     print "Installing group[$pkgGroup]:\n----\n@packages\n----\n";
-    runPhone ''
+    runRemote ''
       . "yes |"
       . " $env apt-get install"
       . " -y --allow-unauthenticated"
@@ -152,7 +153,7 @@ sub getInstalledVersion($){
   my $name = shift;
   our %packages;
   if(keys %packages == 0){
-    my $dpkgStatus = readProcPhone "cat /var/lib/dpkg/status";
+    my $dpkgStatus = readProcRemote "cat /var/lib/dpkg/status";
     for my $pkg(split "\n\n", $dpkgStatus){
       my $name = ($pkg =~ /Package: (.*)\n/) ? $1 : '';
       my $status = ($pkg =~ /Status: (.*)\n/) ? $1 : '';
@@ -187,7 +188,7 @@ sub getArchivePackageName($){
 sub removePackages(){
   print "\n\nInstalling the deps for removed packages to unmarkauto\n";
   my %deps;
-  for my $line(readProcPhone "apt-cache depends @packagesToRemove"){
+  for my $line(readProcRemote "apt-cache depends @packagesToRemove"){
     if($line =~ /  Depends: ([^<>]*)/){
       my $pkg = $1;
       chomp $pkg;
@@ -202,7 +203,7 @@ sub removePackages(){
     $depInstallCmd .= "  $dep \\\n";
   }
   print $depInstallCmd;
-  runPhone $depInstallCmd;
+  runRemote $depInstallCmd;
 
   print "\n\nChecking uninstalled packages\n";
   my $removeCmd = "$env dpkg --purge --force-all";
@@ -210,14 +211,14 @@ sub removePackages(){
     $removeCmd .= " $pkg";
   }
   if(@packagesToRemove > 0){
-    runPhone $removeCmd;
+    runRemote $removeCmd;
   }
 }
 
 sub isVirtualProvided($$){
   my $pkg = shift;
   my $virtualPkg = shift;
-  my @provides = readProcPhone "apt-cache show $pkg | grep ^Provides";
+  my @provides = readProcRemote "apt-cache show $pkg | grep ^Provides";
   for my $line(@provides){
     if($line =~ / $virtualPkg(,|$)/){
       return 1;
@@ -292,7 +293,7 @@ sub installDebs(){
 
   print "\n\nInstalling debs\n";
   if($count > 0){
-    runPhone $cmd;
+    runRemote $cmd;
   }
 }
 
