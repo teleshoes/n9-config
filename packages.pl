@@ -113,6 +113,10 @@ sub getRepos(){
 }
 
 sub setupRepos(){
+  if(not -d $repoDir){
+    print "skipping repo setup; \"$repoDir\" doesnt exist\n";
+    return 0;
+  }
   my $before = getRepos();
   my $host = host();
 
