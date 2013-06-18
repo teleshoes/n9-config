@@ -236,11 +236,16 @@ sub isVirtualProvided($$){
   return 0;
 }
 
-sub isAlreadyInstalled($$){
+sub isAlreadyInstalled($$$){
   my $debFile = shift;
   my %virtualPackages = %{shift()};
+  my %triggers = %{shift()};
 
   my $packageName = getArchivePackageName $debFile;
+  if(defined $triggers{$packageName}){
+    $debFile = $triggers{$packageName};
+    $packageName = getArchivePackageName $debFile;
+  }
   if(defined $virtualPackages{$packageName}){
     my $virt = $virtualPackages{$packageName};
     if(not isVirtualProvided($packageName, $virt)){
@@ -269,6 +274,9 @@ sub installDebs(){
     'system-ui' => 'unrestricted-system-ui'
   );
 
+  my %triggers = (
+  );
+
   my $count = 0;
   print "\n\nChecking installed versions\n";
   my $cmd = '';
@@ -278,7 +286,7 @@ sub installDebs(){
   for my $deb(@debs){
     my $localDebFile = "$debDir/$deb";
     my $remoteDebFile = "$debDestPrefix/$debDir/$deb\n";
-    if(not isAlreadyInstalled($localDebFile, \%virtualPackages)){
+    if(not isAlreadyInstalled($localDebFile, \%virtualPackages, \%triggers)){
       $count++;
       print "...adding $localDebFile\n";
       $cmd .= "$env dpkg -i $remoteDebFile\n";
