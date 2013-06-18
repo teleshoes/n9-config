@@ -274,7 +274,41 @@ sub installDebs(){
     'system-ui' => 'unrestricted-system-ui'
   );
 
+  my $powerpackTriggerDeb =
+    `ls $debDir/7powerpack/meegotouchtheme-ppack-fixes*.deb`;
+  chomp $powerpackTriggerDeb;
   my %triggers = (
+    "applauncherd" => $powerpackTriggerDeb,
+    "applauncherd-invoker" => $powerpackTriggerDeb,
+    "applauncherd-launcher" => $powerpackTriggerDeb,
+    "applauncherd-single-instance" => $powerpackTriggerDeb,
+    "commhistory-daemon" => $powerpackTriggerDeb,
+    "duicontrolpanel" => $powerpackTriggerDeb,
+    "duicontrolpanel-displaylanguageapplet" => $powerpackTriggerDeb,
+    "duicontrolpanel-l10n-engineering-english" => $powerpackTriggerDeb,
+    "gstreamer0.10-plugins-good" => $powerpackTriggerDeb,
+    "gstreamer0.10-plugins-good-extra" => $powerpackTriggerDeb,
+    "libcommhistory0" => $powerpackTriggerDeb,
+    "libduicontrolpanel" => $powerpackTriggerDeb,
+    "libmeegotouch-bin" => $powerpackTriggerDeb,
+    "libmeegotouchcore0" => $powerpackTriggerDeb,
+    "libmeegotouchextensions0" => $powerpackTriggerDeb,
+    "libmeegotouch-l10n-engineering-english" => $powerpackTriggerDeb,
+    "libmeegotouchpreloader0" => $powerpackTriggerDeb,
+    "libmeegotouchsettings0" => $powerpackTriggerDeb,
+    "libmeegotouchviews0" => $powerpackTriggerDeb,
+    "libpublishwidgets0" => $powerpackTriggerDeb,
+    "libqmf0" => $powerpackTriggerDeb,
+    "libqmf-plugins" => $powerpackTriggerDeb,
+    "libwebupload0" => $powerpackTriggerDeb,
+    "mcompositor" => $powerpackTriggerDeb,
+    "meegotouch-cache-utils" => $powerpackTriggerDeb,
+    "meegotouchtheme" => $powerpackTriggerDeb,
+    "meegotouchtheme-ppack-fixes" => $powerpackTriggerDeb,
+    "ohm-plugins-misc" => $powerpackTriggerDeb,
+    "qmfserver" => $powerpackTriggerDeb,
+    "qt-components" => $powerpackTriggerDeb,
+    "webupload-engine" => $powerpackTriggerDeb,
   );
 
   my $count = 0;
