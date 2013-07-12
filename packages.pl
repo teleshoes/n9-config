@@ -277,45 +277,12 @@ sub installDebs(){
   my $powerpackTriggerDeb =
     `ls $debDir/7powerpack/meegotouchtheme-ppack-fixes*.deb`;
   chomp $powerpackTriggerDeb;
-  my %triggers = (
-    "applauncherd" => $powerpackTriggerDeb,
-    "applauncherd-invoker" => $powerpackTriggerDeb,
-    "applauncherd-launcher" => $powerpackTriggerDeb,
-    "applauncherd-single-instance" => $powerpackTriggerDeb,
-    "commhistory-daemon" => $powerpackTriggerDeb,
-    "contactsd" => $powerpackTriggerDeb,
-    "contactsd-plugin-birthday" => $powerpackTriggerDeb,
-    "duicontrolpanel" => $powerpackTriggerDeb,
-    "duicontrolpanel-displaylanguageapplet" => $powerpackTriggerDeb,
-    "duicontrolpanel-l10n-engineering-english" => $powerpackTriggerDeb,
-    "gstreamer0.10-plugins-good" => $powerpackTriggerDeb,
-    "gstreamer0.10-plugins-good-extra" => $powerpackTriggerDeb,
-    "libcommhistory0" => $powerpackTriggerDeb,
-    "libduicontrolpanel" => $powerpackTriggerDeb,
-    "libmeegotouch-bin" => $powerpackTriggerDeb,
-    "libmeegotouchcore0" => $powerpackTriggerDeb,
-    "libmeegotouchextensions0" => $powerpackTriggerDeb,
-    "libmeegotouch-l10n-engineering-english" => $powerpackTriggerDeb,
-    "libmeegotouchpreloader0" => $powerpackTriggerDeb,
-    "libmeegotouchsettings0" => $powerpackTriggerDeb,
-    "libmeegotouchviews0" => $powerpackTriggerDeb,
-    "libmlocale0" => $powerpackTriggerDeb,
-    "libpublishwidgets0" => $powerpackTriggerDeb,
-    "libqmf0" => $powerpackTriggerDeb,
-    "libqmf-plugins" => $powerpackTriggerDeb,
-    "libqtcontacts-extensions-tracker0" => $powerpackTriggerDeb,
-    "libqtcontacts-tracker" => $powerpackTriggerDeb,
-    "libquill1" => $powerpackTriggerDeb,
-    "libwebupload0" => $powerpackTriggerDeb,
-    "mcompositor" => $powerpackTriggerDeb,
-    "meegotouch-cache-utils" => $powerpackTriggerDeb,
-    "meegotouchtheme" => $powerpackTriggerDeb,
-    "meegotouchtheme-ppack-fixes" => $powerpackTriggerDeb,
-    "ohm-plugins-misc" => $powerpackTriggerDeb,
-    "qmfserver" => $powerpackTriggerDeb,
-    "qt-components" => $powerpackTriggerDeb,
-    "webupload-engine" => $powerpackTriggerDeb,
-  );
+
+  my @powerpackDebs =
+    map {chomp; getArchivePackageName $_} `ls $debDir/7powerpack/*.deb`;
+
+  my %triggers;
+  $triggers{$_} = $powerpackTriggerDeb foreach @powerpackDebs;
 
   my $count = 0;
   print "\n\nChecking installed versions\n";
