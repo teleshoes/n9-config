@@ -1,0 +1,2 @@
+#!/bin/bash
+bmestat | grep current | sed 's/\s*battery current:\s*//'
