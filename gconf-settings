@@ -23,12 +23,22 @@ my %usbModes = (
   storage => 'mass_storage',
 );
 
-
 my $display = '/system/osso/dsm/display';
 my $locks = '/system/osso/dsm/locks';
+my $statusArea = '/desktop/meego/status_area';
+my $TRUE = ['true', 'bool'];
+my $FALSE = ['false', 'bool'];
+my $batLineRGB = [60, 200, 255];
+
 my %gconf = (
   "/Meego/System/UsbMode" => [$usbModes{sync}],
   "/desktop/meego/background/portrait/picture_filename" => [$lockScreenBG],
+  "$statusArea/display_netspeed" => $TRUE,
+  "$statusArea/display_percentage" => $TRUE,
+  "$statusArea/display_percentage_line" => $TRUE,
+  "$statusArea/red_percentage_line" => [$$batLineRGB[0], 'int'],
+  "$statusArea/green_percentage_line" => [$$batLineRGB[1], 'int'],
+  "$statusArea/blue_percentage_line" => [$$batLineRGB[2], 'int'],
   "$locks/tklock_double_tap_gesture" => [0, 'int'],
   "$display/display_dim_timeout" => [240, 'int'],
   "$display/possible_display_dim_timeouts" =>
