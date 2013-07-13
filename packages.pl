@@ -59,6 +59,7 @@ my $extraPackages = {
   '6inceptedrepo' => [qw(
     busybox-power-noaegis
     system-ui-brightness-control
+    led-event-notifier
     mt-toggles bluetooth-toggle flashlight-toggle
   )],
 };
