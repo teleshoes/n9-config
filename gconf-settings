@@ -28,7 +28,7 @@ my $locks = '/system/osso/dsm/locks';
 my $statusArea = '/desktop/meego/status_area';
 my $TRUE = ['true', 'bool'];
 my $FALSE = ['false', 'bool'];
-my $batLineRGB = [60, 200, 255];
+my $batLineRGB = [0, 60, 0];
 
 my %gconf = (
   "/Meego/System/UsbMode" => [$usbModes{sync}],
