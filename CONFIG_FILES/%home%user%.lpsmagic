@@ -6,10 +6,7 @@ HorizontalSpacing=2
 Tickless=false
 VerticalSpacing=1
 formatString=\
-  %batIcon{} %batPercent{%} %icon{gear.png} %batCurrent{mA} %icon{calendar.png} %date{MM/dd} %newline{}\
-  %cmd{klomp-info -n ended percent playlist album} %newline{}\
-  %cmd{klomp-info -n artist} %newline{}\
-  %cmd{klomp-info -n number title}
+  %batIcon{} %batPercent{%} %icon{gear.png} %batCurrent{mA} %icon{calendar.png} %date{MM/dd}
 minWaitTime=0
 maxWaitTime=30
 heartbeatDelta=5
