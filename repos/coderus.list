@@ -1,2 +1,2 @@
 deb http://skeiron.org/repo/repo.pub.meego.com/home:/coderus/harmattan/ ./
-deb http://coderus.thecust.net/dists/trusted/main/binary-armel/ ./
+deb http://harmattan.openrepos.net/coderus personal main
