@@ -39,7 +39,7 @@ if [ -d $meego_gnu ]; then
   prependPath $meego_gnu/usr/sbin
 fi
 
-if [ `hostname -s` == "wolke-n9" ]; then
+if [ `hostname -s` == "jordan-n9" ]; then
   alias apt-get="AEGIS_FIXED_ORIGIN=com.nokia.maemo apt-get"
   alias dpkg="AEGIS_FIXED_ORIGIN=com.nokia.maemo dpkg"
 fi
@@ -48,12 +48,7 @@ fi
 if [ "$DISPLAY" == "" ]; then
   #host abbrevs
   case `hostname -s` in
-    "wolke-w520"              ) h='@w520' ;;
-    "wolk-desktop"            ) h='@desk' ;;
-    "wolke-n9"                ) h='@n9' ;;
-    "wolke-n900"              ) h='@n900' ;;
-    "raspberrypi"             ) h='@raspi' ;;
-    "Benjamins-MacBook-Pro"   ) h='@bensmac' ;;
+    "jordan-n9"               ) h='@n9' ;;
     *                         ) h='@\h' ;;
   esac
 else
@@ -62,7 +57,6 @@ else
 fi
 
 u="\u"
-if [ "$USER" == "BenjaminAguayza" ]; then u=ben; fi
 colon=":"
 c1='\[\033[01;32m\]'
 c2='\[\033[01;34m\]'
@@ -105,11 +99,3 @@ function update-repo { sudo apt-get update \
 
 alias genservices='~/workspace/escribe/tools/genservices'
 alias migl='gvim `~/workspace/escribe/src-sql/migrations/latest-script`'
-
-##AUTOLOGIN START##
-if [ -z "$DISPLAY" ]; then
-  if [ "$(tty)" == "/dev/tty6" ]; then
-    exec startx
-  fi
-fi
-##AUTOLOGIN END##
