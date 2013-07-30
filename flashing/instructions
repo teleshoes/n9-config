@@ -30,7 +30,7 @@ wine NaviFirmEx/NaviFirmEx.exe
   e.g.: 2C899062_DFL61_HARMATTAN_20.2011.40-4.SEAP_EMMC_SEAP.bin
   flasher is the other one and most are ~1.1GB
   e.g.: DFL61_HARMATTAN_20.2011.40-4_PR_LEGACY_005-OEM1-958_ARM.bin
--rename them to firmware.bin or emmc.bin if you feel like it.
+-rename them to middleeast-fw.bin or emmc.bin if you feel like it.
 =================================
 
 
@@ -54,7 +54,7 @@ rename it to 'openkernel' if you feel like it.
 =================================
 TO FLASH FIRMWARE, KERNEL and/or EMMC:
 1) install the flasher app
-2) get the firmware image {i rename it 'firmware.bin'}
+2) get the firmware image {i rename it 'middleeast-fw.bin'}
   you must always flash the firmware first, and then the emmc and/or the kernel.
   {you can do the emmc at the same time as firmware}
 3) get the kernel {i rename it 'openkernel'}, and/or the emmc {i rename it 'emmc.bin'}
@@ -70,18 +70,18 @@ FIRMWARE + KERNEL
 [I]NOTE: deletes apps, and a lot of settings {everything not in /home}.
 does NOT delete DCIM, or anything else in MyDocs[/I]
 [I]*Nokia claims this voids your warranty*[/I]
-  flasher -F firmware.bin -f
-  flasher -F firmware.bin -k openkernel --flash-only=kernel -f -R
+  flasher -F middleeast-fw.bin -f
+  flasher -F middleeast-fw.bin -k openkernel --flash-only=kernel -f -R
 
 FIRMWARE + EMMC
 [I]NOTE: DELETES ALL PERSONAL DATA, ALL APPS, AND EVERYTHING ELSE.[/I]
 [I]*Nokia is FINE with this.*[/I]
-  flasher -f -F firmware.bin -F emmc.bin -R
+  flasher -f -F middleeast-fw.bin -F emmc.bin -R
 
 FIRMWARE + KERNEL + EMMC
 [I]NOTE: DELETES ALL PERSONAL DATA, ALL APPS, AND EVERYTHING ELSE.[/I]
 [I]*Nokia claims this voids your warranty*[/I]
-  flasher -f -F firmware.bin -F emmc.bin
-  flasher -F firmware.bin -k openkernel --flash-only=kernel -f -R
+  flasher -f -F middleeast-fw.bin -F emmc.bin
+  flasher -F middleeast-fw.bin -k openkernel --flash-only=kernel -f -R
 =================================
 {maybe you wanna? highlight both lines and paste them into a root terminal}
