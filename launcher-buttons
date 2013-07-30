@@ -27,7 +27,6 @@ my @config = qw(
 
   qtbtn-klomp
   mail
-  contact-emily
   meeseepics
   
   dir-tools[
