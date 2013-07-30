@@ -14,20 +14,6 @@
  <gps>false</gps>
  <station>
   <source_name>weather.com</source_name>
-  <station_name>Copiague</station_name>
-  <station_id>USNY0330</station_id>
-  <country>United States of America</country>
-  <region>New York</region>
-  <file_name>/home/user/.config/com.meecast.omweather/weather.com_USNY0330</file_name>
-  <forecast_url>http://xml.weather.com/weather/local/USNY0330?cm_ven=1CW&amp;site=wx.com-bar&amp;cm_ite=wx-cc&amp;par=1CWFFv1.1.9&amp;cm_pla=wx.com-bar&amp;cm_cat=FFv1.1.9&amp;unit=m&amp;dayf=9&amp;cc=*</forecast_url>
-  <cookie></cookie>
-  <detail_url>http://xml.weather.com/weather/local/USNY0330?cm_ven=1CW&amp;site=wx.com-bar&amp;cm_ite=wx-cc&amp;par=1CWFFv1.1.9&amp;cm_pla=wx.com-bar&amp;cm_cat=FFv1.1.9&amp;unit=m&amp;hbhf=12</detail_url>
-  <view_url>http://www.weather.com/weather/tenday/USNY0330</view_url>
-  <converter>/opt/com.meecast.omweather/lib/weathercom</converter>
-  <gps>false</gps>
- </station>
- <station>
-  <source_name>weather.com</source_name>
   <station_name>New York</station_name>
   <station_id>USNY0996</station_id>
   <country>United States of America</country>
