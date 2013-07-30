@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-my $hostName = "wolke-n9";
+my $hostName = "jordan-n9";
 
 my $DIR = '/opt/CONFIG_FILES';
 my $user = 'user';
