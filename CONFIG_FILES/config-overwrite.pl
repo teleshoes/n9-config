@@ -25,7 +25,6 @@ my %changedTriggers = (
   "$bgDir/meegotouch-desktop-bg.jpg" => 'reload-wallpaper',
   "/home/user/.config/ProfileMatic/rules.conf" =>
     "initctl restart apps/profilematicd",
-  "/etc/sudoers" =>  'chmod 0440 /etc/sudoers -c',
 );
 
 sub overwriteFile($$);
@@ -88,6 +87,7 @@ sub main(@){
     print "  $trigger: \n";
     system $trigger;
   }
+  system "chmod", "0440", "/etc/sudoers";
 }
 
 sub overwriteFile($$){
