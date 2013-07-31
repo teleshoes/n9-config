@@ -12,13 +12,14 @@ my %replacements = (
 my @config = qw(
   call-history
   messaging-ui
-  mtermite
   QmlMozBrowser
   browser
 
   finch
   klomp
   camera-ui
+  mtermite
+  mail
   duicontrolpanel
 
   nokia-drive-qml
@@ -29,7 +30,6 @@ my @config = qw(
   video-suite
 
   qtbtn-klomp
-  mail
   meeseepics
   
   dir-tools[
