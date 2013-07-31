@@ -31,43 +31,43 @@ my @config = qw(
   qtbtn-power
 
   dir-tools[
-    dropcache-mdn
-    dcim-reindex
-    restart-wifi
+    call-log
+    ovistoreclient
+    contact-coocoo
     dontgosleep
     screenshotmee
   ]
-  dir-useful[
-    qtodo
-    call-log
+  dir-utils[
+    dropcache-mdn
+    dcim-reindex
+    restart-wifi
+  ]
+  dir-apps[
+    fennec
     QmlMozBrowser
     FBReader
+    joikuspot
+    NokiaPt
     brujula
+    meeseepics
+  ]
+  dir-misc[
     klomp
     qtbtn-klomp
     qtodo
     dingmee
     transmission
-  ]
-  dir-cute[
-    joikuspot
     qtbigtext
     teatime
     vmpkn9
     xmcr
     emumaster
-  ]
-  dir-junk[
-    contact-coocoo
-    fennec
     mymoves
     waze
-    NokiaPt
     btinput-terminal
     btinput
     toggleBT
     finch
-    ovistoreclient
     pidgin
     n9-button-monitor
     profilematic
