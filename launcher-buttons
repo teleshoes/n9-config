@@ -12,11 +12,8 @@ my %replacements = (
 my @config = qw(
   call-history
   messaging-ui
-  QmlMozBrowser
   browser
 
-  finch
-  klomp
   camera-ui
   mtermite
   mail
@@ -25,13 +22,9 @@ my @config = qw(
   nokia-drive-qml
   contacts
   clock
-  FBReader
   music-suite
   video-suite
 
-  qtbtn-klomp
-  meeseepics
-  
   dir-tools[
     dropcache-mdn
     dcim-reindex
@@ -43,7 +36,12 @@ my @config = qw(
     qtbtn-power
     qtodo
     call-log
+    QmlMozBrowser
+    FBReader
     brujula
+    klomp
+    qtbtn-klomp
+    qtodo
     dingmee
     transmission
   ]
@@ -65,6 +63,7 @@ my @config = qw(
     btinput-terminal
     btinput
     toggleBT
+    finch
     gallery
     calendar
     ovistoreclient
