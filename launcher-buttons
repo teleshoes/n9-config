@@ -12,6 +12,7 @@ my %replacements = (
 my @config = qw(
   call-history
   messaging-ui
+  gallery
   browser
 
   camera-ui
@@ -22,8 +23,12 @@ my @config = qw(
   nokia-drive-qml
   contacts
   clock
+  calendar
+
   music-suite
   video-suite
+  accountsui
+  qtbtn-power
 
   dir-tools[
     dropcache-mdn
@@ -33,7 +38,6 @@ my @config = qw(
     screenshotmee
   ]
   dir-useful[
-    qtbtn-power
     qtodo
     call-log
     QmlMozBrowser
@@ -59,13 +63,10 @@ my @config = qw(
     mymoves
     waze
     NokiaPt
-    accountsui
     btinput-terminal
     btinput
     toggleBT
     finch
-    gallery
-    calendar
     ovistoreclient
     pidgin
     n9-button-monitor
