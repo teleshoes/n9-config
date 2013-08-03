@@ -5,6 +5,4 @@ use warnings;
 my $host = `n9`;
 chomp $host;
 
-system "scp", "boot.rle", "root\@$host:/tmp";
-system "n9", "-s", "disclaimer-cal write View-openmode /tmp/boot.rle";
-#system "n9", "-s", "disclaimer-cal remove View-openmode";
+system "n9", "-s", "disclaimer-cal remove View-openmode";
