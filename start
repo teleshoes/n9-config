@@ -27,6 +27,7 @@ n9 -t #and remove/add usb cable
 secret-keys
 launcher-buttons
 status-menu
+packages.pl --reinstall extra #to fix mt-toggles
 ext4-mydocs
 gconf-settings
 setup-cities
