@@ -83,27 +83,29 @@ sub host(){
   return $host;
 }
 
-sub installPackages($);
+sub installPackages($$);
 sub removePackages();
 sub setupRepos();
 sub installDebs();
 
 sub main(@){
+  my $reinstall = shift if @_ > 0 and $_[0] =~ /--reinstall/g;
+
   my $arg = shift;
   $arg = 'all' if not defined $arg;
   my $valid = join '|', qw(all repos packages extra remove debs);
   if(@_ > 0 or $arg !~ /^($valid)/){
-    die "Usage: $0 TYPE {type must start with one of: $valid}\n";
+    die "Usage: $0 [--reinstall] TYPE {type must start with one of: $valid}\n";
   }
   if($arg =~ /^(all|repos)/){
     if(setupRepos()){
       runRemote "$env apt-get update";
     }
   }
-  installPackages($normalPackages) if $arg =~ /^(all|packages)/;
+  installPackages($normalPackages, $reinstall) if $arg =~ /^(all|packages)/;
   removePackages() if $arg =~ /^(all|remove)/;
   installDebs() if $arg =~ /^(all|debs|debs-custom)/;
-  installPackages($extraPackages) if $arg =~ /^(all|extra)/;
+  installPackages($extraPackages, $reinstall) if $arg =~ /^(all|extra)/;
 }
 
 
@@ -141,8 +143,11 @@ sub setupRepos(){
   return $before ne $after;
 }
 
-sub installPackages($){
+sub installPackages($$){
   my $pkgGroups = shift;
+  my $reinstall = shift;
+  my @opts;
+  push @opts, "--reinstall" if defined $reinstall;
   print "\n\n";
   for my $pkgGroup(sort keys %$pkgGroups){
     my @packages = @{$$pkgGroups{$pkgGroup}};
@@ -151,6 +156,7 @@ sub installPackages($){
       . "yes |"
       . " $env apt-get install"
       . " -y --allow-unauthenticated"
+      . " @opts"
       . " @packages";
   }
 }
