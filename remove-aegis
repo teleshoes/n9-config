@@ -1,0 +1,51 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub main(@){
+  my @files = qw(
+     /home/user/.aegis
+     /home/user/.accounts
+     /home/user/.activesync
+     /etc/aegisfs.d/*.*
+  );
+  my $certsBak = "/root/certs.bak." . time;
+
+  print "backing up ssl certs and destroying aegis\n";
+  system "n9", "
+    set -x
+    rm -rf $certsBak
+    cp -ar /etc/ssl/certs $certsBak;
+    rm -rf @files
+    ";
+  die "failed!\n" unless $? == 0;
+
+  print "rebooting..\n";
+  system "n9", "reboot";
+
+  print "waiting for n9\n";
+  print "sleeping for 20\n";
+  sleep 20;
+  print "attempting ssh: ";
+
+  my $old_fh = select(STDOUT); $| = 1; select($old_fh);
+
+  my $ok = 0;
+  while(not $ok){
+    print ".";
+    if(`n9 echo -n hello 2>/dev/null` eq "hello"){
+      $ok = 1;
+    }
+    sleep 1 unless $ok;
+  }
+  print "\nok!\n";
+
+  print "restoring ssl certs\n";
+  system "n9", "
+    set -x
+    rm -rf /etc/ssl/certs
+    cp -ar $certsBak /etc/ssl/certs
+  ";
+}
+
+&main(@ARGV);
