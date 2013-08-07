@@ -12,7 +12,7 @@ sub main(@){
   my $certsBak = "/root/certs.bak." . time;
 
   print "backing up ssl certs and destroying aegis\n";
-  system "n9", "
+  system "n9", "-s", "
     set -x
     rm -rf $certsBak
     cp -ar /etc/ssl/certs $certsBak;
@@ -21,7 +21,7 @@ sub main(@){
   die "failed!\n" unless $? == 0;
 
   print "rebooting..\n";
-  system "n9", "reboot";
+  system "n9", "-s", "/sbin/reboot";
 
   print "waiting for n9\n";
   print "sleeping for 20\n";
@@ -33,7 +33,7 @@ sub main(@){
   my $ok = 0;
   while(not $ok){
     print ".";
-    if(`n9 echo -n hello 2>/dev/null` eq "hello"){
+    if(`n9 -s echo -n hello 2>/dev/null` eq "hello"){
       $ok = 1;
     }
     sleep 1 unless $ok;
@@ -41,7 +41,7 @@ sub main(@){
   print "\nok!\n";
 
   print "restoring ssl certs\n";
-  system "n9", "
+  system "n9", "-s", "
     set -x
     rm -rf /etc/ssl/certs
     cp -ar $certsBak /etc/ssl/certs
