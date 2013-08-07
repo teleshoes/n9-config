@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+use File::Basename;
 
 my %replacements = (
   'emumaster' => 'diskgallery',
@@ -109,6 +110,11 @@ sub getData();
 sub writeLauncherButtonsData($);
 
 sub main(@){
+  if(`which n9` ne "" and `hostname` ne `n9`){
+    print "rerunning on the device\n";
+    exec "n9", basename($0), @_;
+  }
+
   if(@_ == 1 and $_[0] eq '-g'){
     print getValidDesktopNames();
     exit 0;
