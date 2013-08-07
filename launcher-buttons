@@ -2,9 +2,6 @@
 use strict;
 use warnings;
 
-my $host = `n9`;
-chomp $host;
-
 my %replacements = (
   'emumaster' => 'diskgallery',
 );
@@ -97,6 +94,7 @@ my $directoryDir = '/home/user/.local/share/applications';
 my $quickLaunchDir = '/home/user/.local/share/applications';
 my $confFileDest = '/home/user/.config/meegotouchhome-nokia/launcherbuttons.data';
 
+sub run(@);
 sub appendHarmattans();
 sub parseConfig();
 sub getValidDesktopNames();
@@ -117,7 +115,7 @@ sub main(@){
   }
   die "Usage: $0   or  $0 -g\n" if @_ > 0;
   
-  system "n9 -s stop xsession/mthome";
+  run "initctl stop xsession/mthome";
   appendHarmattans();
   parseConfig();
   createAppDesktopFiles();
@@ -125,9 +123,14 @@ sub main(@){
   createQuickLauncherDesktopFiles();
   
   my $data = getData();
-  system "ssh root\@$host killall meegotouchhome";
+  run "killall meegotouchhome";
   writeLauncherButtonsData($data);
-  system "n9 -s start xsession/mthome";
+  run "initctl start xsession/mthome";
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
 }
 
 sub appendHarmattans(){
@@ -177,7 +180,7 @@ sub parseConfig(){
 }
 
 sub getValidDesktopNames(){
-  my @names = `n9 -s 'ls $appDir/*.desktop $unusedDir/*.desktop'`;
+  my @names = `ls $appDir/*.desktop $unusedDir/*.desktop`;
   for my $name(@names){
     $name =~ s/.desktop$//;
     $name =~ s/^.*\///;
@@ -194,25 +197,17 @@ sub launcherPath($){
 
 
 sub createAppDesktopFiles(){
-  system "ssh", "root\@$host", "
-    set -x
-    mkdir -p $unusedDir
-    cd $appDir
-    mv *.desktop $unusedDir
-    rm -rf $appDir
-    mkdir -p $appDir
-  ";
-
-  my $cmd = "cd $unusedDir\n";
+  run "mkdir", "-p", $unusedDir;
+  run "mv $appDir/*.desktop $unusedDir";
+  run "rm -rf $appDir";
+  run "mkdir", "-p", $appDir;
   for my $app(keys %apps){
-    $cmd .= "mv $app.desktop $appDir\n";
+    run "mv", "$unusedDir/$app.desktop", $appDir;
   }
-  print $cmd;
-  system "ssh", "root\@$host", $cmd;
 }
 
 sub createDirDesktopFiles(){
-  system "ssh", "root\@$host", "rm $directoryDir/*.directory";
+  run "rm $directoryDir/*.directory";
   for my $dir(sort keys %dirs){
     my $dirName = $dirNames{$dir};
     my $content = ''
@@ -223,27 +218,22 @@ sub createDirDesktopFiles(){
       . "Icon=icon-l-default-application\n"
       . "OnlyShowIn=X-MeeGo;\n"
       ;
-    my $tmpFile = "/tmp/meego-dir";
-    open FH, "> $tmpFile" or die "Couldnt write to $tmpFile\n";
+    my $fileName = "$directoryDir/folder$dir.directory";
+    open FH, "> $fileName" or die "Couldnt write to $fileName\n";
     print FH $content;
     close FH;
-    my $fileName = "$directoryDir/folder$dir.directory";
-    system "scp", $tmpFile, "root\@$host:$fileName";
   }
-  system "ssh", "root\@$host", "chown user.users -R $directoryDir";
+  run "chown", "user.users", "-R", $directoryDir;
 }
 
 sub createQuickLauncherDesktopFiles(){
-  my $cmd = "rm $quickLaunchDir/*.desktop\n";
+  run "rm $quickLaunchDir/*.desktop";
   for(my $i=0; $i<@quickLaunch; $i++){
     my $qlFile = "$quickLaunchDir/quicklaunchbar$i.desktop";
-    $cmd .= "ln -s $appDir/$quickLaunch[$i].desktop $qlFile;\n";
+    run "ln", "-s", "$appDir/$quickLaunch[$i].desktop", $qlFile;
   }
-  $cmd .= "chown user.users -R $quickLaunchDir\n";
-  print $cmd;
-  system "ssh", "root\@$host", $cmd;
+  run "chown", "user.users", "-R", $quickLaunchDir;
 }
-
 
 
 sub getAppData(){
@@ -291,12 +281,9 @@ sub writeLauncherButtonsData($){
   my $data = shift;
   print $data;
 
-  my $tmpFile = "/tmp/launcherbuttons.data";
-  open FH, "> $tmpFile" or die "Couldnt write to $tmpFile\n";
+  open FH, "> $confFileDest" or die "Couldnt write to $confFileDest\n";
   print FH $data;
   close FH;
-
-  system 'scp', $tmpFile, "root\@$host:$confFileDest";
 }
 
 &main(@ARGV);
