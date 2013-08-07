@@ -81,7 +81,7 @@ for my $entry(@config){
 my @quickLaunch = qw(
   call-history
   messaging-ui
-  fennec 
+  fennec
   camera-ui
 );
 
@@ -122,14 +122,14 @@ sub main(@){
     exit 0;
   }
   die "Usage: $0   or  $0 -g\n" if @_ > 0;
-  
+
   run "initctl stop xsession/mthome";
   appendHarmattans();
   parseConfig();
   createAppDesktopFiles();
   createDirDesktopFiles();
   createQuickLauncherDesktopFiles();
-  
+
   my $data = getData();
   run "killall meegotouchhome";
   writeLauncherButtonsData($data);
@@ -250,7 +250,7 @@ sub getAppData(){
     my $index = $apps{$app};
     my $dir = $appDirs{$app};
     $dir = 0 if not defined $dir;
-    
+
     my $desktopFile = "$appDir/$app.desktop";
     $data .= launcherPath($desktopFile) . "=launcher/$dir/$index\n";
   }
