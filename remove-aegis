@@ -29,13 +29,17 @@ sub main(@){
   print "attempting ssh: ";
 
   my $old_fh = select(STDOUT); $| = 1; select($old_fh);
+  my $hostname = `n9`;
+  chomp $hostname;
 
   my $ok = 0;
   while(not $ok){
     print ".";
-    if(`n9 -s echo -n hello 2>/dev/null` eq "hello"){
-      $ok = 1;
-    }
+    my $cmd = "ssh user\@$hostname"
+      . " -o ConnectTimeout=2"
+      . " echo -n hello 2>/dev/null"
+      ;
+    $ok = 1 if `$cmd` eq "hello";
     sleep 1 unless $ok;
   }
   print "\nok!\n";
