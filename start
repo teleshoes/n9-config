@@ -24,6 +24,7 @@ reset-accounts
 ### reboot, refresh email accs individually
 respawn-limit
 packages
+packages #to fix any debs that install in the wrong order
 config-files
 n9 -t #and remove/add usb cable
 secret-keys
