@@ -26,6 +26,8 @@ my @config = qw(
   qtbtn-klomp
   mail
   meeseepics
+    video-suite
+    music-suite
 
   dir-tools[
     dropcache-mdn
