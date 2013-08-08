@@ -123,7 +123,7 @@ sub main(@){
   }
   die "Usage: $0   or  $0 -g\n" if @_ > 0;
 
-  run "initctl stop xsession/mthome";
+  run "/sbin/initctl stop xsession/mthome";
   appendHarmattans();
   parseConfig();
   createAppDesktopFiles();
@@ -133,7 +133,7 @@ sub main(@){
   my $data = getData();
   run "killall meegotouchhome";
   writeLauncherButtonsData($data);
-  run "initctl start xsession/mthome";
+  run "/sbin/initctl start xsession/mthome";
 }
 
 sub run(@){
