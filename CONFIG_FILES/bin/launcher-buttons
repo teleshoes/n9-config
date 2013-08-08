@@ -10,49 +10,44 @@ my %replacements = (
 my @config = qw(
   call-history
   messaging-ui
-  mtermite
-  QmlMozBrowser
-
-  finch
-  klomp
   camera-ui
-  duicontrolpanel
 
-  nokia-drive-qml
-  contacts
-  clock
-  FBReader
 
-  qtbtn-klomp
-  mail
-  meeseepics
+  dir-stuff[
+    gallery
     video-suite
     music-suite
+    contacts
 
-  dir-tools[
+    calendar
+    mtermite
+    QmlMozBrowser
+    finch
+    klomp
+    duicontrolpanel
+    nokia-drive-qml
+    clock
+    FBReader
+    qtbtn-klomp
+    mail
+    meeseepics
     dropcache-mdn
     dcim-reindex
     restart-wifi
     dontgosleep
     screenshotmee
-  ]
-  dir-useful[
     qtbtn-power
     qtodo
     call-log
     brujula
     dingmee
     transmission
-  ]
-  dir-cute[
     joikuspot
     qtbigtext
     teatime
     vmpkn9
     xmcr
     emumaster
-  ]
-  dir-junk[
     contact-coocoo
     fennec
     mymoves
@@ -62,8 +57,6 @@ my @config = qw(
     btinput-terminal
     btinput
     toggleBT
-    gallery
-    calendar
     ovistoreclient
     pidgin
     n9-button-monitor
