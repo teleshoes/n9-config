@@ -5,6 +5,7 @@ use File::Basename;
 
 my %replacements = (
   'emumaster' => 'diskgallery',
+  'settings' => 'duicontrolpanel',
 );
 
 my @config = qw(
@@ -20,7 +21,7 @@ my @config = qw(
     video-suite
     music-suite
     qtbtn-power
-    duicontrolpanel
+    settings
 
     teatime
     calendar
