@@ -10,6 +10,7 @@ my %replacements = (
 );
 
 my @ignoredPatterns = qw(
+  web-search-*.desktop
 );
 
 my @config = qw(
