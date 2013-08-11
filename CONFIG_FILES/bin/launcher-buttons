@@ -18,33 +18,37 @@ my @config = qw(
   messaging-ui
   camera-ui
 
-
   dir-stuff[
     clock
     contacts
     gallery
+    grob
+
     video-suite
     music-suite
     qtbtn-power
     settings
 
-    grob
     teatime
     calendar
     mtermite
     QmlMozBrowser
+
     nokia-drive-qml
     FBReader
     qtbtn-klomp
     mail
+
     meeseepics
     dontgosleep
     screenshotmee
     qtodo
+
     call-log
     brujula
     vmpkn9
     emumaster
+
     accountsui
     ovistoreclient
   ]
