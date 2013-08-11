@@ -6,13 +6,14 @@ use File::Basename;
 my %replacements = (
   'emumaster' => 'diskgallery',
   'settings' => 'duicontrolpanel',
+  'grob' => 'browser',
 );
 
 my @config = qw(
   call-history
   messaging-ui
   gallery
-  browser
+  grob
 
   camera-ui
   mtermite
