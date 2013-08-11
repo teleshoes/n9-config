@@ -6,6 +6,7 @@ use File::Basename;
 my %replacements = (
   'emumaster' => 'diskgallery',
   'settings' => 'duicontrolpanel',
+  'grob' => 'browser',
 );
 
 my @config = qw(
@@ -55,7 +56,7 @@ my @config = qw(
   dir-junk[
     contact-coocoo
     fennec
-    browser
+    grob
     mymoves
     waze
     NokiaPt
