@@ -9,6 +9,9 @@ my %replacements = (
   'grob' => 'browser',
 );
 
+my @ignoredPatterns = qw(
+);
+
 my @config = qw(
   call-history
   messaging-ui
@@ -213,6 +216,7 @@ sub createAppDesktopFiles(){
   for my $app(keys %apps){
     run "mv", "$unusedDir/$app.desktop", $appDir;
   }
+  run "cd $unusedDir; mv @ignoredPatterns $appDir";
 }
 
 sub createDirDesktopFiles(){
