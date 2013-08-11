@@ -5,6 +5,7 @@ use File::Basename;
 
 my %replacements = (
   'emumaster' => 'diskgallery',
+  'settings' => 'duicontrolpanel',
 );
 
 my @config = qw(
@@ -16,7 +17,7 @@ my @config = qw(
   camera-ui
   mtermite
   mail
-  duicontrolpanel
+  settings
 
   nokia-drive-qml
   contacts
