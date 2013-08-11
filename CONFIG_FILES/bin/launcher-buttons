@@ -26,41 +26,20 @@ my @config = qw(
     calendar
     mtermite
     QmlMozBrowser
-    finch
-    klomp
     nokia-drive-qml
     FBReader
     qtbtn-klomp
     mail
     meeseepics
-    dropcache-mdn
-    dcim-reindex
-    restart-wifi
     dontgosleep
     screenshotmee
     qtodo
     call-log
     brujula
-    dingmee
-    transmission
-    joikuspot
-    qtbigtext
     vmpkn9
-    xmcr
     emumaster
-    contact-coocoo
-    fennec
-    mymoves
-    waze
-    NokiaPt
     accountsui
-    btinput-terminal
-    btinput
-    toggleBT
     ovistoreclient
-    pidgin
-    n9-button-monitor
-    profilematic
   ]
 );
 
