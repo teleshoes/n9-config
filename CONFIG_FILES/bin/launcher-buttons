@@ -6,6 +6,7 @@ use File::Basename;
 my %replacements = (
   'emumaster' => 'diskgallery',
   'settings' => 'duicontrolpanel',
+  'grob' => 'browser',
 );
 
 my @config = qw(
@@ -23,7 +24,7 @@ my @config = qw(
     qtbtn-power
     settings
 
-    browser
+    grob
     teatime
     calendar
     mtermite
