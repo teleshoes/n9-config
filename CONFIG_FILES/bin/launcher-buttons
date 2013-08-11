@@ -14,19 +14,21 @@ my @config = qw(
 
 
   dir-stuff[
+    clock
+    contacts
     gallery
     video-suite
     music-suite
-    contacts
+    qtbtn-power
+    duicontrolpanel
 
+    teatime
     calendar
     mtermite
     QmlMozBrowser
     finch
     klomp
-    duicontrolpanel
     nokia-drive-qml
-    clock
     FBReader
     qtbtn-klomp
     mail
@@ -36,7 +38,6 @@ my @config = qw(
     restart-wifi
     dontgosleep
     screenshotmee
-    qtbtn-power
     qtodo
     call-log
     brujula
@@ -44,7 +45,6 @@ my @config = qw(
     transmission
     joikuspot
     qtbigtext
-    teatime
     vmpkn9
     xmcr
     emumaster
