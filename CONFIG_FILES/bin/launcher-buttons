@@ -55,6 +55,7 @@ my @config = qw(
   dir-junk[
     contact-coocoo
     fennec
+    browser
     mymoves
     waze
     NokiaPt
