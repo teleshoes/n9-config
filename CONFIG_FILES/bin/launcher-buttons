@@ -23,6 +23,7 @@ my @config = qw(
     qtbtn-power
     settings
 
+    browser
     teatime
     calendar
     mtermite
