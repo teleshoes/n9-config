@@ -20,7 +20,7 @@ my $usage = "Usage:
     perhaps copied from twitter, and decrypt it directly
   $0 [OPTS] --fetch
     Get the ip using wget instead of OAUTH, and decrypt it like --decrypt
-    Bypasses Net::Twitter::Lite completely
+    Bypasses Net::Twitter completely
   $0 -h|--help
     Show this message
   OPTS:
@@ -63,7 +63,7 @@ sub main(@){
   writeConfig $opts{configFile}, \%config;
 
   if(defined $opts{get}){
-    my @statuses = @{$nt->friends_timeline};
+    my @statuses = @{$nt->user_timeline};
     if(@statuses <= 0){
       print "No statuses found!\n";
     }elsif(not defined $opts{all}){
@@ -208,9 +208,9 @@ sub authorize($$$$){
   my $accessToken = shift;
   my $accessTokenSecret = shift;
 
-  require Net::Twitter::Lite;
-  my $nt = Net::Twitter::Lite->new(
-      traits           => ['API::REST', 'API::Search', 'OAuth'],
+  require Net::Twitter;
+  my $nt = Net::Twitter->new(
+      traits           => ['API::RESTv1_1', 'OAuth'],
       consumer_key     => $consumerKey,
       consumer_secret  => $consumerSecret,
       legacy_lists_api => 0,
@@ -245,7 +245,7 @@ sub fetchTweet($){
   my $screenName = shift;
   my $url = "http://twitter.com/$screenName";
   my $tweets = `wget -q -O - $url`;
-  if($tweets =~ /<p class="js-tweet-text">([^<]*)<\/p>/s){
+  if($tweets =~ /<p class="[^"]*tweet-text[^"]*">([^<]*)<\/p>/s){
     return $1;
   }
   die "Twitter must have changed their html; fix me in twip.fetchTweet\n";

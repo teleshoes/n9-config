@@ -5,7 +5,8 @@
 use strict;
 use warnings;
 
-my $LOG_FILE = '~/.twiplog';
+my $isRoot = `whoami` eq "root\n";
+my $LOG_FILE = $isRoot ? "/var/log/twip.log" : "$ENV{HOME}/.twiplog";
 my $TIMEOUT = 30;
 
 my $start;
@@ -13,7 +14,7 @@ my $start;
 sub twiplog($){
   my $msg = shift;
   my $time = localtime time;
-  system "echo '$time: $msg' >> ~/.twiplog";
+  system "echo '$time: $msg' >> $LOG_FILE";
 }
 sub fail($){
   my $err = shift;
@@ -49,6 +50,7 @@ chomp $oldIP;
 print "Previous IP: $oldIP\n";
 if($oldIP eq $ip){
   print "IP is the same on twitter\n";
+  twiplog "still $oldIP";
   exit 0;
 }
 
