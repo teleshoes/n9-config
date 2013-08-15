@@ -16,18 +16,21 @@ my $CACHE_LINE_REGEX = qr/^ (\d+\. \d+\. \d+\. \d+) \t (.*) \n? $/x;
 
 my $usage =
 "Usage: $0 [options..]
+  Read and decrypt IP from twitter using OAUTH and twitter api
+    {or parsing http with wget if Net::Twitter is missing}
+  Caches the ip
 Options:
  --file    Use this cache file
            Defaults to ~/.twipcache
  --entries Maximum number of entries allowed in cache
            Defaults to 20
- --test    Test the IP using ssh to make sure its correct
-           Otherwise, assume the IP in the cache is identified as your server
-           {allows client to run their own test}
+ --test    If an IP is found in the cache, test it with ssh.
+           If --test isnt specified, the cache is assumed correct.
  --timeout The length of time to wait in seconds before failing IP test
            Defaults to 2 seconds
- --fetch   Ignore cache hits; always fetch a new ip and add it to the cache
- --nocache Do not cache the results. Implies --fetch
+ --fetch   Do not read from the cache, nor run any tests
+           Always fetch a new ip {OAUTH or wget}, and add it to the cache
+ --nocache Do not read from nor write to the cache. Implies --fetch
  -s/--ssh  take the user passed in and ssh to the ip returned
            \"$0 --ssh root\"
              is essentially the same as
@@ -86,7 +89,7 @@ if(defined $ssh_user){
 }
 
 sub fetch(){
-  my $twitterLib = eval { require Net::Twitter::Lite };
+  my $twitterLib = eval { require Net::Twitter };
   if($twitterLib){
     print "getting IP with OAUTH\n" if $verbose;
     return `twip --get`;
