@@ -2,8 +2,8 @@
 use strict;
 use warnings;
 
-my $localDCIM = "$ENV{HOME}/Desktop/DCIM";
-my $localPixmirror = "$ENV{HOME}/Desktop/DCIM-pixmirror";
+my $localDCIM = "$ENV{HOME}/Code/n9/backup/DCIM";
+my $localPixmirror = "$ENV{HOME}/Code/n9/backup/DCIM-pixmirror";
 
 my $remotePixmirror = "/home/user/MyDocs/DCIM-pixmirror";
 my $remoteSym = "/home/user/pixmirror";
