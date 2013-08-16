@@ -18,7 +18,6 @@ sub main(@){
   backup "dcim-backup";
   backup "sync-pixmirror";
 
-  backup "sync-pidgin";
   backup "sync-mydocs";
   backup "sync-fbreader backup";
   backup "fetch-klomp-lists backup";
