@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-my $localDCIM = "$ENV{HOME}/Desktop/DCIM";
+my $localDCIM = "$ENV{HOME}/Code/n9/backup/DCIM";
 my $remoteDCIM = "/home/user/MyDocs/DCIM";
 
 my @filetypes = qw(jpg jpeg mp4);
