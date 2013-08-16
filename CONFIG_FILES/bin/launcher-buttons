@@ -23,17 +23,16 @@ my @config = qw(
     contacts
     gallery
     facebook
-    grob
 
-    video-suite
-    music-suite
     qtbtn-power
     settings
+    grob
+    video-suite
 
     teatime
     calendar
     mtermite
-    QmlMozBrowser
+    music-suite
 
     nokia-drive-qml
     FBReader
@@ -50,6 +49,7 @@ my @config = qw(
     vmpkn9
     emumaster
 
+    QmlMozBrowser
     accountsui
     ovistoreclient
   ]
