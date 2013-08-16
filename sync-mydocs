@@ -6,7 +6,7 @@ my $host = `n9`;
 chomp $host;
 
 my $dir = "$ENV{HOME}/Code/n9";
-my $myDocsLocal = "$dir/MyDocs";
+my $myDocsLocal = "$dir/backup/MyDocs";
 my $myDocsRemote = "/home/user/MyDocs";
 
 my $local = $myDocsLocal;
