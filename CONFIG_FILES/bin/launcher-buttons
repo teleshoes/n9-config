@@ -64,7 +64,7 @@ for my $entry(@config){
 my @quickLaunch = qw(
   call-history
   messaging-ui
-  fennec
+  grob
   camera-ui
 );
 
