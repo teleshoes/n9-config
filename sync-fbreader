@@ -9,7 +9,7 @@ my $host = `n9`;
 chomp $host;
 
 my $dir = "$ENV{HOME}/Code/n9";
-my $localDir = "$dir/fbreader";
+my $localDir = "$dir/backup/fbreader";
 my $remoteDir = "/home/user/.FBReader";
 
 my $local = $localDir;
