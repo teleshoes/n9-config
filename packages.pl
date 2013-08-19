@@ -40,6 +40,7 @@ my $normalPackages = {
     qmlmozbrowser
     waze
     screen
+    cameraplus
   )],
   '4' => [qw(
     ad-hac
