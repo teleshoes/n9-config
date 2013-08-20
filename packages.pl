@@ -39,6 +39,7 @@ my $normalPackages = {
     qmlmozbrowser
     waze
     screen
+    n9-button-monitor n9bm-toggle
   )],
   '4' => [qw(
     ad-hac
