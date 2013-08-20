@@ -1,0 +1,47 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $src = "/home/user/MyDocs/DCIM-pixmirror";
+my $dest = "/home/user/.0dcim-pix-rev";
+
+sub run(@);
+
+sub main(@){
+  die "Usage: $0    make symlinks $src => $dest\n" if @_ > 0;
+  die "$src is not a dir\n" if not -d $src;
+  if(-e $dest){
+    run "find", $dest, "-type", "l", "-delete";
+    run "find", $dest, "-depth", "-type", "d", "-empty", "-delete";
+  }
+  die "$dest exists\n" if -e $dest;
+  run "mkdir", "-p", $dest;
+
+  my %subdirs;
+  for my $subdir(`find $src -maxdepth 1 -mindepth 1 -type d`){
+    chomp $subdir;
+    my $name = $subdir;
+    $name =~ s/.*\///;
+    if($name =~ /^\d\d\d\d-\d\d-\d\d_.*$/){
+      $subdirs{$name} = $subdir;
+    }
+  }
+  my $digs = length keys %subdirs;
+
+  print "setting up symlinks:\n";
+  my $i=1;
+  for my $name(reverse sort keys %subdirs){
+    my $prefix = '0'x($digs - length $i) . $i . "_";
+    my $destName = "$prefix$name";
+    symlink $subdirs{$name}, "$dest/$prefix$name";
+    $i++;
+  }
+  print "setup symlinks:\n";
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+&main(@ARGV);
