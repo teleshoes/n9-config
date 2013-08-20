@@ -41,6 +41,7 @@ my $normalPackages = {
     waze
     screen
     cameraplus
+    n9-button-monitor n9bm-toggle
   )],
   '4' => [qw(
     ad-hac
