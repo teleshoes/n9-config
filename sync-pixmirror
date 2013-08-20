@@ -30,3 +30,4 @@ run "rsync", "-avP", "--del",
   "$localPixmirror/",
   "user\@$host:$remotePixmirror";
 die "rsync failed\n" if $? != 0;
+run "n9", "symlink-pixmirror";
