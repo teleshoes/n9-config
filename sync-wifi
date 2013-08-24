@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 
+sub clearAllWifi();
 sub getExisting();
 sub getWifiGconf($$$);
 
@@ -51,6 +52,19 @@ my $gprsAtts = {
 sub main(@){
 }
 
+sub clearAllWifi(){
+  my $networks = getExisting();
+  my @cmds;
+  for my $id(keys %$networks){
+    if($$networks{$id}{type} eq "WLAN_INFRA"){
+      my $name = $$networks{$id}{name};
+      $name = '' if not defined $name;
+      push @cmds, "echo 'deleting $id => $name'";
+      push @cmds, "gconftool --recursive-unset $rootDir/$id";
+    }
+  }
+  system "n9", join "\n", @cmds if @cmds > 0;
+}
 sub getExisting(){
   my @iapLines = `n9 -u user gconftool -R $rootDir`;
   my %allAtts = (%$wifiAtts, %$gprsAtts);
