@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 
+sub addWifiFromNet();
 sub clearAllWifi();
 sub getExisting();
 sub getWifiGconf($$$);
@@ -50,6 +51,26 @@ my $gprsAtts = {
 };
 
 sub main(@){
+}
+
+sub addWifiFromNet(){
+  my @cmds;
+  for my $ssidName(sort split /\n/, runBT "winfo", "--list-all"){
+    my $info = runBT "winfo", $ssidName;
+    my $ssid = $1 if $info =~ /^ssid:(.*)$/m;
+    my $enc = $1 if $info =~ /^enc:(.*)$/m;
+    my $key = $1 if $info =~ /^key:(.*)$/m;
+    my $mode = $1 if $info =~ /^mode:(.*)$/m;
+    my $auto = $1 if $info =~ /^auto:(.*)$/m;
+    my $autoConnect = $auto =~ /^\d+$/ ? 'true' : 'false';
+    if($enc =~ /WPA/i and $mode =~ /managed/i){
+      my $wifiCmds = getGconfCmds(getWifiGconf $ssid, $key, $autoConnect);
+      push @cmds, "echo adding: SSID='$ssid' WPA='$key' auto='$autoConnect'";
+      @cmds = (@cmds, @$wifiCmds);
+    }
+  }
+
+  system "n9", join "\n", @cmds;
 }
 
 sub clearAllWifi(){
