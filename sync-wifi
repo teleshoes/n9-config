@@ -2,8 +2,53 @@
 use strict;
 use warnings;
 
-sub main(@){
+sub getGconfCmds($);
+sub gconfGetCmd($);
+sub gconfSetCmd($$$;$);
+sub listInt($);
+sub listString($);
+my $TRUE = ['true', 'bool'];
+my $FALSE = ['false', 'bool'];
 
+sub main(@){
 }
+
+sub getGconfCmds($){
+  my $gconf = shift;
+  my $cmds = [];
+
+  for my $key(keys %$gconf){
+    my @arr = @{$$gconf{$key}};
+    my $val = shift @arr;
+    my $type = @arr > 0 ? shift @arr : 'string';
+    my $listType = @arr > 0 ? shift @arr : undef;
+    push @$cmds, gconfSetCmd($key, $val, $type, $listType);
+  }
+  return $cmds;
+}
+
+sub gconfGetCmd($){
+  return "gconftool-2 --get $_[0]";
+}
+sub gconfSetCmd($$$;$){
+  my ($key, $val, $type, $listType) = @_;
+  my $cmd = "gconftool-2 --set '$key' '$val' --type=$type";
+  if(lc $type eq 'list'){
+    $cmd .= " --list-type=$listType";
+  }
+  return $cmd;
+}
+
+sub listInt($){
+  my @list = @{shift()};
+  my $val = '[' . (join ',', @list) . ']';
+  return [$val, 'list', 'int'];
+}
+sub listString($){
+  my @list = @{shift()};
+  my $val = '[' . (join ',', @list) . ']';
+  return [$val, 'list', 'string'];
+}
+
 
 &main(@ARGV);
