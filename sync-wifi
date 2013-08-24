@@ -2,11 +2,18 @@
 use strict;
 use warnings;
 
+sub randHex($);
+sub randomId();
+
 sub getGconfCmds($);
 sub gconfGetCmd($);
 sub gconfSetCmd($$$;$);
 sub listInt($);
 sub listString($);
+sub ssidListInt($);
+sub wpaPskListInt($$);
+sub runBT(@);
+
 my $TRUE = ['true', 'bool'];
 my $FALSE = ['false', 'bool'];
 
@@ -25,6 +32,14 @@ sub getGconfCmds($){
     push @$cmds, gconfSetCmd($key, $val, $type, $listType);
   }
   return $cmds;
+}
+
+sub randHex($){
+  my $digs = shift;
+  return lc sprintf "%0${digs}X", rand(16**$digs);
+}
+sub randomId(){
+  return join '-', randHex(8), randHex(4), randHex(4), randHex(4), randHex(12);
 }
 
 sub gconfGetCmd($){
@@ -49,6 +64,34 @@ sub listString($){
   my $val = '[' . (join ',', @list) . ']';
   return [$val, 'list', 'string'];
 }
+sub ssidListInt($){
+  my ($ssid) = @_;
+  my @dec;
+  for(my $i=0; $i<length $ssid; $i++){
+    push @dec, ord(substr $ssid, $i, 1);
+  }
+  return listInt(\@dec);
+}
+sub wpaPskListInt($$){
+  my ($ssid, $passphrase) = @_;
+  my $net = runBT "wpa_passphrase", $ssid, $passphrase;
+  if($net =~ /^\s*psk=([0-9a-f]+)\s*$/m){
+    my $psk = $1;
+    my @bytes;
+    for(my $i=0; $i<length $psk; $i+=2){
+      push @bytes, substr $psk, $i, 2;
+    }
+    my @dec = map {sprintf("%d", hex($_))} @bytes;
+    return listInt(\@dec);
+  }
+  return undef;
+}
 
+sub runBT(@){
+  open FH, "-|", @_;
+  my @lines = <FH>;
+  close FH;
+  return join '', @lines;
+}
 
 &main(@ARGV);
