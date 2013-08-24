@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $host = `n9`;
+chomp $host;
+
+my $dir = "$ENV{HOME}/Code/n9";
+my $mmsLocal = "$dir/backup/backup-mms";
+my $mmsRemote = "/home/user/.mms";
+
+my $local = $mmsLocal;
+my $remote = "user\@$host:$mmsRemote";
+
+my @rsyncOpts = qw(
+  -a --no-owner --no-group
+  -v -P
+);
+
+sub run(@){
+  print "@_\n";
+  system @_;
+  die "failed" if $? != 0;
+}
+
+run "rsync", @rsyncOpts, "$remote/", $local;
+run "rsync", @rsyncOpts, "$local/", $remote;
+
