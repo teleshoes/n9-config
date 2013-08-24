@@ -51,6 +51,7 @@ my @config = qw(
     emumaster
 
     QmlMozBrowser
+    cameraplus
     accountsui
     ovistoreclient
   ]
