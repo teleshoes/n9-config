@@ -1,0 +1,1 @@
+sudo flasher -l -k kernels/zImage_2.6.32.54-ubiboot-02_040613 -b
