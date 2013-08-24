@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 
+sub getExisting();
 sub randHex($);
 sub randomId();
 
@@ -14,6 +15,7 @@ sub ssidListInt($);
 sub wpaPskListInt($$);
 sub runBT(@);
 
+my $rootDir = '/system/osso/connectivity/IAP';
 my $TRUE = ['true', 'bool'];
 my $FALSE = ['false', 'bool'];
 
@@ -68,6 +70,27 @@ sub randHex($){
 }
 sub randomId(){
   return join '-', randHex(8), randHex(4), randHex(4), randHex(4), randHex(12);
+}
+
+sub getExisting(){
+  my @iapLines = `n9 -u user gconftool -R $rootDir`;
+  my %allAtts = (%$wifiAtts, %$gprsAtts);
+
+  my $id;
+  my $networks = {};
+  my $h4Re = "[a-f0-9]{4}";
+  my $h8Re = "[a-f0-9]{8}";
+  my $h12Re = "[a-f0-9]{12}";
+  my $attRe = join "|", keys %allAtts;
+  for my $line(@iapLines){
+    if($line =~ /^ $rootDir\/($h8Re-$h4Re-$h4Re-$h4Re-$h12Re):$/){
+      $id = $1;
+      $$networks{$id} = {};
+    }elsif(defined $id and $line =~ /^  ($attRe) = (.*)$/){
+      $$networks{$id}{$1} = $2;
+    }
+  }
+  return $networks;
 }
 
 sub gconfGetCmd($){
