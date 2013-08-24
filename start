@@ -17,6 +17,7 @@ ssh-config
 set-host
 keygen.pl
 remove-disclaimer
+sync-wifi
 ### FLASH AN OPENMODE KERNEL
 ### switch to wifi now, seriously, reboot makes it confused
 remove-aegis
