@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 sub getExisting();
+sub getWifiGconf($$$);
 
 sub getGconfCmds($);
 sub gconfGetCmd($);
@@ -69,6 +70,23 @@ sub getExisting(){
     }
   }
   return $networks;
+}
+
+sub getWifiGconf($$$){
+  my ($ssid, $wpa, $auto) = @_;
+  my $id = randomId;
+  my $dir = "$rootDir/$id";
+
+  my $gconf = {};
+  for my $att(keys %$wifiAtts){
+    $$gconf{"$dir/$att"} = $$wifiAtts{$att};
+  }
+  $$gconf{"$dir/name"} = [$ssid];
+  $$gconf{"$dir/wlan_ssid"} = ssidListInt $ssid;
+  $$gconf{"$dir/EAP_wpa_preshared_key"} = wpaPskListInt $ssid, $wpa;
+  $$gconf{"$dir/EAP_wpa_preshared_passphrase"} = [$wpa];
+  $$gconf{"$dir/autoconnect"} = $auto =~ /true/i ? $TRUE : $FALSE;
+  return $gconf;
 }
 
 sub getGconfCmds($){
