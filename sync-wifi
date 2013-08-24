@@ -19,6 +19,7 @@ sub randomId();
 sub runBT(@);
 
 my $rootDir = '/system/osso/connectivity/IAP';
+my $noAutoFile = "$ENV{HOME}/Code/n9/wifi-noauto";
 my $TRUE = ['true', 'bool'];
 my $FALSE = ['false', 'bool'];
 
@@ -62,6 +63,7 @@ sub main(@){
 
 sub addWifiFromNet(){
   my @cmds;
+  my %noAuto = map {chomp; $_ => 1} `cat $noAutoFile 2>/dev/null`;
   for my $ssidName(sort split /\n/, runBT "winfo", "--list-all"){
     my $info = runBT "winfo", $ssidName;
     my $ssid = $1 if $info =~ /^ssid:(.*)$/m;
@@ -71,6 +73,10 @@ sub addWifiFromNet(){
     my $auto = $1 if $info =~ /^auto:(.*)$/m;
     my $autoConnect = $auto =~ /^\d+$/ ? 'true' : 'false';
     if($enc =~ /WPA/i and $mode =~ /managed/i){
+      if(defined $noAuto{$ssid}){
+        print "  forcibly disabling autoconnect for $ssid\n";
+        $autoConnect = 'false';
+      }
       my $wifiCmds = getGconfCmds(getWifiGconf $ssid, $key, $autoConnect);
       push @cmds, "echo adding: SSID='$ssid' WPA='$key' auto='$autoConnect'";
       @cmds = (@cmds, @$wifiCmds);
