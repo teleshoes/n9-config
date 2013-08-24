@@ -3,8 +3,6 @@ use strict;
 use warnings;
 
 sub getExisting();
-sub randHex($);
-sub randomId();
 
 sub getGconfCmds($);
 sub gconfGetCmd($);
@@ -13,6 +11,8 @@ sub listInt($);
 sub listString($);
 sub ssidListInt($);
 sub wpaPskListInt($$);
+sub randHex($);
+sub randomId();
 sub runBT(@);
 
 my $rootDir = '/system/osso/connectivity/IAP';
@@ -50,28 +50,6 @@ my $gprsAtts = {
 sub main(@){
 }
 
-sub getGconfCmds($){
-  my $gconf = shift;
-  my $cmds = [];
-
-  for my $key(keys %$gconf){
-    my @arr = @{$$gconf{$key}};
-    my $val = shift @arr;
-    my $type = @arr > 0 ? shift @arr : 'string';
-    my $listType = @arr > 0 ? shift @arr : undef;
-    push @$cmds, gconfSetCmd($key, $val, $type, $listType);
-  }
-  return $cmds;
-}
-
-sub randHex($){
-  my $digs = shift;
-  return lc sprintf "%0${digs}X", rand(16**$digs);
-}
-sub randomId(){
-  return join '-', randHex(8), randHex(4), randHex(4), randHex(4), randHex(12);
-}
-
 sub getExisting(){
   my @iapLines = `n9 -u user gconftool -R $rootDir`;
   my %allAtts = (%$wifiAtts, %$gprsAtts);
@@ -93,6 +71,19 @@ sub getExisting(){
   return $networks;
 }
 
+sub getGconfCmds($){
+  my $gconf = shift;
+  my $cmds = [];
+
+  for my $key(keys %$gconf){
+    my @arr = @{$$gconf{$key}};
+    my $val = shift @arr;
+    my $type = @arr > 0 ? shift @arr : 'string';
+    my $listType = @arr > 0 ? shift @arr : undef;
+    push @$cmds, gconfSetCmd($key, $val, $type, $listType);
+  }
+  return $cmds;
+}
 sub gconfGetCmd($){
   return "gconftool-2 --get $_[0]";
 }
@@ -136,6 +127,14 @@ sub wpaPskListInt($$){
     return listInt(\@dec);
   }
   return undef;
+}
+
+sub randHex($){
+  my $digs = shift;
+  return lc sprintf "%0${digs}X", rand(16**$digs);
+}
+sub randomId(){
+  return join '-', randHex(8), randHex(4), randHex(4), randHex(4), randHex(12);
 }
 
 sub runBT(@){
