@@ -83,5 +83,8 @@ FIRMWARE + KERNEL + EMMC
 [I]*Nokia claims this voids your warranty*[/I]
   flasher -f -F firmware.bin -F emmc.bin
   flasher -F firmware.bin -k openkernel --flash-only=kernel -f
+
+REBOOT
+  flasher -R
 =================================
 {maybe you wanna? highlight both lines and paste them into a root terminal}
