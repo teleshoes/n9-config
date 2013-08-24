@@ -1,0 +1,81 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub mnt($$);
+sub umnt($$);
+sub waitDevs(@);
+sub run(@);
+
+my $device = "/dev/disk/by-id/usb-Linux_File-CD_Gadget-0:0";
+my $rootDev = "$device-part2";
+my $homeDev = "$device-part3";
+my $mydocsDev = "$device-part1";
+my $rootDir = "/media/n9-root";
+my $homeDir = "/media/n9-home";
+my $mydocsDir = "/media/n9-mydocs";
+
+my $usage = "Usage:
+  $0 -m  wait for devices to appear and mount them
+  $0 -u  umount devices
+
+  mountpoint => device
+    $rootDir => $rootDev
+    $homeDir => $homeDev
+    $mydocsDir => $mydocsDev
+";
+
+sub main(@){
+  die $usage if @_ != 1 or $_[0] !~ /^(-m|-u)$/;
+  if($_[0] eq '-m'){
+    waitDevs $rootDev, $homeDev, $mydocsDev;
+    mnt $rootDev, $rootDir;
+    mnt $homeDev, $homeDir;
+    mnt $mydocsDev, $mydocsDir;
+  }elsif($_[0] eq '-u'){
+    umnt $rootDev, $rootDir;
+    umnt $homeDev, $homeDir;
+    umnt $mydocsDev, $mydocsDir;
+  }
+}
+
+sub mnt($$){
+  my ($dev, $dir) = @_;
+  run "sudo rmdir $dir 2>/dev/null";
+  die "$dir exists and cant be removed\n" if -e $dir;
+  run "sudo", "mkdir", "-p", $dir;
+
+  my $blkid = `blkid $dev`;
+  my $type = $1 if $blkid =~ /TYPE="([^"]*)"/;
+  die "unknown fstype for $dev: $type\n" if $type !~ /^(ext4|vfat)$/;
+  run "sudo", "mount", "-t", $type, $dev, $dir;
+  print "\n";
+}
+sub umnt($$){
+  my ($dev, $dir) = @_;
+  run "sudo", "umount", $dev;
+  run "sudo", "rmdir", $dir;
+  print "\n";
+}
+sub waitDevs(@){
+  my @devs = @_;
+  print "waiting for:\n  " . join("\n  ", @devs). "\n";
+  $| = 1;
+  while(1){
+    my $ok = 1;
+    for my $dev(@devs){
+      $ok = 0 if not -e $dev;
+    }
+    last if $ok;
+    print ".";
+    sleep 1;
+  }
+  print "\nok!\n";
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+&main(@ARGV);
