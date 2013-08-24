@@ -17,6 +17,34 @@ sub runBT(@);
 my $TRUE = ['true', 'bool'];
 my $FALSE = ['false', 'bool'];
 
+my $wifiAtts = {
+  name => [""],
+  wlan_ssid => listInt [],
+  EAP_wpa_preshared_key => listInt [],
+  EAP_wpa_preshared_passphrase => [""],
+
+  http_check_status => ["no_login"],
+  proxytype => ["NONE"],
+  wlan_hidden => $FALSE,
+  wlan_security => ["WPA_PSK"],
+  type => ["WLAN_INFRA"],
+  autoconnect => $TRUE,
+  ipv4_type => ["AUTO"],
+};
+my $gprsAtts = {
+  name => [""],
+  gprs_accesspointname => [""],
+  sim_imsi => [""],
+  gprs_username => [""],
+  gprs_password => [""],
+  type => ["GPRS"],
+  autoconnect => $TRUE,
+  ask_password => $FALSE,
+  first_time_dialog_shown => $TRUE,
+  ipv4_autodns => $TRUE,
+  ipv4_type => ["AUTO"],
+};
+
 sub main(@){
 }
 
