@@ -21,7 +21,7 @@ my @config = qw(
 
   finch
   klomp
-  camera-ui
+  cameraplus
   settings
 
   nokia-drive-qml
@@ -61,7 +61,7 @@ my @config = qw(
     contact-coocoo
     fennec
     grob
-    cameraplus
+    camera-ui
     mymoves
     waze
     NokiaPt
