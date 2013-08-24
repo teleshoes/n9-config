@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $srcDir = "$ENV{HOME}/.ssh";
+my $destDir = "/media/n9-home/user/.ssh";
+my $owner = "29999.29999";
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+sub main(@){
+  die "Usage: $0\n" if @_ != 0;
+  die "$destDir doesnt exist\n" if not -d $destDir;
+  my $authkeys = "$destDir/authorized_keys";
+  run "cat $srcDir/*.pub | sudo tee $authkeys > /dev/null";
+  run "sudo", "chown", $owner, $authkeys;
+}
+
+&main(@ARGV);
