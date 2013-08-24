@@ -83,5 +83,8 @@ FIRMWARE + KERNEL + EMMC
 [I]*Nokia claims this voids your warranty*[/I]
   flasher -f -F middleeast-fw.bin -F emmc.bin
   flasher -F middleeast-fw.bin -k openkernel --flash-only=kernel -f
+
+REBOOT
+  flasher -R
 =================================
 {maybe you wanna? highlight both lines and paste them into a root terminal}
