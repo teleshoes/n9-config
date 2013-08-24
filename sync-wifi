@@ -51,6 +51,13 @@ my $gprsAtts = {
 };
 
 sub main(@){
+  die "Usage: $0\n" if @_ > 0;
+
+  print "clearing all wifi networks\n";
+  clearAllWifi();
+  print "\n\n";
+  print "adding wifi networks from net\n";
+  addWifiFromNet();
 }
 
 sub addWifiFromNet(){
