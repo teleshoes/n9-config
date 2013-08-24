@@ -1,0 +1,6 @@
+./ubi-console &&\
+./ubi-mnt -m &&\
+./ubi-sshkeys &&\
+./ubi-mnt -u &&\
+./ubi-cmd reboot2 &&\
+echo ok
