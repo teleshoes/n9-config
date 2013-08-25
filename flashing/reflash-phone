@@ -93,9 +93,9 @@ sub slowInstalls(){
   }
   my $wlan = `n9 -s ifconfig wlan0`;
   if($wlan =~ /inet addr:\d+.\d+.\d+.\d+/){
-    print "successful wifi!\n";
+    print "\n\n\nSUCCESSFUL WIFI!\n";
   }else{
-    print "no wifi, continuing without\n";
+    print "\n\n\nNO WIFI, continuing without\n";
   }
 
   print "\n\nrunning time-consuming stuff\n";
