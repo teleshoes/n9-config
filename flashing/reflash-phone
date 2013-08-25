@@ -4,14 +4,8 @@ use warnings;
 
 sub flashAndRootStrap($$$);
 sub attemptSSH();
-sub tryrun(@){
-  print "@_\n";
-  system @_;
-}
-sub run(@){
-  tryrun @_;
-  die "@_ failed\n" if $? != 0;
-}
+sub run(@);
+sub tryrun(@);
 
 sub main(@){
   die "Usage: $0 FIRMWARE EMMC KERNEL\n" if @_ != 3;
@@ -61,6 +55,15 @@ sub attemptSSH(){
   my $out = `ssh user\@192.168.2.15 echo YAY`;
   die "couldnt ssh\n" unless $out =~ /YAY/;
   print "\n\n\nSUCCESSFUL SSH\n";
+}
+
+sub run(@){
+  tryrun @_;
+  die "@_ failed\n" if $? != 0;
+}
+sub tryrun(@){
+  print "@_\n";
+  system @_;
 }
 
 &main(@ARGV);
