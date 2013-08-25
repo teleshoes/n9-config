@@ -82,8 +82,24 @@ sub slowInstalls(){
   run "./sync-wifi";
   run "n9", "-s", "ifconfig wlan0 down";
   run "n9", "-s", "ifconfig wlan0 up";
-  sleep 10;
-  run "n9", "-s", "ifconfig wlan0";
+
+  my $limit = 30;
+  print "waiting for wifi, stopping after ${limit}s\n";
+  my $start = time;
+  $|=1;
+  while(1){
+    my $wlan = `n9 -s ifconfig wlan0`;
+    print ".";
+    last if $wlan =~ /inet addr:\d+.\d+.\d+.\d+/;
+    last if time-$start > $limit;
+    sleep 1;
+  }
+  my $wlan = `n9 -s ifconfig wlan0`;
+  if($wlan =~ /inet addr:\d+.\d+.\d+.\d+/){
+    print "successful wifi!\n";
+  }else{
+    print "no wifi, continuing without\n";
+  }
 
   print "\n\nrunning time-consuming stuff\n";
   print "respawn-limit, packages {twice}, config-files\n";
