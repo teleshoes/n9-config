@@ -68,9 +68,12 @@ sub attemptSSH(){
   print "usb network up!\n";
 
   run "ssh", "root\@192.168.2.15", "passwd -d user";
-  my $out = `ssh user\@192.168.2.15 echo YAY`;
-  die "couldnt ssh\n" unless $out =~ /YAY/;
-  print "\n\n\nSUCCESSFUL SSH\n";
+  my $out = `ssh user\@192.168.2.15 'whoami; hostname; echo YAY'`;
+  if($out eq "user\nRM696\nYAY\n"){
+    print "\n\n\nSUCCESSFUL SSH\n";
+  }else{
+    die "couldnt ssh\n";
+  }
 }
 
 sub slowInstalls(){
