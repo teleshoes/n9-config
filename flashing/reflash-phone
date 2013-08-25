@@ -80,9 +80,6 @@ sub slowInstalls(){
   print "\n\nattempting to switch to wifi\n";
   chdir "../";
   run "./sync-wifi";
-  run "n9", "-s", "ifconfig wlan0 down";
-  run "n9", "-s", "ifconfig wlan0 up";
-
   my $limit = 30;
   print "waiting for wifi, stopping after ${limit}s\n";
   my $start = time;
