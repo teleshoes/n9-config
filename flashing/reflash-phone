@@ -2,9 +2,13 @@
 use strict;
 use warnings;
 
-sub run(@){
+sub tryrun(@){
   print "@_\n";
   system @_;
+}
+sub run(@){
+  tryrun @_;
+  die "@_ failed\n" if $? != 0;
 }
 
 sub main(@){
@@ -21,6 +25,30 @@ sub main(@){
   die "weird firmware: $fw\n" if not -f $fw or $fw !~ /$fwRegex/;
   die "weird emmc: $emmc\n" if not -f $emmc or $emmc !~ /$emmcRegex/;
   die "weird kernel: $kernel\n" if not -f $kernel or $kernel !~ /$kernelRegex/;
+
+  print "\n\n\nflashing firmware and emmc\n";
+  run "sudo", "flasher", "-f", "-F", $fw, "-F", $emmc;
+
+  print "\n\n\nflashing ubiboot and starting ubiboot maintenance console\n";
+  run "./ubi-console", "--flash";
+
+  print "\n\n\nmounting partitions and copying files for rootstrapping\n";
+  tryrun "./ubi-mnt", "-u";
+  tryrun "./ubi-mnt", "-u";
+  run "./ubi-mnt", "-m";
+  run "./ubi-rootstrap";
+  run "./ubi-sshkeys";
+  run "./ubi-mnt", "-u";
+
+  print "\n\n\nrebooting and flashing kernel in the background\n";
+  run "sudo flasher -f -F $fw -k $kernel --flash-only=kernel -R &";
+  run "./ubi-cmd", "reboot2";
+
+  print "\n\n\nwaiting for kernel flash, rebooting, and attempting to ssh\n";
+  run "loop -s sudo ifconfig usb0 192.168.2.14";
+  my $out = `ssh user\@192.168.2.15 echo YAY`;
+  die "couldnt ssh\n" unless $out =~ /YAY/;
+  print "\n\n\nSUCCESS\n";
 }
 
 &main(@ARGV);
