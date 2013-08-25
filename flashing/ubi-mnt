@@ -54,6 +54,7 @@ sub mnt($$){
 sub umnt($$){
   my ($dev, $dir) = @_;
   run "sudo", "umount", $dev;
+  run "sudo", "umount", $dir if $? != 0;
   run "sudo", "rmdir", $dir;
   print "\n";
 }
