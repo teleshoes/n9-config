@@ -49,6 +49,7 @@ sub mnt($$){
   my $type = $1 if $blkid =~ /TYPE="([^"]*)"/;
   die "unknown fstype for $dev: $type\n" if $type !~ /^(ext4|vfat)$/;
   run "sudo", "mount", "-t", $type, $dev, $dir;
+  die "error mounting\n" if $? != 0;
   print "\n";
 }
 sub umnt($$){
