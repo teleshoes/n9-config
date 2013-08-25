@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+sub main(@){
+  die "Usage: $0 FIRMWARE EMMC KERNEL\n" if @_ != 3;
+  my ($fw, $emmc, $kernel) = @_;
+  $fw = readlink $fw if -l $fw;
+  $emmc = readlink $emmc if -l $emmc;
+  $kernel = readlink $kernel if -l $kernel;
+
+  my $version = "\\d\\d.\\d\\d\\d\\d.\\d\\d-\\d";
+  my $fwRegex = "DFL61_HARMATTAN_${version}_PR_LEGACY_00\\d-OEM1-958_ARM.bin";
+  my $emmcRegex = "DFL61_HARMATTAN_${version}.[A-Z]+_EMMC_[A-Z]+.bin";
+  my $kernelRegex = "zImage";
+  die "weird firmware: $fw\n" if not -f $fw or $fw !~ /$fwRegex/;
+  die "weird emmc: $emmc\n" if not -f $emmc or $emmc !~ /$emmcRegex/;
+  die "weird kernel: $kernel\n" if not -f $kernel or $kernel !~ /$kernelRegex/;
+}
+
+&main(@ARGV);
