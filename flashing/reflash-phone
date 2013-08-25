@@ -2,6 +2,8 @@
 use strict;
 use warnings;
 
+sub flashAndRootStrap($$$);
+sub attemptSSH();
 sub tryrun(@){
   print "@_\n";
   system @_;
@@ -14,6 +16,14 @@ sub run(@){
 sub main(@){
   die "Usage: $0 FIRMWARE EMMC KERNEL\n" if @_ != 3;
   my ($fw, $emmc, $kernel) = @_;
+
+  flashAndRootStrap $fw, $emmc, $kernel;
+  attemptSSH();
+}
+
+sub flashAndRootStrap($$$){
+  my ($fw, $emmc, $kernel) = @_;
+
   $fw = readlink $fw if -l $fw;
   $emmc = readlink $emmc if -l $emmc;
   $kernel = readlink $kernel if -l $kernel;
@@ -43,12 +53,14 @@ sub main(@){
   print "\n\n\nrebooting and flashing kernel in the background\n";
   run "sudo flasher -f -F $fw -k $kernel --flash-only=kernel -R &";
   run "./ubi-cmd", "reboot2";
+}
 
+sub attemptSSH(){
   print "\n\n\nwaiting for kernel flash, rebooting, and attempting to ssh\n";
   run "loop -s sudo ifconfig usb0 192.168.2.14";
   my $out = `ssh user\@192.168.2.15 echo YAY`;
   die "couldnt ssh\n" unless $out =~ /YAY/;
-  print "\n\n\nSUCCESS\n";
+  print "\n\n\nSUCCESSFUL SSH\n";
 }
 
 &main(@ARGV);
