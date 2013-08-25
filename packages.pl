@@ -214,7 +214,7 @@ sub removePackages(){
   for my $pkg(@packagesToRemove){
     delete $deps{$pkg};
   }
-  my $depInstallCmd = "$env apt-get install \\\n";
+  my $depInstallCmd = "$env apt-get install --force-yes -y \\\n";
   for my $dep(keys %deps){
     $depInstallCmd .= "  $dep \\\n";
   }
