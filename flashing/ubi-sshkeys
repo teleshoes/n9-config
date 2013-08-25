@@ -3,7 +3,8 @@ use strict;
 use warnings;
 
 my $srcDir = "$ENV{HOME}/.ssh";
-my $mntDir = "/media/n9-home";
+my $homeMntDir = "/media/n9-home";
+my $rootMntDir = "/media/n9-root";
 my $uidGid = "29999.29999";
 
 sub run(@){
@@ -19,8 +20,13 @@ sub sshkeys($){
 
 sub main(@){
   die "Usage: $0\n" if @_ != 0;
-  my $preDir = "$mntDir/preinstalled";
-  my $userDir = "$mntDir/user";
+  print "installing authkeys for root:\n";
+  sshkeys "$rootMntDir/root/.ssh";
+  print "\n\n";
+
+  print "installing authkeys for user:\n";
+  my $preDir = "$homeMntDir/preinstalled";
+  my $userDir = "$homeMntDir/user";
   if(-d $preDir and not -d $userDir){
     print "before initial boot, setting up $preDir\n";
     sshkeys "$preDir/.ssh";
