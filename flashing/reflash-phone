@@ -4,6 +4,7 @@ use warnings;
 
 sub flashAndRootStrap($$$);
 sub attemptSSH();
+sub attemptWifi();
 sub slowInstalls();
 sub run(@);
 sub tryrun(@);
@@ -15,6 +16,7 @@ sub main(@){
   flashAndRootStrap $fw, $emmc, $kernel;
   attemptSSH();
   chdir "../";
+  attemptWifi();
   slowInstalls();
 }
 
@@ -77,7 +79,7 @@ sub attemptSSH(){
   }
 }
 
-sub slowInstalls(){
+sub attemptWifi(){
   print "\n\nattempting to switch to wifi\n";
   run "./sync-wifi";
   my $gconfDir = "/system/osso/connectivity/network_type";
@@ -104,7 +106,9 @@ sub slowInstalls(){
   }else{
     print "\n\n\nNO WIFI, continuing without\n";
   }
+}
 
+sub slowInstalls(){
   print "\n\nrunning time-consuming stuff\n";
   print "respawn-limit, packages {twice}, config-files\n";
   run "./respawn-limit";
