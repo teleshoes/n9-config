@@ -53,7 +53,19 @@ sub flashAndRootStrap($$$){
 
 sub attemptSSH(){
   print "\n\n\nwaiting for kernel flash, rebooting, and attempting to ssh\n";
-  run "loop -s sudo ifconfig usb0 192.168.2.14";
+  my $usbUpCmd = "sudo ifconfig usb0 192.168.2.14";
+  run $usbUpCmd;
+  if($? != 0){
+    print "$usbUpCmd failed, quietly rerunning until success:\n";
+    $|=1;
+    while(1){
+      print ".";
+      system "$usbUpCmd > /dev/null 2>/dev/null";
+      last if $? == 0;
+      sleep 1;
+    }
+  }
+  print "usb network up!\n";
 
   run "ssh", "root\@192.168.2.15", "passwd -d user";
   my $out = `ssh user\@192.168.2.15 echo YAY`;
