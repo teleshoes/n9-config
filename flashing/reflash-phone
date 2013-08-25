@@ -4,6 +4,7 @@ use warnings;
 
 sub flashAndRootStrap($$$);
 sub attemptSSH();
+sub slowInstalls();
 sub run(@);
 sub tryrun(@);
 
@@ -13,6 +14,7 @@ sub main(@){
 
   flashAndRootStrap $fw, $emmc, $kernel;
   attemptSSH();
+  slowInstalls();
 }
 
 sub flashAndRootStrap($$$){
@@ -57,6 +59,23 @@ sub attemptSSH(){
   my $out = `ssh user\@192.168.2.15 echo YAY`;
   die "couldnt ssh\n" unless $out =~ /YAY/;
   print "\n\n\nSUCCESSFUL SSH\n";
+}
+
+sub slowInstalls(){
+  print "\n\nattempting to switch to wifi\n";
+  chdir "../";
+  run "./sync-wifi";
+  run "n9", "-s", "ifconfig wlan0 down";
+  run "n9", "-s", "ifconfig wlan0 up";
+  sleep 10;
+  run "n9", "-s", "ifconfig wlan0";
+
+  print "\n\nrunning time-consuming stuff\n";
+  print "respawn-limit, packages {twice}, config-files\n";
+  run "./respawn-limit";
+  run "./packages.pl";
+  run "./packages.pl";
+  run "./config-files";
 }
 
 sub run(@){
