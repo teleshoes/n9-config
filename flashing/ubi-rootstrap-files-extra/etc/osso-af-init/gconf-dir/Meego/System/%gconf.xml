@@ -3,4 +3,7 @@
 	<entry name="DeveloperMode" mtime="1377421362" type="string">
 		<stringvalue>true</stringvalue>
 	</entry>
+	<entry name="UsbMode" mtime="1377421362" type="string">
+		<stringvalue>ovi_suite</stringvalue>
+	</entry>
 </gconf>
