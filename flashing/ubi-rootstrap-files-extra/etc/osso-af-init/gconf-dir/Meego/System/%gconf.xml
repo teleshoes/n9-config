@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="DeveloperMode" mtime="1377421362" type="string">
+		<stringvalue>true</stringvalue>
+	</entry>
+</gconf>
