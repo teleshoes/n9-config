@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $mntDir = "/media/n9-root";
+my $dir = "ubi-rootstrap-files";
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+sub main(@){
+  die "Usage: $0\n" if @_ != 0;
+  die "$mntDir not found\n" if not -d $mntDir;
+
+  run "sudo", "rm", "-rf", $dir;
+  run "sudo", "tar", "-xf", "$dir.tar.gz";
+  run "sudo", "rsync", "-avP", "--no-owner", "--no-group", "$dir-extra/", $dir;
+  run "sudo", "rsync", "-avP", "$dir/", $mntDir;
+  run "sudo", "rm", "-rf", $dir;
+}
+
+&main(@ARGV);
