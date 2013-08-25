@@ -3,20 +3,34 @@ use strict;
 use warnings;
 
 my $srcDir = "$ENV{HOME}/.ssh";
-my $destDir = "/media/n9-home/user/.ssh";
-my $owner = "29999.29999";
+my $mntDir = "/media/n9-home";
+my $uidGid = "29999.29999";
 
 sub run(@){
   print "@_\n";
   system @_;
 }
 
+sub sshkeys($){
+  my $sshDir = shift;
+  run "sudo", "mkdir", "-p", $sshDir;
+  run "cat $srcDir/*.pub | sudo tee $sshDir/authorized_keys > /dev/null";
+}
+
 sub main(@){
   die "Usage: $0\n" if @_ != 0;
-  die "$destDir doesnt exist\n" if not -d $destDir;
-  my $authkeys = "$destDir/authorized_keys";
-  run "cat $srcDir/*.pub | sudo tee $authkeys > /dev/null";
-  run "sudo", "chown", $owner, $authkeys;
+  my $preDir = "$mntDir/preinstalled";
+  my $userDir = "$mntDir/user";
+  if(-d $preDir and not -d $userDir){
+    print "before initial boot, setting up $preDir\n";
+    sshkeys "$preDir/.ssh";
+  }elsif(not -d $preDir and -d $userDir){
+    print "after initial boot, setting up user .ssh dir\n";
+    sshkeys "$userDir/.ssh";
+    run "sudo", "chown", $uidGid, "$userDir/.ssh/authorized_keys";
+  }else{
+    die "Error: could not determine initial boot status\n";
+  }
 }
 
 &main(@ARGV);
