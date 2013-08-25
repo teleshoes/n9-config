@@ -1,2 +1,17 @@
-set -x
-sudo flasher -l -k kernels/zImage_2.6.32.54-ubiboot-02_040613 -b
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $ubibootKernel = "kernels/zImage_2.6.32.54-ubiboot-02_040613";
+
+sub main(@){
+  my $flash;
+  $flash = shift if @_ == 1 and $_[0] =~ /^(--flash)$/;
+  die "Usage: $0 [--flash]\n" if @_ != 0;
+  my $opt = defined $flash ? "-f" : "-l";
+  my @cmd = ("sudo", "flasher", $opt, "-k", $ubibootKernel, "-b");
+  print "@cmd\n";
+  system @cmd;
+}
+
+&main(@ARGV);
