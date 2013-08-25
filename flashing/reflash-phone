@@ -54,7 +54,7 @@ sub flashAndRootStrap($$$){
 sub attemptSSH(){
   print "\n\n\nwaiting for kernel flash, rebooting, and attempting to ssh\n";
   my $usbUpCmd = "sudo ifconfig usb0 192.168.2.14";
-  run $usbUpCmd;
+  tryrun $usbUpCmd;
   if($? != 0){
     print "$usbUpCmd failed, quietly rerunning until success:\n";
     $|=1;
