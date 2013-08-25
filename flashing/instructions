@@ -87,4 +87,8 @@ FIRMWARE + KERNEL + EMMC
 REBOOT
   flasher -R
 =================================
-{maybe you wanna? highlight both lines and paste them into a root terminal}
+perphas you want to run this:
+
+  time ./reflash-phone middleeast-fw.bin emmc.bin openkernel 2>&1 | tee flash.log
+
+for firmware, kernel, emmc, rootstrap, basic installs
