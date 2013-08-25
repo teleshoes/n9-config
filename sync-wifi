@@ -83,7 +83,7 @@ sub addWifiFromNet(){
     }
   }
 
-  system "n9", join "\n", @cmds;
+  system "n9", "-s", join "\n", @cmds;
 }
 
 sub clearAllWifi(){
@@ -97,10 +97,10 @@ sub clearAllWifi(){
       push @cmds, "gconftool --recursive-unset $rootDir/$id";
     }
   }
-  system "n9", join "\n", @cmds if @cmds > 0;
+  system "n9", "-s", join "\n", @cmds if @cmds > 0;
 }
 sub getExisting(){
-  my @iapLines = `n9 -u user gconftool -R $rootDir`;
+  my @iapLines = `n9 -u user -s gconftool -R $rootDir`;
   my %allAtts = (%$wifiAtts, %$gprsAtts);
 
   my $id;
