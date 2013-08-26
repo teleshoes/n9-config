@@ -18,10 +18,10 @@ set-host
 keygen.pl
 remove-disclaimer
 sync-wifi
+#remove-aegis
+#reset-accounts
 ### FLASH AN OPENMODE KERNEL
 ### switch to wifi now, seriously, reboot makes it confused
-remove-aegis
-reset-accounts
 ### reboot, refresh email accs individually
 respawn-limit
 packages
