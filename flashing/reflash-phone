@@ -13,6 +13,7 @@ sub main(@){
   die "Usage: $0 FIRMWARE EMMC KERNEL\n" if @_ != 3;
   my ($fw, $emmc, $kernel) = @_;
 
+  run "n9", "-t", "192.168.2.15";
   $|=1;
   flashAndRootStrap $fw, $emmc, $kernel;
   attemptSSH();
