@@ -36,6 +36,7 @@ install-klomp
 restore-contacts
 restore-comm sms
 restore-comm call
+sync-mms
 sync-mydocs
 sync-pidgin
 sync-fbreader restore
