@@ -35,7 +35,7 @@ sub keyCopy($){
 sub main(@){
   die "Usage: $0\n" if @_ > 0;
 
-  run 'rm', "$sshDir/$host.pub";
+  tryrun 'rm', "$sshDir/$host.pub";
 
   keygen 'root';
   keygen 'user';
