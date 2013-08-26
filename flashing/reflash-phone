@@ -13,6 +13,7 @@ sub main(@){
   die "Usage: $0 FIRMWARE EMMC KERNEL\n" if @_ != 3;
   my ($fw, $emmc, $kernel) = @_;
 
+  $|=1;
   flashAndRootStrap $fw, $emmc, $kernel;
   attemptSSH();
   chdir "../";
@@ -60,7 +61,6 @@ sub attemptSSH(){
   tryrun $usbUpCmd;
   if($? != 0){
     print "$usbUpCmd failed, quietly rerunning until success:\n";
-    $|=1;
     while(1){
       print ".";
       system "$usbUpCmd > /dev/null 2>/dev/null";
@@ -92,7 +92,6 @@ sub attemptWifi(){
   my $limit = 350;
   print "waiting for wifi, stopping after ${limit}s\n";
   my $start = time;
-  $|=1;
   while(1){
     my $wlan = `n9 -s ifconfig wlan0`;
     print ".";
