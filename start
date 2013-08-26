@@ -13,7 +13,6 @@ B) reflash-phone {flashing/instructions}
 C) run:
 
 n9 -t
-ssh-config
 set-host
 keygen.pl
 remove-disclaimer
