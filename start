@@ -17,7 +17,6 @@ set-passwd
 set-host
 keygen.pl
 sync-wifi
-#reset-accounts
 respawn-limit
 packages
 packages #to fix any debs that install in the wrong order
@@ -43,4 +42,5 @@ setup-vkb-toolbar
 n9u -s mymoves-config
 klomp-sync user@`n9`
 remove-aegis #reboots! necessary for mms
+#reset-accounts
 sync-mms
