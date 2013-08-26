@@ -98,8 +98,13 @@ sub writeLauncherButtonsData($);
 
 sub main(@){
   if(`which n9` ne "" and `hostname` ne `n9`){
+    my $host = `n9`;
+    chomp $host;
+    my $name = basename $0;
+    print "copying to the device\n";
+    system "scp", $0, "root\@$host:/tmp/$name";
     print "rerunning on the device\n";
-    exec "n9", basename($0), @_;
+    exec "ssh", "root\@$host", "/tmp/$name", @_;
   }
 
   if(@_ == 1 and $_[0] eq '-g'){
