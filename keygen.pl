@@ -38,14 +38,12 @@ sub main(@){
   die "Usage: $0\n" if @_ > 0;
 
   run 'rm', "$sshDir/$host.pub";
-  run 'ssh', "root\@$host", 'passwd user';
 
   keygen 'root';
   keygen 'user';
   keyCopy 'root';
   keyCopy 'user';
 
-  run 'ssh', "root\@$host", 'passwd -d user';
   run "cat $sshDir/*.pub > $sshDir/authorized_keys";
 }
 
