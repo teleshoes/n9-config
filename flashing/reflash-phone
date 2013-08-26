@@ -94,13 +94,6 @@ sub attemptWifi(){
   run "n9", "-s", "/sbin/initctl stop xsession/icd2";
   run "./sync-wifi";
   run "n9", "-s", "/sbin/initctl start xsession/icd2";
-  my $gconfDir = "/system/osso/connectivity/network_type";
-  run "n9", "-s", ''
-    . " gconftool -s -t i $gconfDir/search_interval 300;"
-    . " gconftool -s -t b $gconfDir/change_while_connected true;"
-    . " gconftool -s -t str $gconfDir/auto_connect \"[*]\";"
-    ;
-
   my $limit = 350;
   print "waiting for wifi, stopping after ${limit}s\n";
   my $start = time;
