@@ -13,6 +13,7 @@ B) reflash-phone {flashing/instructions}
 C) run:
 
 n9 -t
+set-passwd
 set-host
 keygen.pl
 sync-wifi
