@@ -12,7 +12,7 @@ B) reflash-phone {flashing/instructions}
 
 C) run:
 
-n9 -t 192.168.2.15
+n9 -t
 ssh-config
 set-host
 keygen.pl
@@ -27,7 +27,6 @@ respawn-limit
 packages
 packages #to fix any debs that install in the wrong order
 config-files
-n9 -t #and remove/add usb cable
 secret-keys
 launcher-buttons
 status-menu
