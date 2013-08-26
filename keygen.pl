@@ -2,14 +2,12 @@
 use strict;
 use warnings;
 
+sub run(@);
+sub tryrun(@);
+
 my $sshDir = "$ENV{HOME}/.ssh";
 my $host = `n9`;
 chomp $host;
-
-sub run(@){
-  print "@_\n";
-  system @_;
-}
 
 #makes the keys on the host, and appends to local .pub {local=>remote}
 sub keygen($){
@@ -45,6 +43,15 @@ sub main(@){
   keyCopy 'user';
 
   run "cat $sshDir/*.pub > $sshDir/authorized_keys";
+}
+
+sub run(@){
+  tryrun @_;
+  die "@_ failed\n" if $? != 0;
+}
+sub tryrun(@){
+  print "@_\n";
+  system @_;
 }
 
 &main(@ARGV)
