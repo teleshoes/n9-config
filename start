@@ -39,7 +39,6 @@ sync-fbreader restore
 fetch-klomp-lists restore
 sync-swype restore
 setup-vkb-toolbar
-n9u -s mymoves-config
 klomp-sync user@`n9`
 remove-aegis #reboots! necessary for mms
 #reset-accounts
