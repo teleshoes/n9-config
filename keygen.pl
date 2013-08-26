@@ -19,7 +19,8 @@ sub keygen($){
     mkdir -p ~/.ssh
     chmod go-w ~/.ssh
     chown $user.$group ~/
-    rm ~/.ssh/*
+    rm ~/.ssh/id_rsa
+    rm ~/.ssh/*.pub
     ssh-keygen -t rsa -N \"\" -q -f ~/.ssh/id_rsa
   ";
 
