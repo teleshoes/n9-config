@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+sub main(@){
+  run "n9", "-s", "passwd";
+  run "n9", "-s", "passwd user";
+}
+
+&main(@ARGV);
