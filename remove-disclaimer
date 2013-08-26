@@ -1,8 +1,0 @@
-#!/usr/bin/perl
-use strict;
-use warnings;
-
-my $host = `n9`;
-chomp $host;
-
-system "n9", "-s", "disclaimer-cal remove View-openmode";
