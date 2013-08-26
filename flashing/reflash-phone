@@ -4,7 +4,7 @@ use warnings;
 
 sub flashAndRootStrap($$$);
 sub attemptSSH();
-sub attemptWifi();
+sub attemptWifi($);
 sub slowInstalls();
 sub run(@);
 sub tryrun(@);
@@ -18,7 +18,7 @@ sub main(@){
   flashAndRootStrap $fw, $emmc, $kernel;
   attemptSSH();
   chdir "../";
-  attemptWifi();
+  attemptWifi(3);
   slowInstalls();
 }
 
@@ -80,7 +80,8 @@ sub attemptSSH(){
   }
 }
 
-sub attemptWifi(){
+sub attemptWifi($){
+  my $attempts = shift;
   print "\n\nattempting to switch to wifi\n";
   print "waiting for icd2\n";
   while(1){
@@ -108,6 +109,9 @@ sub attemptWifi(){
   my $wlan = `n9 -s ifconfig wlan0`;
   if($wlan =~ /inet addr:\d+.\d+.\d+.\d+/){
     print "\n\n\nSUCCESSFUL WIFI!\n";
+  }elsif($attempts > 0){
+    print "\nretrying wifi $attempts more time(s)..\n";
+    attemptWifi($attempts - 1);
   }else{
     print "\n\n\nNO WIFI, continuing without\n";
   }
