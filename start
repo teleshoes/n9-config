@@ -1,16 +1,16 @@
-A) flash the firmware with a CLOSED kernel {see flashing/instructions}
+A) if this is a brand new phone, get a root terminal and remove the disclaimer
+  Settings -> Security {???} -> Dev Mode
+  phone will restart after it is done installing
+  you can just wait {about 2 minutes} once it prompts for:
+    ~2.6MB additional installation required
 
-B) enable dev mode to get a terminal:
-Settings -> Security {???} -> Dev Mode
-phone will restart after it is done installing
-you can just wait {about 2 minutes} once it prompts for:
-  ~2.6MB additional installation required
+  open a terminal
+  devel-su #password is rootme
+  disclaimer-cal remove View-openmode
 
-C) open a terminal
-devel-su #password is rootme
-passwd user #any password
+B) reflash-phone {flashing/instructions}
 
-D) insert usb, select: sync and connect
+C) run:
 
 n9 -t 192.168.2.15
 ssh-config
