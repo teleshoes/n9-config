@@ -82,7 +82,18 @@ sub attemptSSH(){
 
 sub attemptWifi(){
   print "\n\nattempting to switch to wifi\n";
+  print "waiting for icd2\n";
+  while(1){
+    print ".";
+    system "n9 -s pgrep icd2 > /dev/null";
+    last if $? == 0;
+    sleep 1;
+  }
+  print "icd2 is runnning\n";
+
+  run "n9", "-s", "/sbin/initctl stop xsession/icd2";
   run "./sync-wifi";
+  run "n9", "-s", "/sbin/initctl start xsession/icd2";
   my $gconfDir = "/system/osso/connectivity/network_type";
   run "n9", "-s", ''
     . " gconftool -s -t i $gconfDir/search_interval 300;"
