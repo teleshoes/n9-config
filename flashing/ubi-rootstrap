@@ -14,10 +14,11 @@ sub main(@){
   die "Usage: $0\n" if @_ != 0;
   die "$mntDir not found\n" if not -d $mntDir;
 
+  my @rsyncArgs = ("-avP", "--no-owner", "--no-group");
   run "sudo", "rm", "-rf", $dir;
   run "sudo", "tar", "-xf", "$dir.tar.gz";
-  run "sudo", "rsync", "-avP", "--no-owner", "--no-group", "$dir-extra/", $dir;
-  run "sudo", "rsync", "-avP", "$dir/", $mntDir;
+  run "sudo", "rsync", @rsyncArgs, "$dir-extra/", $dir;
+  run "sudo", "rsync", @rsyncArgs, "$dir/", $mntDir;
   run "sudo", "rm", "-rf", $dir;
 }
 
