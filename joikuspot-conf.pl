@@ -49,7 +49,7 @@ sub main(@){
   die "Usage: $0\n" if @_ != 0;
   my $conf = `cat $hotspotConf 2>/dev/null`;
   my ($ssid, $wep, $ip);
-  if($conf =~ /^SSID=(.*)\nWEP(.*)\nIP=(.*)\n$/){
+  if($conf =~ /^SSID=(.*)\nWEP=(.*)\nIP=(.*)\n$/){
     ($ssid, $wep, $ip) = ($1, $2, $3);
   }else{
     die "bad conf: $conf\n e.g.:\nssid=<SSID>\nWEP=<WEP>\nIP=<IP>\n";
