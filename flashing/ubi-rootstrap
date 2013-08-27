@@ -19,6 +19,7 @@ sub main(@){
   run "sudo", "tar", "-xf", "$dir.tar.gz";
   run "sudo", "rsync", @rsyncArgs, "$dir-extra/", $dir;
   run "sudo", "rsync", @rsyncArgs, "$dir/", $mntDir;
+  run "sudo", "rsync", @rsyncArgs, "kernelplus-root/", $mntDir;
   run "sudo", "rm", "-rf", $dir;
 }
 
