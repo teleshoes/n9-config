@@ -25,16 +25,16 @@ AnalogClockStyle
 	clock-hour-handle: "clock-hour-handle";
 	clock-seconds-handle: "clock-seconds-handle";
 	
-	preferred-size: 384px 384px;
-	minimum-size: 384px 384px;
-	maximum-size: 384px 384px;
+	preferred-size: 220px 220px;
+	minimum-size: 220px 220px;
+	maximum-size: 220px 220px;
 
-	day-font: $FONT_FAMILY_LIGHT 18;
+	day-font: $FONT_FAMILY_LIGHT 16;
 	day-font-color: #505050;
-	date-font: $FONT_FAMILY_LIGHT 48;
+	date-font: $FONT_FAMILY_LIGHT 38;
 	date-font-color: #191919;
 	date-info-area-margin-left: 16;
-	date-info-area-margin-top: 172;
+	date-info-area-margin-top: 90;
 	date-info-area-size: 62 62;
 }
 
