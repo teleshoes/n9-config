@@ -1,0 +1,418 @@
+#MainPage
+{
+    background-color: #e6e7e8;
+    background-image: ;
+}
+MApplicationWindowStyle#ClockWindow 
+{
+    navigation-bar-style-name: "MNavigationBarStyleInverted";    
+    tab-bar-style-name: "MToolbarTabStyleInverted";
+    tool-bar-style-name: "MToolBarStyleInverted";
+}
+ 
+MAbstractLayoutPolicyStyle#ClockMainViewLayout
+{
+	margin-left: 0;
+	margin-right: 0;
+	margin-top: 0;
+	margin-right: 0;
+}
+
+AnalogClockStyle
+{
+	clock-dial: "clock-background";
+	clock-minute-handle: "clock-minute-handle";
+	clock-hour-handle: "clock-hour-handle";
+	clock-seconds-handle: "clock-seconds-handle";
+	
+	preferred-size: 384px 384px;
+	minimum-size: 384px 384px;
+	maximum-size: 384px 384px;
+
+	day-font: $FONT_FAMILY_LIGHT 18;
+	day-font-color: #505050;
+	date-font: $FONT_FAMILY_LIGHT 48;
+	date-font-color: #191919;
+	date-info-area-margin-left: 16;
+	date-info-area-margin-top: 172;
+	date-info-area-size: 62 62;
+}
+
+WorldClockStyle.Landscape
+{
+	background-color: #f0f1f2;
+	
+	preferred-size: 432px -1;
+	minimum-size: 432px -1;
+	maximum-size: 432px -1;
+}
+
+WorldClockStyle.Portrait
+{
+	background-color: #f0f1f2;
+	
+	preferred-size: -1 509px;
+	minimum-size: -1 509px;
+	maximum-size: -1 509px;
+}
+
+MLabelStyle#ClockDigitalTime
+{
+    font: $FONT_FAMILY_LIGHT_T 112;
+    color: #000000;
+	
+    margin-top: 138;
+    margin-right: 0;
+    margin-left: 0;
+}
+
+MLabelStyle#ClockDigitalTimeSecond
+{
+    font: $FONT_FAMILY_LIGHT_T 112;
+    color: $COLOR_ACCENT16;
+
+    margin-top: 138;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+#ClockDigitalDivider
+{
+    preferred-size: 416 1;
+    minimum-size: 416 1;
+    maximum-size: 416 1;
+    background-color: #c7c7c7;
+    background-image: ;
+    margin-left: 22;
+    margin-right: 22;
+}
+
+#ClockDigitalDay
+{
+    font: $FONT_FAMILY_LIGHT 28;
+    color: #505050;
+    margin-top: 22;
+    margin-left: 22;
+    margin-bottom:4;
+}
+
+#ClockDigitalDateOnly
+{
+    font: $FONT_FAMILY_LIGHT 28;
+    color: #191919;
+    margin-left: 12;
+    margin-top: 22;
+}
+
+MLabelStyle#ClockDigitalAmPm
+{
+    font: $FONT_FAMILY_LIGHT 28;
+    color: #191919;
+
+    margin-top: 22;
+    margin-right: 22;
+    margin-bottom:4;
+}
+
+MLabelStyle#ClockDigitalDate
+{
+    font: $FONT_FAMILY_LIGHT 18;
+    color: #505050;
+
+    margin-top: 22;
+}
+
+MLabelStyle#ClockDigitalLocation
+{
+    font: $FONT_FAMILY_LIGHT 18;
+    color: #505050;
+
+    margin-bottom: 16;
+    margin-top: 29;
+}
+
+AlarmStyle 
+{
+	background-image-single : ;
+	background-image-singlecolumn-top : ;
+	background-image-singlecolumn-center : ;
+	background-image-singlecolumn-bottom : ;
+}
+				
+AlarmStyle:selected 
+{
+	background-image-single : ;
+	background-image-singlecolumn-top : ;
+	background-image-singlecolumn-center : ;
+	background-image-singlecolumn-bottom : ;
+}
+
+AlarmStyle:pressed 
+{
+	background-image-single : ;
+	background-image-singlecolumn-top : ;
+	background-image-singlecolumn-center : ;
+	background-image-singlecolumn-bottom : ;
+}
+												
+AlarmStyle#ClockAlarmList
+{
+	minimum-size: -1 $SIZE_LIST;
+	preferred-size: -1 $SIZE_LIST;
+	maximum-size: -1 $SIZE_LIST;
+}
+
+MLabelStyle#ClockAlarmListRepeatText
+{
+	font: $FONT_FAMILY bold 18;
+	text-color:#696969;
+}
+
+MButtonStyle#ClockAlarmRepeatDay
+{
+	background-image: none;
+	background-tiles: none;
+	background-color: none;
+
+	font: $FONT_DEFAULT_BOLD;
+	text-color: $COLOR_INVERTED_FOREGROUND;
+	horizontal-text-align: left;
+	text-margin-left: $MARGIN_DOUBLE;
+
+	preferred-size: -1 64px;
+	minimum-size: -1 64px;
+	maximum-size: -1 64px;
+
+	margin-bottom: 0px;
+	margin-top: 0px;
+}
+
+MButtonStyle#ClockAlarmRepeatDay:pressed
+{
+	background-image: none;
+	background-tiles: none;
+	background-color: #3D3D3D;
+}
+
+MButtonStyle#ClockAlarmRepeatDay:selected
+{
+	background-image: none;
+	background-tiles: none;
+	background-color: #3D3D3D;
+}
+
+#TimeLabel 
+{
+	background-image: ;
+	background-color: transparent;
+	font: $FONT_FAMILY_LIGHT_T 60;
+	color: $COLOR_FOREGROUND;
+
+	minimum-size: -1 90;
+	maximum-size: -1 90;
+	preferred-size: -1 90;
+	
+	margin-left: 0;
+	margin-top: 0;
+	margin-right: 0;
+	margin-bottom: 0;
+
+	padding-left: 0;
+	padding-top: 0;
+	padding-right: 0;
+	padding-bottom: 0;
+
+	text-margin-left: 0;
+	text-margin-top: 0;
+	text-margin-right: 0;
+	text-margin-bottom: 0;
+}
+#TimeLabelManipulated
+{
+	background-image: ;
+	background-color: transparent;
+	font: $FONT_FAMILY_LIGHT_T 60;
+	color: $COLOR_ACCENT16;
+
+	minimum-size: -1 90;
+	maximum-size: -1 90;
+	preferred-size: -1 90;
+	
+	margin-left: 0;
+	margin-top: 0;
+	margin-right: 0;
+	margin-bottom: 0;
+
+	padding-left: 0;
+	padding-top: 0;
+	padding-right: 0;
+	padding-bottom: 0;
+
+	text-margin-left: 0;
+	text-margin-top: 0;
+	text-margin-right: 0;
+	text-margin-bottom: 0;
+}
+
+#AMPMLabel 
+{
+	background-image: ;
+	font: $FONT_FAMILY_LIGHT 32;
+
+	margin-left: 0;
+	margin-right: 0;
+	margin-top: 20;
+	margin-bottom: 0;
+
+	padding-left: 0;
+	padding-top: 0;
+	padding-right: 0;
+	padding-bottom: 0;
+
+	text-margin-left: 0;
+	text-margin-top: 0;
+	text-margin-right: 0;
+	text-margin-bottom: 0;
+}
+
+TimePickerStyle
+{
+	font: $FONT_FAMILY bold 1.8mm;
+	minimum-size: 432 432;
+	maximum-size: 432 432;
+	preferred-size: 432 432;    
+}
+
+#ClockItemDivider
+{
+	background-color: #aaaaaa;
+
+	minimum-size: 100% 1;
+	maximum-size: 100% 1;
+	preferred-size: 100% 1;
+}
+
+#CommonLargePanel
+{
+    minimum-size: $SIZE_LIST 108;
+    preferred-size: -1 108;
+    maximum-size: -1 108;
+}
+
+#AlarmListWithSeparators 
+{
+    horizontal-separator-object-name: "";
+    vertical-separator-object-name: "";
+}
+
+#AlarmListItemSeparator
+{
+    preferred-size: -1 1.6mm;
+    minimum-size: -1 1.6mm;
+    maximum-size: -1 1.6mm;
+    background-image: ;
+}
+
+#AlarmsWidgetStyle
+{
+	 background-color: #e6e7e8;
+}
+SettingAlarmPage MTextEditStyle#CommonSingleInputField
+{
+	margin-top:0;
+	margin-bottom:0;
+}
+
+SettingAlarmPage MWidgetStyle#CommonPanelNoFeedback
+{
+	minimum-size: -1 80;
+	preferred-size: -1 80;
+	maximum-size: -1 80;
+}
+
+MComboBoxStyle 
+{
+    title-object-name: "CommonSubTitleTop";
+    sub-title-object-name: "CommonTitleBottom";
+}
+
+#CustomSpacer
+{
+    minimum-size:   0 0;
+    preferred-size: 100% 0;
+    maximum-size:   100% 0;
+    margin-top:     48px;
+    margin-bottom:  0;
+    margin-left:    0;
+    margin-right:   0;
+}
+
+MButtonStyle#CommonSheetHeaderButtonAccent
+{
+ 	background-image: color16-meegotouch-sheet-button-accent-background 20px 20px 20px 20px;
+}
+ 
+MButtonStyle#CommonSheetHeaderButtonAccent:pressed
+{
+       background-image: color16-meegotouch-sheet-button-accent-background-pressed 20px 20px 20px 20px;
+}
+ 
+MButtonStyle#CommonSheetHeaderButtonAccent:disabled
+{
+       background-image:color16-meegotouch-sheet-button-accent-background-disabled 20px 20px 20px 20px;
+}
+ 
+#CommonLeftSwitch {                                                                           
+       slider-image-selected:  "color16-meegotouch-switch-on-inverted" 32px 32px 20px 20px;  
+}                                                                                             
+
+#CommonSingleInputField:selected {                                                
+	background-image: color16-meegotouch-textedit-background-selected $CORNER_MARGINS;
+}          
+
+MButtonStyle#CommonSmallIconButton {
+	icon-align: center;
+	margin-right: $INDENT_DEFAULT;
+}
+
+MButtonStyle#CommonSmallIconButton:pressed {
+	background-image: color16-meegotouch-button-background-pressed $CORNER_MARGINS;
+}
+
+MButtonStyle#CommonSmallIconButton:selected {
+	background-image: color16-meegotouch-button-background-selected $CORNER_MARGINS;
+}
+#CommonSingleButton:pressed {
+	background-image: color16-meegotouch-button-inverted-background-pressed $CORNER_MARGINS;
+}
+MSheetStyle#MoreOptionsSheet
+{
+	appearance-animation: "MWidgetSlideAnimation";
+	disappearance-animation: "MWidgetSlideAnimation";
+}
+MLabelStyle #AlarmSubTitle
+{
+	font:          $FONT_FAMILY_LIGHT 22;
+	color:         #8c8c8c;
+	margin-top:    0.2mm;
+	margin-bottom: 0;
+	margin-left:   $INDENT_DEFAULT;
+	margin-right:  $INDENT_DEFAULT;
+}
+MLabelStyle #AlarmSubTitle:pressed {
+	color:         #797979;
+}
+MLabelStyle #AlarmSubTitle:selected {
+	color:         #FFFFFF;
+}
+MLabelStyle #AlarmSubTitle:disabled {
+	color:         #797979;
+}
+
+MSeparatorStyle #DropShadow {
+	background-image: meegotouch-clock-dropshadow;
+
+	minimum-size:   100% 8;
+    	preferred-size: 100% 8;
+    	maximum-size:   100% 8;
+}
