@@ -45,7 +45,7 @@ my %gconf = (
     listInt [15, 30, 60, 120, 180, 240],
   "/meegotouch/inputmethods/onscreen/enabled" => $vkbEnabled,
   "/meegotouch/inputmethods/onscreen/active" => $vkbActive,
-  "/apps/clock/clocktype" => ["analog"],
+  "/apps/clock/clocktype" => ["digital"],
 );
 
 sub main(@){
