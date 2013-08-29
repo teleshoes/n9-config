@@ -51,9 +51,9 @@ WorldClockStyle.Portrait
 {
 	background-color: #f0f1f2;
 	
-	preferred-size: -1 509px;
-	minimum-size: -1 509px;
-	maximum-size: -1 509px;
+	preferred-size: -1 300px;
+	minimum-size: -1 300px;
+	maximum-size: -1 300px;
 }
 
 MLabelStyle#ClockDigitalTime
