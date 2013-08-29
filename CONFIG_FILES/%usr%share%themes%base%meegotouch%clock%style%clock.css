@@ -61,7 +61,7 @@ MLabelStyle#ClockDigitalTime
     font: $FONT_FAMILY_LIGHT_T 112;
     color: #000000;
 	
-    margin-top: 138;
+    margin-top: 0;
     margin-right: 0;
     margin-left: 0;
 }
@@ -71,7 +71,7 @@ MLabelStyle#ClockDigitalTimeSecond
     font: $FONT_FAMILY_LIGHT_T 112;
     color: $COLOR_ACCENT16;
 
-    margin-top: 138;
+    margin-top: 0;
     margin-left: 0;
     margin-right: 0;
 }
