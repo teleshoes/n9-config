@@ -42,7 +42,7 @@ my $normalPackages = {
     screen
     cameraplus
     qtbigtext
-    n9-button-monitor n9bm-toggle
+    n9-button-monitor
   )],
   '4' => [qw(
     ad-hac
@@ -63,7 +63,7 @@ my $extraPackages = {
     busybox-power-noaegis
     system-ui-brightness-control
     led-event-notifier
-    mt-toggles bluetooth-toggle flashlight-toggle
+    mt-toggles bluetooth-toggle flashlight-toggle n9bm-toggle
   )],
 };
 
