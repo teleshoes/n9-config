@@ -39,6 +39,8 @@ my $normalPackages = {
     qmlmozbrowser
     waze
     screen
+    cameraplus
+    qtbigtext
     n9-button-monitor n9bm-toggle
   )],
   '4' => [qw(
