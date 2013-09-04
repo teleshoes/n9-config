@@ -62,13 +62,14 @@ sub main(@){
   print FH join "\n", @sections;
   close FH;
 
-  run "n9", "mkdir", "-p", $destDir;
+  my $host = `n9`;
+  chomp $host;
+
+  run "ssh", "user\@$host", "mkdir -p $destDir";
 
   print $content;
   print "\nCopying above to phone..\n";
 
-  my $host = `n9`;
-  chomp $host;
   run "scp", $tmpFile, "user\@$host:$dest";
   print "done\n";
 }
