@@ -6,7 +6,8 @@ sub formatSection($$);
 sub run(@);
 
 my $hotspotConf = "$ENV{HOME}/Code/n9/hotspot.conf";
-my $dest = "/home/user/.config/Joikusoft/JoikuSpot.conf";
+my $destDir = "/home/user/.config/Joikusoft";
+my $dest = "$destDir/JoikuSpot.conf";
 
 my $joikuConf = {
   wlan => {
@@ -60,6 +61,8 @@ sub main(@){
   open FH, "> $tmpFile" or die "Couldnt write $tmpFile\n";
   print FH join "\n", @sections;
   close FH;
+
+  run "n9", "mkdir", "-p", $destDir;
 
   print $content;
   print "\nCopying above to phone..\n";
