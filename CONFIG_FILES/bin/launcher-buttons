@@ -17,7 +17,7 @@ my @ignoredPatterns = qw(
 my @config = qw(
   call-history
   messaging-ui
-  camera-ui
+  cameraplus
 
   dir-stuff[
     clock
@@ -51,7 +51,7 @@ my @config = qw(
     emumaster
 
     QmlMozBrowser
-    cameraplus
+    camera-ui
     accountsui
     ovistoreclient
   ]
