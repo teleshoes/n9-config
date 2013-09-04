@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 sub formatSection($$);
+sub run(@);
 
 my $hotspotConf = "$ENV{HOME}/Code/n9/hotspot.conf";
 my $dest = "/home/user/.config/Joikusoft/JoikuSpot.conf";
@@ -65,8 +66,7 @@ sub main(@){
 
   my $host = `n9`;
   chomp $host;
-  system "scp", $tmpFile, "user\@$host:$dest";
-  die "copy failed\n" if $? != 0;
+  run "scp", $tmpFile, "user\@$host:$dest";
   print "done\n";
 }
 
@@ -78,6 +78,12 @@ sub formatSection($$){
     $out .= "$key=$$sectionKeys{$key}\n";
   }
   return $out;
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+  die "@_ failed\n" if $? != 0;
 }
 
 &main(@ARGV);
