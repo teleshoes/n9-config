@@ -17,10 +17,10 @@ my @ignoredPatterns = qw(
 my @config = qw(
   call-history
   messaging-ui
-  cameraplus
+  clock
 
   dir-stuff[
-    clock
+    cameraplus
     contacts
     gallery
     facebook
