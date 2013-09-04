@@ -62,13 +62,20 @@ sub main(@){
   my @sectionNames = reverse sort keys %$joikuConf;
   my @sections = map {formatSection $_, $$joikuConf{$_}} @sectionNames;
   my $tmpFile = "/tmp/joiku-spot-" . time . "-conf";
+
+  my $content = join "\n", @sections;
   open FH, "> $tmpFile" or die "Couldnt write $tmpFile\n";
   print FH join "\n", @sections;
   close FH;
 
+  print $content;
+  print "\nCopying above to phone..\n";
+
   my $host = `n9`;
   chomp $host;
   system "scp", $tmpFile, "user\@$host:$dest";
+  die "copy failed\n" if $? != 0;
+  print "done\n";
 }
 
 &main(@ARGV);
