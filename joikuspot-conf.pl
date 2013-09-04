@@ -2,6 +2,8 @@
 use strict;
 use warnings;
 
+sub formatSection($$);
+
 my $hotspotConf = "$ENV{HOME}/Code/n9/hotspot.conf";
 my $dest = "/home/user/.config/Joikusoft/JoikuSpot.conf";
 
@@ -35,16 +37,6 @@ my $joikuConf = {
   },
 };
 
-sub formatSection($$){
-  my ($sectionName, $sectionKeys) = @_;
-  my $out = '';
-  $out .= "[$sectionName]\n";
-  for my $key(sort keys %$sectionKeys){
-    $out .= "$key=$$sectionKeys{$key}\n";
-  }
-  return $out;
-}
-
 sub main(@){
   die "Usage: $0\n" if @_ != 0;
   my $conf = `cat $hotspotConf 2>/dev/null`;
@@ -76,6 +68,16 @@ sub main(@){
   system "scp", $tmpFile, "user\@$host:$dest";
   die "copy failed\n" if $? != 0;
   print "done\n";
+}
+
+sub formatSection($$){
+  my ($sectionName, $sectionKeys) = @_;
+  my $out = '';
+  $out .= "[$sectionName]\n";
+  for my $key(sort keys %$sectionKeys){
+    $out .= "$key=$$sectionKeys{$key}\n";
+  }
+  return $out;
 }
 
 &main(@ARGV);
