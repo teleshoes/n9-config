@@ -38,7 +38,7 @@ sub main(@){
   reorganizeBackedUpRemotes(\@backedUp,
     $localByMd5sum, $remoteByMd5sum, $remoteByFile);
 
-  print "\n\n===NEEDS BACKUP:\n" . join "\n", @needsBackUp;
+  print "\n\n===NEEDS BACKUP:\n" . join "\n", sort @needsBackUp;
   print "===\n\n";
 
   if(@needsBackUp > 0){
