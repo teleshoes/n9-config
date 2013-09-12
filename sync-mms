@@ -17,6 +17,8 @@ my @rsyncOpts = qw(
   -v -P
 );
 
+push @rsyncOpts, "--exclude=private/";
+
 sub run(@){
   print "@_\n";
   system @_;
