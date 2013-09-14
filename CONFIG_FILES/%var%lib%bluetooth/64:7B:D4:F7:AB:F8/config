@@ -1,0 +1,4 @@
+pairable yes
+onmode connectable
+mode connectable
+class 0x5a020c
