@@ -8,6 +8,7 @@ my @profiles = qw(general meeting outdoors silent);
 my $ringingVolumes = [40, 60, 80, 100];
 my $systemVolumes = [0, 1, 2, 3];
 
+sub run(@);
 sub generateProfile($$);
 sub fixSize($$$);
 
@@ -58,7 +59,19 @@ sub main(@){
     $s .= generateProfile $profile, \%props;
   }
   $s = fixSize $s, 4096, 78;
-  print $s;
+  my $tmpFile = "/tmp/n9-profile-" . time . "-custom.ini";
+  open FH, "> $tmpFile" or die "Couldnt write $tmpFile\n";
+  print FH $s;
+  close FH;
+  my $host = `n9`;
+  chomp $host;
+  run "scp", $tmpFile, "user\@$host:/home/user/.profiled/custom.ini";
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+  die "Error running @_\n" if $? != 0;
 }
 
 sub generateProfile($$){
