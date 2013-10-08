@@ -54,7 +54,7 @@ sub main(@){
     my %props = map {("$_.alert.tone" => $$tones{$_})} keys %$tones;
     $props{'vibrating.alert.enabled'} = "Off" if $$vibrate{$profile} == 0;
     $props{'ringing.alert.volume'} = $ringingVolume if $profile eq "general";
-    $props{'system.sound.level'} = $systemVolume;
+    $props{'system.sound.level'} = $systemVolume if $profile ne "silent";
     $s .= generateProfile $profile, \%props;
   }
   $s = fixSize $s, 4096, 78;
