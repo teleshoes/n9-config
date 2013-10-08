@@ -27,6 +27,7 @@ my $LAST_EACH_DATE_CUTOFF = "1 year ago";
 my $backupRoot = "$ENV{HOME}/Code/n9/backup";
 
 sub run(@);
+sub msgSort($$$);
 sub filterMessages($\@);
 sub getMessagesFromDir($$);
 sub getMessages($$);
@@ -77,6 +78,11 @@ sub main(@){
 sub run(@){
   print "@_\n";
   system @_;
+}
+
+sub msgSort($$$){
+  my ($type, $a, $b) = @_;
+  return $$a[2] cmp $$b[2];
 }
 
 sub getNewMessages($\@){
@@ -190,7 +196,7 @@ sub writeMessageFile($\@$){
   my @messages = @{shift()};
   my $file = shift;
   open FH, "> $file" or die "Could not open $file\n";
-  @messages = sort {$$a[2] cmp $$b[2]} @messages;
+  @messages = sort {msgSort $type, $a, $b} @messages;
   for my $msg(@messages){
     print FH messageToString($type, $msg);
   }
