@@ -82,7 +82,17 @@ sub run(@){
 
 sub msgSort($$$){
   my ($type, $a, $b) = @_;
-  return $$a[2] cmp $$b[2];
+  my ($dir, $date, $endDate, $msg);
+  $dir = $$a[1] cmp $$b[1];
+  $date = $$a[2] cmp $$b[2];
+  if($type eq 'call'){
+    $endDate = $$a[3] cmp $$b[3];
+    $msg = 0;
+  }elsif(@$a == 4 and @$b == 4){
+    $endDate = 0;
+    $msg = $$a[3] cmp $$b[3];
+  }
+  return $date || $endDate || $dir || $msg;
 }
 
 sub getNewMessages($\@){
