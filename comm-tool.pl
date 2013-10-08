@@ -26,6 +26,7 @@ my $LAST_EACH_DATE_CUTOFF = "1 year ago";
 
 my $backupRoot = "$ENV{HOME}/Code/n9/backup";
 
+sub run(@);
 sub filterMessages($\@);
 sub getMessagesFromDir($$);
 sub getMessages($$);
@@ -34,11 +35,6 @@ sub writeMessageFile($\@$);
 sub writeContactsFiles($\@$);
 sub removeUSCountryCode(\@);
 sub removeDupes($\@);
-
-sub run(@){
-  print "@_\n";
-  system @_;
-}
 
 sub main(@){
   my $type = shift;
@@ -76,6 +72,11 @@ sub main(@){
     chdir $bakDir;
     run "${type}backuprestore", "export", time . ".$type";
   }
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
 }
 
 sub getNewMessages($\@){
