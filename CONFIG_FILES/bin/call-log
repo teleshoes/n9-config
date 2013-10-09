@@ -32,7 +32,8 @@ sub main(@){
 
   if(not defined $f){
     $f = '/tmp/call-tmp-' . time;
-    system "backup-comm", "call", "--retry", 5, $f;
+    print "generating call log..\n";
+    system "backup-comm call --retry 5 $f >/dev/null";
   }
 
   my @lines = `cat $f`;
