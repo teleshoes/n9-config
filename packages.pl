@@ -30,6 +30,7 @@ my $normalPackages = {
     htop
     x11-utils xresponse
     meecast
+    aptitude
     xmimd
     imagemagick
     python-pyside.qtgui python-qmsystem python-pyside.qtdeclarative
