@@ -18,6 +18,13 @@ sub randHex($);
 sub randomId();
 sub runBT(@);
 
+my $usage = "Usage:
+  $0 -g
+    print all wifi networks on the phone
+  $0
+    remove all wifi networks from the phone and replace with net
+";
+
 my $rootDir = '/system/osso/connectivity/IAP';
 my $noAutoFile = "$ENV{HOME}/Code/n9/wifi-noauto";
 my $TRUE = ['true', 'bool'];
@@ -52,13 +59,29 @@ my $gprsAtts = {
 };
 
 sub main(@){
-  die "Usage: $0\n" if @_ > 0;
+  my $get;
+  if(@_ == 1 and $_[0] =~ /^(-g)$/){
+    $get = shift;
+  }
+  die $usage if @_ > 0;
 
-  print "clearing all wifi networks\n";
-  clearAllWifi();
-  print "\n\n";
-  print "adding wifi networks from net\n";
-  addWifiFromNet();
+  if(defined $get){
+    my $networks = getExisting();
+    my $sortByName = sub{$$networks{$a}{name} cmp $$networks{$b}{name}};
+    for my $id(sort $sortByName keys %$networks){
+      if($$networks{$id}{type} eq "WLAN_INFRA"){
+        my $name = $$networks{$id}{name};
+        my $key = $$networks{$id}{EAP_wpa_preshared_passphrase} || '';
+        print "$name => $key\n";
+      }
+    }
+  }else{
+    print "clearing all wifi networks\n";
+    clearAllWifi();
+    print "\n\n";
+    print "adding wifi networks from net\n";
+    addWifiFromNet();
+  }
 }
 
 sub addWifiFromNet(){
