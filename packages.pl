@@ -43,6 +43,7 @@ my $normalPackages = {
     cameraplus
     qtbigtext
     n9-button-monitor
+    modrana
   )],
   '4' => [qw(
     ad-hac
