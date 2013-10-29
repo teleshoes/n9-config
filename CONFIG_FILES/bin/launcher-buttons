@@ -67,15 +67,12 @@ my @config = qw(
     vmpkn9
     xmcr
     emumaster
-    mymoves
-    waze
     btinput-terminal
     btinput
     toggleBT
     finch
     pidgin
     n9-button-monitor
-    profilematic
   ]
 );
 
