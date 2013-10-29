@@ -35,11 +35,11 @@ my @config = qw(
   meeseepics
 
   dir-tools[
-    dropcache-mdn
-    dcim-reindex
     restart-wifi
     dontgosleep
     screenshotmee
+    dropcache-mdn
+    dcim-reindex
   ]
   dir-useful[
     qtbtn-power
