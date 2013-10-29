@@ -23,7 +23,7 @@ my @packagesToRemove = qw(
 
 my $normalPackages = {
   '1' => [qw(
-    bash vim rsync wget git
+    bash vim rsync wget git sudo
   )],
   '2' => [qw(
     perl bash-completion python
