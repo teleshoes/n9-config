@@ -35,6 +35,7 @@ my @config = qw(
   meeseepics
 
   dir-tools[
+    modrana
     restart-wifi
     dontgosleep
     screenshotmee
