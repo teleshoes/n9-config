@@ -63,8 +63,6 @@ my @config = qw(
     grob
     camera-ui
     trojita-tp
-    mymoves
-    waze
     NokiaPt
     accountsui
     btinput-terminal
@@ -75,7 +73,6 @@ my @config = qw(
     ovistoreclient
     pidgin
     n9-button-monitor
-    profilematic
   ]
 );
 
