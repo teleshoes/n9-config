@@ -39,7 +39,6 @@ my $normalPackages = {
   )],
   '3' => [qw(
     qmlmozbrowser
-    waze
     screen
     cameraplus
     qtbigtext
