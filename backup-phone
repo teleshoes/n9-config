@@ -6,9 +6,6 @@ sub backup($);
 
 my $dir = "$ENV{HOME}/Code/n9";
 
-my $host = `n9`;
-chomp $host;
-
 sub main(@){
   die "Usage: $0\n" if @_ != 0;
   print "making sure n9 is ssh-able\n";
