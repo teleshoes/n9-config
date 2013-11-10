@@ -32,6 +32,12 @@ sub backupComm($$){
       print "INIT";
     }elsif($line =~ /Not cleaning up obsolete resources for nao:hasTag/i){
       print ".";
+    }elsif($line =~ /^selected group (\d+)$/i){
+      print "|";
+    }elsif($line =~ /^\s*getEvents\(\) from (\d+) to (\d+)$/i){
+      print ",";
+    }elsif($line =~ /^\s*got (\d+) events(?: for group (\d+))?$/i){
+      print $1 == 0 ? "_" : " $1 ";
     }elsif($line =~ /The task queue's background thread stalled/i){
       print $line;
       print "ugh libqtcontacts, killing $exec\n";
