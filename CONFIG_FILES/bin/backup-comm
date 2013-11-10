@@ -28,8 +28,10 @@ sub backupComm($$){
   open CMD, "$cmd |";
   my $line;
   while($line = <CMD>){
-    if($line =~ /Not cleaning up obsolete resources for nao:hasTag/i){
-      print '.';
+    if($line =~ /^libqtcontacts-tracker: initializing libqtcontacts-tracker/){
+      print "INIT";
+    }elsif($line =~ /Not cleaning up obsolete resources for nao:hasTag/i){
+      print ".";
     }elsif($line =~ /The task queue's background thread stalled/i){
       print $line;
       print "ugh libqtcontacts, killing $exec\n";
