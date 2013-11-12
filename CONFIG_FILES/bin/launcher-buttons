@@ -54,6 +54,8 @@ my @config = qw(
     camera-ui
     accountsui
     ovistoreclient
+
+    modrana
   ]
 );
 
