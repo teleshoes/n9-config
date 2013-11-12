@@ -6,15 +6,22 @@ sub backup($);
 
 my $dir = "$ENV{HOME}/Code/n9";
 
+my %gitRepos = (
+  "1sms"   => "$dir/backup/backup-sms/repo",
+  "2call"  => "$dir/backup/backup-call/repo",
+);
+
 sub main(@){
   die "Usage: $0\n" if @_ != 0;
+
   print "making sure n9 is ssh-able\n";
   system "n9", "-s", "echo found n9!\n";
   die "failed" if $? != 0;
 
+  my %preHeads = map {$_ => getGitHead($gitRepos{$_})} keys %gitRepos;
+
   backup "dcim-backup";
   backup "sync-pixmirror";
-
   backup "sync-mydocs";
   backup "sync-fbreader backup";
   backup "fetch-klomp-lists backup";
@@ -24,6 +31,21 @@ sub main(@){
   backup "fetch-contacts";
   backup "fetch-comm call";
   backup "fetch-comm sms";
+
+  my %postHeads = map {$_ => getGitHead($gitRepos{$_})} keys %gitRepos;
+  for my $repo(sort keys %gitRepos){
+    if($preHeads{$repo} ne $postHeads{$repo}){
+      print "\nrepo $repo updated:\n";
+      system "cd $gitRepos{$repo}; git show HEAD";
+    }
+  }
+}
+
+sub getGitHead($){
+  my $dir = shift;
+  my $h = `cd $dir; git rev-parse HEAD`;
+  chomp $h;
+  return $h;
 }
 
 sub backup($){
