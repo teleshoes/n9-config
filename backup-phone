@@ -38,7 +38,7 @@ sub main(@){
   for my $repo(sort keys %gitRepos){
     if($preHeads{$repo} ne $postHeads{$repo}){
       print "\nrepo $repo updated:\n";
-      system "cd $gitRepos{$repo}; git show HEAD";
+      system "cd $gitRepos{$repo}; git --no-pager show HEAD";
     }
   }
 }
