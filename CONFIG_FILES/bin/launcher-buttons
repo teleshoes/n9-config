@@ -22,17 +22,14 @@ my @config = qw(
   dir-stuff[
     cameraplus
     contacts
-    gallery
 
     qtbtn-power
     settings
     grob
-    video-suite
 
     teatime
     calendar
     mtermite
-    music-suite
 
     nokia-drive-qml
     FBReader
