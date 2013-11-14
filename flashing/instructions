@@ -11,6 +11,30 @@ sudo dpkg -i flasher*.deb
 
 
 =================================
+TO MAKE UBI ROOTSTRAP:
+1) remove sim card
+2) flash the firmware with a CLOSED kernel
+3) ubi-console, ubi-mnt
+4) make a copy of root partition
+5) connect to wifi
+6) enable dev mode to get a terminal:
+   Settings -> Security {???} -> Dev Mode
+   phone will restart after it is done installing
+   you can just wait {about 2 minutes} once it prompts for:
+   ~2.6MB additional installation required
+7) open a terminal
+   devel-su #password is rootme
+   disclaimer-cal remove View-openmode
+8) flash the firmware with a CLOSED kernel
+9) ubi-console, ubi-mnt
+10) make a copy of root partition
+11) rsync -avP -n ORIGROOT/ NEWROOT/ > files
+12) cleanup, remove some files, compare to previous rootstrap
+13) copy those files to rootstrap dir, chown root, tar it
+=================================
+
+
+=================================
 TO GET FIRMWARE IMAGE or EMMC IMAGE:
 here are the md5sums for pr1.3 global:
 37883898bd9140fa3e909c5385d3f0ca  DFL61_HARMATTAN_40.2012.13-7.NOMAPS_EMMC_NOMAPS.bin
