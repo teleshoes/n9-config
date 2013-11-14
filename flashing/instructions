@@ -89,6 +89,6 @@ REBOOT
 =================================
 perphas you want to run this:
 
-  time ./reflash-phone middleeast-fw.bin emmc.bin kernelplus-image 2>&1 | tee flash.log
+  time ./reflash-phone firmware.bin emmc.bin kernelplus-image 2>&1 | tee flash.log
 
 for firmware, kernel, emmc, rootstrap, basic installs
