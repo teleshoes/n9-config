@@ -23,7 +23,6 @@ my @config = qw(
     cameraplus
     contacts
     gallery
-    facebook
 
     qtbtn-power
     settings
