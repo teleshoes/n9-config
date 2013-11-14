@@ -31,6 +31,11 @@ TO MAKE UBI ROOTSTRAP:
 11) rsync -avP -n ORIGROOT/ NEWROOT/ > files
 12) cleanup, remove some files, compare to previous rootstrap
 13) copy those files to rootstrap dir, chown root, tar it
+    e.g.: for x in `cat ../files`; do
+            d=`echo $x | sed s/'[^/]*$'//`;
+            mkdir -p "../rootstrap/$d";
+            sudo cp "n9-root/$x" "../rootstrap/$x";
+          done
 =================================
 
 
