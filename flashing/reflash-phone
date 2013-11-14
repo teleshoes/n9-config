@@ -71,7 +71,12 @@ sub attemptSSH(){
   }
   print "usb network up!\n";
 
-  run "ssh", "root\@192.168.2.15", "passwd -d user";
+  my $host = `n9`;
+  chomp $host;
+  run "ssh-keygen", "-f", "$ENV{HOME}/.ssh/known_hosts", "-R", "192.168.2.15";
+  run "ssh-keygen", "-f", "$ENV{HOME}/.ssh/known_hosts", "-R", $host;
+  run "ssh", "-o", "StrictHostKeyChecking no",
+    "root\@192.168.2.15", "passwd -d user";
   my $out = `ssh user\@192.168.2.15 'whoami; hostname; echo YAY'`;
   if($out eq "user\nRM696\nYAY\n"){
     print "\n\n\nSUCCESSFUL SSH\n";
