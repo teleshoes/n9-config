@@ -13,6 +13,8 @@ my $local = $myDocsLocal;
 my $remote = "user\@$host:$myDocsRemote";
 
 my @excludes = qw(
+  monav_data
+
   DCIM
   DCIM-pixmirror
 
