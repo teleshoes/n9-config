@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Store
+Icon=icon-l-ovi-store
+Exec=/usr/bin/invoker --single-instance --splash /usr/share/themes/blanco/meegotouch/images/splash/meegotouch-store-splash.jpg --type=d /usr/bin/ovistoreclient
+OnlyShowIn=X-MeeGo;
+X-MeeGo-Logical-Id=qtn_comm_appname_stor
+X-MeeGo-Translation-Catalog=ovistore
+MimeType=x-maemo-highlight/ovi-store-url;
+X-Maemo-Service=com.nokia.OviStoreClient
+X-Maemo-Method=com.nokia.OviStoreClient.LaunchWithLink

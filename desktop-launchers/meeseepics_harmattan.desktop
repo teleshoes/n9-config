@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Terminal=false
+Name=MeeSeePics
+Exec=/usr/bin/invoker --type=d -s /opt/meeseepics/bin/meeseepics %U
+Icon=/usr/share/icons/hicolor/80x80/apps/meeseepics80.png
+X-Window-Icon=
+X-HildonDesk-ShowInToolbar=true
+X-Osso-Type=application/x-executable
+MimeType=image/jpeg;image/png;image/gif;image/bmp;image/svg+xml;image/tiff;image/x-xpixmap;image/xpm;image/x-portable-pixmap;image/x-portable-graymap;image/x-portable-greymap;image/x-portable-bitmap;

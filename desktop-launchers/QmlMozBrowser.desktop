@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Terminal=false
+Name=QmlMozBrowser
+Exec=/opt/qmlmozbrowser/launcher.sh %U
+Icon=/opt/qmlmozbrowser/fennec.png
+X-Window-Icon=
+X-HildonDesk-ShowInToolbar=true
+X-Osso-Type=application/x-executable
+Categories=Network;WebBrowser;
+MimeType=application/rdf+xml;application/xhtml+xml;application/x-mimearchive;application/xml;text/html;text/vnd.wap.wml;text/wml;text/xml;x-maemo-highlight/ftp-url;x-maemo-highlight/http-url;x-maemo-urischeme/file;x-maemo-urischeme/ftp;x-maemo-urischeme/http;x-maemo-urischeme/https;

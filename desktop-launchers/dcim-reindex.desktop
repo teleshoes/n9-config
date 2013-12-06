@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=dcim reindex
+Comment=Reindex tracker for DCIM/*.*
+Icon=dcim-reindex
+Exec=udo tracker-index /home/user/MyDocs/DCIM/*.*
+Type=Application

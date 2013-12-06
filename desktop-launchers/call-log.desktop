@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=call-log
+Comment=callbackuprestore parser
+Icon=call-log
+Exec=term 'call-log | less -R'
+Type=Application

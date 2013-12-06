@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=qtbtn-power
+Comment=QT Button menu for poweroff/reboot
+Icon=power
+Exec=qtbtn.py /home/user/.config/qtbtn-power.conf
+Type=Application
