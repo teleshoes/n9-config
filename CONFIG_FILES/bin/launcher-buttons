@@ -93,6 +93,9 @@ sub getQuickLauncherData();
 sub getData();
 sub writeLauncherButtonsData($);
 
+#in case running in a gui terminal
+$SIG{HUP} = sub { print STDERR "Caught a sighup $!" };
+
 sub main(@){
   if(`which n9` ne "" and `hostname` ne `n9`){
     my $host = `n9`;
