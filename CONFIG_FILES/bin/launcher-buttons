@@ -104,6 +104,8 @@ sub main(@){
     exec "ssh", "root\@$host", "/tmp/$name", @_;
   }
 
+  ensureRoot();
+
   if(@_ == 1 and $_[0] eq '-g'){
     print getValidDesktopNames();
     exit 0;
@@ -121,6 +123,13 @@ sub main(@){
   run "killall meegotouchhome";
   writeLauncherButtonsData($data);
   run "/sbin/initctl start xsession/mthome";
+}
+
+sub ensureRoot(){
+  if(`whoami` ne "root\n"){
+    print "rerunning as root\n";
+    exec "sudo", $0, @ARGV;
+  }
 }
 
 sub run(@){
