@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Camera+
+Icon=/usr/share/themes/base/meegotouch/icons/cameraplus.png
+Exec=/usr/bin/invoker -s -t d /usr/bin/cameraplus
+OnlyShowIn=X-MeeGo;
+X-MeeGo-Translation-Catalog=cameraplus

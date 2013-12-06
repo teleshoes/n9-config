@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Web
+Icon=icon-l-browser
+Exec=/usr/bin/invoker --type=m /usr/bin/grob %U
+MimeType=x-maemo-urischeme/http;x-maemo-urischeme/https;x-maemo-urischeme/file;text/html;x-maemo-highlight/http-url;x-maemo-urischeme/x-web-search;x-maemo-urischeme/ftp;x-maemo-highlight/ftp-url;x-maemo-highlight/http-url;
+X-MeeGo-Translation-Catalog=common
+X-MeeGo-Logical-Id=qtn_comm_appname_browser
+X-Maemo-Service=com.nokia.browser

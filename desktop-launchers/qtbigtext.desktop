@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=qtbigtext
+Icon=qtbigtext
+Exec=python /opt/qtbigtext/qtbigtext.py
+OnlyShowIn=X-MeeGo;

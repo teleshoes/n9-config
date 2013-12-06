@@ -1,9 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Calculator
-Icon=icon-l-calculator
-Exec=/usr/bin/invoker --splash /usr/share/themes/blanco/meegotouch/images/splash/meegotouch-calculator-splash.jpg --type=m /usr/bin/calc
-X-Maemo-Service=com.nokia.calc
-OnlyShowIn=X-MeeGo;
-X-MeeGo-Logical-Id=qtn_comm_appname_calc
-X-MeeGo-Translation-Catalog=essentials
