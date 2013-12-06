@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Terminal=false
+Name=Q To-Do
+Exec=invoker --single-instance --splash /opt/qtodo/splash.png --type=d /opt/qtodo/bin/qtodo
+Icon=/usr/share/icons/hicolor/64x64/apps/qtodo.png
+X-Window-Icon=
+X-HildonDesk-ShowInToolbar=true
+X-Osso-Type=application/x-executable

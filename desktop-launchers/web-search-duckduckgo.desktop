@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Exec=/usr/bin/browser
+MimeType=x-maemo-urischeme/x-web-search;
+NotShowIn=X-MeeGo;
+X-Maemo-Service=com.nokia.browser
+Icon=icon-m-web-search-duckduckgo
+Name=DuckDuckGo
+X-Web-Search-Key=q
+X-Web-Search-Url=https://duckduckgo.com/?kh=1&ki=-1&kj=b2&kl=fr-fr&kp=-1&kf=-1&kb=n&ko=s&k4=-1&km=l

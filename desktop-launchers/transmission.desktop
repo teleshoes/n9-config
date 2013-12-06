@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Transmission
+Comment=Remote Transmission
+Icon=transmission
+Exec=transmission-webui
+Type=Application

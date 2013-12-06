@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=time180
+Comment=180
+Icon=teatime
+Exec=term timer 180
+Type=Application

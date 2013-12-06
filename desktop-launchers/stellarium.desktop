@@ -1,9 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-Version=1.0
-Type=Application
-Terminal=false
-Name=stellarium
-Exec=/usr/bin/single-instance /opt/stellarium/bin/stellarium
-Icon=/opt/stellarium/share/stellarium.png
-Categories=Education;Astronomy;

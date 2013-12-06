@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Gallery
+Icon=icon-l-gallery
+Exec=/usr/bin/invoker --type=m /usr/bin/gallery
+OnlyShowIn=X-MeeGo;
+X-MeeGo-Logical-Id=qtn_comm_appname_gall
+X-MeeGo-Translation-Catalog=gallery
+X-Maemo-Service=com.nokia.Gallery
+
