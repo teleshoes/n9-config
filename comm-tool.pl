@@ -34,7 +34,8 @@ sub getMessages($$);
 sub messageToString($$);
 sub writeMessageFile($\@$);
 sub writeContactsFiles($\@$);
-sub removeUSCountryCode(\@);
+sub alterPhoneNums($$);
+sub removeUSCountryCode($);
 sub removeDupes($\@);
 
 sub main(@){
@@ -185,7 +186,7 @@ sub getMessages($$){
       push @messages, [$phone, $dir, $start, $end, $telepathyKey];
     }
   }
-  @messages = removeUSCountryCode @messages;
+  alterPhoneNums \&removeUSCountryCode, \@messages;
   return @messages;
 }
 
@@ -233,15 +234,18 @@ sub writeContactsFiles($\@$){
   }
 }
 
-sub removeUSCountryCode(\@){
-  my @messages = @{shift()};
-  for my $msg(@messages){
-    my $phone = $$msg[0];
-    $phone =~ s/^\s*//;
-    $phone =~ s/^\+?1?(\d{10})$/$1/;
-    $$msg[0] = $phone;
+sub alterPhoneNums($$){
+  my ($sub, $messages) = @_;
+  for my $msg(@$messages){
+    $$msg[0] = &$sub($$msg[0]);
   }
-  return @messages;
+}
+
+sub removeUSCountryCode($){
+  my $num = shift;
+  $num =~ s/^\s*//;
+  $num =~ s/^\+?1?(\d{10})$/$1/;
+  return $num;
 }
 
 sub removeDupes($\@){
