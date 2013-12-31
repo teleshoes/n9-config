@@ -44,15 +44,15 @@ class CommandButton(QToolButton):
     QToolButton.__init__(self)
     self.cmd = cmd
 
+    self.setText(cmd.name)
     icon = self.createIcon(self.cmd.icon)
     if icon != None:
       self.setIcon(icon)
-    self.setText(cmd.name)
+      self.setIconSize(QSize(80,80))
+      self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
 
     self.clicked.connect(self.run)
 
-    self.setIconSize(QSize(80,80))
-    self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
   def createIcon(self, iconPath):
     if os.path.isfile(iconPath) and os.path.isabs(iconPath):
       return QIcon(iconPath)
