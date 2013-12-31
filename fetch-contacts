@@ -2,10 +2,8 @@
 use strict;
 use warnings;
 
-my $dir = "$ENV{HOME}/Code/n9";
-my $dest = "$dir/backup";
-my $contactsSrcDir = "/home/user/MyDocs/backup-contacts";
-my $contactsDestDir = "$dest/backup-contacts";
+my $destDir = "$ENV{HOME}/Code/n9/backup/backup-contacts";
+my $srcDir = "/home/user/MyDocs/backup-contacts";
 
 sub run(@);
 
@@ -14,8 +12,8 @@ sub main(@){
   chomp $host;
 
   run "n9", "-s", "backup-contacts";
-  run "mkdir", "-p", $contactsDestDir;
-  run "rsync", "-avP", "root\@$host:$contactsSrcDir/", $contactsDestDir;
+  run "mkdir", "-p", $destDir;
+  run "rsync", "-avP", "root\@$host:$srcDir/", $destDir;
 }
 
 sub run(@){
