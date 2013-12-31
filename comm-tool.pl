@@ -38,6 +38,9 @@ sub alterPhoneNums($$);
 sub removeUSCountryCode($);
 sub removeDupes($\@);
 sub getLatestVcfFile($);
+sub parseContactsVcf($);
+sub formatContact($);
+sub parseVcard($$);
 
 sub main(@){
   my $type = shift;
@@ -291,6 +294,64 @@ sub getLatestVcfFile($){
   my $f = $files[0];
   chomp $f;
   return $f if -e $f;
+}
+
+sub parseContactsVcf($){
+  my $vcfFile = shift;
+  my $contacts = {};
+  if(defined $vcfFile and -e $vcfFile){
+    my $vcard;
+    open FH, "< $vcfFile" or die "Couldnt read $vcfFile\n";
+    while(my $line = <FH>){
+      if($line =~ /^\s*BEGIN:VCARD\s*$/){
+        $vcard = '';
+      }elsif($line =~ /^\s*END:VCARD\s*$/){
+        parseVcard $contacts, $vcard;
+      }else{
+        $vcard .= $line;
+      }
+    }
+    close FH;
+  }
+  return $contacts;
+}
+
+sub formatContact($){
+  my $c = shift;
+  my @names = @{$$c{names}};
+  my $nameStr = join ' ', grep{$_ !~ /^\s*$/} reverse @names;
+  $nameStr = lc $nameStr;
+  $nameStr =~ s/'s(?![a-z0-9])/s/g;
+  $nameStr =~ s/[^a-z0-9]+/_/g;
+  return "$nameStr-$$c{number}";
+}
+
+sub parseVcard($$){
+  my ($contacts, $vcard) = @_;
+  my $info = {};
+  my $nums = {};
+  for my $line(split /[\n\r]+/, $vcard){
+    if($line =~ /^TEL;/){
+      my $type = undef;
+      $type = 'cell' if $line =~ /TYPE=CELL/;
+      $type = 'home' if $line =~ /TYPE=HOME/;
+      my $num = $line;
+      $num =~ s/[^0-9\+]//g;
+      $$nums{$num} = $type;
+    }elsif($line =~ /^N:/){
+      $line =~ s/^N://;
+      my @names = split /;/, $line;
+      $$info{names} = \@names;
+    }
+  }
+
+  for my $num(keys %$nums){
+    my %numInfo = (%$info);
+    $numInfo{type} = $$nums{$num};
+    my $number = removeUSCountryCode $num;
+    $numInfo{number} = $number;
+    $$contacts{$number} = \%numInfo;
+  }
 }
 
 &main(@ARGV);
