@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-my $contactDir = "$ENV{HOME}/Code/n9/backup/backup-contacts";
+my $repo = "$ENV{HOME}/Code/n9/backup/backup-contacts/repo";
 
 sub run(@);
 
@@ -10,15 +10,10 @@ sub main(@){
   my $host = `n9`;
   chomp $host;
 
-  my @files = `cd $contactDir; ls *.vcf`;
-  chomp foreach @files;
-  @files = sort @files;
-  if(@files == 0){
-    die "No .vcf file in $contactDir\n";
-  }
-  my $file = $files[-1];
-  print "Using: $file\n";
-  run "scp", "$contactDir/$file", "root\@$host:/tmp";
+  my $file = "contacts.vcf";
+  die "$repo/$file not found\n" if not -e "$repo/$file";
+
+  run "scp", "$repo/$file", "root\@$host:/tmp";
   run "n9", "-s", "source /etc/profile; vcardconverter /tmp/$file";
 
   print "you may want to now run merge contacts and delete unnamed\n";
