@@ -21,7 +21,7 @@ def main():
     print >> sys.stderr, "Usage: " + sys.argv[0] + " conf-file"
     sys.exit(2)
   confFile = sys.argv[1]
-    
+
   app = QApplication([])
   grid = SimpleGrid(7)
   for cmd in Config(confFile).readConfFile():
@@ -43,7 +43,7 @@ class CommandButton(QToolButton):
   def __init__(self, cmd):
     QToolButton.__init__(self)
     self.cmd = cmd
-    
+
     icon = self.createIcon(self.cmd.icon)
     if icon != None:
       self.setIcon(icon)
