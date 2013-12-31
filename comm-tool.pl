@@ -251,7 +251,7 @@ sub removeDupes($\@){
   my %onelineStrings;
   for my $msg(@messages){
     my $str = messageToString $type, $msg;
-    
+
     my $oneline = $str;
     $oneline =~ s/[\n\r]+//g;
     if(defined $strings{$str}){
@@ -272,7 +272,7 @@ sub removeDupes($\@){
         print "WEIRD: newline count is the same, not skipping\n";
       }
     }
-    
+
     $strings{$str} = $msg;
     $onelineStrings{$oneline} = $msg;
   }
