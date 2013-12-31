@@ -51,6 +51,8 @@ class CommandButton(QToolButton):
       self.setIconSize(QSize(80,80))
       self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
 
+    self.setStyleSheet("font-size: 16pt")
+
     self.clicked.connect(self.run)
 
   def createIcon(self, iconPath):
