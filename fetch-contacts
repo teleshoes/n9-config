@@ -4,8 +4,11 @@ use warnings;
 
 my $destDir = "$ENV{HOME}/Code/n9/backup/backup-contacts";
 my $srcDir = "/home/user/MyDocs/backup-contacts";
+my $repo = "$destDir/repo";
 
+sub getLatestVcf();
 sub run(@);
+sub maybeRun(@);
 
 sub main(@){
   die "Usage: $0\n" if @_ != 0;
@@ -16,12 +19,38 @@ sub main(@){
   run "n9", "-s", "backup-contacts";
   run "mkdir", "-p", $destDir;
   run "rsync", "-avP", "root\@$host:$srcDir/", $destDir;
+
+  updateRepo();
+}
+
+sub updateRepo(){
+  my $latest = getLatestVcf();
+  my $file = "contacts.vcf";
+  if(defined $latest){
+    run "mkdir", "-p", $repo;
+    chdir $repo;
+    run "cp", $latest, $file;
+    run "git", "init", if not -d ".git";
+    run "git", "add", $file;
+    run "git", "--no-pager", "diff", "--cached";
+    maybeRun "git commit -m 'automatic commit'";
+  }
+}
+
+sub getLatestVcf(){
+  my $latest = `ls -t "$destDir"/*.vcf | head -1`;
+  chomp $latest;
+  return $latest if $latest ne "" and -e $latest;
 }
 
 sub run(@){
   print "@_\n";
   system @_;
   die "FAILED: @_\n" if $? != 0;
+}
+sub maybeRun(@){
+  print "@_\n";
+  system @_;
 }
 
 &main(@ARGV);
