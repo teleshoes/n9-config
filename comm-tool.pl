@@ -218,6 +218,15 @@ sub writeMessageFile($\@$){
     print FH messageToString($type, $msg);
   }
   close FH;
+
+  my $latestDate = undef;
+  for my $msg(@messages){
+    my $d = $$msg[2];
+    if(not defined $latestDate or $d gt $latestDate){
+      $latestDate = $d;
+    }
+  }
+  system "touch", "-d", $latestDate, $file if defined $latestDate;
 }
 
 sub writeContactsFiles($\@$){
@@ -299,6 +308,7 @@ sub writeByNameSymlinks($$$){
     my $byNameFile = "$repoDir/$fmt.$type";
     if(-e $numFile){
       system "ln", "-s", "$num.$type", $byNameFile;
+      system "touch", "-h", "-r", $numFile, $byNameFile;
     }
   }
 }
