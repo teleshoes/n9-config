@@ -1,9 +1,14 @@
 [ -f /etc/bashrc ] && . /etc/bashrc
 [ -f /etc/bash_completion ] && . /etc/bash_completion
 
+shopt -s dotglob
+
+ssh-add ~/.ssh/id_rsa 2> /dev/null
+
 export HISTSIZE=1000000
 export HISTCONTROL=ignoredups # don't put duplicate lines in the history
 export HISTCONTROL=ignoreboth # ... and ignore same sucessive entries.
+export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/
 
 shopt -s checkwinsize # update LINES and COLUMNS based on window size
 [ -x /usr/bin/lesspipe ] && eval "$(lesspipe)" #less on binary files, e.g. tars
@@ -19,24 +24,37 @@ if [ "$TERM" == "rxvt" ]; then
   PROMPT_COMMAND='if [ "$WINDOW_TITLE" ]; then '$p1'; else '$p2'; fi'
 fi
 
-prependPath() {
-  case $PATH in
-    $@:* | *:$@ | *:$@:* ) ;;
-    *) export PATH=$@:$PATH
-  esac
+pathAppend ()  { for x in $@; do pathRemove $x; export PATH="$PATH:$x"; done }
+pathPrepend () { for x in $@; do pathRemove $x; export PATH="$x:$PATH"; done }
+pathRemove ()  { for x in $@; do
+  export PATH=`\
+    echo -n $PATH \
+    | awk -v RS=: -v ORS=: '$0 != "'$1'"' \
+    | sed 's/:$//'`;
+  done
 }
-prependPath $HOME/bin
-prependPath $HOME/.cabal/bin
-prependPath /sbin
-prependPath /usr/sbin
-prependPath /usr/local/bin
-prependPath /usr/local/sbin
+
+pathAppend          \
+  $HOME/bin         \
+  $HOME/.cabal/bin  \
+  /usr/local/bin    \
+  /usr/bin          \
+  /bin              \
+  /usr/local/sbin   \
+  /usr/sbin         \
+  /sbin             \
+  /usr/local/games  \
+  /usr/games        \
+;
+
 meego_gnu=/opt/gnu-utils
 if [ -d $meego_gnu ]; then
-  prependPath /usr/libexec/git-core
-  prependPath $meego_gnu/bin
-  prependPath $meego_gnu/usr/bin
-  prependPath $meego_gnu/usr/sbin
+  pathPrepend              \
+    /usr/libexec/git-core  \
+    $meego_gnu/bin         \
+    $meego_gnu/usr/bin     \
+    $meego_gnu/usr/sbin    \
+  ;
 fi
 
 if [ `hostname -s` == "wolke-n9" ]; then
@@ -71,7 +89,8 @@ cEnd='\[\033[00m\]'
 #the n9 fucks with that line on reboot
 PS1="$c1$u$h$cEnd$colon$c2\w$cEnd\$ "
 
-for cmd in wconnect wauto tether resolv mnt optimus xorg-conf bluetooth fan
+for cmd in wconnect wauto tether resolv \
+           mnt optimus xorg-conf bluetooth fan intel-pstate flasher
 do alias $cmd="sudo $cmd"; done
 
 for sudoTypo in suod sudp
@@ -80,18 +99,21 @@ do alias $sudoTypo='sudo'; done
 for exitTypo in exot exut
 do alias $exitTypo='exit'; done
 
+alias tb='pkill -9 taffybar; taffybar; pkill -9 taffybar'
+
+alias dus='du -s * | sort -g'
 alias killjobs='kill -9 `jobs -p` 2>/dev/null; sleep 0.1; echo'
 alias gvim='term vim'
 alias cx='chmod +x'
 alias :q='exit'
 alias shutdown='poweroff'
-alias l='ls -al --color=auto'
-alias ll='ls -al --color=auto'
-alias ld='ls -dal --color=auto'
+alias l='ls -Al --color=auto'
+alias ll='ls -Al --color=auto'
+alias ld='ls -dAl --color=auto'
 alias mplayer='WINDOW_TITLE=MPLAYER; mplayer'
 alias perms='stat -c %a'
 alias glxgears='vblank_mode=0 glxgears'
-alias mnto='sudo mnt --other --no-usb --no-card'
+function mnto { sudo mnt --other --no-usb --no-card $@ ; }
 alias gparted='spawnexsudo gparted'
 function s           { $@ & disown ; }
 function spawn       { $@ & disown ; }
@@ -103,13 +125,19 @@ function update-repo { sudo apt-get update \
                          -o APT::Get::List-Cleanup="0"
 }
 
-alias genservices='~/workspace/escribe/tools/genservices'
-alias migl='gvim `~/workspace/escribe/src-sql/migrations/latest-script`'
-
-##AUTOLOGIN START##
-if [ -z "$DISPLAY" ]; then
-  if [ "$(tty)" == "/dev/tty6" ]; then
-    exec startx
+function git-log(){ git logn $@ ; }
+function git()
+{
+  realgit="$(which git)"
+  cmd="git-$1"
+  if [ "$(type -t $cmd)" = "function" ]; then
+    shift
+    $cmd "$@"
+  else
+    $realgit "$@"
   fi
-fi
-##AUTOLOGIN END##
+}
+
+alias genservices='~/workspace/escribe/tools/genservices.pl'
+alias genibatis='~/workspace/escribe/tools/genibatis.pl'
+alias migl='gvim `~/migs/latest-script`'
