@@ -7,8 +7,9 @@ sub backup($);
 my $dir = "$ENV{HOME}/Code/n9";
 
 my %gitRepos = (
-  "1sms"   => "$dir/backup/backup-sms/repo",
-  "2call"  => "$dir/backup/backup-call/repo",
+  "1sms"      => "$dir/backup/backup-sms/repo",
+  "2call"     => "$dir/backup/backup-call/repo",
+  "3contacts" => "$dir/backup/backup-contacts/repo",
 );
 
 sub main(@){
