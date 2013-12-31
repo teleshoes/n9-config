@@ -4,17 +4,19 @@ use warnings;
 
 my $dir = "$ENV{HOME}/Code/n9";
 my $dest = "$dir/backup";
-
-my $host = `n9`;
-chomp $host;
-
 my $contactsSrcDir = "/home/user/MyDocs/backup-contacts";
 my $contactsDestDir = "$dest/backup-contacts";
 
-system "n9", "-s", "backup-contacts";
-die "failed" if $? != 0;
-system "mkdir", "-p", $contactsDestDir;
-die "failed" if $? != 0;
-system "rsync", "-avP", "root\@$host:$contactsSrcDir/", $contactsDestDir;
-die "failed" if $? != 0;
+sub main(@){
+  my $host = `n9`;
+  chomp $host;
 
+  system "n9", "-s", "backup-contacts";
+  die "failed" if $? != 0;
+  system "mkdir", "-p", $contactsDestDir;
+  die "failed" if $? != 0;
+  system "rsync", "-avP", "root\@$host:$contactsSrcDir/", $contactsDestDir;
+  die "failed" if $? != 0;
+}
+
+&main(@ARGV);
