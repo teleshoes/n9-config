@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Proc::Daemon;
+
+sub main(@){
+  my $exec = `which launcher-buttons`;
+  my $daemon = Proc::Daemon->new(
+    exec_command => "perl $exec",
+    pid_file => "/tmp/launcher-buttons-daemon.pid",
+  );
+  $daemon->Kill_Daemon();
+  $daemon->Init();
+}
+
+&main(@ARGV);
