@@ -37,6 +37,7 @@ sub writeContactsFiles($\@$);
 sub alterPhoneNums($$);
 sub removeUSCountryCode($);
 sub removeDupes($\@);
+sub writeByNameSymlinks($$$);
 sub getLatestVcfFile($);
 sub parseContactsVcf($);
 sub formatContact($);
@@ -61,6 +62,7 @@ sub main(@){
     run "mkdir -p $repoDir";
     run "rm $repoDir/*.$type";
     writeContactsFiles $type, @messages, $repoDir;
+    writeByNameSymlinks $type, getLatestVcfFile($vcfDir), $repoDir;
   }elsif($arg eq 'join'){
     my @messages = getMessagesFromDir($type, $repoDir);
     @messages = filterMessages $type, @messages;
@@ -285,6 +287,20 @@ sub removeDupes($\@){
     $onelineStrings{$oneline} = $msg;
   }
   return values %strings;
+}
+
+sub writeByNameSymlinks($$$){
+  my ($type, $vcfFile, $repoDir) = @_;
+  my $contacts = parseContactsVcf $vcfFile;
+  for my $num(keys %$contacts){
+    my $contact = $$contacts{$num};
+    my $numFile = "$repoDir/$num.$type";
+    my $fmt = formatContact $contact;
+    my $byNameFile = "$repoDir/$fmt.$type";
+    if(-e $numFile){
+      system "ln", "-s", "$num.$type", $byNameFile;
+    }
+  }
 }
 
 sub getLatestVcfFile($){
