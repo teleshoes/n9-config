@@ -37,6 +37,7 @@ sub writeContactsFiles($\@$);
 sub alterPhoneNums($$);
 sub removeUSCountryCode($);
 sub removeDupes($\@);
+sub getLatestVcfFile($);
 
 sub main(@){
   my $type = shift;
@@ -46,7 +47,7 @@ sub main(@){
   die $usage if $type !~ /^(sms|call)$/ or $arg !~ /^($okArgs)$/ or @_ > 0;
   my $bakDir = "$backupRoot/backup-$type";
   my $repoDir = "$backupRoot/backup-$type/repo";
-
+  my $vcfDir = "$backupRoot/backup-contacts";
 
   if($arg eq 'split'){
     run "mkdir $repoDir -p";
@@ -281,6 +282,15 @@ sub removeDupes($\@){
     $onelineStrings{$oneline} = $msg;
   }
   return values %strings;
+}
+
+sub getLatestVcfFile($){
+  my $dir = shift;
+  my @files = `ls -t "$dir"/*.vcf`;
+  return undef if @files == 0;
+  my $f = $files[0];
+  chomp $f;
+  return $f if -e $f;
 }
 
 &main(@ARGV);
