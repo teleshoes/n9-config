@@ -7,16 +7,21 @@ my $dest = "$dir/backup";
 my $contactsSrcDir = "/home/user/MyDocs/backup-contacts";
 my $contactsDestDir = "$dest/backup-contacts";
 
+sub run(@);
+
 sub main(@){
   my $host = `n9`;
   chomp $host;
 
-  system "n9", "-s", "backup-contacts";
-  die "failed" if $? != 0;
-  system "mkdir", "-p", $contactsDestDir;
-  die "failed" if $? != 0;
-  system "rsync", "-avP", "root\@$host:$contactsSrcDir/", $contactsDestDir;
-  die "failed" if $? != 0;
+  run "n9", "-s", "backup-contacts";
+  run "mkdir", "-p", $contactsDestDir;
+  run "rsync", "-avP", "root\@$host:$contactsSrcDir/", $contactsDestDir;
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+  die "FAILED: @_\n" if $? != 0;
 }
 
 &main(@ARGV);
