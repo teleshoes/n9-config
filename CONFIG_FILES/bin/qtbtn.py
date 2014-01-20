@@ -95,7 +95,10 @@ class CommandThread(QThread):
     while(True):
       while len(self.commands) > 0:
         self.runCmd()
-        self.updateInfobars()
+
+      self.msleep(500)
+      self.updateInfobars()
+
       self.waitCond.wait(self.mutex)
       print "WOKE UP"
   def addCmd(self, cmd):
