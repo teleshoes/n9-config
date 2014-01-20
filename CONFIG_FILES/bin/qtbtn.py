@@ -113,8 +113,7 @@ class CommandThread(QThread):
     cmd = self.commands.popleft()
     self.mutex.unlock()
     print "RUNNING " + cmd
-    proc = subprocess.Popen(['sh', '-c', cmd])
-    proc.wait()
+    os.system(cmd)
   def updateInfobars(self):
     print "UPDATING INFOBARS"
     for infobar in self.infobars:
