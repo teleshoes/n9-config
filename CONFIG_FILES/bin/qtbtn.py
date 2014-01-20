@@ -28,7 +28,13 @@ def main():
   app = QApplication([])
   grid = SimpleGrid(7)
   for cmd in Config(confFile).readConfFile():
-    grid.add(CommandButton(cmd, commandThread))
+    if cmd.infobar:
+      infobar = Infobar(cmd)
+      grid.newRow()
+      grid.add(infobar)
+      commandThread.addInfobar(infobar)
+    else:
+      grid.add(CommandButton(cmd, commandThread))
 
   widget = QWidget()
   widget.setLayout(grid)
@@ -39,10 +45,11 @@ def main():
   app.exec_()
 
 class CommandEntry():
-  def __init__(self, name, icon, command):
+  def __init__(self, name, icon, command, infobar=False):
     self.name = name
     self.icon = icon
     self.command = command
+    self.infobar = infobar
 
 class CommandButton(QToolButton):
   def __init__(self, cmd, commandThread):
@@ -80,12 +87,15 @@ class CommandThread(QThread):
   def __init__(self):
     QThread.__init__(self)
     self.commands = deque()
+    self.infobars = []
     self.mutex = QMutex()
     self.waitCond = QWaitCondition()
   def run(self):
+    self.updateInfobars()
     while(True):
       while len(self.commands) > 0:
         self.runCmd()
+        self.updateInfobars()
       self.waitCond.wait(self.mutex)
       print "WOKE UP"
   def addCmd(self, cmd):
@@ -93,6 +103,8 @@ class CommandThread(QThread):
     self.commands.append(cmd)
     self.mutex.unlock()
     self.waitCond.wakeAll()
+  def addInfobar(self, infobar):
+    self.infobars.append(infobar)
   def runCmd(self):
     self.mutex.lock()
     cmd = self.commands.popleft()
@@ -100,6 +112,27 @@ class CommandThread(QThread):
     print "RUNNING " + cmd
     proc = subprocess.Popen(['sh', '-c', cmd])
     proc.wait()
+  def updateInfobars(self):
+    print "UPDATING INFOBARS"
+    for infobar in self.infobars:
+      infobar.update()
+
+class Infobar(QLabel):
+  def __init__(self, cmd):
+    QLabel.__init__(self, cmd.command)
+    self.cmd = cmd
+    self.setFixedHeight(25)
+    self.setFixedWidth(850)
+    self.setStyleSheet("font-size: 16pt")
+  def update(self):
+    self.setText(self.cmd.command)
+    try:
+      proc = subprocess.Popen(['sh', '-c', self.cmd.command],
+        stdout=subprocess.PIPE)
+      self.setText(proc.stdout.readline())
+      proc.terminate()
+    except:
+      self.setText("ERROR")
 
 class Config():
   def __init__(self, confFile):
@@ -114,12 +147,16 @@ class Config():
       line = line.strip()
       if len(line) > 0:
         csv = line.split(',', 3)
-        if len(csv) != 3:
+        if len(csv) == 2 and csv[0].strip() == "infobar":
+          cmd = csv[1].strip()
+          cmds.append(CommandEntry(None, None, cmd, True))
+        elif len(csv) == 3:
+          name = csv[0].strip()
+          icon = csv[1].strip()
+          cmd = csv[2].strip()
+          cmds.append(CommandEntry(name, icon, cmd))
+        else:
           raise Exception("Error parsing config line: " + line)
-        name = csv[0].strip()
-        icon = csv[1].strip()
-        cmd = csv[2].strip()
-        cmds.append(CommandEntry(name, icon, cmd))
     return cmds
 
 class SimpleGrid(QVBoxLayout):
