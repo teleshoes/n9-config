@@ -8,6 +8,7 @@
 
 from PySide.QtGui import *
 from PySide.QtCore import *
+from collections import deque
 
 import os
 import sys
@@ -22,16 +23,20 @@ def main():
     sys.exit(2)
   confFile = sys.argv[1]
 
+  commandThread = CommandThread()
+
   app = QApplication([])
   grid = SimpleGrid(7)
   for cmd in Config(confFile).readConfFile():
-    grid.add(CommandButton(cmd))
+    grid.add(CommandButton(cmd, commandThread))
 
   widget = QWidget()
   widget.setLayout(grid)
   widget.showFullScreen()
-  app.exec_()
 
+  commandThread.start(QThread.HighestPriority)
+
+  app.exec_()
 
 class CommandEntry():
   def __init__(self, name, icon, command):
@@ -40,9 +45,10 @@ class CommandEntry():
     self.command = command
 
 class CommandButton(QToolButton):
-  def __init__(self, cmd):
+  def __init__(self, cmd, commandThread):
     QToolButton.__init__(self)
     self.cmd = cmd
+    self.commandThread = commandThread
 
     self.setText(cmd.name)
     icon = self.createIcon(self.cmd.icon)
@@ -68,7 +74,32 @@ class CommandButton(QToolButton):
       iconPath = icon[:-4]
     return "/usr/share/themes/blanco/meegotouch/icons/" + iconPath + ".png"
   def run(self):
-    subprocess.Popen(['sh', '-c', self.cmd.command])
+    self.commandThread.addCmd(self.cmd.command)
+
+class CommandThread(QThread):
+  def __init__(self):
+    QThread.__init__(self)
+    self.commands = deque()
+    self.mutex = QMutex()
+    self.waitCond = QWaitCondition()
+  def run(self):
+    while(True):
+      while len(self.commands) > 0:
+        self.runCmd()
+      self.waitCond.wait(self.mutex)
+      print "WOKE UP"
+  def addCmd(self, cmd):
+    self.mutex.lock()
+    self.commands.append(cmd)
+    self.mutex.unlock()
+    self.waitCond.wakeAll()
+  def runCmd(self):
+    self.mutex.lock()
+    cmd = self.commands.popleft()
+    self.mutex.unlock()
+    print "RUNNING " + cmd
+    proc = subprocess.Popen(['sh', '-c', cmd])
+    proc.wait()
 
 class Config():
   def __init__(self, confFile):
@@ -90,7 +121,6 @@ class Config():
         cmd = csv[2].strip()
         cmds.append(CommandEntry(name, icon, cmd))
     return cmds
-
 
 class SimpleGrid(QVBoxLayout):
   def __init__(self, cols):
