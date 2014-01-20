@@ -169,12 +169,14 @@ class SimpleGrid(QVBoxLayout):
     self.curRow = None
   def add(self, w):
     if self.col >= self.cols or self.curRow == None:
-      self.col = 0
-      self.row += 1
-      self.curRow = QHBoxLayout()
-      self.addLayout(self.curRow)
+      self.newRow()
     self.col += 1
     self.curRow.addWidget(w)
+  def newRow(self):
+    self.col = 0
+    self.row += 1
+    self.curRow = QHBoxLayout()
+    self.addLayout(self.curRow)
 
 if __name__ == "__main__":
   sys.exit(main())
