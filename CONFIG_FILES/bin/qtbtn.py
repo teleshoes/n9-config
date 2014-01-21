@@ -91,7 +91,6 @@ class CommandThread(QThread):
     self.mutex = QMutex()
     self.waitCond = QWaitCondition()
   def run(self):
-    self.updateInfobars()
     while(True):
       while len(self.commands) > 0:
         self.runCmd()
