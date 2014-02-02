@@ -1,0 +1,3 @@
+deb http://mirror.thecust.net/harmattan-dev.nokia.com/ harmattan/sdk free non-free
+deb-src http://mirror.thecust.net/harmattan-dev.nokia.com/ harmattan/sdk free
+deb http://mirror.thecust.net/harmattan-dev.nokia.com/ harmattan/41667a5bd857be02f487c2ce806fbf85 nokia-binaries
