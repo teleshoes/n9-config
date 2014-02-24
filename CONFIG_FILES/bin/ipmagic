@@ -1,0 +1,565 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub absolutePath($);
+sub assertIp($);
+sub assertMac($);
+sub fingerprint($);
+sub ensureIpFingerprint($$);
+sub parseConfig($);
+sub hostsMarker($);
+sub getHosts($);
+sub setHosts($$$);
+sub sudoSetHosts($$$);
+sub maybeUpdateHosts($$);
+sub getTmpFile($);
+sub readTmpFile($);
+sub writeTmpFile($$);
+sub quickPingable($);
+sub ifup($$);
+sub sudoIfup($$);
+sub usb($$);
+sub wifi($$);
+sub twip($$);
+sub guess($$);
+
+my $ifconfigExec = '/sbin/ifconfig';
+my $iwconfigExec = '/sbin/iwconfig';
+
+my $confDir = "$ENV{HOME}/.config/ipmagic";
+my @confFiles = `ls \"$confDir\" 2>/dev/null`;
+chomp foreach @confFiles;
+
+my $methods = join "|", qw(any tmp usb wifi twip guess);
+
+my $usage = "Usage:
+    $0 -h|--help
+      print this usage
+    $0 --set-hosts HOSTNAME MARKER IP
+      update the hosts file line and exit
+    $0 --ifup DEV IP
+      ifup the DEV with the IP
+
+    $0 CONF [OPTS]
+    $0 CONF [OPTS] --host
+      print the hostname and exit, doing nothing else
+
+    $0 CONF [OPTS] --ip
+      setup method, print the IP, and exit {dont set up hosts}
+
+    $0 CONF [OPTS] -t|--tmp [IP]
+      write IP to a tmp file, or if IP is not given, remove tmp file.
+      the tmp file is read first while setting up the hosts file,
+        and overrides all other methods of finding an ip
+      tmp file is: /tmp/ipmagicCONFIG_FILE.tmp
+        where CONFIG_FILE is the abs path to the config file,
+          with forward slashes \"/\" replaced with underscores \"_\"
+          e.g.: /tmp/ipmagic_home_user_raspberrypi.conf.tmp
+
+    $0 CONF [OPTS] [ACTION]
+      setup hosts file, init devices, and optionally perform an action
+      ACTIONS:
+        -s [CMD ARG ARG..]  ssh to host
+
+        CMD [ARG ARG..]     ssh with bash -c \"CMD ARG ARG\"
+        -b CMD [ARG ARG..]  if config file has preBashCommand, cmd is:
+                            preBashCommand\\; bash -c \"CMD ARG ARG\"
+                            double quotes in the command or args are escaped
+
+        -vnc [VNC_ARGS]     call vncCmd
+                            e.g.: for n9-vnc: `$0 -vnc rotate90 -- -quality 0`
+
+      CONF:
+        either path to an ipmagic conf file, or a word {alphanum+underscore}
+        if a word is given, then this file is used:
+        \"$confDir/CONF.conf\"
+        {available: @confFiles}
+
+      OPTS:
+        -v|--verbose        print every little thing that springs to our mouths
+        -u|--user USER      ssh user
+        -m|--method METHOD  method of obtaining ip
+                            one of [$methods]
+";
+
+sub main(@){
+  if(@_ == 1 and $_[0] =~ /^(-h|--help)$/){
+    print $usage;
+    exit 0;
+  }elsif(@_ == 4 and $_[0] =~ /^(--set-hosts)$/){
+    setHosts $_[1], $_[2], $_[3];
+    exit 0;
+  }elsif(@_ == 3 and $_[0] =~ /^(--ifup)$/){
+    ifup $_[1], $_[2];
+    exit 0;
+  }elsif(@_ == 0){
+    die $usage;
+  }
+
+  my $conf = shift;
+  my $confFile;
+  if($conf =~ /^\w+$/){
+    $confFile = absolutePath "$confDir/$conf.conf";
+  }else{
+    $confFile = absolutePath $conf;
+  }
+
+  die "Could not read $confFile {$0 -h for usage}\n" if not -f $confFile;
+  my %config = %{parseConfig $confFile};
+
+  die "hostname not defined in conf\n" if not defined $config{hostname};
+
+  my %opts;
+  while(@_ > 0 and $_[0] =~ /^(-v|--verbose|-u|--user|-m|--method)$/){
+    my $arg = shift;
+    if($arg =~ /^(-v|--verbose)$/){
+      $opts{verbose} = 1;
+    }elsif(@_ > 0 and $arg =~ /^(-u|--user)$/){
+      $opts{user} = shift;
+    }elsif(@_ > 0 and $arg =~ /^(-m|--method)$/){
+      $opts{method} = shift;
+    }else{
+      die $usage;
+    }
+  }
+
+  $opts{verbose} = 0 if not defined $opts{verbose};
+  $opts{user} = $config{defaultUser} if not defined $opts{user};
+  $opts{user} = 'root' if not defined $opts{user};
+  $opts{method} = 'any' if not defined $opts{method};
+
+  my $ipOnly = 0;
+
+  if(@_ == 1 and $_[0] eq '--host'){
+    print "$config{hostname}\n";
+    exit 0;
+  }elsif(@_ == 1 and $_[0] eq '--ip'){
+    $ipOnly = 1;
+  }elsif((@_ == 1 or @_ == 2) and $_[0] =~ /^(-t|--tmp)$/){
+    my $ip = $_[1] if @_ == 2;
+    writeTmpFile $confFile, $ip;
+    exit 0;
+  }
+
+  my ($isVnc, $isSsh) = (0, 0);
+  my $vncCmd;
+  my @sshCmd;
+  if(@_ > 0 and $_[0] eq '-vnc'){
+    $isVnc = shift;
+    if(defined $config{vncCommand}){
+      $vncCmd = $config{vncCommand};
+    }else{
+      $vncCmd = "vnc $opts{user}\@$config{hostname}";
+    }
+    if(@_ > 0){
+      $vncCmd .= " @_";
+    }elsif(defined $config{vncDefaultArgs}){
+      $vncCmd .= " $config{vncDefaultArgs}";
+    }
+  }elsif(@_ > 0 and $_[0] eq '-s'){
+    shift;
+    $isSsh = 1;
+    @sshCmd = @_;
+  }elsif(@_ > 0){
+    shift if $_[0] eq '-b';
+    $isSsh = 1;
+    die "-b missing command\n" if @_ == 0;
+    my $c = "@_";
+    $c =~ s/"/\\"/g;
+    $c = "bash -c \"$c\"";
+    my $preBashCmd = $config{preBashCommand};
+    if(defined $preBashCmd){
+      $c = "$preBashCmd\; $c"
+    }
+    @sshCmd = ($c);
+  }
+
+  if(not -x $ifconfigExec){
+    $ifconfigExec = `which ifconfig`;
+    chomp $ifconfigExec;
+  }
+  print STDERR "WARNING: no ifconfig exec found\n" if not -x $ifconfigExec;
+
+  if(not -x $iwconfigExec){
+    $iwconfigExec = `which iwconfig`;
+    chomp $iwconfigExec;
+  }
+  print STDERR "WARNING: no iwconfig exec found\n" if not -x $iwconfigExec;
+
+  my ($ip, $method);
+  if(not defined $ip and $opts{method} =~ /^(any|tmp)$/){
+    ($ip, $method) = (readTmpFile($confFile), 'tmp');
+  }
+  if(not defined $ip and $opts{method} =~ /^(any|usb)$/){
+    ($ip, $method) = (usb(\%config, \%opts), 'usb');
+  }
+  if(not defined $ip and $opts{method} =~ /^(any|wifi)$/){
+    ($ip, $method) = (wifi(\%config, \%opts), 'wifi');
+  }
+  if(not defined $ip and $opts{method} =~ /^(any|twip)$/){
+    ($ip, $method) = (twip(\%config, \%opts), 'twip');
+  }
+  if(not defined $ip and $opts{method} =~ /^(any|guess)$/){
+    ($ip, $method) = (guess(\%config, \%opts), 'guess');
+  }
+  $method = undef if not defined $ip;
+
+  if($ipOnly){
+    print "$ip\n" if defined $ip;
+    exit (defined $ip ? 0 : 1);
+  }
+
+  if(not defined $ip and not quickPingable $config{hostname}){
+    die "No ip found, and could not ping $config{hostname}\n";
+  }else{
+    maybeUpdateHosts \%config, $ip;
+  }
+
+  if($isVnc){
+    print "$vncCmd\n" if $opts{verbose};
+    exec $vncCmd;
+  }elsif($isSsh){
+    if($method eq 'twip' and defined $config{twipPort}){
+      my $port = $config{twipPort};
+      print "sshing on port $port\n" if $opts{verbose};
+      @sshCmd = ("-p", $port, @sshCmd);
+    }
+    ensureIpFingerprint $config{hostname}, $ip if defined $ip;
+
+    my %sshOpts = (
+      StrictHostKeyChecking => 'no',
+    );
+    my @sshCmdOpts = map {("-o", "$_ $sshOpts{$_}")} keys %sshOpts;
+
+    my @cmd = ("ssh", @sshCmdOpts, "$opts{user}\@$config{hostname}", @sshCmd);
+    print "@cmd\n" if $opts{verbose};
+    exec @cmd;
+  }else{
+    print "$config{hostname}\n";
+  }
+}
+
+sub absolutePath($){
+  my $relPath = shift;
+  $relPath =~ s/"/""/g;
+  my $absPath = `readlink -m "$relPath"`;
+  chomp $absPath;
+
+  if($absPath =~ /^\s*$/){
+    $absPath = `readlink -f "$relPath"`;
+    chomp $absPath;
+  }
+
+  return $absPath;
+}
+
+sub assertIp($){
+  my $ip = shift;
+  if($ip !~ /^\d+\.\d+\.\d+\.\d+$/){
+    die "'$ip' is not an ip4 address\n"
+  }
+}
+
+sub assertMac($){
+  my $mac = shift;
+  my $seg = "[0-9a-f]{2}";
+  if($mac !~ /^$seg:$seg:$seg:$seg:$seg:$seg$/i){
+    die "'$mac' is not a mac address\n"
+  }
+}
+
+sub fingerprint($){
+  my $host = shift;
+  my $key = `ssh-keygen -l -F $host`;
+  if($key =~ /# Host $host found: line \d+ type \w+\n\d+ ([0-9a-f:]+)/s){
+    return $1;
+  }else{
+    return undef;
+  }
+}
+
+sub ensureIpFingerprint($$){
+  my ($hostname, $ip) = @_;
+  my $hnFp = fingerprint $hostname;
+  my $ipFp = fingerprint $ip;
+  if(defined $ipFp and (not defined $hnFp or $hnFp ne $ipFp)){
+    print "WARNING: Fingerprints differ for $hostname and $ip\n";
+    print "removing known_hosts entry for $ip\n";
+    system "ssh-keygen", "-R", $ip;
+  }
+}
+
+sub parseConfig($){
+  my $file = shift;
+  open FH, "< $file" or die "Couldnt open conf $file\n";
+  my @lines = <FH>;
+  close FH;
+
+  my %mapKeys = map {$_ => 1} qw(macIp ssidIp);
+  my %listKeys = map {$_ => 1} qw(mac ipGuess);
+  my %singleKeys = map {$_ => 1} qw(
+    hostname twipPort vncCommand vncDefaultArgs defaultUser
+    usbLocalIp usbRemoteIp preBashCommand
+  );
+  my %assertIp = map {$_ => 1} qw(ipGuess usbLocalIp usbRemoteIp);
+  my %assertMac = map {$_ => 1} qw(mac);
+  my %assertIpLeft = map {$_ => 1} qw();
+  my %assertMacLeft = map {$_ => 1} qw(macIp);
+  my %assertIpRight = map {$_ => 1} qw(macIp ssidIp);
+  my %assertMacRight = map {$_ => 1} qw();
+
+  my %config;
+  for my $line(@lines){
+    $line =~ s/#.*//;
+    next if $line =~ /^\s*$/;
+    die "Malformed conf: $line\n" if $line !~ /^\s*([a-z]+)\s*=\s*(.+?)\s*$/i;
+    my ($key, $val) = ($1, $2);
+
+    if(defined $mapKeys{$key}){
+      if($val !~ /^ \s* (\S* | "[^"]*" ) \s* :: \s* (\S* | "[^"]*") \s*$/x){
+        die "Malformed map conf entry $key = $val\n";
+      }
+      my ($valLeft, $valRight) = ($1, $2);
+      assertIp $valLeft if defined $assertIpLeft{$key};
+      assertMac $valLeft if defined $assertMacLeft{$key};
+      assertIp $valRight if defined $assertIpRight{$key};
+      assertMac $valRight if defined $assertMacRight{$key};
+
+      $key .= "Map";
+      $config{$key} = {} if not defined $config{$key};
+      ${$config{$key}}{$valLeft} = $valRight;
+    }elsif(defined $listKeys{$key}){
+      assertIp $val if defined $assertIp{$key};
+      assertMac $val if defined $assertMac{$key};
+      $key .= "List";
+      $config{$key} = [] if not defined $config{$key};
+      push @{$config{$key}}, $val;
+    }elsif(defined $singleKeys{$key}){
+      assertIp $val if defined $assertIp{$key};
+      assertMac $val if defined $assertMac{$key};
+      die "Duplicate single conf entry $key\n" if defined $config{$key};
+      $config{$key} = $val;
+    }else{
+      die "Unknown conf entry: $key\n";
+    }
+  }
+
+  return \%config;
+}
+
+sub hostsMarker($){
+  my %config = %{shift()};
+  my $hostname = $config{hostname};
+  return "ipmagic:$hostname";
+}
+
+sub getHosts($){
+  my %config = %{shift()};
+  my $hostsMarker = hostsMarker \%config;
+  my $hostname = $config{hostname};
+  for my $line(`cat /etc/hosts`){
+    if($line =~ /^(\d+\.\d+\.\d+\.\d+)\s*$hostname\s*#$hostsMarker$/){
+      return $1;
+    }
+  }
+  return undef;
+}
+
+sub setHosts($$$){
+  my ($hostname, $hostsMarker, $ip) = @_;
+  my @lines = `cat /etc/hosts`;
+  for my $line(@lines){
+    if($line =~ /^(\d+\.\d+\.\d+\.\d+)\s*$hostname\s*#$hostsMarker$/){
+      $line = '';
+    }
+  }
+  if(defined $ip and $ip =~ /^\d+\.\d+\.\d+\.\d+$/){
+    push @lines, "$ip\t$hostname#$hostsMarker\n";
+  }
+
+  open FH, "> /etc/hosts" or die "Couldnt open /etc/hosts for writing\n";
+  print FH @lines;
+  close FH;
+}
+sub sudoSetHosts($$$){
+  my ($hostname, $hostsMarker, $ip) = @_;
+  system "sudo", $0, "--set-hosts", $hostname, $hostsMarker, $ip;
+}
+
+sub maybeUpdateHosts($$){
+  my %config = %{shift()};
+  my $ip = shift;
+  my $hostsMarker = hostsMarker \%config;
+  my $hostname = $config{hostname};
+  my $old = getHosts \%config;
+  if(not defined $ip){
+    if(defined $old){
+      print STDERR "removing $hostname line from /etc/hosts\n";
+    }else{
+      return;
+    }
+  }else{
+    if(not defined $old or $old ne $ip){
+      print STDERR "replacing $hostname line in /etc/hosts\n";
+    }else{
+      return;
+    }
+  }
+
+  sudoSetHosts $hostname, $hostsMarker, $ip;
+}
+
+sub getTmpFile($){
+  my $confFile = shift;
+  my $tmpFile = $confFile;
+  $tmpFile =~ tr/\//_/;
+  $tmpFile = "/tmp/ipmagic$tmpFile.tmp";
+  return $tmpFile;
+}
+sub readTmpFile($){
+  my $confFile = shift;
+  my $tmpFile = getTmpFile $confFile;
+  if(not -e $tmpFile){
+    return undef;
+  }else{
+    open FH, "< $tmpFile" or die "Couldnt read $tmpFile\n";
+    my $val = join '', <FH>;
+    close FH;
+    chomp $val;
+    return $val;
+  }
+}
+sub writeTmpFile($$){
+  my $confFile = shift;
+  my $val = shift;
+  my $tmpFile = getTmpFile $confFile;
+  if(not defined $val){
+    if(-e $tmpFile){
+      system "rm", $tmpFile;
+      die "Couldnt remove $tmpFile\n" if $? != 0;
+    }
+  }else{
+    open FH, "> $tmpFile" or die "Couldnt write to $tmpFile\n";
+    print FH "$val\n";
+    close FH;
+  }
+}
+
+sub quickPingable($){
+  system "ping $_[0] -c 1 -w 1 >/dev/null 2>/dev/null";
+  return $? == 0;
+}
+
+sub ifup($$){
+  my ($dev, $ip) = @_;
+  system "$ifconfigExec"
+    . " $dev $ip netmask 255.255.255.0 up"
+    . " > /dev/null"
+    ;
+}
+sub sudoIfup($$){
+  my ($dev, $ip) = @_;
+  system "sudo", $0, "--ifup", $dev, $ip;
+}
+
+sub usb($$){
+  my %config = %{shift()};
+  my %opts = %{shift()};
+  if(not defined $config{usbLocalIp} or not defined $config{usbRemoteIp}){
+    return undef;
+  }
+  print "Trying usb\n" if $opts{verbose};
+  my $localIp = $config{usbLocalIp};
+  my $remoteIp = $config{usbRemoteIp};
+
+  my $ifconfig = `$ifconfigExec -a`;
+  my @macs;
+  if(defined $config{macList}){
+    @macs = @{$config{macList}};
+  }
+  foreach my $mac(@macs){
+    #if($ifconfig =~ /^([a-z0-9_]+).*$mac\s*$/mi){
+    if($ifconfig =~ /^(usb\d+)/mi){ #assume any usb, because mac keeps changing
+      my $dev = $1;
+      print "USB network device $dev found, assuming this is it\n" if $opts{verbose};
+      $ifconfig = `$ifconfigExec $dev`;
+      if($ifconfig !~ /inet addr:$localIp/){
+        print STDERR "USB DEVICE UP\n";
+        sudoIfup $dev, $localIp;
+      }
+      print "  success!\n" if $opts{verbose};
+      return $remoteIp;
+    }
+  }
+  return undef;
+}
+
+sub wifi($$){
+  my %config = %{shift()};
+  my %opts = %{shift()};
+  if(not defined $config{macIpMap} and not defined $config{ssidIpMap}){
+    return undef;
+  }
+
+  my %macIpMap = %{$config{macIpMap}} if defined $config{macIpMap};
+  my %ssidIpMap = %{$config{ssidIpMap}} if defined $config{ssidIpMap};
+
+  my $iwconfig = `$iwconfigExec 2>/dev/null`;
+  my $mac = lc ($iwconfig =~ /Access Point: ([a-z0-9:]+)/i ? $1 : '<none>');
+  my $ssid = lc ($iwconfig =~ /ESSID:"(.*)"/ ? $1 : '<none>');
+  print "Trying wifi  {mac: $mac   ssid: $ssid}\n" if $opts{verbose};
+
+  my $macIp;
+  for my $macConfig(keys %macIpMap){
+    $macIp = $macIpMap{$macConfig} if lc $macConfig eq lc $mac;
+  }
+  my $ssidIp = $ssidIpMap{$ssid};
+
+  if(defined $macIp){
+    print "  chose IP $macIp by mac\n" if $opts{verbose};
+    print "  success!\n" if $opts{verbose};
+    return $macIp;
+  }elsif(defined $ssidIp){
+    print "  chose IP $ssidIp by ssid\n" if $opts{verbose};
+    print "  success!\n" if $opts{verbose};
+    return $ssidIp;
+  }
+
+  return undef;
+}
+
+sub twip($$){
+  my %config = %{shift()};
+  my %opts = %{shift()};
+  if(defined $config{twipPort}){
+    print "Trying twip\n" if $opts{verbose};
+    my $ip = `twipc --fetch`;
+    chomp $ip;
+    print "  got $ip\n";
+    if($ip =~ /^\d+ \. \d+ \. \d+ \. \d+$/x){
+      print "  success!\n" if $opts{verbose};
+      return $ip;
+    }
+  }
+  return undef;
+}
+
+sub guess($$){
+  my %config = %{shift()};
+  my %opts = %{shift()};
+  my $hostname = $config{hostname};
+  if(defined $config{ipGuessList}){
+    print "Trying guesses\n" if $opts{verbose};
+    for my $ip(@{$config{ipGuessList}}){
+      print "  guess $ip\n" if $opts{verbose};
+      if(quickPingable $ip){
+        print "  success!\n" if $opts{verbose};
+        return $ip;
+      }
+    }
+  }
+  return undef;
+}
+
+&main(@ARGV);
