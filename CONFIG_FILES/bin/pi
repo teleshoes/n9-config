@@ -1,0 +1,4 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+exec "ipmagic", "raspi", "-u", "pi", @ARGV;
