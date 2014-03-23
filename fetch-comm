@@ -2,19 +2,32 @@
 use strict;
 use warnings;
 
-my $type = shift() || '';
-die "Usage: $0 [sms|call]\n" if $type !~ /^(sms|call)$/;
+sub run(@);
+sub runOrDie(@);
 
-my $dir = "$ENV{HOME}/Code/n9";
-my $dest = "$dir/backup";
-my $qtcommExec = "${type}backuprestore";
-my $parseTool = "comm-tool.pl $type";
+sub main(@){
+  my $type = shift() || '';
+  die "Usage: $0 [sms|call]\n" if $type !~ /^(sms|call)$/;
 
-my $host = `n9`;
-chomp $host;
+  my $dir = "$ENV{HOME}/Code/n9";
+  my $dest = "$dir/backup";
+  my $qtcommExec = "${type}backuprestore";
+  my $parseTool = "comm-tool.pl $type";
 
-my $srcDir = "/home/user/MyDocs/backup-$type";
-my $destDir = "$dest/backup-$type";
+  my $host = `n9`;
+  chomp $host;
+
+  my $srcDir = "/home/user/MyDocs/backup-$type";
+  my $destDir = "$dest/backup-$type";
+
+  run "n9", "-s", "killall -9 $qtcommExec";
+  run "n9", "-s", "/opt/dropcache-mdn/bin/dropcache.sh --3";
+  runOrDie "n9", "-b", "backup-comm $type --retry 20";
+  runOrDie "mkdir", "-p", $destDir;
+  runOrDie "rsync", "-avP", "root\@$host:$srcDir/", $destDir;
+  runOrDie "perl $dir/$parseTool split";
+  runOrDie "perl $dir/$parseTool commit";
+}
 
 sub run(@){
   print "@_\n";
@@ -25,10 +38,4 @@ sub runOrDie(@){
   die "failed" if $? != 0;
 }
 
-run "n9", "-s", "killall -9 $qtcommExec";
-run "n9", "-s", "/opt/dropcache-mdn/bin/dropcache.sh --3";
-runOrDie "n9", "-b", "backup-comm $type --retry 20";
-runOrDie "mkdir", "-p", $destDir;
-runOrDie "rsync", "-avP", "root\@$host:$srcDir/", $destDir;
-runOrDie "perl $dir/$parseTool split";
-runOrDie "perl $dir/$parseTool commit";
+&main(@ARGV);
