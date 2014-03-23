@@ -20,6 +20,8 @@ sub main(@){
   my $srcDir = "/home/user/MyDocs/backup-$type";
   my $destDir = "$dest/backup-$type";
 
+  my $remoteRepoDir = "$srcDir-repo";
+
   run "n9", "-s", "killall -9 $qtcommExec";
   run "n9", "-s", "/opt/dropcache-mdn/bin/dropcache.sh --3";
   runOrDie "n9", "-b", "backup-comm $type --retry 20";
@@ -27,6 +29,9 @@ sub main(@){
   runOrDie "rsync", "-avP", "root\@$host:$srcDir/", $destDir;
   runOrDie "perl $dir/$parseTool split";
   runOrDie "perl $dir/$parseTool commit";
+
+  run "rsync", "-avP", "$destDir/repo/", "root\@$host:$remoteRepoDir/";
+  run "n9", "-s", "chown user.users -R $remoteRepoDir";
 }
 
 sub run(@){
