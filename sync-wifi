@@ -35,6 +35,7 @@ my $wifiAtts = {
   wlan_ssid => listInt [],
   EAP_wpa_preshared_key => listInt [],
   EAP_wpa_preshared_passphrase => [""],
+  wlan_wepkey1 => [""],
 
   http_check_status => ["no_login"],
   proxytype => ["NONE"],
@@ -71,7 +72,12 @@ sub main(@){
     for my $id(sort $sortByName keys %$networks){
       if($$networks{$id}{type} eq "WLAN_INFRA"){
         my $name = $$networks{$id}{name};
-        my $key = $$networks{$id}{EAP_wpa_preshared_passphrase} || '';
+        my $wpa = $$networks{$id}{EAP_wpa_preshared_passphrase};
+        my $wep = $$networks{$id}{wlan_wepkey1};
+        my $key;
+        $key = "WPA: $wpa" if not defined $key and defined $wpa;
+        $key = "WEP: $wep" if not defined $key and defined $wep;
+        $key = "NONE" if not defined $key;
         print "$name => $key\n";
       }
     }
