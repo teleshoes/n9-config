@@ -146,6 +146,9 @@ sub getExisting(){
       $$networks{$id}{$1} = $2;
     }
   }
+  for my $id(keys %$networks){
+    delete $$networks{$id} if not defined $$networks{$id}{name};
+  }
   return $networks;
 }
 
