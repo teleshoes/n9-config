@@ -34,14 +34,14 @@ my $FALSE = ['false', 'bool'];
 my $wifiAtts = {
   name => [""],
   wlan_ssid => listInt [],
-  EAP_wpa_preshared_key => listInt [],
-  EAP_wpa_preshared_passphrase => [""],
-  wlan_wepkey1 => [""],
+  EAP_wpa_preshared_key => undef,
+  EAP_wpa_preshared_passphrase => undef,
+  wlan_wepkey1 => undef,
 
   http_check_status => ["no_login"],
   proxytype => ["NONE"],
   wlan_hidden => $FALSE,
-  wlan_security => ["WPA_PSK"],
+  wlan_security => undef,
   type => ["WLAN_INFRA"],
   autoconnect => $TRUE,
   ipv4_type => ["AUTO"],
@@ -163,12 +163,13 @@ sub getWifiGconf($$$){
 
   my $gconf = {};
   for my $att(keys %$wifiAtts){
-    $$gconf{"$dir/$att"} = $$wifiAtts{$att};
+    $$gconf{"$dir/$att"} = $$wifiAtts{$att} if defined $$wifiAtts{$att};
   }
   $$gconf{"$dir/name"} = [$ssid];
   $$gconf{"$dir/wlan_ssid"} = ssidListInt $ssid;
   $$gconf{"$dir/EAP_wpa_preshared_key"} = wpaPskListInt $ssid, $wpa;
   $$gconf{"$dir/EAP_wpa_preshared_passphrase"} = [$wpa];
+  $$gconf{"$dir/wlan_security"} = ["WPA_PSK"];
   $$gconf{"$dir/autoconnect"} = $auto =~ /true/i ? $TRUE : $FALSE;
   return $gconf;
 }
