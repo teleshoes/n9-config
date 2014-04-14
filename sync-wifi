@@ -5,7 +5,7 @@ use warnings;
 sub addWifiFromNet();
 sub clearAllWifi();
 sub getExisting();
-sub getWifiGconf($$$);
+sub getWifiGconf($$$$);
 
 sub getGconfCmds($);
 sub gconfGetCmd($);
@@ -102,7 +102,7 @@ sub addWifiFromNet(){
     my $mode = $1 if $info =~ /^mode:(.*)$/m;
     my $auto = $1 if $info =~ /^auto:(.*)$/m;
     my $autoConnect = $auto =~ /^\d+$/ ? 'true' : 'false';
-    if($enc =~ /WPA/i and $mode =~ /managed/i){
+    if($enc =~ /^(WPA|WEP|NONE)/i and $mode =~ /managed/i){
       if(defined $noAuto{$ssid}){
         print "  forcibly disabling autoconnect for $ssid\n";
         $autoConnect = 'false';
@@ -110,7 +110,9 @@ sub addWifiFromNet(){
       my $wifiCmds = getGconfCmds(getWifiGconf $ssid, $enc, $key, $autoConnect);
       my $msg = "adding:";
       $msg .= " SSID='$ssid'";
-      $msg .= " WPA='$key'";
+      $msg .= " NONE" if $enc =~ /^(NONE)$/i;
+      $msg .= " WEP='$key'" if $enc =~ /^(WEP)$/i;
+      $msg .= " WPA='$key'" if $enc =~ /^(WPA)$/i;
       $msg .= " auto='$autoConnect'";
       push @cmds, ["echo", $msg];
       @cmds = (@cmds, @$wifiCmds);
@@ -156,8 +158,8 @@ sub getExisting(){
   return $networks;
 }
 
-sub getWifiGconf($$$){
-  my ($ssid, $wpa, $auto) = @_;
+sub getWifiGconf($$$$){
+  my ($ssid, $enc, $key, $auto) = @_;
   my $id = randomId;
   my $dir = "$rootDir/$id";
 
@@ -167,9 +169,16 @@ sub getWifiGconf($$$){
   }
   $$gconf{"$dir/name"} = [$ssid];
   $$gconf{"$dir/wlan_ssid"} = ssidListInt $ssid;
-  $$gconf{"$dir/EAP_wpa_preshared_key"} = wpaPskListInt $ssid, $wpa;
-  $$gconf{"$dir/EAP_wpa_preshared_passphrase"} = [$wpa];
+  if($enc =~ /WPA/i){
   $$gconf{"$dir/wlan_security"} = ["WPA_PSK"];
+    $$gconf{"$dir/EAP_wpa_preshared_key"} = wpaPskListInt $ssid, $key;
+    $$gconf{"$dir/EAP_wpa_preshared_passphrase"} = [$key];
+  }elsif($enc =~ /WEP/i){
+    $$gconf{"$dir/wlan_security"} = ["WEP"];
+    $$gconf{"$dir/wlan_wepdefkey"} = [1];
+    $$gconf{"$dir/wlan_wepkey1"} = [$key];
+    $$gconf{"$dir/EAP_wpa_preshared_passphrase"} = [$key];
+  }
   $$gconf{"$dir/autoconnect"} = $auto =~ /true/i ? $TRUE : $FALSE;
   return $gconf;
 }
