@@ -263,7 +263,6 @@ sub runCmdN9(@){
     $cmdStr .= "\n";
   }
   system "n9", "-s", $cmdStr if $cmdStr !~ /^\s*$/;
-  print $cmdStr;
 }
 
 sub runBT(@){
