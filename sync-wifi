@@ -16,6 +16,7 @@ sub ssidListInt($);
 sub wpaPskListInt($$);
 sub randHex($);
 sub randomId();
+sub runCmdN9(@);
 sub runBT(@);
 
 my $usage = "Usage:
@@ -106,13 +107,16 @@ sub addWifiFromNet(){
         print "  forcibly disabling autoconnect for $ssid\n";
         $autoConnect = 'false';
       }
-      my $wifiCmds = getGconfCmds(getWifiGconf $ssid, $key, $autoConnect);
-      push @cmds, "echo adding: SSID='$ssid' WPA='$key' auto='$autoConnect'";
+      my $wifiCmds = getGconfCmds(getWifiGconf $ssid, $enc, $key, $autoConnect);
+      my $msg = "adding:";
+      $msg .= " SSID='$ssid'";
+      $msg .= " WPA='$key'";
+      $msg .= " auto='$autoConnect'";
+      push @cmds, ["echo", $msg];
       @cmds = (@cmds, @$wifiCmds);
     }
   }
-
-  system "n9", "-s", join "\n", @cmds;
+  runCmdN9 @cmds;
 }
 
 sub clearAllWifi(){
@@ -122,11 +126,11 @@ sub clearAllWifi(){
     if($$networks{$id}{type} eq "WLAN_INFRA"){
       my $name = $$networks{$id}{name};
       $name = '' if not defined $name;
-      push @cmds, "echo 'deleting $id => $name'";
-      push @cmds, "gconftool --recursive-unset $rootDir/$id";
+      push @cmds, ["echo", "deleting $id => $name"];
+      push @cmds, ["gconftool", "--recursive-unset", "$rootDir/$id"];
     }
   }
-  system "n9", "-s", join "\n", @cmds if @cmds > 0;
+  runCmdN9 @cmds;
 }
 sub getExisting(){
   my @iapLines = `n9 -u user -s gconftool -R $rootDir`;
@@ -183,13 +187,16 @@ sub getGconfCmds($){
   return $cmds;
 }
 sub gconfGetCmd($){
-  return "gconftool-2 --get $_[0]";
+  my $key = shift;
+  $key =~ s/"/\\"/g;
+  return ["gconftool-2", "--get", $key];
 }
 sub gconfSetCmd($$$;$){
   my ($key, $val, $type, $listType) = @_;
-  my $cmd = "gconftool-2 --set '$key' '$val' --type=$type";
+  $listType =~ s/"/\\"/g if defined $listType;
+  my $cmd = ["gconftool-2", "--set", $key, $val, "--type=$type"];
   if(lc $type eq 'list'){
-    $cmd .= " --list-type=$listType";
+    push @$cmd, "--list-type=$listType";
   }
   return $cmd;
 }
@@ -233,6 +240,20 @@ sub randHex($){
 }
 sub randomId(){
   return join '-', randHex(8), randHex(4), randHex(4), randHex(4), randHex(12);
+}
+
+sub runCmdN9(@){
+  my $cmdStr = '';
+  for my $cmd(@_){
+    for my $word(@$cmd){
+      $word =~ s/"/\""/g;
+      $word = "\"$word\"" if $word =~ /["'` \t\n!><&\$\\]/;
+      $cmdStr .= " $word";
+    }
+    $cmdStr .= "\n";
+  }
+  system "n9", "-s", $cmdStr if $cmdStr !~ /^\s*$/;
+  print $cmdStr;
 }
 
 sub runBT(@){
