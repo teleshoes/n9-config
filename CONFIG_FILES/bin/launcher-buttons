@@ -53,6 +53,7 @@ my @config = qw(
   dir-cute[
     joikuspot
     qtbigtext
+    qml2048
     teatime
     vmpkn9
     xmcr
