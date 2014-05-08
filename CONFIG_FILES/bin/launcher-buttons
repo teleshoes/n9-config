@@ -41,6 +41,7 @@ my @config = qw(
     qtodo
 
     call-log
+    call-log-all
     brujula
     vmpkn9
     emumaster

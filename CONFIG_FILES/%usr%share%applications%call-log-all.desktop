@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=call-log ALL
+Comment=callbackuprestore parser
+Icon=call-log
+Exec=term 'call-log /home/user/MyDocs/backup-call/all.call | less -R'
+Type=Application
