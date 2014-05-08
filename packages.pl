@@ -38,7 +38,7 @@ my $normalPackages = {
     python-qtmobility.multimediakit
   )],
   '3' => [qw(
-    qmlmozbrowser
+    meefox
     screen
     cameraplus
     qtbigtext
