@@ -32,7 +32,7 @@ sub filterMessages($\@);
 sub getMessagesFromDir($$);
 sub getMessages($$);
 sub messageToString($$);
-sub writeMessageFile($\@$);
+sub writeMessageFile($\@$;$);
 sub writeContactsFiles($\@$);
 sub alterPhoneNums($$);
 sub removeUSCountryCode($);
@@ -208,12 +208,15 @@ sub messageToString($$){
   }
 }
 
-sub writeMessageFile($\@$){
+sub writeMessageFile($\@$;$){
   my $type = shift;
   my @messages = @{shift()};
   my $file = shift;
+  my $sortFct = shift;
   open FH, "> $file" or die "Could not open $file\n";
   @messages = sort {msgSort $type, $a, $b} @messages;
+  @messages = &$sortFct(@messages) if defined $sortFct;
+
   for my $msg(@messages){
     print FH messageToString($type, $msg);
   }
