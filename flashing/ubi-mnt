@@ -45,7 +45,7 @@ sub mnt($$){
   die "$dir exists and cant be removed\n" if -e $dir;
   run "sudo", "mkdir", "-p", $dir;
 
-  my $blkid = `blkid $dev`;
+  my $blkid = `sudo blkid $dev`;
   my $type = $1 if $blkid =~ /TYPE="([^"]*)"/;
   die "unknown fstype for $dev: $type\n" if $type !~ /^(ext4|vfat)$/;
   run "sudo", "mount", "-t", $type, $dev, $dir;
