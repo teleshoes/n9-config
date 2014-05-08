@@ -3,11 +3,20 @@ use strict;
 use warnings;
 use Term::ANSIColor;
 
+my $callLogGen = "/home/user/MyDocs/backup-call/call-log-gen.call";
+my $callLogBackup = "/home/user/MyDocs/backup-call/all.call";
+
+my @callFiles = ($callLogGen, $callLogBackup);
+my $okCallFiles = join "\n      ", @callFiles;
+
 my $usage = "Usage:
-  $0
-    Run callbackuprestore and parse it
-  $0 call-file
-    Parse the indicated call-file
+  $0 [--update] [call-file]
+    Parse and display a call-file
+    If call-file is not given, select the most recent non-empty file among:
+      $okCallFiles
+
+  --update
+    Run callbackuprestore first and stick it in $callLogGen
 ";
 
 my %dirMap = (
@@ -21,19 +30,26 @@ my %dirColor = (
   2 => 'red bold underline',
 );
 
+sub selectCallFile(@);
 sub formatCall($$$$$);
 sub dateToEpoch($);
 sub hms($);
 sub padr($$);
+sub run(@);
 
 sub main(@){
+  if(@_ == 1 and $_[0] eq "--update"){
+    shift;
+    my $tmp = '/tmp/call-tmp-' . time;
+    run "backup-comm call --retry 5 $tmp >/dev/null";
+    run "cp", $tmp, $callLogGen;
+  }
+
   my $f = shift;
   die $usage if @_ > 0;
 
   if(not defined $f){
-    $f = '/tmp/call-tmp-' . time;
-    print "generating call log..\n";
-    system "backup-comm call --retry 5 $f >/dev/null";
+    $f = selectCallFile(@callFiles);
   }
 
   my @lines = `cat $f`;
@@ -45,6 +61,19 @@ sub main(@){
       print formatCall($num, $dir, $start, $end, $index++);
     }
   }
+}
+
+sub selectCallFile(@){
+  my ($curFile, $curMtime);
+  for my $file(@_){
+    next if -z $file;
+    my $mtime = (stat $file)[9];
+    if(not defined $curMtime or $mtime > $curMtime){
+      $curMtime = $mtime;
+      $curFile = $file;
+    }
+  }
+  return $curFile;
 }
 
 sub formatCall($$$$$){
@@ -82,6 +111,12 @@ sub hms($){
 sub padr($$){
   my ($s, $len) = @_;
   return $s . (' ' x ($len - length($s)));
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+  die "Error running @_\n" if $? != 0;
 }
 
 &main(@ARGV);
