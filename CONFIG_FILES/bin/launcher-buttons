@@ -45,7 +45,7 @@ my @config = qw(
     vmpkn9
     emumaster
 
-    QmlMozBrowser
+    meefox
     camera-ui
     accountsui
     ovistoreclient
