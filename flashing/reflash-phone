@@ -9,9 +9,14 @@ sub slowInstalls();
 sub run(@);
 sub tryrun(@);
 
+my @deps = qw(telnet expect rsync);
+
 sub main(@){
   die "Usage: $0 FIRMWARE EMMC KERNEL\n" if @_ != 3;
   my ($fw, $emmc, $kernel) = @_;
+
+  run "sudo", "dpkg", "-i", "flasher_3.12.1_amd64.deb";
+  run "sudo", "apt-get", "install", @deps;
 
   run "n9", "-t", "192.168.2.15";
   $|=1;
