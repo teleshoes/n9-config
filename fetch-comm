@@ -29,7 +29,10 @@ sub main(@){
   runOrDie "rsync", "-avP", "root\@$host:$srcDir/", $destDir;
   runOrDie "perl $dir/$parseTool split";
   runOrDie "perl $dir/$parseTool commit";
+  runOrDie "perl $dir/$parseTool join-all";
 
+  run "scp", "$destDir/all.$type", "root\@$host:$srcDir/";
+  run "n9", "-s", "chown user.users -R $srcDir/all.$type";
   run "rsync", "-a", "$destDir/repo/", "root\@$host:$remoteRepoDir/";
   run "n9", "-s", "chown user.users -R $remoteRepoDir";
 }
