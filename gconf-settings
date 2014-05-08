@@ -46,6 +46,13 @@ my %gconf = (
   "/meegotouch/inputmethods/onscreen/enabled" => $vkbEnabled,
   "/meegotouch/inputmethods/onscreen/active" => $vkbActive,
   "/apps/clock/clocktype" => ["digital"],
+
+  "/meegotouch/i18n/lc_time" => ["en_US"],
+  "/meegotouch/i18n/language" => ["en"],
+  "/meegotouch/i18n/region" => ["en_US"],
+  "/meegotouch/i18n/lc_monetary" => ["en_US"],
+  "/meegotouch/i18n/lc_collate" => ["en_US"],
+  "/meegotouch/i18n/lc_numeric" => ["en_US"],
 );
 
 sub main(@){
