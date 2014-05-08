@@ -46,6 +46,7 @@ my @config = qw(
     qtbtn-power
     qtodo
     call-log
+    call-log-all
     brujula
     dingmee
     transmission
