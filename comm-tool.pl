@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-my $okArgs = join "|", qw(split join commit backup);
+my $okArgs = join "|", qw(split join join-all commit backup);
 my $usage = "Usage: $0 sms|call $okArgs\n";
 
 my $DATE_FILTER = "30 days ago";
@@ -67,6 +67,10 @@ sub main(@){
     my @messages = getMessagesFromDir($type, $repoDir);
     @messages = filterMessages $type, @messages;
     writeMessageFile $type, @messages, "$bakDir/filtered.$type";
+  }elsif($arg eq 'join-all'){
+    my @messages = getMessagesFromDir($type, $repoDir);
+    @messages = removeDupes $type, @messages;
+    writeMessageFile $type, @messages, "$bakDir/all.$type", sub{reverse @_};
   }elsif($arg eq 'commit'){
     chdir $repoDir;
     if(not -d '.git'){
