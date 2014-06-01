@@ -135,7 +135,7 @@ sub md5sum($){
   my $file = shift;
   my $out;
   if(-d $file){
-    $out = `md5sum "$file"/* 2>/dev/null | sort`;
+    $out = `find "$file" -type f -exec md5sum {} \\; 2>/dev/null | sort`;
   }else{
     $out = `md5sum $file 2>/dev/null`;
     chomp $out;
