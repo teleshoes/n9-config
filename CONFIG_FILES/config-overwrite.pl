@@ -25,6 +25,7 @@ my %changedTriggers = (
   "$bgDir/meegotouch-desktop-bg.jpg" => 'reload-wallpaper',
   "/home/user/.config/ProfileMatic/rules.conf" =>
     "initctl restart apps/profilematicd",
+  "/var/lib/bluetooth" => "initctl restart xsession/bluetoothd",
 );
 
 sub overwriteFile($$);
