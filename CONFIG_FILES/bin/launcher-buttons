@@ -53,6 +53,7 @@ my @config = qw(
 
     modrana
     qml2048
+    stellarium-n9
   ]
 );
 
