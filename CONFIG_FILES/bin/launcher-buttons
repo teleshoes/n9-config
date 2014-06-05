@@ -59,6 +59,7 @@ my @config = qw(
     vmpkn9
     xmcr
     emumaster
+    stellarium-n9
   ]
   dir-junk[
     contact-coocoo
