@@ -29,6 +29,7 @@ my @excludes = qw(
 
   cities
   DevIcon.fil
+  ignored/
   Playlists
   pvr_hwrec
   .thumbnails/
