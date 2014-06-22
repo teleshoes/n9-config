@@ -64,8 +64,7 @@ sub reorganizeBackedUpRemotes($$$$){
   my $remoteByMd5sum = shift;
   my $remoteByFile = shift;
 
-  my $count = 0;
-  my $reorganizeCmd = '';
+  my @reorganizeCmds;
   for my $file(sort @backedUpFiles){
     my $md5sum = $$remoteByFile{$file};
     my $localFile = $$localByMd5sum{$md5sum};
@@ -79,14 +78,21 @@ sub reorganizeBackedUpRemotes($$$$){
     $dir = wrapQuotes $dir;
     $file = wrapQuotes $file;
     $newRemoteFile = wrapQuotes $newRemoteFile;
-    $count++;
-    $reorganizeCmd .= "mkdir -p $dir; mv -n $file $newRemoteFile;\n";
+    push @reorganizeCmds, "mkdir -p $dir; mv -n $file $newRemoteFile;\n";
   }
-  print "\n\nReorganizing $count remote files to match local\n";
-  if($count > 0){
-    print "\n\n$reorganizeCmd";
-    system "n9", "-s", $reorganizeCmd;
-    die "failed reorganizing remotes\n" if $? != 0;
+  my $total = @reorganizeCmds;
+  print "\n\nReorganizing $total remote files to match local\n";
+  if(@reorganizeCmds > 0){
+
+    my @cmdChunks;
+    push @cmdChunks, [ splice @reorganizeCmds, 0, 100 ] while @reorganizeCmds;
+    for my $cmdChunk(@cmdChunks){
+      my $cmd = join '', @$cmdChunk;
+      my $count = @$cmdChunk;
+      print "\n\n#running $count mv commands\n$cmd";
+      system "n9", "-s", $cmd;
+      die "failed reorganizing remotes\n" if $? != 0;
+    }
   }
 }
 
