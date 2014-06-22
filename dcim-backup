@@ -66,7 +66,7 @@ sub reorganizeBackedUpRemotes($$$$){
 
   my $count = 0;
   my $reorganizeCmd = '';
-  for my $file(@backedUpFiles){
+  for my $file(sort @backedUpFiles){
     my $md5sum = $$remoteByFile{$file};
     my $localFile = $$localByMd5sum{$md5sum};
     if(not defined $localFile){
