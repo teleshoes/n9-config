@@ -21,7 +21,6 @@ respawn-limit
 packages
 packages #to fix any debs that install in the wrong order
 config-files
-secret-keys
 launcher-buttons
 status-menu
 packages.pl --reinstall extra #to fix mt-toggles
