@@ -188,6 +188,7 @@ sub getGconfCmds($){
   my $cmds = [];
 
   for my $key(keys %$gconf){
+    next if not defined $$gconf{$key};
     my @arr = @{$$gconf{$key}};
     my $val = shift @arr;
     my $type = @arr > 0 ? shift @arr : 'string';
