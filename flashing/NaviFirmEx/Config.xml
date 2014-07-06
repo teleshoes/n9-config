@@ -12,7 +12,7 @@
     </Window>
     <Download>
         <Server>0</Server>
-        <Folder>C:\users\wolke\My Documents\Code\n9\flashing\firmware\</Folder>
+        <Folder>C:\users\zuserm\My Documents\Code\n9\flashing\firmware\</Folder>
         <Prompt>
             <Exit action="1" ask="1" />
             <Continue action="1" ask="1" />
