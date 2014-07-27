@@ -14,6 +14,7 @@ sub updateMd5sums();
 sub wrapQuotes($);
 
 sub main(@){
+  system "mkdir -p $localDCIM";
   chdir $localDCIM;
   print "Getting md5sums of files in root of remote DCIM\n";
   my @remoteMd5sums = `n9 -s md5sum $remoteDCIM/*.* 2>/dev/null`;
