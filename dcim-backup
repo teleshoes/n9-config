@@ -42,7 +42,7 @@ sub main(@){
   print "===\n\n";
 
   if(@needsBackUp > 0){
-    my $now = `date +%Y-%M-%d_%s`;
+    my $now = `date +%Y-%m-%d_%s`;
     chomp $now;
     my $dir = "$localDCIM/backup_$now";
     system "mkdir -p $dir";
