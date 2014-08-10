@@ -2,6 +2,8 @@
 use strict;
 use warnings;
 
+my $targetSize = "854x480";
+
 my $localDCIM = "$ENV{HOME}/Code/n9/backup/DCIM";
 my $localPixmirror = "$ENV{HOME}/Code/n9/backup/DCIM-pixmirror";
 
@@ -21,7 +23,7 @@ system "n9u", "-s", "
   ln -s $remotePixmirror $remoteSym
 ";
 
-run "pixmirror", $localDCIM, $localPixmirror;
+run "pixmirror", "--size=$targetSize", "--orient", $localDCIM, $localPixmirror;
 die "pixmirror failed\n" if $? != 0;
 
 my $host = `n9`;
