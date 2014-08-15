@@ -111,7 +111,7 @@ FIRMWARE + KERNEL + EMMC
 [I]NOTE: DELETES ALL PERSONAL DATA, ALL APPS, AND EVERYTHING ELSE.[/I]
 [I]*Nokia claims this voids your warranty*[/I]
   flasher -f -F middleeast-fw.bin -F emmc.bin
-  flasher -F middleeast-fw.bin -k kernelplus-image --flash-only=kernel -f
+  flasher -F middleeast-fw.bin -k openkernel --flash-only=kernel -f
 
 REBOOT
   flasher -R
