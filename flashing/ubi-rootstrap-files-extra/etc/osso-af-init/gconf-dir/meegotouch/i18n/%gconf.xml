@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="lc_monetary" mtime="1408121949" type="string">
+		<stringvalue>en_US</stringvalue>
+	</entry>
+	<entry name="lc_numeric" mtime="1408121949" type="string">
+		<stringvalue>en_US</stringvalue>
+	</entry>
+	<entry name="lc_collate" mtime="1408121949" type="string">
+		<stringvalue>en_US</stringvalue>
+	</entry>
+	<entry name="lc_time" mtime="1408121949" type="string">
+		<stringvalue>en_US</stringvalue>
+	</entry>
+	<entry name="region" mtime="1408121949" type="string">
+		<stringvalue>en_US</stringvalue>
+	</entry>
+	<entry name="language" mtime="1408121949" type="string">
+		<stringvalue>en_US</stringvalue>
+	</entry>
+	<entry name="lc_timeformat24h" mtime="1408121961" type="string">
+		<stringvalue>24</stringvalue>
+	</entry>
+</gconf>
