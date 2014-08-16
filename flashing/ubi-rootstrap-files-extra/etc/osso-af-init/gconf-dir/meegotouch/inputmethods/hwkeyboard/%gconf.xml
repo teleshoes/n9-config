@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="layout" mtime="1408122523" type="string">
+		<stringvalue>us</stringvalue>
+	</entry>
+	<entry name="model" mtime="1408122523" type="string">
+		<stringvalue>nokiarm680</stringvalue>
+	</entry>
+</gconf>
