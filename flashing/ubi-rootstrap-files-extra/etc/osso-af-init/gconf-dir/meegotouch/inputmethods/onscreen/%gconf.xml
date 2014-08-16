@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="active" mtime="1408122010" type="list" ltype="string">
+		<li type="string">
+			<stringvalue>libmeego-keyboard.so</stringvalue>
+		</li>
+		<li type="string">
+			<stringvalue>en_us.xml</stringvalue>
+		</li>
+	</entry>
+	<entry name="enabled" mtime="1408122010" type="list" ltype="string">
+		<li type="string">
+			<stringvalue>libmeego-keyboard.so</stringvalue>
+		</li>
+		<li type="string">
+			<stringvalue>en_us.xml</stringvalue>
+		</li>
+	</entry>
+</gconf>
