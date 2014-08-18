@@ -17,12 +17,16 @@ my @rsyncOpts = qw(
 
 my $bgDir = '/usr/share/themes/blanco/meegotouch/images/backgrounds';
 my %symlinksToReplace = map {$_ => 1} (
-  "$bgDir/meegotouch-desktop-bg.jpg",
+  "$bgDir/meegotouch-desktop-bg-events.jpg",
+  "$bgDir/meegotouch-desktop-bg-launcher.jpg",
+  "$bgDir/meegotouch-desktop-bg-switcher.jpg",
 );
 
 my %changedTriggers = (
   "/usr/share/backgrounds" =>  'reload-wallpaper',
-  "$bgDir/meegotouch-desktop-bg.jpg" => 'reload-wallpaper',
+  "$bgDir/meegotouch-desktop-bg-events.jpg" => 'reload-wallpaper',
+  "$bgDir/meegotouch-desktop-bg-launcher.jpg" => 'reload-wallpaper',
+  "$bgDir/meegotouch-desktop-bg-switcher.jpg" => 'reload-wallpaper',
   "/home/user/.config/ProfileMatic/rules.conf" =>
     "initctl restart apps/profilematicd",
   "/var/lib/bluetooth" => "initctl restart xsession/bluetoothd",
