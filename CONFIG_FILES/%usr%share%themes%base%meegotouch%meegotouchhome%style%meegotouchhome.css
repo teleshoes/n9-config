@@ -203,6 +203,7 @@ SwipeEventsStyle {
     padding-right: 0;
     padding-top: 0;
     padding-bottom: 0;
+    background-image: "meegotouch-desktop-bg-events";
 }
 
 MButtonStyle#EventsButton {
@@ -399,6 +400,8 @@ SwipeSwitcherStyle {
 
     close-all-feedback: priority2_close_multiple;
     edit-mode-enter-feedback: priority2_popup;
+
+    background-image: "meegotouch-desktop-bg-switcher";
 }
 
 SwipeSwitcherStyle#DetailSwitcher.Portrait {
@@ -1032,6 +1035,7 @@ SwipeLauncherStyle {
     custom-button-style-languages: "ar he fa th zh";
     edit-mode-enter-feedback: priority2_popup;
     edit-mode-drag-start-hold-timeout: 200;
+    background-image: "meegotouch-desktop-bg-launcher";
 }
 
 SwipeLauncherPageStyle {
