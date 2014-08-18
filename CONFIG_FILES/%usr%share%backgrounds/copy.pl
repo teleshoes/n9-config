@@ -16,6 +16,7 @@ my %backgrounds = (
   "kushana_nausicaa.jpg"     => "$dir/n9/ghibli/kushana_nausicaa_crop9x16.jpg",
   "meatloaf_bw.jpg"          => "$dir/n9/stephenfry_meatloaf/meatloaf_edited_crop9x16.jpg",
   "meatloaf_color.jpg"       => "$dir/n9/stephenfry_meatloaf/meatloaf_classic_performance_cover_edited_crop9x16.jpg",
+  "mickjagger.jpg"           => "$dir/n9/mick_jagger/mickjagger_3_crop9x16.jpg",
   "mononoke_poster.jpg"      => "$dir/n9/ghibli/mononoke_poster.jpg",
   "neko_bluesequins.jpg"     => "$dir/n9/neko/neko_bluesequins.jpg",
   "sarah_rabdau.jpg"         => "$dir/n9/sarah/sarah_crop9x16.jpg",
