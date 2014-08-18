@@ -17,6 +17,7 @@ my %backgrounds = (
   "mononoke_poster.jpg"      => "$dir/n9/ghibli/mononoke_poster.jpg",
   "neko_bluesequins.jpg"     => "$dir/n9/neko/neko_bluesequins.jpg",
   "sarah_rabdau.jpg"         => "$dir/n9/sarah/sarah_crop9x16.jpg",
+  "stephen_fry.jpg"          => "$dir/n9/stephenfry_meatloaf/stephen_fry_crop9x16.jpg",
   "valerie_thompson.jpg"     => "$dir/n9center/val/valerie.jpg",
   "vessela_stoyanova.jpg"    => "$dir/n9/vess/vess_crop9x16.jpg",
 );
