@@ -100,7 +100,7 @@ FIRMWARE + KERNEL
 does NOT delete DCIM, or anything else in MyDocs[/I]
 [I]*Nokia claims this voids your warranty*[/I]
   flasher -F firmware.bin -f
-  flasher -F firmware.bin -k openkernel --flash-only=kernel -f
+  flasher -F firmware.bin -k kernelplus-image --flash-only=kernel -f
 
 FIRMWARE + EMMC
 [I]NOTE: DELETES ALL PERSONAL DATA, ALL APPS, AND EVERYTHING ELSE.[/I]
@@ -118,6 +118,6 @@ REBOOT
 =================================
 perphas you want to run this:
 
-  time ./reflash-phone firmware.bin emmc.bin openkernel 2>&1 | tee flash.log
+  time ./reflash-phone firmware.bin emmc.bin kernelplus-image 2>&1 | tee flash.log
 
 for firmware, kernel, emmc, rootstrap, basic installs
