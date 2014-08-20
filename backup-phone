@@ -24,6 +24,7 @@ sub main(@){
   backup "dcim-backup";
   backup "sync-pixmirror";
   backup "sync-mydocs";
+  backup "sync-home";
   backup "sync-fbreader backup";
   backup "fetch-klomp-lists backup";
   backup "sync-swype backup";
