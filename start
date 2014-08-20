@@ -36,6 +36,7 @@ restore-contacts
 restore-comm call #check times for timezone error
 restore-comm sms
 sync-mydocs
+sync-home
 sync-pidgin
 sync-fbreader restore
 fetch-klomp-lists restore
