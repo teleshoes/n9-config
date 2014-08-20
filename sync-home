@@ -1,0 +1,77 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $host = `n9`;
+chomp $host;
+
+my $dir = "$ENV{HOME}/Code/n9";
+my $myDocsLocal = "$dir/backup/backup-home";
+my $myDocsRemote = "/home/user";
+
+my $local = $myDocsLocal;
+my $remote = "user\@$host:$myDocsRemote";
+
+my @excludes = qw(
+MyDocs
+private
+.accounts
+.aegis
+.ash_history
+.bashrc
+.cache
+.calendar
+.cities
+.commhistoryd
+.config
+.contacts
+.emoticonthemecache
+.emoticonthemepreview
+.facebook
+.fontconfig
+.gntrc
+.grob
+.gstreamer-0.10
+.local
+.meego-im-engines
+.messaging-ui
+.mms
+.mtpdeviceinfo.xml
+.obex-root
+.odnp
+.odnp-fpcd
+.omb
+.osso-cud-scripts
+.positioningd
+.profile
+.profiled
+.pulse-cookie
+.qmf
+.ring-tones
+.rtcom-accounts
+.signon
+.slpgwd
+.smartsearch
+.swype
+.sync
+.thumbnails
+.usetime
+);
+
+my @rsyncOpts = qw(
+  -a --no-owner --no-group
+  -v -P
+);
+for my $exclude(@excludes){
+  push @rsyncOpts, "--exclude=$exclude";
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+  die "failed" if $? != 0;
+}
+
+run "rsync", @rsyncOpts, "$remote/", $local;
+run "rsync", @rsyncOpts, "$local/", $remote;
+
