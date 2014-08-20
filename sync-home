@@ -13,6 +13,26 @@ my $local = $myDocsLocal;
 my $remote = "user\@$host:$myDocsRemote";
 
 my @excludes = qw(
+openvpn
+pixmirror
+to-do-o
+.0dcim-pix-rev
+.FBReader
+.bash_history
+.klomp*
+.lpsmagic
+.mozilla
+.mplayer
+.purple
+.ssh
+.status-menu
+.stellarium-n9
+.twip
+.vim
+.viminfo
+.vimrc
+
+
 MyDocs
 private
 .accounts
