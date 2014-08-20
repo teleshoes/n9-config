@@ -25,6 +25,7 @@ sub main(@){
   backup "sync-pixmirror";
   backup "sync-pidgin";
   backup "sync-mydocs";
+  backup "sync-home";
   backup "sync-fbreader backup";
   backup "fetch-klomp-lists backup";
   backup "sync-swype backup";
