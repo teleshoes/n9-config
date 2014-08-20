@@ -2,7 +2,6 @@ MSceneWindowStyle#Home {
     minimum-size: 100% 100%;
     preferred-size: 100% 100%;
     maximum-size: 100% 100%;
-    background-image: "meegotouch-desktop-bg";
 }
 
 MPannableWidgetStyle {

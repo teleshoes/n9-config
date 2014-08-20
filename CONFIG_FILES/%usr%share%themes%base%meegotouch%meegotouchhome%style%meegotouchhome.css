@@ -1,0 +1,1225 @@
+@import "../../libmeegotouchhome/style/libmeegotouchviews-modified-default.css";
+
+MSceneManagerStyle {
+  navigation-bar-animation: "MWidgetSlideAnimation";
+}
+
+MWindowStyle {
+    x11-startup-pixmap: ;
+    startup-fill-color: ;
+}
+
+MWindowStyle.Landscape {
+    x11-startup-pixmap: ;
+    startup-fill-color: ;
+}
+
+MainWindowStyle {
+    locked-orientation: "portrait";
+}
+
+DesktopStyle {
+    /* TODO: This is to prepare for the 3.6mm high status bar. Remove when the status bar is 3.6mm high. */
+    padding-top: 0.6mm;
+}
+
+SwipeDesktopStyle {
+    quick-launch-bar: true;
+}
+
+PagedViewportStyle#DesktopPagedViewport {
+    background-opacity: 0;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    minimum-size: 100% -1;
+    maximum-size: 100% -1;
+}
+
+PagePositionIndicatorStyle#DesktopPageIndicator {
+    margin-top: 0;
+    focused-between-pages: true;
+    /* TODO: set these images to "no image" when supported by the PagePositionIndicator */
+/*
+    focused-indicator-image:;
+    unfocused-indicator-image:;
+*/
+}
+
+QuickLaunchBarStyle {
+    background-image:;
+    background-color: black;
+    minimum-size: 48mm 16mm;
+    preferred-size: 48mm 16mm;
+    maximum-size: 48mm 16mm;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    toggle-launcher-button-index: -1;
+    button-count: 4;
+}
+
+LauncherStyle {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+LauncherStyle.Portrait {
+    minimum-size: 100% 81.8mm;
+    preferred-size: 100% 81.8mm;
+    maximum-size: 100% 81.8mm;
+}
+
+LauncherStyle.Landscape {
+    minimum-size: 100% 44.4mm;
+    preferred-size: 100% 44.4mm;
+    maximum-size: 100% 44.4mm;
+}
+
+LauncherPageStyle {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    minimum-size: 100% -1;
+    preferred-size: 100% -1;
+    maximum-size: 100% -1;
+}
+
+LauncherPageStyle.Portrait {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+LauncherPageStyle.Landscape {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+LauncherPageStyle#folderPage {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+LauncherPageStyle#folderPage.Portrait {
+    minimum-size: 100% 11.8mm;
+    preferred-size: 100% -1;
+    maximum-size: 100% 52.7mm;
+}
+
+LauncherPageStyle#folderPage.Landscape {
+    minimum-size: 100% 11.8mm;
+    preferred-size: 100% -1;
+    maximum-size: 100% 15.3mm;
+}
+
+MAbstractLayoutPolicyStyle#LauncherPageFlowLayoutPolicy.Portrait {
+    vertical-spacing: 3.0mm;
+    horizontal-spacing: 0.2mm;
+}
+
+MAbstractLayoutPolicyStyle#LauncherPageFlowLayoutPolicy.Landscape {
+    vertical-spacing: 3.0mm;
+    horizontal-spacing: 0.2mm;
+}
+
+LauncherButtonStyle#QuickLaunchBarButton {
+    font: $FONT_XSMALL;
+    text-color: #000000;
+
+    press-feedback: ;
+    release-feedback: ;
+
+    text-margin-top: 0.8mm;
+    show-launch-progress: false;
+
+    minimum-size: 12mm 16mm;
+    preferred-size: 12mm 16mm;
+    maximum-size: 12mm 16mm;
+
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 3.2mm;
+    margin-bottom: 0;
+
+    icon-size: 8mm 8mm;
+    progress-indicator-icon-size: 9.4mm 9.4mm;
+}
+
+MPannableWidgetStyle#SwipePage {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+MPannableWidgetStyle#SwipePage.Landscape {
+    minimum-size: 100% 44.4mm;
+    preferred-size: 100% 44.4mm;
+    maximum-size: 100% 44.4mm;
+}
+
+MPannableWidgetStyle#SwipePage.Portrait {
+    minimum-size: 100% 81.8mm;
+    preferred-size: 100% 81.8mm;
+    maximum-size: 100% 81.8mm;
+}
+
+SwipeEventsStyle {
+    minimum-size: 100% -1;
+    preferred-size: 100% -1;
+    maximum-size: 100% -1;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    background-image: "meegotouch-desktop-bg-events";
+}
+
+MButtonStyle#EventsButton {
+    minimum-size: 16mm 3.1mm;
+    preferred-size: 16mm 3.1mm;
+    maximum-size: 16mm 3.1mm;
+    margin-top: 1.2mm;
+    margin-bottom: 0;
+    margin-left: 0.6mm;
+    margin-right: 1.4mm;
+    /* make vertical reactive area 6.4mm */
+    reactive-margin-top: 0.45mm;
+    reactive-margin-bottom: 1.65mm;
+    text-color: #FFFFFF;
+    background-image: "meegotouch-home-button-background" 14px 14px 15px 14px;
+    font: $FONT_SMALL_BOLD;
+}
+MButtonStyle#EventsButton:pressed {
+    text-color: #797979;
+    background-image: "meegotouch-home-button-background-pressed" 14px 14px 15px 14px;
+}
+MButtonStyle#EventsButton:selected {
+    text-color: #797979;
+    background-image: "meegotouch-home-button-background-pressed" 14px 14px 15px 14px;
+}
+MButtonStyle#EventsButton:disabled {
+    text-color: #797979;
+    background-image: "meegotouch-home-button-background-disabled" 14px 14px 15px 14px;
+}
+
+#CommonItemDividerInverted {
+    margin-left: 0.2mm;
+    margin-right: 1.4mm;
+}
+
+DateStyle {
+    padding-left: 0.2mm;
+    padding-top: 0.2mm;
+    padding-bottom: 0.8mm;
+    day-of-week-format: "%A";
+    date-format:;
+}
+
+DateStyle:pressed {
+    background-image: "meegotouch-fulleventbanner-background-pressed" 8px 8px 8px 8px;
+}
+
+SIMApplicationStyle {
+    minimum-size: 100% -1;
+    preferred-size: 100% -1;
+    maximum-size: 100% -1;
+    icon-id: "icon-m-notification-sim-services";
+    icon-size: $SIZE_ICON_XLARGE $SIZE_ICON_XLARGE;
+    margin-top: 0.8mm;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+}
+
+SIMApplicationStyle#Hidden {
+    minimum-size: 100% 0;
+    preferred-size: 100% 0;
+    maximum-size: 100% 0;
+}
+
+MImageWidgetStyle#SIMApplicationIcon {
+    minimum-size: 6.4mm -1;
+    preferred-size: 6.4mm -1;
+    maximum-size: 6.4mm -1;
+    margin-top: 1.6mm;
+    margin-left: 0;
+    margin-right: 1.6mm;
+    margin-bottom: 1.6mm;
+}
+
+StatusIndicatorLabelStyle {
+    text-elide: false;
+    word-wrap: false;
+    minimum-size: -1 -1;
+    preferred-size: -1 -1;
+    maximum-size: -1 -1;
+}
+
+StatusIndicatorLabelStyle#SIMApplicationNameStatusIndicator {
+    text-elide: true;
+    margin-top: 0.8mm;
+    minimum-size: -1 2.4mm;
+    preferred-size: -1 2.4mm;
+    maximum-size: -1 2.4mm;
+}
+
+StatusIndicatorLabelStyle#IdleTextStatusIndicator {
+    word-wrap: true;
+    minimum-size: -1 -1;
+    preferred-size: -1 -1;
+    maximum-size: -1 -1;
+}
+
+StatusIndicatorLabelStyle#IdleTextStatusIndicatorHidden {
+    minimum-size: 0 0;
+    preferred-size: 0 0;
+    maximum-size: 0 0;
+}
+
+StatusIndicatorLabelStyle#CellNameStatusIndicator {
+    text-elide: true;
+    minimum-size: -1 2.4mm;
+    preferred-size: -1 2.4mm;
+    maximum-size: -1 2.4mm;
+}
+
+StatusIndicatorLabelStyle#CellNameStatusIndicatorHidden {
+    minimum-size: 0 0;
+    preferred-size: 0 0;
+    maximum-size: 0 0;
+}
+
+MLabelStyle#StatusIndicatorLabel {
+    font: $FONT_FAMILY 2.2mm;
+    color: #FFFFFF;
+    margin-left: 0;
+}
+
+SIMApplicationNameStatusIndicator MLabelStyle#StatusIndicatorLabel {
+    font: $FONT_FAMILY bold 2.2mm;
+}
+
+MWidgetStyle#SwipeEventsWidget {
+    /* This should be equal to the gradient height */
+    margin-top: 2.4mm;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+MLabelStyle#EventsDayLabel {
+    minimum-size: -1 4.6mm;
+    preferred-size: -1 4.6mm;
+    maximum-size: -1 4.6mm;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    font: $FONT_FAMILY_LIGHT 4.0mm;
+    color: #FFFFFF;
+}
+
+MLabelStyle#EventsDateLabel {
+    minimum-size: -1 4mm;
+    preferred-size: -1 4mm;
+    maximum-size: -1 4mm;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    font: $FONT_FAMILY_LIGHT 3.2mm;
+    color: #808080;
+}
+
+SwitcherBaseStyle {
+    pinch-length: 1.0;
+}
+
+SwipeSwitcherStyle {
+    margin-top: 0;
+    curved-transition: true;
+    close-all-delay-increment: 20;
+
+    empty-state-label-animation-duration: 250;
+    empty-state-label-animation-curve: outexpo;
+
+    relayout-transition-base-delay: 250;
+    relayout-transition-delay-increment: 20;
+    button-transition-duration: 250;
+    button-transition-middle-brightness: 0.75;
+
+    edit-mode-enter-animation-duration: 250;
+
+    /* compositor grabs the server while an animation is ongoing -
+     * no need for an additional timeout */
+    topmost-window-update-delay: 0;
+
+    close-all-feedback: priority2_close_multiple;
+    edit-mode-enter-feedback: priority2_popup;
+
+    background-image: "meegotouch-desktop-bg-switcher";
+}
+
+SwipeSwitcherStyle#DetailSwitcher.Portrait {
+    rows-per-page: 16777216;
+    columns-per-page: 2;
+}
+
+SwipeSwitcherStyle#DetailSwitcher.Landscape {
+    rows-per-page: 16777216;
+    columns-per-page: 2;
+}
+
+SwipeSwitcherStyle#OverviewSwitcher.Portrait {
+    rows-per-page: 16777216;
+    columns-per-page: 3;
+}
+
+SwipeSwitcherStyle#OverviewSwitcher.Landscape {
+    rows-per-page: 16777216;
+    columns-per-page: 3;
+}
+
+MAbstractLayoutPolicyStyle#SwitcherOverviewPolicy.Landscape {
+    margin-left: 3mm;
+    margin-right: 3mm;
+    margin-top: 2.4mm;
+    margin-bottom: 2.4mm;
+    vertical-spacing: 2.5mm;
+    horizontal-spacing: 2.5mm;
+}
+
+MAbstractLayoutPolicyStyle#SwitcherDetailviewPolicy.Landscape {
+    margin-left: 3mm;
+    margin-right: 3mm;
+    margin-top: 3mm;
+    margin-bottom: 3mm;
+    vertical-spacing: 2.4mm;
+    horizontal-spacing: 2.4mm;
+}
+
+MAbstractLayoutPolicyStyle#SwitcherOverviewPolicy.Portrait {
+    margin-left: 1.4mm;
+    margin-right: 1.4mm;
+    margin-top: 2.4mm;
+    margin-bottom: 1.4mm;
+    vertical-spacing: 1.9mm;
+    horizontal-spacing: 1.9mm;
+}
+
+MAbstractLayoutPolicyStyle#SwitcherDetailviewPolicy.Portrait {
+    margin-left: 1.4mm;
+    margin-right: 1.4mm;
+    margin-top: 2.4mm;
+    margin-bottom: 1.4mm;
+    vertical-spacing: 2.0mm;
+    horizontal-spacing: 2.0mm;
+}
+
+SwipeSwitcherButtonStyle {
+    cropping-top: $HEIGHT_STATUSBAR;
+    outgoing-animation-duration: 250;
+    animation-curve: inback;
+    animation-curve-overshoot: 2;
+    scale-animation-final-scale: 0.5;
+    incoming-animation-duration: 400;
+    incoming-animation-curve: overshotbezier;
+    corner-radius: 0.6mm;
+    edit-mode-animation-duration: 250;
+    edit-mode-animation-curve: outexpo;
+    edit-mode-brightness: 0.5;
+    brightness: 1.08;
+    hide-delay: 100;
+    shadow-radius: 1.6mm;
+    shadow-strength: 0.5;
+}
+
+SwipeSwitcherButtonStyle#SwipeOverviewButton.Portrait {
+    minimum-size: 13.8mm 23.5mm;
+    preferred-size: 13.8mm 23.5mm;
+    maximum-size: 13.8mm 23.5mm;
+    icon-size: 13.8mm 23.5mm;
+}
+
+SwipeSwitcherButtonStyle#SwipeDetailviewButton.Portrait {
+    minimum-size: 21.6mm 36.8mm;
+    preferred-size: 21.6mm 36.8mm;
+    maximum-size: 21.6mm 36.8mm;
+    icon-size: 21.6mm 36.8mm;
+}
+
+SwipeSwitcherButtonStyle#SwipeOverviewButton.Landscape {
+    minimum-size: 24.8mm 12.9mm;
+    preferred-size: 24.8mm 12.9mm;
+    maximum-size: 24.8mm 12.9mm;
+    icon-size: 24.8mm 12.9mm;
+}
+
+SwipeSwitcherButtonStyle#SwipeDetailviewButton.Landscape {
+    minimum-size: 38.5mm 20.0mm;
+    preferred-size: 38.5mm 20.0mm;
+    maximum-size: 38.5mm 20.0mm;
+    icon-size: 38.5mm 20.0mm;
+}
+
+SwipeCloseButtonStyle {
+    transition-in-duration: 400;
+    transition-out-duration: 250;
+    opacity-easing-curve: outexpo;
+    scale-in-easing-curve: overshotbezier;
+    scale-out-easing-curve: outexpo;
+}
+
+SwipeCloseButtonStyle#LauncherButtonCloseButton {
+    icon-id: "icon-m-framework-close-thumbnail";
+
+    minimum-size: 6.4mm 6.4mm;
+    preferred-size: 6.4mm 6.4mm;
+    maximum-size: 6.4mm 6.4mm;
+
+    icon-size: 3.6mm 3.6mm;
+}
+
+SwipeCloseButtonStyle#SwipeOverviewButtonCloseButton {
+    icon-id: "icon-m-framework-close-thumbnail";
+
+    margin-top: -0.8mm;
+    margin-right: -0.8mm;
+    
+    /* Extended button size: 64x64 (size + extensions) */
+    minimum-size: 4.8mm 4.8mm;
+    preferred-size: 4.8mm 4.8mm;
+    maximum-size: 4.8mm 4.8mm;
+    icon-size: 4.8mm 4.8mm;
+
+    /* Reactive margins, with negative margins compensated */
+    reactive-margin-left: 0.8mm;
+    reactive-margin-right: 1.6mm;
+    reactive-margin-top: 1.6mm;
+    reactive-margin-bottom: 0.8mm;
+
+    release-feedback: priority2_close;
+}
+
+SwipeCloseButtonStyle#SwipeDetailviewButtonCloseButton {
+    icon-id: "icon-m-framework-close-thumbnail";
+
+    margin-top: -0.8mm;
+    margin-right: -0.8mm;
+
+    /* Extended button size: 64x64 (size + extensions) */
+    minimum-size: 4.8mm 4.8mm;
+    preferred-size: 4.8mm 4.8mm;
+    maximum-size: 4.8mm 4.8mm;
+    icon-size: 4.8mm 4.8mm;
+
+    /* Reactive margins, with negative margins compensated */
+    reactive-margin-left: 0.8mm;
+    reactive-margin-right: 1.6mm;
+    reactive-margin-top: 1.6mm;
+    reactive-margin-bottom: 0.8mm;
+
+    release-feedback: priority2_close;
+}
+
+MLabelStyle#SwipeSwitcherEmptyState {
+    font: $FONT_FAMILY_LIGHT 6.2mm;
+    color: #323232;
+    horizontal-alignment: hcenter;
+    margin-right: 0;
+    margin-left: 0;
+    minimum-size: 100% 86%;
+    preferred-size: 100% 86%;
+    maximum-size: 100% 86%;
+}
+
+MOverlayStyle#GradientOverlay {
+    minimum-size: 100% -1;
+    preferred-size: 100% -1;
+    maximum-size: 100% -1;
+    /* The offset is the height of the status bar */
+    offset: 0 3.6mm;
+    vertical-align: top;
+    horizontal-align: left;
+}
+
+MWidgetStyle#Gradient {
+    background-image: gradient;
+    minimum-size: 100% 1mm;
+    preferred-size: 100% 1mm;
+    maximum-size: 100% 1mm;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+MLabelStyle#EventsViewHeaderLabel {
+    margin-left: 0.2mm;
+    margin-top: 1.2mm;
+    margin-bottom: 2.0mm;
+    font: $FONT_FAMILY bold 2.4mm;
+    color: #646464;
+}
+
+SwipeEventFeedArea MButtonStyle {
+    preferred-size: 16mm 3.9mm;
+    maximum-size: 16mm 3.9mm;
+    minimum-size: 16mm 3.9mm;
+
+    margin-top:      0.8mm;
+    margin-bottom:   0.9mm;
+    margin-right:    1.4mm;
+}
+
+SwipeEventFeedArea MBasicLayoutAnimationStyle {
+    animate-opacity: true;
+    initial-showing-opacity: 0.0;
+    final-hiding-opacity: 0.0;
+    duration: 400;
+    y-translation-easing-curve: overshotbezier;
+    opacity-easing-curve: overshotbezier;
+}
+
+MBasicLayoutAnimationStyle#NotificationLayoutAnimation {
+    duration: 200;
+    y-translation-easing-curve: outquint;
+}
+
+NotificationAreaStyle {
+    minimum-size: 0 0;
+    maximum-size: 100% -1;
+    preferred-size: 100% -1;
+    margin-left:    0;
+    margin-top:     0.4mm;
+    margin-right:   0;
+    margin-bottom:  0mm;
+    padding-left:   0mm;
+    padding-right:  0mm;
+    padding-top:    0mm;
+    padding-bottom: 0mm;
+    clear-all-animation-duration: 150;
+    update-layout-policy-delay: 500;
+}
+
+NotificationAreaStyle#Hidden {
+    maximum-size: 100% 0;
+    preferred-size: 100% 0;
+    margin-top:   0;
+}
+
+NotificationArea MButtonStyle {
+    preferred-size: 16mm 3.9mm;
+    maximum-size: 16mm 3.9mm;
+    minimum-size: 16mm 3.9mm;
+
+    margin-top:      0.8mm;
+    margin-bottom:   0.9mm;
+    margin-right:    1.4mm;
+}
+
+
+MButtonStyle#NotificationAreaClearButton {
+    minimum-size: 16mm 3.1mm;
+    preferred-size: 16mm 3.1mm;
+    maximum-size: 16mm 3.1mm;
+    margin-top: 1.2mm;
+    margin-bottom: 0;
+    margin-left: 0.6mm;
+    margin-right: 1.4mm;
+    /* make vertical reactive area 6.4mm */
+    reactive-margin-top: 0.45mm;
+    reactive-margin-bottom: 1.65mm;
+    text-color: #FFFFFF;
+    background-image: "meegotouch-home-button-background" 14px 14px 15px 14px;
+    font: $FONT_SMALL_BOLD;
+    release-feedback: priority2_close_multiple;
+}
+MButtonStyle#NotificationAreaClearButton:pressed {
+    text-color: #797979;
+    background-image: "meegotouch-home-button-background-pressed" 14px 14px 15px 14px;
+}
+MButtonStyle#NotificationAreaClearButton:selected {
+    text-color: #797979;
+    background-image: "meegotouch-home-button-background-pressed" 14px 14px 15px 14px;
+}
+MButtonStyle#NotificationAreaClearButton:disabled {
+    text-color: #797979;
+    background-image: "meegotouch-home-button-background-disabled" 14px 14px 15px 14px;
+}
+
+MButtonStyle#NotificationAreaClearButtonHidden {
+    minimum-size: 16mm 0;
+    preferred-size: 16mm 0;
+    maximum-size: 16mm 0;
+    margin-top: 1.2mm;
+    margin-bottom: 0;
+    margin-left: 0.6mm;
+    margin-right: 1.4mm;
+    reactive-margin-top: 0.45mm;
+    reactive-margin-bottom: 1.65mm;
+    text-color: #FFFFFF;
+    background-image: "meegotouch-home-button-background" 14px 14px 15px 14px;
+    font: $FONT_SMALL_BOLD;
+}
+
+MAbstractLayoutPolicyStyle#NotificationAreaMainLayoutPolicy {
+}
+
+MAbstractLayoutPolicyStyle#NotificationAreaBannerLayoutPolicy {
+    vertical-spacing: 0.8mm;
+}
+
+SwipeEventFeedAreaStyle {
+    auto-update-default-interval: 60;
+}
+
+SwipeEventFeedItemStyle {
+    footer-separator: "&#8226;";
+    maximum-images: 3;
+    maximum-video-images: 1;
+    footer-opacity: 1.0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-right: 1.4mm;
+    padding-top: 0.8mm;
+    padding-bottom: 0.8mm;
+    video-overlay-image: "icon-l-common-video-playback";
+    video-overlay-size: 64 64;
+    video-overlay-opacity: 0.4;
+    icon-mask-image: "meegotouch-home-event-icon-mask";
+    clear-related-items-feedback: priority2_close_multiple;
+}
+
+SwipeEventFeedItemStyle:pressed {
+    background-image: "meegotouch-fulleventbanner-background-pressed" 8px 8px 8px 8px;
+}
+
+SwipeEventFeedItem MLabelStyle {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+SwipeEventFeedAreaStyle {
+    padding-top: 0.8mm;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+SwipeEventFeedAreaStyle#Hidden {
+    maximum-size:   100% 0;
+    preferred-size: 100% 0;
+    margin-top:   0;
+}
+
+SwipeEventFeedArea MSeparatorStyle {
+    minimum-size: 0 0;
+    maximum-size: 100% 0.1mm;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+MLabelStyle#EventFeedItemEmptyLabel {
+    minimum-size: 0 0;
+    preferred-size: 0 0;
+    maximum-size: 0 0;
+}
+
+MLabelStyle#EventFeedItemTitleLabel {
+    margin-top: 0;
+    margin-bottom: 0;
+    font: $FONT_FAMILY bold 2.2mm;
+    color: #FFFFFF;
+}
+
+MLabelStyle#EventFeedItemTimestampLabel {
+    margin-top: 0.4mm;
+    margin-bottom: 0;
+    minimum-size: 0 0;
+    font: $FONT_XXSMALL;
+    color: #808080;
+}
+
+MLabelStyle#EventFeedItemFooterSeparatorLabel {
+    margin-top: 0.4mm;
+    margin-bottom: 0;
+    margin-left: 0.4mm;
+    margin-right: 0.4mm;
+    font: $FONT_XXSMALL;
+    color: #808080;
+}
+
+MLabelStyle#EventFeedItemFooterLabel {
+    margin-top: 0.4mm;
+    margin-bottom: 0;
+    minimum-size: 0 0;
+    font: $FONT_XXSMALL;
+    color: #808080;
+}
+
+MLabelStyle#EventFeedItemBodyLabel {
+    margin-top: 0;
+    margin-bottom: 0;
+    font: $FONT_FAMILY 2.2mm;
+    color: #FFFFFF;
+    preferred-line-count: 5;
+    preferred-line-count-behavior: "limit";
+}
+
+MImageWidgetStyle#EventFeedIcon {
+    margin-left: 0.2mm;
+    margin-right: 1.6mm;
+    margin-top: 0;
+    margin-bottom: 0;
+    minimum-size: 6.4mm 6.4mm;
+    preferred-size: 6.4mm 6.4mm;
+    maximum-size: 6.4mm 6.4mm;
+}
+
+MImageWidgetStyle#EventFeedImageSmall {
+    margin-left: 0;
+    margin-right: 0.8mm;
+    margin-top: 1.6mm;
+    margin-bottom: 0;
+    maximum-size: 120 120;
+}
+
+MImageWidgetStyle#EventFeedImageLarge {
+    margin-left: 0;
+    margin-right: 0.8mm;
+    margin-top: 1.6mm;
+    margin-bottom: 0;
+    maximum-size: 168 168;
+}
+
+MImageWidgetStyle#EventFeedImageVideo {
+    margin-left: 0;
+    margin-right: 0.8mm;
+    margin-top: 1.6mm;
+    margin-bottom: 0;
+    maximum-size: 210 120;
+}
+
+MBannerStyle#EventBanner {
+    margin-bottom:  0.4mm;
+    margin-top:     0.4mm;
+    minimum-size: 0 0;
+}
+
+MExtensionHandleStyle {
+    maximum-size: 12mm 9.6mm;
+    broken-image: "icon-m-common-fault";
+}
+MExtensionHandleStyle.Landscape {
+    forced-minimum-size: 0 0;
+}
+MExtensionHandleStyle.Portrait {
+    forced-minimum-size: 0 0;
+}
+
+MContainerStyle#MExtensionAreaInvisibleContainer {
+    margin-left:   0;
+    margin-top:    0;
+    margin-right:  0;
+    margin-bottom: 0;
+
+    padding-left:   0;
+    padding-top:    0;
+    padding-right:  0;
+    padding-bottom: 0;
+
+    background-opacity: 0.0;
+    background-image:;
+}
+
+MApplicationExtensionAreaStyle#WeatherExtensionArea {
+    minimum-size: 12mm 9.6mm;
+    preferred-size: 12mm 9.6mm;
+    maximum-size: 12mm 9.6mm;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-left: 0;
+    margin-right: 1.4mm;
+    margin-top: 0;
+    margin-bottom: 0;
+    layout-orientation: horizontal;
+    container-mode: false;
+}
+
+MNavigationBar#MNavigationBarStyleInverted MWidgetSlideAnimationStyle#In {
+    delay: 0;
+    duration: 250;
+    easing-curve: outexpo;
+}
+
+MNavigationBar#MNavigationBarStyleInverted MWidgetSlideAnimationStyle#Out {
+    delay: 0;
+    duration: 250;
+    easing-curve: outexpo;
+}
+
+SwipeLauncherButtonStyle {
+    font: $FONT_XSMALL;
+    text-color: #FFFFFF;
+
+    minimum-size: 11.2mm 11.8mm;
+    preferred-size: 11.2mm 11.8mm;
+    maximum-size: 11.2mm 11.8mm;
+
+    drop-shadow-radius: 16;
+    drop-shadow-opacity: 0.5;
+    drop-shadow-color: #000000;
+
+    press-feedback: ;
+    release-feedback: ;
+    style-mode-feedback: ;
+
+    opacity: 1.0;
+    opacity-duration: 250;
+    opacity-easing-curve: outexpo;
+
+    zoom: 1.0;
+    zoom-duration: 250;
+    zoom-easing-curve: outexpo;
+    zoom-overshoot: 0;
+
+    close-animation-zoom: 0.5;
+    close-animation-duration: 250;
+    close-animation-easing-curve: inback;
+    close-feedback: priority2_close;
+
+    text-margin-top: 0.8mm;
+    show-launch-progress: false;
+
+    close-button-position: 6.0mm -2.4mm;
+}
+
+SwipeLauncherButtonStyle#Language_ar {
+    font: $FONT_FAMILY 2.0mm;
+}
+
+SwipeLauncherButtonStyle#Language_he {
+    font: $FONT_FAMILY 1.9mm;
+}
+
+SwipeLauncherButtonStyle#Language_fa {
+    font: $FONT_FAMILY 2.2mm;
+}
+
+SwipeLauncherButtonStyle#Language_th {
+    font: $FONT_FAMILY 1.9mm;
+}
+
+SwipeLauncherButtonStyle#Language_zh {
+    font: $FONT_FAMILY light 2.0mm;
+}
+
+/* Avoiding disabled and selected shadows at launcher */
+SwipeLauncherButtonStyle:disabled {
+    background-image: ;
+}
+
+SwipeLauncherButtonStyle:selected {
+    background-image: ;
+}
+
+SwipeLauncherButtonStyle:edit-mode-enabled {
+    opacity: 0.5;
+}
+
+SwipeLauncherButtonStyle:edit-mode-reorder {
+    opacity: 0.5;
+}
+
+SwipeLauncherButtonStyle:edit-mode-being-dragged {
+    opacity: 1.0;
+    zoom: 1.15;
+    style-mode-feedback: priority2_grab;
+}
+
+SwipeLauncherButtonStyle:edit-mode-dropped-to-folder {
+    opacity: 0;
+    opacity-easing-curve: inback;
+
+    zoom: 0.5;
+    zoom-easing-curve: inback;
+
+    style-mode-feedback: priority2_drop;
+}
+
+SwipeLauncherFolderButtonStyle {
+    icon-id: "icon-l-folder";
+    empty-icon-id: "icon-l-folder-empty";
+    small-icon-size: 2.6mm 2.6mm;
+    small-icon-spacing: 0.5mm;
+}
+
+SwipeLauncherButtonStyle:background {
+    opacity: 0.5;
+}
+
+SwipeLauncherButtonStyle:background-edit-mode {
+    opacity: 0.25;
+}
+
+SwipeLauncherButtonStyle:open-folder {
+    opacity: 1.0;
+}
+
+SwipeLauncherButtonStyle:open-folder-edit-mode {
+    opacity: 0.5;
+}
+
+SwipeLauncherButtonStyle:active-folder {
+    opacity: 1.0;
+    style-mode-feedback: priority2_move;
+}
+
+SwipeLauncherStyle {
+    custom-button-style-languages: "ar he fa th zh";
+    edit-mode-enter-feedback: priority2_popup;
+    edit-mode-drag-start-hold-timeout: 200;
+    background-image: "meegotouch-desktop-bg-launcher";
+}
+
+SwipeLauncherPageStyle {
+    drag-pan-start-threshold: 80;
+    drag-pan-velocity-factor: 0.2;
+    drag-pan-maximum-velocity: 12;
+    drag-to-main-page-timeout: 600;
+
+    folder-content-vertical-offset-from-button-top: 8.0mm;
+    folder-content-minimum-top-margin: 8.0mm;
+    folder-content-minimum-bottom-margin: 14.7mm;
+    folder-content-minimum-bottom-margin-in-edit-mode: 7.5mm;
+
+    button-position-animation-duration: 250;
+    button-position-animation-curve: inback;
+
+    folder-button-overlap-enter-threshold: 0;
+    folder-button-overlap-exit-threshold: 0.5mm;
+}
+
+MWidgetZoomAnimationStyle#In {
+    opacity-animation-delay: 0;
+    opacity-animation-duration: 500;
+    opacity-animation-easing-curve: overshotbezier;
+    
+    scale-animation-duration: 500;
+    scale-animation-easing-curve: overshotbezier;
+
+    delay: 250;
+    scale: 0.25;
+    opacity: 1;
+
+    position-animation-distance-factor: 0;
+}
+
+MWidgetZoomAnimationStyle#Out {
+    opacity-animation-delay: 0;
+    opacity-animation-duration: 200;
+    opacity-animation-easing-curve: inexpo;
+    
+    scale-animation-duration: 200;
+    scale-animation-easing-curve: inexpo;
+
+    delay: 0;
+    scale: 0;
+    opacity: 1;
+
+    position-animation-distance-factor: 0;
+}
+
+MWidgetStyle#LauncherPlaceholderItem {
+    backgroud-opacity: 1;
+
+    /* Should reflect the size of launcher button */
+    minimum-size: 11.2mm 11.8mm;
+    preferred-size: 11.2mm 11.8mm;
+    maximum-size: 11.2mm 11.8mm;
+}
+
+SwipeLauncherLayoutAnimationStyle {
+    duration: 250;
+    easing-curve: outexpo;
+
+    start-animation-delay: 10;
+}
+
+SwipePannableViewportStyle#SwipePage {
+    return-animation-duration: 250;
+    return-animation-easing-curve: outexpo;
+}
+
+MWidgetStyle#SwipeLauncherPannedWidget {
+    padding-top: 2.4mm;
+    padding-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+MWidgetStyle#SwipeLauncherPannedWidget.Portrait {
+    padding-left: 1.3mm;
+    padding-right: 1.3mm;
+}
+
+MWidgetStyle#SwipeLauncherPannedWidget.Landscape {
+    padding-left: 2.9mm;
+    padding-right: 2.9mm;
+}
+
+WidgetScaleAnimationStyle {
+    scale: 0.5;
+    easing-curve: overshotbezier;
+    duration: 400;
+}
+
+EventFeedItemAnimationStyle {
+    opacity: 0;
+}
+
+NotificationArea MBasicLayoutAnimationStyle {
+    animate-opacity: true;
+    initial-showing-opacity: 0.0;
+    final-hiding-opacity: 0.0;
+    duration: 400;
+    y-translation-easing-curve: overshotbezier;
+    opacity-easing-curve: overshotbezier;
+}
+
+MWidgetStyle#folderContainerContentWidget {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: $PADDING_MEDIUM;
+    padding-bottom: $PADDING_MEDIUM;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+
+    background-color: black;
+}
+
+SwipeLauncherFolderContainerStyle {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+
+    background-color: black;
+    background-opacity: 0.0;
+
+    minimum-size: 100% -1;
+    preferred-size: 100% -1;
+    maximum-size: 100% -1;
+
+    folder-gradient-image: gradient;
+    folder-arrow-head-size: 1.5mm 1mm;
+    folder-gradient-size: 100% 1mm;
+    folder-border-width: 0.1mm;
+
+    size-change-animation-duration: 250;
+    size-change-animation-curve: outexpo;
+
+    open-animation-start-opacity: 0.0;
+    close-animation-target-opacity: 0.0;
+
+    open-animation-opacity-curve: outexpo;
+    close-animation-opacity-curve: outsine;
+}
+
+MTextEditStyle#folderNameWidget {
+    background-image:;
+    text-color: white;
+    prompt-color: white;
+    focused-prompt-opacity: 1;
+}
+
+MTextEditStyle#folderNameWidgetEditMode {
+    background-image: meegotouch-textedit-background $CORNER_MARGINS;
+    text-color: black;
+    background-opacity: 0.7;
+    prompt-color: #7C7E80;
+}
+
+MTextEditStyle#folderNameWidgetEditMode:selected {
+    background-image: color2-meegotouch-textedit-background-selected $CORNER_MARGINS;
+    background-opacity: 1.0;
+}
+
+MWidgetStyle#folderContainerContentShapeWidget {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+
+    minimum-size: 100% 0;
+    preferred-size: 100% -1;
+    maximum-size: 100% -1;
+}
