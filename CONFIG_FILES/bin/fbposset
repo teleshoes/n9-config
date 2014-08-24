@@ -1,0 +1,74 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use List::Util qw(max);
+
+my $progname = `basename "$0"`; chomp $progname;
+my $usage = "$progname [[+|-]paragraph number] [[+|-]word number] [[+|-]char number]";
+
+my $db = "$ENV{HOME}/.FBReader/state.db";
+
+sub dieUsage();
+sub runSql(@);
+
+sub main(@){
+  my ($para, $word, $char) = (@_, (0,0,0));
+  dieUsage if grep {$_ !~ /^(\+|-)?\d+$/} @_ or scalar @_ > 3;
+
+  system "pkill fbreader";
+
+  my $id = runSql
+    "SELECT      book_id",
+    "FROM        RecentBooks",
+    "WHERE       book_index = 1";
+
+  my $currsp = runSql
+    "SELECT      stack_pos",
+    "FROM        StackPosition",
+    "WHERE       book_id = $id";
+  my $newsp = $currsp + 1;
+  my ($oldpara, $oldword, $oldchar) = split '\\|', (runSql
+    "SELECT      paragraph, word, char",
+    "FROM        BookStateStack",
+    "WHERE       book_id = $id",
+    "  AND       position = 0");
+  my ($newpara, $newword, $newchar) = map {
+      my ($arg, $old) = @$_; max 0, $arg =~ /\+|-/ ? eval ($old . $arg) : $arg
+    } ([$para,$oldpara], [$word,$oldword], [$char,$oldchar]);
+
+  runSql
+    "BEGIN TRANSACTION",
+    ";",
+    "UPDATE      StackPosition",
+    "SET         stack_pos = $newsp",
+    "WHERE       book_id = $id",
+    ";",
+    "DELETE FROM BookStateStack",
+    "WHERE       book_id = $id",
+    "  AND       position > $currsp",
+    ";",
+    "UPDATE      BookStateStack",
+    "SET         position = $newsp",
+    "WHERE       book_id = $id",
+    "  AND       position = 0",
+    ";",
+    "INSERT INTO BookStateStack",
+    "VALUES     ($id, 0, $newpara, $newword, $newchar)",
+    ";",
+    "COMMIT";
+
+  exec "nohup fbreader 1>/dev/null 2>/dev/null &";
+}
+
+sub dieUsage() {
+  print STDERR "$usage\n";
+  exit 1;
+}
+
+sub runSql(@) {
+  my $sql = (join ' ', @_) . ';';
+  my $result = `sqlite3 "$db" <<EOF\n$sql\nEOF`; chomp $result;
+  $result
+}
+
+&main(@ARGV);
