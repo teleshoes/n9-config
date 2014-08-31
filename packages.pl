@@ -28,7 +28,7 @@ my $normalPackages = {
   )],
   '2' => [qw(
     perl bash-completion python
-    htop
+    htop lftp
     x11-utils xresponse
     meecast
     aptitude
