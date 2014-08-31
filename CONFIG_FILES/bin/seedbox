@@ -1,0 +1,99 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $remoteTorrentDir = "rtorrent/torrents";
+my $remoteDownloads = "rtorrent/downloads";
+my $localDownloads = "$ENV{HOME}/Desktop/Torrents/seedbox";
+
+sub magnetToTorrent($);
+sub readSecrets();
+
+my $secretsFile = "$ENV{HOME}/.secrets";
+my @configKeys = qw(server port username password);
+
+my @initCmds = (
+  "set ftp:ssl-force true",
+  "set ftp:ssl-protect-data true",
+  "set ssl:verify-certificate no",
+);
+
+my $usage = "Usage:
+  $0
+     read from stdin and send the commands to lftp
+
+  $0 -g
+     sync seedbox:$remoteDownloads => $localDownloads
+     {runs 'mirror $remoteDownloads $localDownloads'}
+
+  $0 TORRENT_FILE
+     upload torrent file to seedbox:$remoteTorrentDir
+
+  $0 MAGNET_LINK
+     create a .torrent file and upload it to seedbox:$remoteTorrentDir
+";
+
+sub main(@){
+  my $cmd;
+  if(@_ == 0){
+    $cmd = undef;
+  }elsif(@_ == 1 and $_[0] =~ /^(-g)$/){
+    $cmd = "mirror $remoteDownloads $localDownloads";
+  }elsif(@_ == 1 and $_[0] =~ /\.torrent$/ and -f $_[0]){
+    my $torrentFile = $_[0];
+    $cmd = "cd $remoteTorrentDir && put $torrentFile";
+  }elsif(@_ == 1 and $_[0] =~ /xt=urn:btih:/){
+    my $torrentFile = magnetToTorrent $_[0];
+    $cmd = "cd $remoteTorrentDir && put $torrentFile";
+  }else{
+    die $usage;
+  }
+
+  my $config = readSecrets();
+  my $url = "ftp://$$config{server}:$$config{port}";
+  my @lftpCmd = ("lftp", "-u", "$$config{username},$$config{password}", $url);
+
+  open FH, "|-", @lftpCmd;
+  my $fh = select FH;
+  $| = 1;
+  select $fh;
+  print FH "$_\n" foreach @initCmds;
+  if(defined $cmd){
+    print "running $cmd\n";
+    print FH "$cmd\nexit\n";
+    close FH;
+  }else{
+    my $line;
+    while($line = <STDIN>){
+      print FH $line or die "lftp is closed\n";
+    }
+  }
+}
+
+sub magnetToTorrent($){
+  my $magnet = shift;
+  chomp $magnet;
+  my $tmpFile = "/tmp/seedbox-magnet-" . time . ".torrent";
+  my $len = length $magnet;
+  open FH, "> $tmpFile" or die "Could not write $tmpFile\n";
+  print FH "d10:magnet-uri${len}:${magnet}e\n";
+  close FH;
+  return $tmpFile;
+}
+
+sub readSecrets(){
+  my @lines = `cat $secretsFile 2>/dev/null`;
+  my $cfg = {};
+  my $okConfigKeys = join "|", @configKeys;
+  for my $line(@lines){
+    if($line =~ /^seedbox\.($okConfigKeys)\s*=\s*(.+)$/){
+      $$cfg{$1} = $2;
+    }
+  }
+  for my $key(sort @configKeys){
+    die "Missing config '$key' in $secretsFile\n" if not defined $$cfg{$key};
+  }
+  return $cfg;
+}
+
+&main(@ARGV);
