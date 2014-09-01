@@ -2,8 +2,8 @@
 use strict;
 use warnings;
 
-my $remoteTorrentDir = "rtorrent/torrents";
-my $remoteDownloads = "rtorrent/downloads";
+my $remoteTorrentDir = "watch";
+my $remoteDownloads = "files";
 my $localDownloads = "$ENV{HOME}/Desktop/Torrents/seedbox";
 
 sub magnetToTorrent($);
@@ -11,6 +11,8 @@ sub readSecrets();
 
 my $secretsFile = "$ENV{HOME}/.secrets";
 my @configKeys = qw(server port username password);
+
+my @mirrorOpts = ("-c", "--parallel=8");
 
 my @initCmds = (
   "set ftp:ssl-force true",
@@ -24,7 +26,10 @@ my $usage = "Usage:
 
   $0 -g
      sync seedbox:$remoteDownloads => $localDownloads
-     {runs 'mirror $remoteDownloads $localDownloads'}
+     {runs rsync -avP user\@seedbox:$remoteDownloads/ $localDownloads}
+
+  $0 -s
+     ssh to seedbox
 
   $0 TORRENT_FILE
      upload torrent file to seedbox:$remoteTorrentDir
@@ -34,11 +39,22 @@ my $usage = "Usage:
 ";
 
 sub main(@){
+  my $config = readSecrets();
+
   my $cmd;
   if(@_ == 0){
     $cmd = undef;
   }elsif(@_ == 1 and $_[0] =~ /^(-g)$/){
-    $cmd = "mirror $remoteDownloads $localDownloads";
+    my @rsyncCmd = ("rsync", "-avP",
+      "$$config{username}\@$$config{server}:$remoteDownloads/",
+      $localDownloads,
+      );
+    print "@rsyncCmd\n";
+    exec @rsyncCmd;
+  }elsif(@_ == 1 and $_[0] =~ /^(-s)$/){
+    my @sshCmd = ("ssh", "$$config{username}\@$$config{server}");
+    print "@sshCmd\n";
+    exec @sshCmd;
   }elsif(@_ == 1 and $_[0] =~ /\.torrent$/ and -f $_[0]){
     my $torrentFile = $_[0];
     $cmd = "cd $remoteTorrentDir && put $torrentFile";
@@ -49,7 +65,6 @@ sub main(@){
     die $usage;
   }
 
-  my $config = readSecrets();
   my $url = "ftp://$$config{server}:$$config{port}";
   my @lftpCmd = ("lftp", "-u", "$$config{username},$$config{password}", $url);
 
