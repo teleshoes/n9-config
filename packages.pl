@@ -5,6 +5,14 @@ use warnings;
 my $pkgConfig = '/etc/package-manager/config';
 my $ipmagicCmd = "n9";
 
+my $validTypes = join '|', qw(all repos packages extra remove debs);
+my $usage = "Usage:
+  $0 [--reinstall] TYPE
+
+  TYPE
+    must start with one of: $validTypes
+";
+
 my @jobs = qw(
   xsession/applauncherd
   xsession/applifed
@@ -99,10 +107,7 @@ sub main(@){
 
   my $arg = shift;
   $arg = 'all' if not defined $arg;
-  my $valid = join '|', qw(all repos packages extra remove debs);
-  if(@_ > 0 or $arg !~ /^($valid)/){
-    die "Usage: $0 [--reinstall] TYPE {type must start with one of: $valid}\n";
-  }
+  die $usage if @_ > 0 or $arg !~ /^($validTypes)/;
   if($arg =~ /^(all|repos)/){
     if(setupRepos()){
       runRemote "$env apt-get update";
