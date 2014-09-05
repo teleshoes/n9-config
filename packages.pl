@@ -149,7 +149,7 @@ sub setupRepos(){
       apt-key add "$x"
     done
   ';
-  
+
   my $after = getRepos();
   return $before ne $after;
 }
@@ -283,7 +283,7 @@ sub isAlreadyInstalled($$$){
 sub installDebs(){
   my @debs = `cd $debDir; ls */*.deb`;
   chomp foreach @debs;
-  
+
   print "\n\nSyncing $debDestPrefix/$debDir to $debDestPrefix on dest:\n";
   my $host = host();
   system "rsync $debDir root\@$host:$debDestPrefix -av --progress --delete";
