@@ -38,6 +38,7 @@ my $normalPackages = {
     python-qtmobility.multimediakit
   )],
   '3' => [qw(
+    stellarium-n9
     meefox
     screen
     cameraplus
