@@ -14,68 +14,72 @@ my @ignoredPatterns = qw(
 );
 
 my @config = qw(
-  call-history
-  messaging-ui
-  mtermite
+  dir-comm[
+    call-history
+    messaging-ui
+    mail
+    finch
+    contacts
+    call-log
+    call-log-all
+  ]
+  dir-nav[
+    nokia-drive-qml
+    maps
+    modrana
+    NokiaPt
+  ]
   MeeFox
+  mtermite
 
-  finch
   klomp
+  qtbtn-klomp
+  meeseepics
   cameraplus
-  settings
 
-  nokia-drive-qml
-  contacts
   clock
+  coffee
+  dingmee
   FBReader
 
-  qtbtn-klomp
-  mail
-  meeseepics
+  joikuspot
+  restart-wifi
+  dontgosleep
+  stellarium-n9
 
   dir-tools[
-    modrana
-    restart-wifi
-    dontgosleep
+    qtbtn-power
     screenshotmee
     dropcache-mdn
     dcim-reindex
   ]
   dir-useful[
-    qtbtn-power
+    qtbigtext
     qtodo
-    call-log
-    call-log-all
     brujula
-    dingmee
     transmission
   ]
   dir-cute[
-    joikuspot
-    qtbigtext
     qml2048
-    teatime
-    vmpkn9
     xmcr
+    vmpkn9
     emumaster
-    stellarium-n9
   ]
   dir-junk[
-    contact-coocoo
+    settings
+    accountsui
     fennec
     grob
     camera-ui
+    gallery
     trojita-tp
-    NokiaPt
-    accountsui
+    pidgin
+    n9-button-monitor
     btinput-terminal
     btinput
     toggleBT
-    gallery
     calendar
     ovistoreclient
-    pidgin
-    n9-button-monitor
   ]
 );
 
