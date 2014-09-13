@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=coffee
+Comment=240
+Icon=teatime
+Exec=term timer 240
+Type=Application
