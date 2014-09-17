@@ -10,9 +10,12 @@ sub magnetToTorrent($);
 sub readSecrets();
 
 my $secretsFile = "$ENV{HOME}/.secrets";
-my @configKeys = qw(server port username password);
+my @configKeys = qw(server port username password revtun.username revtun.port);
 
 my @mirrorOpts = ("-c", "--parallel=8");
+
+my $revtunLocalOpts = "-t";
+my $revtunRemoteOpts = "-t -o 'NoHostAuthenticationForLocalhost yes'";
 
 my @initCmds = (
   "set ftp:ssl-force true",
@@ -24,12 +27,19 @@ my $usage = "Usage:
   $0
      read from stdin and send the commands to lftp
 
+  $0 -h
+     print \"user\@seedbox\"
+
   $0 -g
      sync seedbox:$remoteDownloads => $localDownloads
-     {runs rsync -avP user\@seedbox:$remoteDownloads/ $localDownloads}
+     {runs rsync -avP USERNAME\@SERVER:$remoteDownloads/ $localDownloads}
 
   $0 -s
      ssh to seedbox
+
+  $0 -r
+     ssh to seedbox with '$revtunLocalOpts' and run {on the seedbox}:
+      ssh -t $revtunRemoteOpts REVTUN_USERNAME\@localhost -p REVTUN_PORT
 
   $0 TORRENT_FILE
      upload torrent file to seedbox:$remoteTorrentDir
@@ -44,6 +54,9 @@ sub main(@){
   my $cmd;
   if(@_ == 0){
     $cmd = undef;
+  }elsif(@_ == 1 and $_[0] =~ /^(-h)$/){
+    print "$$config{username}\@$$config{server}\n";
+    exit 0;
   }elsif(@_ == 1 and $_[0] =~ /^(-g)$/){
     my @rsyncCmd = ("rsync", "-avP",
       "$$config{username}\@$$config{server}:$remoteDownloads/",
@@ -53,6 +66,18 @@ sub main(@){
     exec @rsyncCmd;
   }elsif(@_ == 1 and $_[0] =~ /^(-s)$/){
     my @sshCmd = ("ssh", "$$config{username}\@$$config{server}");
+    print "@sshCmd\n";
+    exec @sshCmd;
+  }elsif(@_ == 1 and $_[0] =~ /^(-r)$/){
+    my $revtunUsername = $$config{"revtun.username"};
+    my $revtunPort = $$config{"revtun.port"};
+    my $revtunSshCmd = "ssh"
+      . " $revtunRemoteOpts"
+      . " $revtunUsername\@localhost"
+      . " -p $revtunPort"
+      ;
+    my @sshCmd = ("ssh", $revtunLocalOpts, "$$config{username}\@$$config{server}");
+    @sshCmd = (@sshCmd, $revtunSshCmd);
     print "@sshCmd\n";
     exec @sshCmd;
   }elsif(@_ == 1 and $_[0] =~ /\.torrent$/ and -f $_[0]){
