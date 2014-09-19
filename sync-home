@@ -20,10 +20,13 @@ to-do-o
 .FBReader
 .bash_history
 .klomp*
+.lftp
 .lpsmagic
 .mozilla
 .mplayer
 .purple
+.secrets
+.sqlite_history
 .ssh
 .status-menu
 .stellarium-n9
