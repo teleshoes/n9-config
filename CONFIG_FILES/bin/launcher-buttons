@@ -14,14 +14,17 @@ my @ignoredPatterns = qw(
 );
 
 my @config = qw(
+  call-history
+  messaging-ui
+  MeeFox
+  mtermite
+
   dir-comm[
-    call-history
-    messaging-ui
     mail
-    finch
     contacts
     call-log
     call-log-all
+    finch
   ]
   dir-nav[
     nokia-drive-qml
@@ -29,27 +32,24 @@ my @config = qw(
     modrana
     NokiaPt
   ]
-  MeeFox
-  mtermite
-
-  klomp
-  qtbtn-klomp
   meeseepics
   cameraplus
 
-  clock
-  coffee
+  klomp
+  qtbtn-klomp
   dingmee
   FBReader
 
+  clock
+  coffee
   joikuspot
-  restart-wifi
-  dontgosleep
   stellarium-n9
 
   dir-tools[
     qtbtn-power
     screenshotmee
+    restart-wifi
+    dontgosleep
     dropcache-mdn
     dcim-reindex
   ]
