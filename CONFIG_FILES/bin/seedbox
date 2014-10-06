@@ -34,11 +34,12 @@ my $usage = "Usage:
      sync seedbox:$remoteDownloads => $localDownloads
      {runs rsync -avP USERNAME\@SERVER:$remoteDownloads/ $localDownloads}
 
-  $0 -s
+  $0 -s [CMD]
      ssh to seedbox
 
-  $0 -r
+  $0 -r [CMD]
      ssh to seedbox with '$revtunLocalOpts' and run {on the seedbox}:
+
       ssh -t $revtunRemoteOpts REVTUN_USERNAME\@localhost -p REVTUN_PORT
 
   $0 TORRENT_FILE
@@ -64,17 +65,22 @@ sub main(@){
       );
     print "@rsyncCmd\n";
     exec @rsyncCmd;
-  }elsif(@_ == 1 and $_[0] =~ /^(-s)$/){
-    my @sshCmd = ("ssh", "$$config{username}\@$$config{server}");
+  }elsif(@_ >= 1 and $_[0] =~ /^(-s)$/){
+    shift;
+    my @cmd = @_;
+    my @sshCmd = ("ssh", "$$config{username}\@$$config{server}", @cmd);
     print "@sshCmd\n";
     exec @sshCmd;
-  }elsif(@_ == 1 and $_[0] =~ /^(-r)$/){
+  }elsif(@_ >= 1 and $_[0] =~ /^(-r)$/){
+    shift;
+    my @cmd = @_;
     my $revtunUsername = $$config{"revtun.username"};
     my $revtunPort = $$config{"revtun.port"};
     my $revtunSshCmd = "ssh"
       . " $revtunRemoteOpts"
       . " $revtunUsername\@localhost"
       . " -p $revtunPort"
+      . " @cmd"
       ;
     my @sshCmd = ("ssh", $revtunLocalOpts, "$$config{username}\@$$config{server}");
     @sshCmd = (@sshCmd, $revtunSshCmd);
