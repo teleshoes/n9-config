@@ -33,6 +33,9 @@ sub main(@){
 
   run sshCmd($config, "mkdir", "-p", $backupDir);
 
+  run rsyncCmd($config, "/home/user/MyDocs/DCIM/", "$backupDir/DCIM"),
+    "--exclude=/*/";
+
   run "screen-cmd", "-q", "revtun", "--unsafe", "--local";
 }
 
