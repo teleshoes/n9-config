@@ -22,12 +22,12 @@ sub modS($$){
   }
 }
 
-my $dir = "~/.klomplist-books";
+my $dir = "~/.klomp/list-books";
 
-my $localCur = modS "$dir/.klompcur", "local";
-my $remoteCur = modS "$dir/.klompcur", "remote";
-my $localList = modS "$dir/.klomplist", "local";
-my $remoteList = modS "$dir/.klomplist", "remote";
+my $localCur = modS "$dir/cur", "local";
+my $remoteCur = modS "$dir/cur", "remote";
+my $localList = modS "$dir/list", "local";
+my $remoteList = modS "$dir/list", "remote";
 
 print "        cur                        list\n";
 print "loc: " . localtime($localCur) . "   " . localtime($localList) . "\n";
