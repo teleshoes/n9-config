@@ -36,6 +36,14 @@ sub main(@){
   run rsyncCmd($config, "/home/user/MyDocs/DCIM/", "$backupDir/DCIM"),
     "--exclude=/*/";
 
+  my $callFile = "/tmp/backup-call-tmp";
+  run "backup-comm", "call", $callFile;
+  run rsyncCmd($config, $callFile, $backupDir);
+
+  my $smsFile = "/tmp/backup-sms-tmp";
+  run "backup-comm", "sms", $smsFile;
+  run rsyncCmd($config, $smsFile, $backupDir);
+
   run "screen-cmd", "-q", "revtun", "--unsafe", "--local";
 }
 
