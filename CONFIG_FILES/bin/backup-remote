@@ -27,8 +27,8 @@ sub tryReadProc(@);
 
 sub main(@){
   my $config = readSecrets();
-  run "screen-cmd", "-q", "revtun", "--unsafe", "--local";
-  run "screen-cmd", "revtun", "--unsafe", "--local";
+  run "sudo", "screen-cmd", "-q", "revtun", "--unsafe", "--local";
+  run "sudo", "screen-cmd", "revtun", "--unsafe", "--local";
   ensureConnection($config);
 
   run sshCmd($config, "mkdir", "-p", $backupDir);
@@ -44,7 +44,7 @@ sub main(@){
   run "backup-comm", "sms", $smsFile;
   run rsyncCmd($config, $smsFile, $backupDir);
 
-  run "screen-cmd", "-q", "revtun", "--unsafe", "--local";
+  run "sudo", "screen-cmd", "-q", "revtun", "--unsafe", "--local";
 }
 
 sub ensureConnection($){
