@@ -1,0 +1,78 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $sshCmd = "autossh";
+my $localPort = 22;
+my $localHost = "localhost";
+my $secretsFile = "$ENV{HOME}/.secrets";
+
+sub readSecrets();
+my @configKeys = qw(user host port localport);
+
+my $usage = "Usage:
+  $0 [--local[=LOCAL_PORT]] [[USER@]HOST PORT]
+    set up a reverse SSH tunnel to HOST as USER on PORT
+
+    if no args are given, USER/HOST/PORT default to
+      revtun.user/revtun.host/revtun.port from $secretsFile
+
+    --local[=LOCAL_PORT]
+      if --local is given, use -L instead of -R,
+        and use LOCAL_PORT instead of $localPort
+        if LOCAL_PORT is not given, read revtun.localport from $secretsFile
+";
+
+sub main(@){
+  my ($host, $port);
+  my $config;
+
+  my $local = 0;
+  if(@_ > 0 and $_[0] =~ /^--local(?:=(\d+))?$/){
+    shift;
+    $local = 1;
+    if(defined $1){
+      $localPort = $1;
+    }else{
+      $config = readSecrets() if not defined $config;
+      $localPort = $$config{localport};
+    }
+  }
+
+  if(@_ == 0){
+    $config = readSecrets() if not defined $config;
+    $host = "$$config{user}\@$$config{host}";
+    $port = $$config{port};
+  }elsif(@_ == 2 and $_[1] =~ /^\d+$/){
+    $host = $_[0];
+    $port = $_[1];
+  }else{
+    die $usage;
+  }
+
+  my @cmd;
+  if($local){
+    @cmd = ("$sshCmd", "-L", "$localPort:$localHost:$port", $host);
+  }else{
+    @cmd = ("$sshCmd", "-R", "$port:$localHost:$localPort", $host);
+  }
+  print "@cmd\n";
+  exec @cmd;
+}
+
+sub readSecrets(){
+  my @lines = `cat $secretsFile 2>/dev/null`;
+  my $cfg = {};
+  my $okConfigKeys = join "|", @configKeys;
+  for my $line(@lines){
+    if($line =~ /^revtun\.($okConfigKeys)\s*=\s*(.+)$/){
+      $$cfg{$1} = $2;
+    }
+  }
+  for my $key(sort @configKeys){
+    die "Missing config '$key' in $secretsFile\n" if not defined $$cfg{$key};
+  }
+  return $cfg;
+}
+
+&main(@ARGV);
