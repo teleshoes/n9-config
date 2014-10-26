@@ -1,0 +1,62 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $desktopPrefix = "CONFIG_FILES/%usr%share%applications%";
+my $iconPrefix = "CONFIG_FILES/%usr%share%themes%blanco%meegotouch%icons%";
+
+sub svg($$);
+sub run(@);
+
+sub main(@){
+  die "Usage: $0 START END\n" if @_ != 2;
+
+  my ($start, $end) = @_;
+  my $desktopFile = "${desktopPrefix}lirr_${start}_${end}.desktop";
+  my $pngFile = "${iconPrefix}lirr_${start}_${end}.png";
+
+  open FH, "> $desktopFile" or die "Could not write to $desktopFile\n";
+  print FH desktop($start, $end);
+  close FH;
+
+  my $svgFile = "/tmp/gen-icon-tmp-" . time . ".svg";
+  open FH, "> $svgFile" or die "Could not write to $svgFile\n";
+  print FH svg($start, $end);
+  close FH;
+
+  run "convert", $svgFile, $pngFile;
+  run "rm", $svgFile;
+}
+
+sub svg($$){
+  my ($start, $end) = @_;
+  my $top = uc $start;
+  my $bot = uc $end;
+  my $textStyle = "font-family: monospace; fill: #FFFFFF; font-size: 28px;";
+  return "
+<svg height='80' width='80'>
+  <circle cx='40' cy='40' r='38' stroke='black' stroke-width='3' fill='red' />
+  <text x='14' y='35' style='$textStyle'>$top</text>
+  <text x='14' y='65' style='$textStyle'>$bot</text>
+</svg>
+";
+}
+
+sub desktop($$){
+  my ($start, $end) = @_;
+  return "[Desktop Entry]
+Name=$start=>$end
+Comment=LIRR train time
+Icon=lirr_${start}_${end}
+Exec=lirr_train_time $start $end
+Type=Application
+";
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+  die "Error running @_\n" if $? != 0;
+}
+
+&main(@ARGV);
