@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=fdl=>cpg
+Comment=LIRR train time
+Icon=lirr_fdl_cpg
+Exec=lirr_train_time fdl cpg
+Type=Application
