@@ -16,9 +16,10 @@ my $synonyms = {
 };
 
 my $baseUrl = "http://wx3.lirr.org/lirr/TrainTime";
+my $okStations = join '', map {  "$_ => $$stations{$_}\n"} sort keys %$stations;
 
 sub main(@){
-  die "Usage: $0 FROM TO\n" if @_ != 2;
+  die "Usage: $0 FROM TO\n$okStations" if @_ != 2;
   my ($fromSyn, $toSyn) = @_;
   my ($from, $to);
   for my $station(keys %$synonyms){
@@ -30,6 +31,9 @@ sub main(@){
   $to = uc $toSyn if not defined $to;
   die "Invalid starting station: $from\n" if not defined $$stations{$from};
   die "Invalid ending station: $to\n" if not defined $$stations{$to};
+
+  system "bigtext", "-k";
+  system "bigtext --lineSeparator=true loading &";
 
   my $url = "$baseUrl/traintime.php?startsta=$from&endsta=$to";
 
@@ -43,7 +47,12 @@ sub main(@){
   my @trains = parseTrains($html);
 
   my $text = join "\n", (map {formatTrain($_)} @trains);
-  system "bigtext", "--lineSeparator=true", $text;
+  if($text eq "" and $html =~ /no.*trains.*scheduled/i){
+    $text = "no trains";
+  }elsif($text eq ""){
+    $text = "error";
+  }
+  system "bigtext", $text;
 }
 
 sub parseTrains($){
