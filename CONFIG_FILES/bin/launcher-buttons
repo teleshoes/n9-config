@@ -80,8 +80,8 @@ my @config = qw(
     toggleBT
     calendar
     ovistoreclient
-    lirr_cpg_fdl
-    lirr_fdl_cpg
+    lirr_fdl_pen
+    lirr_pen_fdl
     lirr_cpg_rvc
     lirr_rvc_cpg
     lirr_cpg_pen
