@@ -1,0 +1,249 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub parseTrains($);
+sub formatTrain($);
+sub getStations();
+sub run(@);
+
+my $stations = getStations();
+
+my $synonyms = {
+  NYK => ["penn", "pen", "nyp"],
+  CPG => ["cpge", "copiague"],
+  FMD => ["farm", "fmdl", "fdl", "farmingdale"],
+};
+
+my $baseUrl = "http://wx3.lirr.org/lirr/TrainTime";
+
+sub main(@){
+  die "Usage: $0 FROM TO\n" if @_ != 2;
+  my ($fromSyn, $toSyn) = @_;
+  my ($from, $to);
+  for my $station(keys %$synonyms){
+    my %syns = map {lc $_ => 1} @{$$synonyms{$station}};
+    $from = $station if not defined $from and defined $syns{lc $fromSyn};
+    $to = $station if not defined $to and defined $syns{lc $toSyn};
+  }
+  $from = uc $fromSyn if not defined $from;
+  $to = uc $toSyn if not defined $to;
+  die "Invalid starting station: $from\n" if not defined $$stations{$from};
+  die "Invalid ending station: $to\n" if not defined $$stations{$to};
+
+  my $url = "$baseUrl/traintime.php?startsta=$from&endsta=$to";
+
+  my $cacheDir = "$ENV{HOME}/.cache/lirr_train_time";
+  run "mkdir", "-p", $cacheDir;
+
+  my $fileName = "$cacheDir/${from}_${to}_" . time . ".html";
+  run "wget", $url, "-O", $fileName;
+
+  my $html = `cat $fileName`;
+  my @trains = parseTrains($html);
+
+  my $text = join "\n", (map {formatTrain($_)} @trains);
+  system "bigtext", "--lineSeparator=true", $text;
+}
+
+sub parseTrains($){
+  my $html = shift;
+  my $tdO = "<[^<>]*td[^<>]*>";
+  my $tdC = "</[^<>]*td[^<>]*>";
+  my $stuff = "(?:[^<>]|<i>|</i>|<b>|</b>)*?";
+  my @htmlTrains = $html =~ /(?: $tdO $stuff $tdC ){11}/gx;
+  my @trains;
+  for my $htmlTrain(@htmlTrains){
+    if($htmlTrain =~ /^
+      $tdO  $stuff (\d+:\d+[AP]M)           $stuff $tdC  #departs
+      $tdO  $stuff ([a-zA-Z0-9\-_. \t]+)    $stuff $tdC  #for
+      $tdO  $stuff (\d+|--)?                $stuff $tdC  #track
+      $tdO  $stuff ([a-zA-Z0-9\-_. \t]+)    $stuff $tdC  #status
+      $tdO  $stuff (\d+:\d+[AP]M|-)?        $stuff $tdC  #xfer1 at
+      $tdO  $stuff ([a-zA-Z0-9\-_. \t]+|-)? $stuff $tdC  #xfer1 to
+      $tdO  $stuff ([a-zA-Z0-9\-_. \t]+|-)? $stuff $tdC  #xfer1 status
+      $tdO  $stuff (\d+:\d+[AP]M|-)?        $stuff $tdC  #xfer2 at
+      $tdO  $stuff ([a-zA-Z0-9\-_. \t]+|-)? $stuff $tdC  #xfer2 to
+      $tdO  $stuff ([a-zA-Z0-9\-_. \t]+|-)? $stuff $tdC  #xfer2 status
+      $tdO  $stuff (\d+:\d+[AP]M)           $stuff $tdC  #eta
+    $/x){
+      push @trains, {
+        departs => $1,
+        for => $2,
+        track => $3,
+        status => $4,
+        xfer1At => $5,
+        xfer1To => $6,
+        xfer1Status => $7,
+        xfer2At => $8,
+        xfer2To => $9,
+        xfer2Status => $10,
+        eta => $11,
+      };
+    }else{
+      print STDERR "malformed train: $htmlTrain\n";
+    }
+  }
+  return @trains;
+
+  #<td style="text-align: right" class='whtbold BY' title="6130">7:25PM</td>
+  #<td class='notranslate whtbold BY'> Babylon </td>
+  #<td class='whtbold BY'>--</td>
+  #<td class='whtbold BY'>ON TIME</td>
+  #<td>&nbsp;-</td><td>-&nbsp;</td>
+  #<td>&nbsp;-</td><td>&nbsp;-</td>
+  #<td>-&nbsp;</td><td>&nbsp;-</td>
+  #<td>8:34PM</td>
+}
+
+sub formatTrain($){
+  my $train = shift;
+  my $track = $$train{track};
+  $track = '' if not defined $track;
+  $track =~ s/[^0-9]//g;
+  $track = "t$track" if $track =~ /\d+/;
+  my $status = $$train{status};
+  $status = '' if not defined $status;
+  $status =~ s/[^a-zA-Z0-9_\- ]+//g;
+  $status =~ s/on\s*time/OT/i;
+  return "$$train{departs} $track $status";
+}
+
+sub getStations(){
+  return {
+    NYK => "Penn Station",
+    ATL => "Atlantic Term Bklyn",
+    ABT => "Albertson",
+    AGT => "Amagansett",
+    AVL => "Amityville",
+    ADL => "Auburndale",
+    BTA => "Babylon",
+    BWN => "Baldwin",
+    BSR => "Bay Shore",
+    BSD => "Bayside",
+    BRT => "Belmont Race Track",
+    BMR => "Bellmore",
+    BPT => "Bellport",
+    BRS => "Bellerose",
+    BPG => "Bethpage",
+    BWD => "Brentwood",
+    BHN => "Bridgehampton",
+    BDY => "Broadway",
+    CPL => "Carle Place",
+    CHT => "Cedarhurst",
+    CAV => "Centre Avenue",
+    CI  => "Central Islip",
+    CSH => "Cold Spring Harbor",
+    CPG => "Copiague",
+    CLP => "Country Life Press",
+    DPK => "Deer Park",
+    DGL => "Douglaston",
+    EHN => "East Hampton",
+    ENY => "East New York",
+    ERY => "East Rockaway",
+    EWN => "East Williston",
+    FRY => "Far Rockaway",
+    FMD => "Farmingdale",
+    ATL => "Flatbush Avenue",
+    FPK => "Floral Park",
+    FLS => "Flushing",
+    FHL => "Forest Hills",
+    FPT => "Freeport",
+    GCY => "Garden City",
+    GBN => "Gibson",
+    GCV => "Glen Cove",
+    GHD => "Glen Head",
+    GST => "Glen Street",
+    GNK => "Great Neck",
+    GRV => "Great River",
+    GWN => "Greenlawn",
+    GPT => "Greenport",
+    GVL => "Greenvale",
+    HBY => "Hampton Bays",
+    HGN => "Hempstead Gardens",
+    HEM => "Hempstead",
+    HWT => "Hewlett",
+    HVL => "Hicksville",
+    HOL => "Hollis",
+    HPA => "Hunterspoint Ave.",
+    HUN => "Huntington",
+    IWD => "Inwood",
+    IPK => "Island Park",
+    ISP => "Islip",
+    JAM => "Jamaica",
+    KGN => "Kew Gardens",
+    KPK => "Kings Park",
+    LVW => "Lakeview",
+    LTN => "Laurelton",
+    LCE => "Lawrence",
+    LHT => "Lindenhurst",
+    LNK => "Little Neck",
+    LMR => "Locust Manor",
+    LVL => "Locust Valley",
+    LBH => "Long Beach",
+    LIC => "Long Island City",
+    LYN => "Lynbrook",
+    MVN => "Malverne",
+    MHT => "Manhasset",
+    MPK => "Massapequa Park",
+    MQA => "Massapequa",
+    MSY => "Mastic Shirley",
+    MAK => "Mattituck",
+    MFD => "Medford",
+    MAV => "Merillon Avenue",
+    MRK => "Merrick",
+    SSM => "Mets-Willets Point",
+    MIN => "Mineola",
+    MTK => "Montauk",
+    MHL => "Murray Hill",
+    NBD => "Nassau Blvd",
+    NHP => "New Hyde Park",
+    NYK => "New York",
+    NPT => "Northport",
+    NAV => "Nostrand Ave.",
+    ODL => "Oakdale",
+    ODE => "Oceanside",
+    OBY => "Oyster Bay",
+    PD  => "Patchogue",
+    NYK => "Penn Station",
+    PLN => "Pinelawn",
+    PDM => "Plandome",
+    PJN => "Port Jefferson",
+    PWS => "Port Washington",
+    QVG => "Queens Village",
+    RHD => "Riverhead",
+    RVC => "Rockville Centre",
+    RON => "Ronkonkoma",
+    ROS => "Rosedale",
+    RSN => "Roslyn",
+    SVL => "Sayville",
+    SCF => "Sea Cliff",
+    SFD => "Seaford",
+    STN => "Smithtown",
+    SHN => "Southampton",
+    SHD => "Southold",
+    SPK => "Speonk",
+    SAB => "St. Albans",
+    SJM => "St. James",
+    SMR => "Stewart Manor",
+    BK  => "Stony Brook",
+    SYT => "Syosset",
+    VSM => "Valley Stream",
+    WGH => "Wantagh",
+    WHN => "Westhampton",
+    WHD => "West Hempstead",
+    WBY => "Westbury",
+    WWD => "Westwood",
+    WMR => "Woodmere",
+    WDD => "Woodside",
+    WYD => "Wyandanch",
+    YPK => "Yaphank",
+  };
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+&main(@ARGV);
