@@ -57,6 +57,7 @@ my @config = qw(
     qml2048
     teatime
     vmpkn9
+    coffee
     xmcr
     emumaster
     stellarium-n9
