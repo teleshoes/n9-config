@@ -1,0 +1,174 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $remoteTorrentDir = "watch";
+my $remoteDownloads = "files";
+my $localDownloads = "$ENV{HOME}/Desktop/Torrents/seedbox";
+
+sub ftpCommand($@);
+sub rsyncFetch($);
+sub ssh($;\@);
+sub sshRevtun($;\@);
+sub magnetToTorrent($);
+sub readSecrets();
+
+my $secretsFile = "$ENV{HOME}/.secrets";
+my @configKeys = qw(server port username password revtun.username revtun.port);
+
+my @mirrorOpts = ("-c", "--parallel=8");
+
+my $revtunLocalOpts = "-t";
+my $revtunRemoteOpts = "-t -o 'NoHostAuthenticationForLocalhost yes'";
+
+my @ftpInitCmds = (
+  "set ftp:ssl-force true",
+  "set ftp:ssl-protect-data true",
+  "set ssl:verify-certificate no",
+);
+
+my $usage = "Usage:
+  $0 [-h]
+     print \"user\@seedbox\"
+
+  $0 -f
+     read from stdin and send the commands to lftp
+
+  $0 -g
+     sync seedbox:$remoteDownloads => $localDownloads
+     {runs rsync -avP USERNAME\@SERVER:$remoteDownloads/ $localDownloads}
+
+  $0 -s [CMD]
+     ssh to seedbox
+
+  $0 -r [CMD]
+     ssh to seedbox with '$revtunLocalOpts' and run {on the seedbox}:
+
+      ssh -t $revtunRemoteOpts REVTUN_USERNAME\@localhost -p REVTUN_PORT
+
+  $0 TORRENT_FILE
+     upload torrent file to seedbox:$remoteTorrentDir
+
+  $0 MAGNET_LINK
+     create a .torrent file and upload it to seedbox:$remoteTorrentDir
+";
+
+sub main(@){
+  my $config = readSecrets();
+
+  if(@_ == 0 or @_ == 1 and $_[0] =~ /^(-h)$/){
+    print "$$config{username}\@$$config{server}\n";
+    exit 0;
+  }elsif(@_ == 1 and $_[0] =~ /^(-f)$/){
+    ftpCommand $config;
+  }elsif(@_ == 1 and $_[0] =~ /^(-g)$/){
+    rsyncFetch $config;
+  }elsif(@_ >= 1 and $_[0] =~ /^(-s)$/){
+    shift;
+    my @cmd = @_;
+    ssh $config, @cmd;
+  }elsif(@_ >= 1 and $_[0] =~ /^(-r)$/){
+    shift;
+    my @cmd = @_;
+    sshRevtun $config, @cmd;
+  }elsif(@_ == 1 and $_[0] =~ /\.torrent$/ and -f $_[0]){
+    my $torrentFile = $_[0];
+    $torrentFile =~ s/'/'\\''/g;
+    ftpCommand $config, "cd $remoteTorrentDir && put '$torrentFile'";
+  }elsif(@_ == 1 and $_[0] =~ /xt=urn:btih:/){
+    my $torrentFile = magnetToTorrent $_[0];
+    ftpCommand $config, "cd $remoteTorrentDir && put $torrentFile";
+  }else{
+    die $usage;
+  }
+}
+
+sub ftpCommand($@){
+  my ($config, @cmds) = @_;
+  my $url = "ftp://$$config{server}:$$config{port}";
+  my @lftpCmd = ("lftp", "-u", "$$config{username},$$config{password}", $url);
+
+  open FH, "|-", @lftpCmd;
+  my $fh = select FH;
+  $| = 1;
+  select $fh;
+  print FH "$_\n" foreach @ftpInitCmds;
+
+  if(@cmds == 0){
+    print "waiting for ftp commands via STDIN\n";
+    my $line;
+    while($line = <STDIN>){
+      print FH $line or die "lftp is closed\n";
+    }
+  }else{
+    for my $cmd(@cmds){
+      print "running $cmd\n";
+      print FH "$cmd\nexit\n";
+      close FH;
+    }
+  }
+}
+
+sub rsyncFetch($){
+  my $config = shift;
+
+  my @rsyncCmd = ("rsync", "-avP",
+    "$$config{username}\@$$config{server}:$remoteDownloads/",
+    $localDownloads,
+    );
+  print "@rsyncCmd\n";
+  exec @rsyncCmd;
+}
+
+sub ssh($;\@){
+  my ($config, $cmd) = @_;
+
+  my @sshCmd = ("ssh", "$$config{username}\@$$config{server}", @$cmd);
+  print "@sshCmd\n";
+  exec @sshCmd;
+}
+
+sub sshRevtun($;\@){
+  my ($config, $cmd) = @_;
+
+  my $revtunUsername = $$config{"revtun.username"};
+  my $revtunPort = $$config{"revtun.port"};
+  my $revtunSshCmd = "ssh"
+    . " $revtunRemoteOpts"
+    . " $revtunUsername\@localhost"
+    . " -p $revtunPort"
+    . " @$cmd"
+    ;
+  my @sshCmd = ("ssh", $revtunLocalOpts, "$$config{username}\@$$config{server}");
+  @sshCmd = (@sshCmd, $revtunSshCmd);
+  print "@sshCmd\n";
+  exec @sshCmd;
+}
+
+sub magnetToTorrent($){
+  my $magnet = shift;
+  chomp $magnet;
+  my $tmpFile = "/tmp/seedbox-magnet-" . time . ".torrent";
+  my $len = length $magnet;
+  open FH, "> $tmpFile" or die "Could not write $tmpFile\n";
+  print FH "d10:magnet-uri${len}:${magnet}e\n";
+  close FH;
+  return $tmpFile;
+}
+
+sub readSecrets(){
+  my @lines = `cat $secretsFile 2>/dev/null`;
+  my $cfg = {};
+  my $okConfigKeys = join "|", @configKeys;
+  for my $line(@lines){
+    if($line =~ /^seedbox\.($okConfigKeys)\s*=\s*(.+)$/){
+      $$cfg{$1} = $2;
+    }
+  }
+  for my $key(sort @configKeys){
+    die "Missing config '$key' in $secretsFile\n" if not defined $$cfg{$key};
+  }
+  return $cfg;
+}
+
+&main(@ARGV);

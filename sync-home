@@ -19,11 +19,14 @@ to-do-o
 .0dcim-pix-rev
 .FBReader
 .bash_history
-.klomp*
+.klomp
+.lftp
 .lpsmagic
 .mozilla
 .mplayer
 .purple
+.secrets
+.sqlite_history
 .ssh
 .status-menu
 .stellarium-n9

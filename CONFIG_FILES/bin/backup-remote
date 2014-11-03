@@ -1,0 +1,121 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my @sshOpts = map {("-o", $_)} (
+  "NoHostAuthenticationForLocalhost=yes",
+  "UserKnownHostsFile=/dev/null",
+  "StrictHostKeyChecking=no",
+);
+
+my $maxTimeout = 30;
+my $secretsFile = "$ENV{HOME}/.secrets";
+my @configKeys = ("revtun.localport");
+my $remoteUser = "wolke";
+my $remoteHost = "wolke-nuc";
+
+my $backupDir = "~/backup-n9";
+
+sub ensureConnection($);
+sub sshCmd($@);
+sub rsyncCmd($$$);
+sub readSecrets();
+sub run(@);
+sub tryRun(@);
+sub readProc(@);
+sub tryReadProc(@);
+
+sub main(@){
+  my $config = readSecrets();
+  run "sudo", "screen-cmd", "-q", "revtun", "--unsafe", "--local";
+  run "sudo", "screen-cmd", "revtun", "--unsafe", "--local";
+  ensureConnection($config);
+
+  run sshCmd($config, "mkdir", "-p", $backupDir);
+
+  run rsyncCmd($config, "/home/user/MyDocs/DCIM/", "$backupDir/DCIM"),
+    "--exclude=/*/";
+
+  my $callFile = "/tmp/backup-call-tmp";
+  run "backup-comm", "call", $callFile;
+  run rsyncCmd($config, $callFile, $backupDir);
+
+  my $smsFile = "/tmp/backup-sms-tmp";
+  run "backup-comm", "sms", $smsFile;
+  run rsyncCmd($config, $smsFile, $backupDir);
+
+  run "sudo", "screen-cmd", "-q", "revtun", "--unsafe", "--local";
+}
+
+sub ensureConnection($){
+  my $config = shift;
+  my $host = "";
+  my $start = time;
+  while(time - $start < $maxTimeout){
+    $host = tryReadProc sshCmd($config, "hostname");
+    last if $? == 0;
+    sleep 1;
+  }
+  die "Failed to connect to $remoteHost\n" if $host ne $remoteHost;
+  print "connected!\n";
+}
+
+sub sshCmd($@){
+  my ($config, @cmd) = @_;
+  return ("ssh", "$remoteUser\@localhost",
+      "-p", $$config{'revtun.localport'},
+      @sshOpts,
+      @cmd);
+}
+
+sub rsyncCmd($$$){
+  my ($config, $src, $dest) = @_;
+  return ("rsync",
+    "-e", "ssh -p $$config{'revtun.localport'} @sshOpts",
+    "-avP", $src, "$remoteUser\@localhost:$dest");
+}
+
+
+sub readSecrets(){
+  my @lines = `cat $secretsFile 2>/dev/null`;
+  my $cfg = {};
+  my $okConfigKeys = join "|", @configKeys;
+  for my $line(@lines){
+    if($line =~ /^($okConfigKeys)\s*=\s*(.+)$/){
+      $$cfg{$1} = $2;
+    }
+  }
+  for my $key(sort @configKeys){
+    die "Missing config '$key' in $secretsFile\n" if not defined $$cfg{$key};
+  }
+  return $cfg;
+}
+
+sub run(@){
+  tryRun @_;
+  die "Error running @_\n" if $? != 0;
+}
+
+sub tryRun(@){
+  print "@_\n";
+  system @_;
+}
+
+sub readProc(@){
+  my $out = tryReadProc @_;
+  die "Error running @_\n" if $? != 0;
+  return $out;
+}
+
+sub tryReadProc(@){
+  print "@_\n";
+  open PROC, "-|", @_;
+  my @lines = <PROC>;
+  close PROC;
+
+  my $out = join '', @lines;
+  chomp $out if @lines == 1;
+  return $out;
+}
+
+&main(@ARGV);

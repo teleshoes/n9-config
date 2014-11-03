@@ -5,6 +5,17 @@ use warnings;
 my $pkgConfig = '/etc/package-manager/config';
 my $ipmagicCmd = "n9";
 
+my $validTypes = join '|', qw(all repos packages extra remove debs);
+my $usage = "Usage:
+  $0 --info
+    print a list of packages installed for each repository list file
+
+  $0 [--reinstall] TYPE
+
+  TYPE
+    must start with one of: $validTypes
+";
+
 my @jobs = qw(
   xsession/applauncherd
   xsession/applifed
@@ -28,7 +39,8 @@ my $normalPackages = {
   )],
   '2' => [qw(
     perl bash-completion python
-    htop
+    autossh
+    htop lftp
     x11-utils xresponse
     meecast
     aptitude
@@ -38,6 +50,7 @@ my $normalPackages = {
     python-qtmobility.multimediakit
   )],
   '3' => [qw(
+    stellarium-n9
     meefox
     screen
     cameraplus
@@ -92,16 +105,30 @@ sub installPackages($$);
 sub removePackages();
 sub setupRepos();
 sub installDebs();
+sub getRepositorySummary();
+sub getAllPackages();
+sub getAllPackageInstallUrls();
+sub getAptLists();
+sub getAllRepos();
 
 sub main(@){
+  if(@_ > 0 and $_[0] =~ /^--info/){
+    my %repoPkgs = getRepositorySummary();
+    for my $repo(sort keys %repoPkgs){
+      print "$repo\n";
+      for my $pkg(sort @{$repoPkgs{$repo}}){
+        print "  $pkg\n";
+      }
+      print "\n";
+    }
+    exit 0;
+  }
+
   my $reinstall = shift if @_ > 0 and $_[0] =~ /--reinstall/g;
 
   my $arg = shift;
   $arg = 'all' if not defined $arg;
-  my $valid = join '|', qw(all repos packages extra remove debs);
-  if(@_ > 0 or $arg !~ /^($valid)/){
-    die "Usage: $0 [--reinstall] TYPE {type must start with one of: $valid}\n";
-  }
+  die $usage if @_ > 0 or $arg !~ /^($validTypes)/;
   if($arg =~ /^(all|repos)/){
     if(setupRepos()){
       runRemote "$env apt-get update";
@@ -143,7 +170,7 @@ sub setupRepos(){
       apt-key add "$x"
     done
   ';
-  
+
   my $after = getRepos();
   return $before ne $after;
 }
@@ -277,7 +304,7 @@ sub isAlreadyInstalled($$$){
 sub installDebs(){
   my @debs = `cd $debDir; ls */*.deb`;
   chomp foreach @debs;
-  
+
   print "\n\nSyncing $debDestPrefix/$debDir to $debDestPrefix on dest:\n";
   my $host = host();
   system "rsync $debDir root\@$host:$debDestPrefix -av --progress --delete";
@@ -331,6 +358,118 @@ sub installDebs(){
   if($count > 0){
     runRemote $cmd;
   }
+}
+
+sub getRepositorySummary(){
+  my @pkgs = getAllPackages();
+  my @urls = getAllPackageInstallUrls();
+  my %repoUrls = getAllRepos();
+  my %lists = getAptLists();
+
+  my %pkgRepoNamesFromInstall;
+  for my $pkg(@pkgs){
+    my @pkgUrls = grep {/\/${pkg}_[^\/]*\.deb$/} @urls;
+    if(@pkgUrls > 1){
+      die "Error: too many urls for $pkg (@pkgUrls)\n";
+    }
+    if(@pkgUrls == 1){
+      my $url = $pkgUrls[0];
+      my $repo;
+      for my $repoName(sort keys %repoUrls){
+        my $repoUrl = $repoUrls{$repoName};
+        if($url =~ /$repoUrl/){
+          die "Error: too many matching repos for $pkg\n" if defined $repo;
+          $repo = $repoName;
+        }
+      }
+      if(not defined $repo and $url =~ /http.*downloads\.maemo\.nokia\.com/){
+        $repo = "NOKIA";
+      }
+      $pkgRepoNamesFromInstall{$pkg} = $repo if defined $repo;
+    }
+  }
+
+  my %pkgRepoNamesFromLists;
+  for my $list(sort keys %lists){
+    my $name = $list;
+    for my $repoName(sort keys %repoUrls){
+      my $repoUrl = $repoUrls{$repoName};
+      $repoUrl =~ s/^https?:\/\///;
+      $repoUrl =~ s/\//_/g;
+      if($list =~ /^$repoUrl/){
+        $name = $repoName;
+      }
+    }
+    for my $pkg(@{$lists{$list}}){
+      $pkgRepoNamesFromLists{$pkg} = $name;
+    }
+  }
+
+  my %repoPkgs;
+  for my $pkg(@pkgs){
+    my $repo;
+    if(defined $pkgRepoNamesFromInstall{$pkg}){
+      $repo = $pkgRepoNamesFromInstall{$pkg};
+    }elsif(defined $pkgRepoNamesFromLists{$pkg}){
+      $repo = $pkgRepoNamesFromLists{$pkg};
+    }else{
+      $repo = "UNKNOWN";
+    }
+
+    $repoPkgs{$repo} = [] if not defined $repoPkgs{$repo};
+    push @{$repoPkgs{$repo}}, $pkg;
+  }
+  return %repoPkgs;
+}
+
+sub getAllPackages(){
+  my @pkgs;
+  for my $pkgGroup(sort keys %$normalPackages){
+    @pkgs = (@pkgs, @{$$normalPackages{$pkgGroup}});
+  }
+  for my $pkgGroup(sort keys %$extraPackages){
+    @pkgs = (@pkgs, @{$$extraPackages{$pkgGroup}});
+  }
+  return @pkgs;
+}
+sub getAllPackageInstallUrls(){
+  my @pkgs = getAllPackages();
+  my $urlDump = readProcRemote "apt-get", "install",
+    "-qq", "--reinstall", "--print-uris",
+    @pkgs;
+
+  my @urls = $urlDump =~ /'(http[^']+\.deb)'/g;
+  return @urls;
+}
+sub getAptLists(){
+  my $dir = "/var/lib/apt/lists";
+  my @lines = readProcRemote "'grep ^Package: $dir/*_Packages'";
+  my %lists;
+  for my $line(@lines){
+    die "Error reading $dir\n" if $line !~ /^$dir\/(.+):Package: (.+)/;
+    my ($list, $pkg) = ($1, $2);
+    $lists{$list} = [] if not defined $lists{$list};
+    push @{$lists{$list}}, $pkg;
+  }
+  return %lists;
+}
+sub getAllRepos(){
+  my %repoUrls;
+  for my $repo(`ls $repoDir/*.list`){
+    chomp $repo;
+    my $name = $1 if $repo =~ /\/(.+)\.list$/;
+    my $contents = `cat $repo`;
+    my @urls = $contents =~ /deb(?:-src)?\s+(http\S+\s+)/g;
+    for my $url(@urls){
+      $url =~ s/^\s+//;
+      $url =~ s/\s+$//;
+      $url =~ s/\/+$//;
+      $repoUrls{$name} = $url if not defined $repoUrls{$name};
+      die "Error: too many urls found for $repo\n" if $url ne $repoUrls{$name};
+    }
+    die "Error: missing url for $repo\n" if not defined $repoUrls{$name};
+  }
+  return %repoUrls;
 }
 
 &main(@ARGV);
