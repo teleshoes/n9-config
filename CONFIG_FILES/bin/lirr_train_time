@@ -2,6 +2,9 @@
 use strict;
 use warnings;
 
+sub getScheduleText($$);
+sub getLatestCache($$);
+sub checkInternet();
 sub parseTrains($);
 sub formatTrain($);
 sub getStations();
@@ -15,6 +18,7 @@ my $synonyms = {
   FMD => ["farm", "fmdl", "fdl", "farmingdale"],
 };
 
+my $cacheDir = "$ENV{HOME}/.cache/lirr_train_time";
 my $baseUrl = "http://wx3.lirr.org/lirr/TrainTime";
 my $okStations = join '', map {  "$_ => $$stations{$_}\n"} sort keys %$stations;
 
@@ -32,27 +36,86 @@ sub main(@){
   die "Invalid starting station: $from\n" if not defined $$stations{$from};
   die "Invalid ending station: $to\n" if not defined $$stations{$to};
 
-  system "bigtext", "-k";
-  system "bigtext --lineSeparator=true loading &";
+  my $schedule;
 
+  my $pid = fork;
+  if($pid == 0){
+    system "bigtext", "-k";
+    exec "bigtext", "--lineSeparator=true", "loading";
+  }else{
+    $schedule = getScheduleText($from, $to);
+    waitpid $pid, 0;
+  }
+
+  system "bigtext", $schedule;
+}
+
+sub getScheduleText($$){
+  my ($from, $to) = @_;
   my $url = "$baseUrl/traintime.php?startsta=$from&endsta=$to";
 
-  my $cacheDir = "$ENV{HOME}/.cache/lirr_train_time";
   run "mkdir", "-p", $cacheDir;
 
-  my $fileName = "$cacheDir/${from}_${to}_" . time . ".html";
-  run "wget", $url, "-O", $fileName;
-
-  my $html = `cat $fileName`;
-  my @trains = parseTrains($html);
-
-  my $text = join "\n", (map {formatTrain($_)} @trains);
-  if($text eq "" and $html =~ /no.*trains.*scheduled/i){
-    $text = "no trains";
-  }elsif($text eq ""){
-    $text = "error";
+  my $fileName;
+  my $isCached = 0;
+  if(checkInternet()){
+    $fileName = "$cacheDir/${from}_${to}_" . time . ".html";
+    run "wget", $url, "-O", $fileName;
+  }else{
+    $fileName = getLatestCache($from, $to);
+    $isCached = 1;
   }
-  system "bigtext", $text;
+
+  my $schedule;
+  if(defined $fileName and -f $fileName){
+    my $html = `cat $fileName`;
+    my @trains = parseTrains($html);
+
+    $schedule = join "\n", (map {formatTrain($_)} @trains);
+    if($schedule eq "" and $html =~ /no.*trains.*scheduled/i){
+      $schedule = "no trains";
+    }elsif($schedule eq ""){
+      $schedule = "error";
+    }
+
+    if($isCached){
+      my $then = $1 if $fileName =~ /${from}_${to}_(\d+)\.html$/;
+      my $thenFmt = `date --date=\@$then '+%F %T'`;
+      chomp $thenFmt;
+      $schedule = "as of $thenFmt\n\n$schedule";
+    }
+  }else{
+    $schedule = "FAILURE: could not check schedule";
+  }
+
+  return $schedule;
+}
+
+sub getLatestCache($$){
+  my ($from, $to) = @_;
+  my @caches = `ls $cacheDir/${from}_${to}_*.html 2>/dev/null`;
+  my $latest = undef;
+  my $latestCache = undef;
+  for my $cache(@caches){
+    chomp $cache;
+    if($cache =~ /${from}_${to}_(\d+)\.html$/){
+      my $time = $1;
+      if(not defined $latest or $latest < $time){
+        $latest = $time;
+        $latestCache = $cache;
+      }
+    }
+  }
+  return $latestCache;
+}
+
+sub checkInternet(){
+  my $test = `execPing --timeout=2`;
+  if($? == 0 and $test =~ /^ok:/){
+    return 1;
+  }else{
+    return 0;
+  }
 }
 
 sub parseTrains($){
