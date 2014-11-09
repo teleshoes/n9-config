@@ -80,7 +80,7 @@ sub getScheduleText($$){
 
     if($isCached){
       my $then = $1 if $fileName =~ /${from}_${to}_(\d+)\.html$/;
-      my $thenFmt = `date --date=\@$then '+%F %T'`;
+      my $thenFmt = `date --date=\@$then '+%F %I:%M:%S %p'`;
       chomp $thenFmt;
       $schedule = "as of $thenFmt\n\n$schedule";
     }
