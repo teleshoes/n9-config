@@ -23,17 +23,17 @@ my @config = qw(
     cameraplus
     contacts
     grob
-    calendar
+    calc
 
+    mail
+    calendar
     qtbtn-power
     settings
-    teatime
-    mtermite
 
+    mtermite
     nokia-drive-qml
     FBReader
     qtbtn-klomp
-    mail
 
     meeseepics
     dontgosleep
@@ -44,21 +44,22 @@ my @config = qw(
     call-log-all
     brujula
     vmpkn9
-    emumaster
 
     meefox
     camera-ui
     accountsui
     ovistoreclient
 
+    teatime
     modrana
     qml2048
     stellarium-n9
-    calc
 
+    emumaster
     lirr_fdl_pen
     lirr_pen_fdl
     lirr_cpg_rvc
+
     lirr_rvc_cpg
     lirr_cpg_pen
     lirr_pen_cpg
