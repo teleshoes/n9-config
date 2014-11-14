@@ -59,6 +59,7 @@ my @config = qw(
     vmpkn9
     coffee
     xmcr
+    calc
     emumaster
     stellarium-n9
   ]
