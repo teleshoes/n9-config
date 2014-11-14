@@ -54,6 +54,7 @@ my @config = qw(
     modrana
     qml2048
     stellarium-n9
+    calc
 
     lirr_fdl_pen
     lirr_pen_fdl
