@@ -1,0 +1,35 @@
+#!/bin/bash
+# This is crazy and cargo cultish.
+# Why do you have to toggle twice? and why do you have to sleep 3s?
+# I have no idea, but is seems to work more or less consistently.
+
+source /etc/profile
+
+function dbus_call_profiled {
+  dbus-send --type=method_call \
+            --print-reply \
+            --dest=com.nokia.profiled \
+            /com/nokia/profiled \
+            com.nokia.profiled."$@"
+}
+function getprof { dbus_call_profiled get_profile | grep -o '".*"' | tr -d '"'; }
+function setprof {
+  dbus_call_profiled set_profile string:"$1" > /dev/null
+}
+
+PROF=`getprof`
+function toggleprof {
+  if [ "$PROF" == "silent" ] ; then
+    setprof general
+    sleep 3
+    setprof silent
+  else
+    setprof silent
+    sleep 3
+    setprof "$PROF"
+  fi
+}
+
+toggleprof
+sleep 3
+toggleprof
