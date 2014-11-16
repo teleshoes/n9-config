@@ -13,9 +13,7 @@ function dbus_call_profiled {
             com.nokia.profiled."$@"
 }
 function getprof { dbus_call_profiled get_profile | grep -o '".*"' | tr -d '"'; }
-function setprof {
-  dbus_call_profiled set_profile string:"$1" > /dev/null
-}
+function setprof { dbus_call_profiled set_profile string:"$1" > /dev/null }
 
 PROF=`getprof`
 function toggleprof {
