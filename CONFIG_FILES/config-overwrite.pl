@@ -30,6 +30,7 @@ my %changedTriggers = (
   "/home/user/.config/ProfileMatic/rules.conf" =>
     "initctl restart apps/profilematicd",
   "/var/lib/bluetooth" => "initctl restart xsession/bluetoothd",
+  "/home/user/.profiled/custom.ini" => "reload-profile"
 );
 
 sub overwriteFile($$);
