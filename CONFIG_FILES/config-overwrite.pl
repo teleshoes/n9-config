@@ -113,11 +113,11 @@ sub overwriteFile($$){
   }
 
   if($destDir =~ /^\/home\/$user/){
-    system "chown -R $user.$group $dest";
-    system "chown $user.$group $destDir";
+    system 'chown', '-R',  "$user.$group",  "$dest";
+    system 'chown',  "$user.$group", "$destDir";
   }else{
-    system "chown -R root.root $dest";
-    system "chown root.root $destDir";
+    system 'chown', '-R', 'root.root', "$dest";
+    system 'chown', 'root.root', "$destDir";
   }
 }
 
