@@ -98,9 +98,10 @@ sub main(@){
 
 sub overwriteFile($$){
   my ($src, $dest) = @_;
-  my $destDir = `dirname $dest`;
-  chomp $destDir;
-  system "mkdir -p $destDir";
+  my $destDir = $dest;
+  $destDir =~ s/\/[^\/]*$//;
+
+  system "mkdir", "-p", $destDir;
   print "\n%%% $dest\n";
   if(-d $src){
     system 'rsync', @rsyncOpts, "$src/", "$dest";
