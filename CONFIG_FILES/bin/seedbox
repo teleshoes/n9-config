@@ -14,7 +14,7 @@ sub magnetToTorrent($);
 sub readSecrets();
 
 my $secretsFile = "$ENV{HOME}/.secrets";
-my @configKeys = qw(server port username password revtun.username revtun.port);
+my @configKeys = qw(server port username password revtun.username revtun.portfile);
 
 my @mirrorOpts = ("-c", "--parallel=8");
 
@@ -46,11 +46,9 @@ my $usage = "Usage:
 
       ssh -t $revtunRemoteOpts REVTUN_USERNAME\@localhost -p REVTUN_PORT
 
-  $0 TORRENT_FILE
-     upload torrent file to seedbox:$remoteTorrentDir
-
-  $0 MAGNET_LINK
-     create a .torrent file and upload it to seedbox:$remoteTorrentDir
+  $0 TORRENT [TORRENT TORRENT ..]
+     if TORRENT is the path to a torrent file, send it to seedbox:$remoteTorrentDir
+     if TORRENT is a magnet link, create a .torrent file
 ";
 
 sub main(@){
@@ -71,15 +69,21 @@ sub main(@){
     shift;
     my @cmd = @_;
     sshRevtun $config, @cmd;
-  }elsif(@_ == 1 and $_[0] =~ /\.torrent$/ and -f $_[0]){
-    my $torrentFile = $_[0];
-    $torrentFile =~ s/'/'\\''/g;
-    ftpCommand $config, "cd $remoteTorrentDir && put '$torrentFile'";
-  }elsif(@_ == 1 and $_[0] =~ /xt=urn:btih:/){
-    my $torrentFile = magnetToTorrent $_[0];
-    ftpCommand $config, "cd $remoteTorrentDir && put $torrentFile";
   }else{
-    die $usage;
+    for my $torrent(@_){
+      if($torrent =~ /\.torrent$/ and -f $torrent){
+        my $torrentFile = $torrent;
+        $torrentFile =~ s/'/'\\''/g;
+        ftpCommand $config, "cd $remoteTorrentDir && put '$torrentFile'";
+      }elsif($_[0] =~ /xt=urn:btih:/){
+        my $torrentFile = magnetToTorrent $torrent;
+        $torrentFile =~ s/'/'\\''/g;
+        ftpCommand $config, "cd $remoteTorrentDir && put '$torrentFile'";
+      }else{
+        die $torrent;
+        die $usage;
+      }
+    }
   }
 }
 
@@ -124,7 +128,7 @@ sub ssh($;\@){
   my ($config, $cmd) = @_;
 
   my @sshCmd = ("ssh", "$$config{username}\@$$config{server}", @$cmd);
-  print "@sshCmd\n";
+  print STDERR "@sshCmd\n";
   exec @sshCmd;
 }
 
@@ -132,16 +136,16 @@ sub sshRevtun($;\@){
   my ($config, $cmd) = @_;
 
   my $revtunUsername = $$config{"revtun.username"};
-  my $revtunPort = $$config{"revtun.port"};
+  my $revtunPortFile = $$config{"revtun.portfile"};
   my $revtunSshCmd = "ssh"
     . " $revtunRemoteOpts"
     . " $revtunUsername\@localhost"
-    . " -p $revtunPort"
+    . " -p `cat $revtunPortFile`"
     . " @$cmd"
     ;
   my @sshCmd = ("ssh", $revtunLocalOpts, "$$config{username}\@$$config{server}");
   @sshCmd = (@sshCmd, $revtunSshCmd);
-  print "@sshCmd\n";
+  print STDERR "@sshCmd\n";
   exec @sshCmd;
 }
 
