@@ -2,6 +2,8 @@
 use strict;
 use warnings;
 
+my $portMin=30000;
+my $portMax=39999;
 my $sshCmd = "autossh";
 my $localPort = 22;
 my $localHost = "localhost";
@@ -14,15 +16,19 @@ my @unsafeSshOpts = (
 );
 
 sub readSecrets();
-my @configKeys = qw(user host port localport);
+sub run(@);
+
+my @configKeys = qw(user host port localport portfile);
+my @requiredKeys = qw(user host port localport);
 
 my $usage = "Usage:
-  $0 [--unsafe] [--local[=LOCAL_PORT]] [[USER@]HOST PORT]
+  $0 OPTS [[USER@]HOST PORT]
     set up a reverse SSH tunnel to HOST as USER on PORT
 
     if no args are given, USER/HOST/PORT default to
       revtun.user/revtun.host/revtun.port from $secretsFile
 
+  OPTS:
     --local[=LOCAL_PORT]
       use normal port forwarding instead of reverse, i.e.: -L instead of -R,
         and use LOCAL_PORT instead of $localPort
@@ -30,26 +36,33 @@ my $usage = "Usage:
 
     --unsafe
       use @unsafeSshOpts
+
+    -r|--random-port
+      use a random port between $portMin and $portMax for the remote port
 ";
 
 sub main(@){
   my ($host, $port);
   my $config;
 
-  if(@_ > 0 and $_[0] =~ /^(--unsafe)$/){
-    shift;
-    @sshOpts = (@sshOpts, @unsafeSshOpts);
-  }
-
   my $local = 0;
-  if(@_ > 0 and $_[0] =~ /^--local(?:=(\d+))?$/){
-    shift;
-    $local = 1;
-    if(defined $1){
-      $localPort = $1;
+  my $randomPort = 0;
+  while(@_ > 0 and $_[0] =~ /^-/){
+    my $arg = shift;
+    if($arg =~ /^(--unsafe)$/){
+      @sshOpts = (@sshOpts, @unsafeSshOpts);
+    }elsif($arg =~ /^--local(?:=(\d+))?$/){
+      $local = 1;
+      if(defined $1){
+        $localPort = $1;
+      }else{
+        $config = readSecrets() if not defined $config;
+        $localPort = $$config{localport};
+      }
+    }elsif($arg =~ /^(-r|--random-port)$/){
+      $randomPort = 1;
     }else{
-      $config = readSecrets() if not defined $config;
-      $localPort = $$config{localport};
+      die $usage;
     }
   }
 
@@ -64,16 +77,21 @@ sub main(@){
     die $usage;
   }
 
+  if($randomPort){
+    $port = int(rand() * ($portMax - $portMin)) + $portMin;
+  }
+
   my @opts = map {("-o", $_)} @sshOpts;
 
-  my @cmd;
-  if($local){
-    @cmd = ("$sshCmd", "-L", "$localPort:$localHost:$port", $host, @opts);
-  }else{
-    @cmd = ("$sshCmd", "-R", "$port:$localHost:$localPort", $host, @opts);
+  if(defined $$config{portfile}){
+    run $sshCmd, $host, "echo $port > $$config{portfile}";
   }
-  print "@cmd\n";
-  system @cmd;
+
+  if($local){
+    run "$sshCmd", "-L", "$localPort:$localHost:$port", $host, @opts;
+  }else{
+    run "$sshCmd", "-R", "$port:$localHost:$localPort", $host, @opts;
+  }
 }
 
 sub readSecrets(){
@@ -85,10 +103,15 @@ sub readSecrets(){
       $$cfg{$1} = $2;
     }
   }
-  for my $key(sort @configKeys){
+  for my $key(sort @requiredKeys){
     die "Missing config '$key' in $secretsFile\n" if not defined $$cfg{$key};
   }
   return $cfg;
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
 }
 
 &main(@ARGV);
