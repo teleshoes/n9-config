@@ -38,6 +38,7 @@ my $normalPackages = {
     bash vim rsync wget git sudo
   )],
   '2' => [qw(
+    mplayer
     perl bash-completion python
     autossh
     htop lftp
