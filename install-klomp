@@ -10,7 +10,8 @@ sub run(@){
   system @_;
 }
 
-run "scp $depsDir/.klomplib user\@`n9`:/home/user";
+run "n9u", "-b", "mkdir /home/user/.klomp";
+run "scp $depsDir/lib user\@`n9`:/home/user/.klomp/";
 
 run "n9", "-b", "
   if [ -e /root/klomp ]; then
