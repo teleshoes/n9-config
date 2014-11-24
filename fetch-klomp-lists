@@ -17,6 +17,7 @@ my @rsyncOpts = qw(
 );
 my @excludes = qw(
   db
+  datecache
   lib
 );
 for my $exclude(@excludes){
