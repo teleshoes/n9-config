@@ -19,11 +19,13 @@ my @configKeys = qw(server port username password revtun.username revtun.portfil
 my @mirrorOpts = ("-c", "--parallel=8");
 
 my @revtunLocalOpts = ("-t",
+  "-o", "LogLevel=ERROR",
   "-o", "NoHostAuthenticationForLocalhost=yes",
   "-o", "UserKnownHostsFile=/dev/null",
   "-o", "StrictHostKeyChecking=no",
 );
 my @revtunRemoteOpts = ("-t",
+  "-o", "LogLevel=ERROR",
   "-o", "NoHostAuthenticationForLocalhost=yes",
   "-o", "UserKnownHostsFile=/dev/null",
   "-o", "StrictHostKeyChecking=no",
