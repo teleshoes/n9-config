@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 my @sshOpts = map {("-o", $_)} (
+  "LogLevel=ERROR",
   "NoHostAuthenticationForLocalhost=yes",
   "UserKnownHostsFile=/dev/null",
   "StrictHostKeyChecking=no",
