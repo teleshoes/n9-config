@@ -10,13 +10,14 @@ my @sshOpts = map {("-o", $_)} (
 
 my $maxTimeout = 30;
 my $secretsFile = "$ENV{HOME}/.secrets";
-my @configKeys = ("revtun.localport");
+my @configKeys = ("revtun.portfile");
 my $remoteUser = "wolke";
 my $remoteHost = "wolke-nuc";
 
 my $backupDir = "~/backup-n9";
 
 sub ensureConnection($);
+sub getLocalPort($);
 sub sshCmd($@);
 sub rsyncCmd($$$);
 sub readSecrets();
@@ -27,8 +28,8 @@ sub tryReadProc(@);
 
 sub main(@){
   my $config = readSecrets();
-  run "sudo", "screen-cmd", "-q", "revtun", "--unsafe", "--local";
-  run "sudo", "screen-cmd", "revtun", "--unsafe", "--local";
+  run "sudo", "screen-cmd", "-q", "revtun", "-r", "--unsafe", "--local";
+  run "sudo", "screen-cmd", "revtun", "-r", "--unsafe", "--local";
   ensureConnection($config);
 
   run sshCmd($config, "mkdir", "-p", $backupDir);
@@ -60,18 +61,30 @@ sub ensureConnection($){
   print "connected!\n";
 }
 
+sub getLocalPort($){
+  my $config = shift;
+  my $file = $$config{'revtun.portfile'};
+  die "missing revtun.portfile: $file\n" if not -f $file;
+  my $port = `cat $file`;
+  chomp $port;
+  die "malformed port: $port\n" if $port !~ /^\d+$/;
+  return $port;
+}
+
 sub sshCmd($@){
   my ($config, @cmd) = @_;
+  my $port = getLocalPort $config;
   return ("ssh", "$remoteUser\@localhost",
-      "-p", $$config{'revtun.localport'},
+      "-p", $port,
       @sshOpts,
       @cmd);
 }
 
 sub rsyncCmd($$$){
   my ($config, $src, $dest) = @_;
+  my $port = getLocalPort $config;
   return ("rsync",
-    "-e", "ssh -p $$config{'revtun.localport'} @sshOpts",
+    "-e", "ssh -p $port @sshOpts",
     "-avP", $src, "$remoteUser\@localhost:$dest");
 }
 
