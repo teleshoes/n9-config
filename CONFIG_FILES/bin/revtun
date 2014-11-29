@@ -39,6 +39,8 @@ my $usage = "Usage:
 
     -r|--random-port
       use a random port between $portMin and $portMax for the remote port
+      if --local is given, use the random port for the local port
+        instead of the remote port
 ";
 
 sub main(@){
@@ -78,13 +80,25 @@ sub main(@){
   }
 
   if($randomPort){
-    $port = int(rand() * ($portMax - $portMin)) + $portMin;
+    my $randPort = int(rand() * ($portMax - $portMin)) + $portMin;
+    if($local){
+      $localPort = $randPort;
+    }else{
+      $port = $randPort;
+    }
   }
 
   my @opts = map {("-o", $_)} @sshOpts;
 
   if(defined $$config{portfile}){
-    run $sshCmd, $host, "echo $port > $$config{portfile}";
+    if($local){
+      run "echo $localPort > $$config{portfile}";
+      my $remotePort = `$sshCmd $host @opts cat $$config{portfile}`;
+      chomp $remotePort;
+      $port = $remotePort;
+    }else{
+      run $sshCmd, $host, @opts, "echo $port > $$config{portfile}";
+    }
   }
 
   if($local){
