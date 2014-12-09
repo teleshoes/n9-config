@@ -1,3 +1,10 @@
+startCmd=lpsmagic -once
+stopCmd=killall -9 mplayer
+playlistCmd=lpsmagic -once
+renice=-12
+targetUser=user
+disallowPause=true
+
 #name:default-or-empty:library-path:flacmirror-path:prefer-[library|mirror]
 m:default:/home/user/MyDocs/Music/m::
 b::/home/user/MyDocs/Music/b::
