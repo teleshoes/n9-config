@@ -1,3 +1,11 @@
+symlink=/home/user/MyDocs/Music/all
+startCmd=lpsmagic -once
+stopCmd=killall -9 mplayer
+playlistCmd=lpsmagic -once
+renice=-12
+targetUser=user
+disallowPause=true
+
 #name:default-or-empty:library-path:flacmirror-path:prefer-[library|mirror]
 1:default:/home/user/MyDocs/Music/1:/home/user/MyDocs/Music/flacmirrors/1:
 2:default:/home/user/MyDocs/Music/2:/home/user/MyDocs/Music/flacmirrors/2:
