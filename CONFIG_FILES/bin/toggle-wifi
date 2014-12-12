@@ -1,0 +1,29 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $job = "xsession/icd2";
+
+sub setWifi($);
+sub isWifi();
+
+sub main(@){
+  setWifi not isWifi;
+}
+
+sub setWifi($){
+  my $isWifi = shift;
+
+  system "sudo", "initctl", ($isWifi ? "start" : "stop"), $job;
+}
+
+sub isWifi(){
+  my $status = `sudo initctl status $job`;
+  if($status =~ /^$job stop/){
+    return 0;
+  }else{
+    return 1;
+  }
+}
+
+&main(@ARGV);
