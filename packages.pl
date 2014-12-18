@@ -80,6 +80,7 @@ my $extraPackages = {
     system-ui-brightness-control
     led-event-notifier
     mt-toggles bluetooth-toggle flashlight-toggle n9bm-toggle
+    wifi-toggle flightmode-toggle
   )],
 };
 
