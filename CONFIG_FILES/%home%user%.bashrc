@@ -1,5 +1,5 @@
 [ -f /etc/bashrc ] && . /etc/bashrc
-[ -f /etc/bash_completion ] && . /etc/bash_completion
+[ -n "$PS1" ] && [ -f /etc/bash_completion ] && . /etc/bash_completion
 
 shopt -s dotglob
 
@@ -63,20 +63,27 @@ if [ `hostname -s` == "wolke-n9" ]; then
 fi
 
 #command prompt
-if [ "$DISPLAY" == "" ]; then
+if [[ -z "$DISPLAY" ]]; then
   #host abbrevs
-  case `hostname -s` in
+  case `hostname` in
     "wolke-w520"              ) h='@w520' ;;
     "wolk-desktop"            ) h='@desk' ;;
     "wolke-n9"                ) h='@n9' ;;
     "wolke-n900"              ) h='@n900' ;;
     "raspberrypi"             ) h='@raspi' ;;
     "Benjamins-MacBook-Pro"   ) h='@bensmac' ;;
+    ci-*.dev.*                ) h='@ci.dev' ;;
+    ci-*.stage.*              ) h='@ci.stage' ;;
     *                         ) h='@\h' ;;
   esac
 else
   #if display is set, you probably know where you are
   h=""
+fi
+
+#make a wild guess at the DISPLAY you might want
+if [[ -z "$DISPLAY" ]]; then
+  export DISPLAY=`ps -ef | grep /usr/bin/X | grep ' :[0-9] ' -o | grep :[0-9] -o`
 fi
 
 u="\u"
@@ -87,10 +94,13 @@ c2='\[\033[01;34m\]'
 cEnd='\[\033[00m\]'
 #if you have 'PS1={stuff}' then a literal colon character
 #the n9 fucks with that line on reboot
-PS1="$c1$u$h$cEnd$colon$c2\w$cEnd\$ "
+if [ -n "PS1" ]; then
+  PS1="$c1$u$h$cEnd$colon$c2\w$cEnd\$ "
+fi
 
 for cmd in wconnect wauto tether resolv \
-           mnt optimus xorg-conf bluetooth fan intel-pstate flasher
+           mnt optimus xorg-conf bluetooth fan intel-pstate flasher \
+           tpacpi-bat sbox-umount
 do alias $cmd="sudo $cmd"; done
 
 for sudoTypo in suod sudp
@@ -99,45 +109,121 @@ do alias $sudoTypo='sudo'; done
 for exitTypo in exot exut
 do alias $exitTypo='exit'; done
 
-alias tb='pkill -9 taffybar; taffybar; pkill -9 taffybar'
-
-alias dus='du -s * | sort -g'
-alias killjobs='kill -9 `jobs -p` 2>/dev/null; sleep 0.1; echo'
-alias gvim='term vim'
-alias cx='chmod +x'
+alias time="command time"
+alias mkdir="mkdir -p"
 alias :q='exit'
-alias shutdown='poweroff'
-alias l='ls -Al --color=auto'
-alias ll='ls -Al --color=auto'
-alias ld='ls -dAl --color=auto'
-alias mplayer='WINDOW_TITLE=MPLAYER; mplayer'
-alias perms='stat -c %a'
-alias glxgears='vblank_mode=0 glxgears'
-function mnto { sudo mnt --other --no-usb --no-card $@ ; }
-alias gparted='spawnexsudo gparted'
-function s           { $@ & disown ; }
-function spawn       { $@ & disown ; }
-function spawnex     { $@ & disown && exit 0 ; }
-function spawnexsudo { gksudo $@ & disown && exit 0 ; }
-function update-repo { sudo apt-get update \
-                         -o Dir::Etc::sourcelist="sources.list.d/$1" \
-                         -o Dir::Etc::sourceparts="-" \
-                         -o APT::Get::List-Cleanup="0"
+alias :r='. /etc/profile; . ~/.bashrc;'
+
+function sb           { seedbox "$@"; }
+function sbr          { seedbox -r "$@"; }
+function sbw          { seedbox -r ssh wolke@192.168.11.50 "$@"; }
+
+function vol          { pulse-vol "$@"; }
+function j            { fcron-job-toggle "$@"; }
+function snapshot     { backup --snapshot "$@"; }
+function qgroups-info { backup --info --quick --sort-by=size "$@"; }
+function dus          { du -s * | sort -g "$@"; }
+function killjobs     { kill -9 `jobs -p` 2>/dev/null; sleep 0.1; echo; }
+function gvim         { term vim "$@"; }
+function cx           { chmod +x "$@"; }
+function shutdown     { poweroff "$@"; }
+function xmb          { xmonad-bindings "$@"; }
+function l            { ls -Al --color=auto "$@"; }
+function ll           { ls -Al --color=auto "$@"; }
+function ld           { ls -dAl --color=auto "$@"; }
+function perms        { stat -c %a "$@"; }
+function glxgears     { vblank_mode=0 glxgears "$@"; }
+function mnto         { sudo mnt --other --no-usb --no-card "$@"; }
+function gparted      { spawnexsudo gparted "$@"; }
+function escape-pod   { ~/Code/escapepod/escape-pod-tool --escapepod "$@"; }
+function podcastle    { ~/Code/escapepod/escape-pod-tool --podcastle "$@"; }
+function pseudopod    { ~/Code/escapepod/escape-pod-tool --pseudopod "$@"; }
+function g            { git "$@"; }
+function mp           { mplayer "$@"; }
+
+function s            { "$@" & disown; }
+function sx           { "$@" & disown && exit 0; }
+function spawn        { "$@" & disown; }
+function spawnex      { "$@" & disown && exit 0; }
+function spawnexsudo  { gksudo "$@" & disown && exit 0; }
+
+function m            { maven -Psdm -Pdev -Pfast-tests -Dgwt.compiler.skip=true install "$@"; }
+function mtest        { maven -Psdm -Pdev test "$@"; }
+function mc           { maven -Psdm -Pdev -Pfast-tests -Dgwt.draftCompile=true clean install "$@"; }
+function mck          { maven checkstyle:check "$@"; }
+function findmvn      { command find "$@" -not -regex '\(^\|.*/\)\(target\|gen\)\($\|/.*\)'; }
+function grepmvn      { command grep "$@" --exclude-dir=target --exclude-dir=gen; }
+
+function genservices  { ~/workspace/old-escribe/tools/genservices.pl "$@"; }
+function genibatis    { ~/workspace/old-escribe/tools/genibatis.pl "$@"; }
+function migl         { gvim `~/migs/latest-script` "$@"; }
+
+# common typos
+function mkdit        { mkdir "$@"; }
+function cim          { vim "$@"; }
+function bim          { vim "$@"; }
+
+function maven() {
+  args=""
+  if ! [[ "$@" =~ (^| )test($| ) ]]; then
+    args="$args -DskipTests"
+  fi
+  if ! [[ "$@" =~ (^| )checkstyle:check($| ) ]]; then
+    args="$args -Dcheckstyle.skip=true"
+  fi
+  execAlarm mvn $args $@;
 }
 
-function git-log(){ git logn $@ ; }
-function git()
-{
+function find() {
+  if [[ "$PWD" =~ "escribe" ]]; then
+    findmvn "$@"
+  else
+    command find "$@"
+  fi
+}
+
+function grep() {
+  if [[ "$PWD" =~ "escribe" ]]; then
+    grepmvn "$@"
+  else
+    command grep "$@"
+  fi
+}
+
+function execAlarm() {
+  "$@"
+  exitCode="$?"
+  if [ $exitCode == 0 ]; then
+    alarm -s success
+  else
+    alarm -s failure
+  fi
+  bash -c "exit $exitCode"
+}
+
+function update-repo {
+  sudo apt-get update \
+    -o Dir::Etc::sourcelist="sources.list.d/$1" \
+    -o Dir::Etc::sourceparts="-" \
+    -o APT::Get::List-Cleanup="0"
+}
+
+
+function git-log() {
+  git logn "$@"
+}
+function git() {
   realgit="$(which git)"
-  cmd="git-$1"
-  if [ "$(type -t $cmd)" = "function" ]; then
+  realcmd="$1"
+  fct="git-$realcmd"
+  if [ "$(type -t $fct)" = "function" ]; then
     shift
-    $cmd "$@"
+    $fct "$@"
+  elif [[ "$realcmd" == *-real ]]; then
+    shift
+    cmd=${realcmd%-real}
+    $realgit $cmd "$@"
   else
     $realgit "$@"
   fi
 }
-
-alias genservices='~/workspace/escribe/tools/genservices.pl'
-alias genibatis='~/workspace/escribe/tools/genibatis.pl'
-alias migl='gvim `~/migs/latest-script`'
