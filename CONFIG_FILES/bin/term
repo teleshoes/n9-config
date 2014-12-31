@@ -2,32 +2,129 @@
 use strict;
 use warnings;
 
-my $titleArgs = "-t|--title|-T|-title";
-my $cwdArgs = "--working-directory|-cd";
+sub urxvt($$);
+sub mtermite($$);
+sub meegoTerminal($$);
+sub gnomeTerminal($$);
+sub xterm($$);
+
+sub isInstalled($);
+sub procChomp(@);
+sub extractActiveCwd();
+sub wrapToken($);
+
+my %args = (
+  title   => [qw(-t --title -T -title)],
+  cwd     => [qw(--working-directory -cd)],
+  autoCwd => [qw(--auto-working-directory -acd)],
+  wait    => [qw(--wait -wait)],
+  read    => [qw(-r --read -read)],
+  echo    => [qw(-e --echo -echo)],
+);
+my %okArgs = map {$_ => join "|", @{$args{$_}}} keys %args;
+
+my @terms = (
+  "urxvt" => \&urxvt,
+  "/opt/mtermite/bin/mtermite" => \&mtermite,
+  "meego-terminal" => \&meegoTerminal,
+  "gnome-terminal" => \&gnomeTerminal,
+  "xterm" => \&xterm,
+);
+my $oddEven = 0;
+my @termOrder = grep { $oddEven = not $oddEven } @terms;
+my %termSubs = @terms;
 
 my $usage = "Usage:
   $0 [OPTS] [CMD [ARG ARG ... ]]
   $0 [OPTS] SHELLCMD
   $0 -h|--help
-  
-  Provids a consistent cli to several terminal emulators.
-  Spawns the terminal and disowns it {this is bash-specific}
+
+  term provids a bash-specific consistent cli to several terminal emulators.
+  term spawns the terminal and disowns it
   If SHELLCMD has a space in it, its executed in bash.
+
+  Runs the first of these terminals that is on the path, using `command -v`:
+    " . join("\n    ", @termOrder) . "
+
   e.g.:
     $0 \"echo 'bananas; apples; oranges'; sleep 2\"
-    $0 --title 'log search' --working-directory / find -iname '*.log'
+    $0 -r -t 'log search' --working-directory /var/log find -iname '*.log'
 
   OPTS
-    $titleArgs TITLE
+    $okArgs{title} TITLE
       sets the window title on terminals that support it
-    $cwdArgs PATH
+    $okArgs{cwd} PATH
       sets the current working directory on terminals that support it
+    $okArgs{autoCwd}
+      sets the current working directory to the current window as follows:
+        -extract the PID of the current window {using xdotool}
+        -use a child PID instead if it exists {using ps}
+        -extract the PWD of the PID {using pwdx}
+        -set the PWD like [$okArgs{cwd}]
+    $okArgs{wait}
+      wait for the terminal to exit
+    $okArgs{read}
+      appends command with \"; read\" to wait for a newline after running
+      runs command inside a new bash shell
+    $okArgs{echo}
+      runs command inside bash with -x shell opt
+      {reuses the bash for running as a shell command if possible}
 ";
 
-sub wrapToken($){
-  my $s = shift;
-  $s =~ s/'/'\\''/g;
-  return "'$s'";
+sub main(@){
+  die $usage if @_ == 1 and $_[0] =~ /^(-h|--help)$/;
+
+  my %termArgs;
+  while(@_ > 0 and $_[0] =~ /^-/){
+    my $arg = shift;
+    if($arg =~ /^($okArgs{title})$/ and @_ > 1){
+      $termArgs{title} = wrapToken(shift());
+    }elsif($arg =~ /^($okArgs{cwd})$/ and @_ > 1){
+      $termArgs{cwd} = wrapToken(shift());
+    }elsif($arg =~ /^($okArgs{autoCwd})$/){
+      my $cwd = extractActiveCwd();
+      if(defined $cwd){
+        $termArgs{cwd} = wrapToken $cwd;
+      }
+    }elsif($arg =~ /^($okArgs{wait})$/){
+      $termArgs{wait} = 1;
+    }elsif($arg =~ /^($okArgs{read})$/){
+      $termArgs{read} = 1;
+    }elsif($arg =~ /^($okArgs{echo})$/){
+      $termArgs{echo} = 1;
+    }else{
+      die $usage;
+    }
+  }
+
+  die $usage if @_ == 0 and ($termArgs{read} or $termArgs{echo});
+
+  my @cmd = map {wrapToken $_} @_;
+  my $isShellCmd = @cmd == 1 and $cmd[0] =~ / /;
+
+  if($isShellCmd or $termArgs{echo}){
+    my $cmdStr = "@cmd";
+    $cmdStr = wrapToken $cmdStr if not $isShellCmd;
+    my @bashOpts = $termArgs{echo} ? ("-x") : ();
+    @cmd = ("bash", @bashOpts, "-c", $cmdStr);
+  }
+
+  if($termArgs{read}){
+    @cmd = ("bash", "-c", wrapToken "@cmd; read");
+  }
+
+  for my $term(@termOrder){
+    if(isInstalled $term){
+      @cmd = &{$termSubs{$term}}(\%termArgs, \@cmd);
+      last;
+    }
+  }
+
+  if(defined $termArgs{wait} and $termArgs{wait}){
+    exec "bash", "-c", "@cmd";
+  }else{
+    exec "bash", "-c", "@cmd & disown";
+  }
 }
 
 sub urxvt($$){
@@ -49,11 +146,7 @@ sub mtermite($$){
   if(@cmd > 0){
     my $c = "@cmd";
     $c =~ s/"/\\"/g;
-    if(isInstalled("aegis-exec")){
-      @cmd = ("-e", "aegis-exec bash -i -c \"$c\"");
-    }else{
-      @cmd = ("-e", "bash -i -c \"$c\"");
-    }
+    @cmd = ("-e", "bash -i -c \"$c\"");
   }
   @cmd = ('/opt/mtermite/bin/mtermite', '-n', @cmd);
 
@@ -107,38 +200,37 @@ sub isInstalled($){
   return $? == 0;
 }
 
-sub main(@){
-  die $usage if @_ == 1 and $_[0] =~ /^(-h|--help)$/;
-  
-  my %termArgs;
-  while(1){
-    if(@_ > 1 and $_[0] =~ /^($titleArgs)$/){
-      shift;
-      $termArgs{title} = wrapToken(shift());
-    }elsif(@_ > 1 and $_[0] =~ /^($cwdArgs)$/){
-      shift;
-      $termArgs{cwd} = wrapToken(shift());
-    }else{
+sub procChomp(@){
+  my $out = `@_`;
+  chomp $out;
+  return $out;
+}
+
+sub extractActiveCwd(){
+  my $activeWin = procChomp "xdotool getactivewindow";
+  return undef if $activeWin !~ /^\d+$/;
+
+  my $activePid = procChomp "xdotool getwindowpid $activeWin";
+  return undef if $activePid !~ /^\d+$/;
+
+  for my $line(reverse `ps -e -o pid= -o ppid=`){
+    if($line =~ /^\s*(\d+)\s*$activePid\s*$/){
+      $activePid = $1;
       last;
     }
   }
 
-  my @cmd = map {wrapToken $_} @_;
-  
-  @cmd = ("bash", "-c", @cmd) if @cmd == 1 and $cmd[0] =~ / /;
-
-  if(isInstalled "urxvt"){
-    @cmd = urxvt \%termArgs, \@cmd;
-  }elsif(isInstalled "/opt/mtermite/bin/mtermite"){
-    @cmd = mtermite \%termArgs, \@cmd;
-  }elsif(isInstalled "meego-terminal"){
-    @cmd = meegoTerminal \%termArgs, \@cmd;
-  }elsif(isInstalled "gnome-terminal"){
-    @cmd = gnomeTerminal \%termArgs, \@cmd;
-  }elsif(isInstalled "xterm"){
-    @cmd = xterm \%termArgs, \@cmd;
+  my $pwd = procChomp "pwdx $activePid";
+  if($pwd =~ /^$activePid:\s*(.*)$/){
+    return $1;
   }
-  exec "bash", "-c", "@cmd & disown";
+  return undef;
+}
+
+sub wrapToken($){
+  my $s = shift;
+  $s =~ s/'/'\\''/g;
+  return "'$s'";
 }
 
 &main(@ARGV);
