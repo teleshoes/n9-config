@@ -49,6 +49,7 @@ my $normalPackages = {
     imagemagick
     python-pyside.qtgui python-qmsystem python-pyside.qtdeclarative
     python-qtmobility.multimediakit
+    libtimedate-perl
   )],
   '3' => [qw(
     stellarium-n9
