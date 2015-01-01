@@ -11,7 +11,6 @@ sub main(@){
 
   my $dir = "$ENV{HOME}/Code/n9";
   my $dest = "$dir/backup";
-  my $qtcommExec = "${type}backuprestore";
   my $parseTool = "comm-tool.pl $type";
 
   my $host = `n9`;
@@ -22,11 +21,12 @@ sub main(@){
 
   my $remoteRepoDir = "$srcDir-repo";
 
-  run "n9", "-s", "killall -9 $qtcommExec";
-  run "n9", "-s", "/opt/dropcache-mdn/bin/dropcache.sh --3";
   if($type eq "sms"){
     runOrDie "n9", "-b", "backup-comm-n9e $type";
   }elsif($type eq "call"){
+    my $scbrExec = "${type}backuprestore";
+    run "n9", "-s", "killall -9 $scbrExec";
+    run "n9", "-s", "/opt/dropcache-mdn/bin/dropcache.sh --3";
     runOrDie "n9", "-b", "backup-comm-scbr $type --retry 20";
   }
   runOrDie "mkdir", "-p", $destDir;
