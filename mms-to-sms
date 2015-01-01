@@ -1,0 +1,60 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $mmsDir = "$ENV{HOME}/Code/n9/backup/backup-mms/msg";
+my $smsDir = "$ENV{HOME}/Code/n9/backup/backup-sms";
+
+sub getSms($);
+
+sub main(@){
+  my @msgDirs = `ls -t -1 $mmsDir`;
+  chomp foreach @msgDirs;
+  my @sms;
+  for my $msgDir(@msgDirs){
+    my $sms = getSms $msgDir;
+    if(defined $sms){
+      push @sms, $sms;
+    }
+  }
+
+  my $timestamp = `date +%Y_%m_%d-%s`;
+  chomp $timestamp;
+  my $smsFile = "$smsDir/mms-$timestamp.sms";
+  my $count = @sms;
+  print "writing $count fake SMS to $smsFile\n";
+  open FH, "> $smsFile" or die "Could not write to $smsFile\n";
+  print FH @sms;
+  close FH;
+}
+
+sub getSms($){
+  my $msgDir = shift;
+  my @textFiles = `ls $mmsDir/$msgDir/*.txt 2>/dev/null`;
+  chomp foreach @textFiles;
+  @textFiles = grep {-f $_} @textFiles;
+  my $headerFile = "$mmsDir/$msgDir/header";
+
+  if(-f $headerFile){
+    my $header = `cat $headerFile`;
+    my $from = $1 if $header =~ /^message-from=(.*)$/m;
+
+    my $date = $1 if $header =~ /^message-timestamp=(.*)$/m;
+    $date = $date =~ /^(\d+)$/ ? $1 : undef;
+    my $dateFmt = `date --date \@$date '+%Y-%m-%d %H:%M:%S'`;
+    chomp $dateFmt;
+
+    my $msg = "";
+    $msg = `cat @textFiles` if @textFiles > 0;
+    $msg =~ s/"/""/g;
+    $msg = "\"$msg\"";
+
+    if(defined $date and defined $from){
+      return "$from,1,$dateFmt,$msg\n";
+    }
+  }
+
+  return undef;
+}
+
+&main(@ARGV);
