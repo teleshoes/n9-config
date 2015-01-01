@@ -31,6 +31,7 @@ sub main(@){
   backup "sync-swype backup";
   backup "sync-qtodo";
   backup "sync-mms";
+  backup "mms-to-sms";
   backup "fetch-contacts";
   backup "fetch-comm call";
   backup "fetch-comm sms";
