@@ -19,7 +19,7 @@ my $synonyms = {
 };
 
 my $cacheDir = "$ENV{HOME}/.cache/lirr_train_time";
-my $baseUrl = "http://wx3.lirr.org/lirr/TrainTime";
+my $baseUrl = "http://traintime.lirr.org";
 my $okStations = join '', map {  "$_ => $$stations{$_}\n"} sort keys %$stations;
 
 sub main(@){
