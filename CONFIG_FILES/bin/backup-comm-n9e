@@ -48,6 +48,8 @@ sub main(@){
     if($line =~ /Not cleaning up obsolete resources/){
       print ".";
       $dotsAbove = 1;
+    }elsif($line =~ /The task queue's background thread stalled/i){
+      die "ugh libqtcontacts\nthread stall error\n";
     }else{
       print "\n" if $dotsAbove;
       print $line;
