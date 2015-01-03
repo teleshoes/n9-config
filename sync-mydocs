@@ -2,15 +2,11 @@
 use strict;
 use warnings;
 
-my $host = `n9`;
-chomp $host;
+sub run(@);
 
 my $dir = "$ENV{HOME}/Code/n9";
 my $myDocsLocal = "$dir/backup/MyDocs";
 my $myDocsRemote = "/home/user/MyDocs";
-
-my $local = $myDocsLocal;
-my $remote = "user\@$host:$myDocsRemote";
 
 my @excludes = qw(
   monav_data
@@ -46,12 +42,22 @@ for my $exclude(@excludes){
   push @rsyncOpts, "--exclude=$exclude";
 }
 
+sub main(@){
+  my $host = `n9`;
+  chomp $host;
+
+  my $local = $myDocsLocal;
+  my $remote = "user\@$host:$myDocsRemote";
+
+  run "rsync", @rsyncOpts, "$remote/", $local;
+  run "rsync", @rsyncOpts, "$local/", $remote;
+}
+
+
 sub run(@){
   print "@_\n";
   system @_;
   die "failed" if $? != 0;
 }
 
-run "rsync", @rsyncOpts, "$remote/", $local;
-run "rsync", @rsyncOpts, "$local/", $remote;
-
+&main(@ARGV);
