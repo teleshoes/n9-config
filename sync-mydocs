@@ -40,14 +40,26 @@ my @rsyncOpts = qw(
 );
 
 sub main(@){
+  my $overwrite = 0;
+  $overwrite = shift if @_ == 1 and $_[0] =~ /--overwrite/;
+  die "Usage: $0 [--overwrite]\n" if @_ > 0;
+
   my $host = `n9`;
   chomp $host;
 
   my $local = $myDocsLocal;
   my $remote = "user\@$host:$myDocsRemote";
 
-  run "rsync", @rsyncOpts, @excludes, "$remote/", $local;
-  run "rsync", @rsyncOpts, @excludes, "$local/", $remote;
+  if($overwrite){
+    run "rsync", @rsyncOpts, @excludes, "$local/", $remote, "--del", "-n";
+    print "dryrun ok? [Y/n] ";
+    if(<STDIN> !~ /n/){
+      run "rsync", @rsyncOpts, @excludes, "$local/", $remote, "--del";
+    }
+  }else{
+    run "rsync", @rsyncOpts, @excludes, "$remote/", $local;
+    run "rsync", @rsyncOpts, @excludes, "$local/", $remote;
+  }
 }
 
 
