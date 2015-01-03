@@ -26,6 +26,7 @@ sub run(@);
 sub tryRun(@);
 sub readProc(@);
 sub tryReadProc(@);
+sub tryReadProcQuiet(@);
 
 sub main(@){
   my $config = readSecrets();
@@ -53,10 +54,19 @@ sub ensureConnection($){
   my $config = shift;
   my $host = "";
   my $start = time;
+  $| = 1; #autoflush
+  print "trying to connect to $remoteHost\n";
   while(time - $start < $maxTimeout){
-    $host = tryReadProc sshCmd($config, "hostname");
+    print ".";
+    my @hostnameCmd = sshCmd($config, "hostname");
+    $host = tryReadProcQuiet "@hostnameCmd 2>/dev/null";
     last if $? == 0;
     sleep 1;
+  }
+  print "\n";
+  if($host ne $remoteHost){
+    my @hostnameCmd = sshCmd($config, "hostname");
+    $host = tryReadProc @hostnameCmd;
   }
   die "Failed to connect to $remoteHost\n" if $host ne $remoteHost;
   print "connected!\n";
@@ -123,6 +133,9 @@ sub readProc(@){
 
 sub tryReadProc(@){
   print "@_\n";
+  tryReadProcQuiet @_;
+}
+sub tryReadProcQuiet(@){
   open PROC, "-|", @_;
   my @lines = <PROC>;
   close PROC;
