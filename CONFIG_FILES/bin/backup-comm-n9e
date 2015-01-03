@@ -3,20 +3,15 @@ use strict;
 use warnings;
 use Date::Format;
 use Date::Parse;
-use Time::HiRes qw(sleep time);
 
 my $baseDir = "/home/user/MyDocs";
-my $monitorTimeoutMillis = 20000;
-my $tailExec = "/opt/gnu-utils/usr/bin/tail";
 
 my $usage = "
   Usage: $0 sms|call [file]
     backup texts or calls to file, or to a file in default backup dir
-    uses n9Export and term
+    uses n9Export and develsh
 ";
 
-sub forkMonitorFile($);
-sub monitorFile($);
 sub convertSmsFile($$);
 sub convertSms($@);
 sub convertCallFile($$);
@@ -39,22 +34,26 @@ sub main(@){
 
   my $nowS = `date +%s`;
   chomp $nowS;
-  my $tmpOut = "$destDir/n9Export-$type-$nowS-out";
-  my $tmpErr = "$destDir/n9Export-$type-$nowS-err";
   my $tmpRes = "$destDir/n9Export-$type-$nowS-res";
 
   my @cmd = ("n9Export");
   push @cmd, "-c" if $type =~ /^(call)$/;
   push @cmd, $tmpRes;
 
-  my $outPid = forkMonitorFile $tmpOut;
-  my $errPid = forkMonitorFile $tmpErr;
-
-  run "term", "--wait", "@cmd >$tmpOut 2>$tmpErr";
-
-  run "kill", $outPid, $errPid;
-  run "rm", $tmpOut;
-  run "rm", $tmpErr;
+  open FH, "-|", "develsh -c '@cmd' 2>&1";
+  my $dotsAbove = 0;
+  $| = 1; #autoflush
+  while(<FH>){
+    my $line = $_;
+    if($line =~ /Not cleaning up obsolete resources/){
+      print ".";
+      $dotsAbove = 1;
+    }else{
+      print "\n" if $dotsAbove;
+      print $line;
+      $dotsAbove = 0;
+    }
+  }
 
   if(not defined $file){
     my $name = `date +%Y_%m_%d-%s`;
@@ -66,46 +65,6 @@ sub main(@){
   convertCallFile $tmpRes, $file if $type =~ /call/;
 
   die "Error: comm file does not exist: $file\n" if not -f $file;
-}
-
-sub forkMonitorFile($){
-  my $file = shift;
-  my $startMillis = time * 1000;
-  my $pid = fork;
-  if($pid == 0){
-    while(not -f $file){
-      my $nowMillis = time * 1000;
-      if($nowMillis - $startMillis > $monitorTimeoutMillis){
-        die "Timed out monitoring $file\n";
-      }
-      sleep 0.1;
-    }
-    monitorFile $file;
-    exit 0;
-  }
-  return $pid;
-}
-
-sub monitorFile($){
-  my $file = shift;
-  my $fh;
-  $| = 1; #autoflush
-  print "MONITORING: $file\n";
-  open $fh, "-|", $tailExec, "-f", "--pid", $$, $file;
-  my $dotsAbove = 0;
-  while(<$fh>){
-    my $line = $_;
-    if($line =~ /Not cleaning up obsolete resources/){
-      print ".";
-      $dotsAbove = 1;
-    }else{
-      print "\n" if $dotsAbove;
-      print $line;
-      $dotsAbove = 0;
-    }
-  }
-  close $fh;
-  print "FILE CLOSED: $file\n";
 }
 
 sub convertSmsFile($$){
