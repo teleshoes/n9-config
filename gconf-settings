@@ -48,6 +48,7 @@ my %gconf = (
   "/apps/clock/clocktype" => ["digital"],
 
   "/meegotouch/i18n/lc_time" => ["en_US"],
+  "/meegotouch/i18n/lc_timeformat24h" => ["12"],
   "/meegotouch/i18n/language" => ["en"],
   "/meegotouch/i18n/region" => ["en_US"],
   "/meegotouch/i18n/lc_monetary" => ["en_US"],
