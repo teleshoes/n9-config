@@ -2,4 +2,4 @@
 use strict;
 use warnings;
 
-system "ssh wolke\@192.168.11.50 klomp-cmd @ARGV";
+system "sbw", "klomp-cmd", @ARGV;
