@@ -41,6 +41,8 @@ sub main(@){
   my $host = `n9`;
   chomp $host;
   system "scp", $tmpFile, "user\@$host:$remoteFile";
+
+  system "todo-parse", "--upload";
 }
 
 sub getTodos(){
