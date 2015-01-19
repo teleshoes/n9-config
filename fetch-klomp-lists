@@ -10,13 +10,14 @@ chomp $host;
 
 my $dir = "$ENV{HOME}/Code/n9";
 my $localDir = "$dir/backup/klomp";
-my $remoteDir = "/home/user/";
+my $remoteDir = "/home/user/.klomp";
 
 my @rsyncOpts = qw(
   -avP --no-owner --no-group --no-perms
 );
 my @excludes = qw(
   db
+  datecache
   lib
 );
 for my $exclude(@excludes){
@@ -33,7 +34,7 @@ sub run(@){
 if($arg eq 'backup'){
   system "rm", "-r", $localDir;
   system "mkdir", "-p", $localDir;
-  run "rsync", @rsyncOpts, "user\@$host:$remoteDir/.klomp/", $localDir;
+  run "rsync", @rsyncOpts, "user\@$host:$remoteDir/", $localDir;
 }elsif($arg eq 'restore'){
   run "rsync", @rsyncOpts, "$localDir/", "user\@$host:$remoteDir/";
 }

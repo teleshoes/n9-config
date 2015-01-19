@@ -38,6 +38,7 @@ my $normalPackages = {
     bash vim rsync wget git sudo
   )],
   '2' => [qw(
+    mplayer
     perl bash-completion python
     autossh
     htop lftp
@@ -48,6 +49,7 @@ my $normalPackages = {
     imagemagick
     python-pyside.qtgui python-qmsystem python-pyside.qtdeclarative
     python-qtmobility.multimediakit
+    libtimedate-perl
   )],
   '3' => [qw(
     stellarium-n9
@@ -79,6 +81,7 @@ my $extraPackages = {
     system-ui-brightness-control
     led-event-notifier
     mt-toggles bluetooth-toggle flashlight-toggle n9bm-toggle
+    wifi-toggle flightmode-toggle
   )],
 };
 

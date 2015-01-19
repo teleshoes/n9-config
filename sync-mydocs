@@ -2,17 +2,13 @@
 use strict;
 use warnings;
 
-my $host = `n9`;
-chomp $host;
+sub run(@);
 
 my $dir = "$ENV{HOME}/Code/n9";
 my $myDocsLocal = "$dir/backup/MyDocs";
 my $myDocsRemote = "/home/user/MyDocs";
 
-my $local = $myDocsLocal;
-my $remote = "user\@$host:$myDocsRemote";
-
-my @excludes = qw(
+my @excludes = map {"--exclude=$_"} qw(
   monav_data
 
   DCIM
@@ -42,9 +38,30 @@ my @rsyncOpts = qw(
   -a --no-owner --no-group
   -v -P
 );
-for my $exclude(@excludes){
-  push @rsyncOpts, "--exclude=$exclude";
+
+sub main(@){
+  my $overwrite = 0;
+  $overwrite = shift if @_ == 1 and $_[0] =~ /--overwrite/;
+  die "Usage: $0 [--overwrite]\n" if @_ > 0;
+
+  my $host = `n9`;
+  chomp $host;
+
+  my $local = $myDocsLocal;
+  my $remote = "user\@$host:$myDocsRemote";
+
+  if($overwrite){
+    run "rsync", @rsyncOpts, @excludes, "$local/", $remote, "--del", "-n";
+    print "dryrun ok? [Y/n] ";
+    if(<STDIN> !~ /n/){
+      run "rsync", @rsyncOpts, @excludes, "$local/", $remote, "--del";
+    }
+  }else{
+    run "rsync", @rsyncOpts, @excludes, "$remote/", $local;
+    run "rsync", @rsyncOpts, @excludes, "$local/", $remote;
+  }
 }
+
 
 sub run(@){
   print "@_\n";
@@ -52,6 +69,4 @@ sub run(@){
   die "failed" if $? != 0;
 }
 
-run "rsync", @rsyncOpts, "$remote/", $local;
-run "rsync", @rsyncOpts, "$local/", $remote;
-
+&main(@ARGV);

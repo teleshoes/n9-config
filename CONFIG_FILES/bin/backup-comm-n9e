@@ -1,0 +1,158 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Date::Format;
+use Date::Parse;
+
+my $baseDir = "/home/user/MyDocs";
+
+my $usage = "
+  Usage: $0 sms|call [file]
+    backup texts or calls to file, or to a file in default backup dir
+    uses n9Export and develsh
+";
+
+sub convertSmsFile($$);
+sub convertSms($@);
+sub convertCallFile($$);
+sub convertCall($);
+sub formatDate($);
+sub run(@);
+
+sub main(@){
+  if(`whoami` eq "root\n"){
+    exec "su", "user", "-c", "source /etc/profile; $0 @_";
+  }
+
+  my $type = shift() || '';
+  my $file = shift();
+
+  die $usage if $type !~ /^(sms|call)$/ or @_ > 0;
+
+  my $destDir = "$baseDir/backup-$type";
+  run "mkdir", "-p", $destDir;
+
+  my $nowS = `date +%s`;
+  chomp $nowS;
+  my $tmpRes = "$destDir/n9Export-$type-$nowS-res";
+
+  my @cmd = ("n9Export");
+  push @cmd, "-c" if $type =~ /^(call)$/;
+  push @cmd, $tmpRes;
+
+  open FH, "-|", "develsh -c '@cmd' 2>&1";
+  my $dotsAbove = 0;
+  $| = 1; #autoflush
+  while(<FH>){
+    my $line = $_;
+    if($line =~ /Not cleaning up obsolete resources/){
+      print ".";
+      $dotsAbove = 1;
+    }elsif($line =~ /The task queue's background thread stalled/i){
+      die "ugh libqtcontacts\nthread stall error\n";
+    }else{
+      print "\n" if $dotsAbove;
+      print $line;
+      $dotsAbove = 0;
+    }
+  }
+
+  if(not defined $file){
+    my $name = `date +%Y_%m_%d-%s`;
+    chomp $name;
+    $file = "$destDir/$name.$type";
+  }
+
+  convertSmsFile $tmpRes, $file if $type =~ /sms/;
+  convertCallFile $tmpRes, $file if $type =~ /call/;
+
+  die "Error: comm file does not exist: $file\n" if not -f $file;
+}
+
+sub convertSmsFile($$){
+  my ($srcFile, $destFile) = @_;
+  my @lines = `cat $srcFile`;
+  my @sms;
+  my $smsLine = undef;
+  my @extraLines;
+  for my $line(@lines){
+    my $dateFmt = '\d+-\d+-\d+T\d+:\d+:\d+Z';
+    if($line =~ /^[^;]*;(IN|OUT);$dateFmt;$dateFmt;/){
+      push @sms, convertSms $smsLine, @extraLines if defined $smsLine;
+      $smsLine = $line;
+      @extraLines = ();
+    }elsif($line =~ /^ /){
+      push @extraLines, $line;
+    }else{
+      die "malformed sms line: $line\n";
+    }
+  }
+  push @sms, convertSms $smsLine, @extraLines if defined $smsLine;
+
+  open FH, "> $destFile" or die "Could not write to $destFile\n";
+  print FH @sms;
+  close FH;
+}
+
+sub convertSms($@){
+  my ($smsLine, @extraLines) = @_;
+  if($smsLine =~ /^([^;]*);(IN|OUT);([^;]*);([^;]*);(.*)/){
+    my ($number, $inOut, $date, $otherDate, $msg) = ($1, $2, $3, $4, $5);
+    chomp $msg;
+    chomp foreach @extraLines;
+    s/^ // foreach @extraLines;
+    $msg = join "\n", ($msg, @extraLines);
+    $msg =~ s/"/""/g;
+    $msg = "\"$msg\"";
+
+    my $type = $inOut =~ /IN/ ? "1" : "2";
+    my $newDate = formatDate $date;
+
+    return "$number,$type,$newDate,$msg\n";
+  }else{
+    die "malformed n9Export line: $smsLine";
+  }
+}
+
+sub convertCallFile($$){
+  my ($srcFile, $destFile) = @_;
+  my @lines = `cat $srcFile`;
+  my @calls;
+  for my $line(@lines){
+    push @calls, convertCall $line;
+  }
+
+  open FH, "> $destFile" or die "Could not write to $destFile\n";
+  print FH @calls;
+  close FH;
+}
+
+sub convertCall($){
+  my $oldLine = shift;
+
+  if($oldLine =~ /^(.*);(IN|OUT);(OK|MISSED);(.*);(.*)/){
+    my ($number, $inOut, $status, $start, $end) = ($1, $2, $3, $4, $5);
+    my $type = $inOut =~ /IN/ ? "1" : "0";
+    $type = "2" if $status =~ /MISSED/;
+    my $newStart = formatDate $start;
+    my $newEnd = formatDate $end;
+    my $prefix = "/org/freedesktop/Telepathy/Account/ring/tel/ring";
+
+    return "$prefix,$number,$type,$newStart,$newEnd\n";
+  }else{
+    die "malformed n9Export line: $oldLine";
+  }
+}
+sub formatDate($){
+  my $date = shift;
+  my $time = str2time $date;
+  my @localtime = localtime($time);
+  return strftime "%Y-%m-%d %H:%M:%S", @localtime;
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+&main(@ARGV);
