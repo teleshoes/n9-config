@@ -56,6 +56,8 @@ sub main(@){
       $dotsAbove = 0;
     }
   }
+  close FH;
+  die "\"@cmd\" failed\n" if $? != 0;
 
   if(not defined $file){
     my $name = `date +%Y_%m_%d-%s`;
