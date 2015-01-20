@@ -1,0 +1,29 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $dir = "/root/net";
+my $gitRepo = "git://github.com/teleshoes/net.git";
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+run "n9", "-b", "
+  if [ -e $dir ]; then
+    echo updating git repo
+    cd $dir
+    git fetch
+    git reset origin/master --hard
+    git clean -fd
+  else
+    echo fetching git repo
+    mkdir -p $dir
+    cd $dir
+    git clone $gitRepo .
+  fi
+  echo running install
+  cd $dir
+  ./install.pl /usr
+";
