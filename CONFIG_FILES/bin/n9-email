@@ -19,7 +19,7 @@ sub main(@){
   }else{
     run "ln -s email.png $maybeIcon";
   }
-  run "lpsmagic", "-once";
+  run "source /etc/profile; lpsmagic -once 2>&1 | grep 'Rendering format string'";
 }
 
 sub run(@){
