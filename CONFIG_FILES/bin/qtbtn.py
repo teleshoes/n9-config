@@ -25,11 +25,28 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 usage = """Usage:
   %(exec)s CONFIG_FILE
+
+  OPTIONS:
+    --landscape
+      force landscape view in harmattan
+    --portrait
+      force portrait view in harmattan
 """ % {"exec": sys.argv[0]}
 
 def main():
   args = sys.argv
   args.pop(0)
+
+  orientation=None
+  while len(args) > 0 and args[0].startswith("-"):
+    arg = args.pop(0)
+    if arg == "--landscape":
+      orientation = "landscape"
+    elif arg == "--portrait":
+      orientation = "portrait"
+    else:
+      print >> sys.stderr, usage
+      sys.exit(2)
 
   if len(args) != 1:
     print >> sys.stderr, usage
@@ -44,7 +61,7 @@ def main():
   else:
     platform = PLATFORM_OTHER
 
-  qml = QmlGenerator(platform, configFile).getQml()
+  qml = QmlGenerator(platform, orientation, configFile).getQml()
   fd, qmlFile = tempfile.mkstemp(prefix="qtbtn_", suffix=".qml")
   fh = open(qmlFile, 'w')
   fh.write(qml)
@@ -57,9 +74,10 @@ def main():
   app.exec_()
 
 class QmlGenerator():
-  def __init__(self, platform, configFile):
+  def __init__(self, platform, orientation, configFile):
     self.entries = Config(configFile).readConfFile()
     self.platform = platform
+    self.orientation = orientation
     self.landscapeMaxRowLen = 7
     self.portraitMaxRowLen = 4
 
@@ -96,27 +114,39 @@ class QmlGenerator():
 
   def getMain(self):
     if self.platform == PLATFORM_HARMATTAN:
+      if self.orientation == "portrait":
+        orientLock = "LockPortrait"
+      elif self.orientation == "landscape":
+        orientLock = "LockLandscape"
+
       qml = ""
       qml += "Page {\n"
       qml += "  id: portrait\n"
+      if self.orientation:
+        qml += "  orientationLock: PageOrientation." + orientLock + "\n"
       qml += self.indent(1, self.getLayout(self.portraitMaxRowLen))
       qml += "}\n"
       qml += "Page {\n"
       qml += "  id: landscape\n"
+      if self.orientation:
+        qml += "  orientationLock: PageOrientation." + orientLock + "\n"
       qml += self.indent(1, self.getLayout(self.landscapeMaxRowLen))
       qml += "}\n"
-      qml += self.indent(0, """
-        initialPage: inPortrait ? portrait : landscape
-        onInPortraitChanged: {
-          if (inPortrait && pageStack.currentPage!==portrait) {
-            pageStack.clear()
-            pageStack.push(portrait);
-          } else if (!inPortrait && pageStack.currentPage!==landscape) {
-            pageStack.clear()
-            pageStack.push(landscape)
+      if self.orientation:
+        qml += "initialPage: " + self.orientation
+      else:
+        qml += self.indent(0, """
+          initialPage: inPortrait ? portrait : landscape
+          onInPortraitChanged: {
+            if (inPortrait && pageStack.currentPage!==portrait) {
+              pageStack.clear()
+              pageStack.push(portrait);
+            } else if (!inPortrait && pageStack.currentPage!==landscape) {
+              pageStack.clear()
+              pageStack.push(landscape)
+            }
           }
-        }
-      """)
+        """)
       return qml
     else:
       return self.getLayout(self.landscapeMaxRowLen)
