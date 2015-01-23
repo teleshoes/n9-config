@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 my $delayS = 30 * 60;
-my $logFile = "/home/user/email-daemon.log";
+my $logFile = "/home/user/n9-email-daemon.log";
 
 sub main(@){
   system "echo started daemon >> $logFile";
