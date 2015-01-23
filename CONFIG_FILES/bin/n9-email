@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 
+sub isEmpty(@);
 sub run(@);
 
 my @accounts = qw(G L);
@@ -12,14 +13,18 @@ my $emptyIcon = "email-empty.png";
 
 sub main(@){
   run "email.pl --update @accounts";
-  run "email.pl", "--is-empty";
   run "rm", "-f", $maybeIcon;
-  if($? == 0){
+  if(isEmpty()){
     run "ln -s email-empty.png $maybeIcon";
   }else{
     run "ln -s email.png $maybeIcon";
   }
   run "source /etc/profile; lpsmagic -once 2>&1 | grep 'Rendering format string'";
+}
+
+sub isEmpty(@){
+  run "email.pl", "--is-empty", @_;
+  return $? == 0;
 }
 
 sub run(@){
