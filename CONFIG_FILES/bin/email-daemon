@@ -2,9 +2,9 @@
 use strict;
 use warnings;
 
-my $delay = 5;#1 * 60;
+my $delayS = 30 * 60;
 my $logFile = "/home/user/email-daemon.log";
-my $lpsmIcon = "/opt/lpsmagic/icons/maybe-email.png";
+my $maybeIcon = "/home/user/maybe-email.png";
 my $notEmptyIcon = "email.png";
 my $emptyIcon = "email-empty.png";
 
@@ -15,16 +15,16 @@ sub main(@){
   system "echo >> $logFile";
   system "echo >> $logFile";
   while(1){
-    sleep $delay;
+    sleep $delayS;
     system "date >> $logFile";
     system "email.pl --update G L 2>&1 | tee -a $logFile";
     my $isEmpty = `email.pl --is-empty 2>&1`;
     system "echo $isEmpty | tee -a $logFile";
     system "rm -f ";
     if($isEmpty =~ /^empty$/){
-      system "ln -s email-empty.png $lpsmIcon";
+      system "ln -s email-empty.png $maybeIcon";
     }else{
-      system "ln -s email.png $lpsmIcon";
+      system "ln -s email.png $maybeIcon";
     }
     system "echo >> $logFile";
     system "echo >> $logFile";
