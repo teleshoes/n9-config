@@ -1,0 +1,35 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $delay = 5;#1 * 60;
+my $logFile = "/home/user/email-daemon.log";
+my $lpsmIcon = "/opt/lpsmagic/icons/maybe-email.png";
+my $notEmptyIcon = "email.png";
+my $emptyIcon = "email-empty.png";
+
+sub main(@){
+  system "echo started daemon >> $logFile";
+  system "date >> $logFile";
+  system "echo >> $logFile";
+  system "echo >> $logFile";
+  system "echo >> $logFile";
+  while(1){
+    sleep $delay;
+    system "date >> $logFile";
+    system "email.pl --update G L 2>&1 | tee -a $logFile";
+    my $isEmpty = `email.pl --is-empty 2>&1`;
+    system "echo $isEmpty | tee -a $logFile";
+    system "rm -f ";
+    if($isEmpty =~ /^empty$/){
+      system "ln -s email-empty.png $lpsmIcon";
+    }else{
+      system "ln -s email.png $lpsmIcon";
+    }
+    system "echo >> $logFile";
+    system "echo >> $logFile";
+    system "echo >> $logFile";
+  }
+}
+
+&main(@ARGV);
