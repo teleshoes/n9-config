@@ -4,9 +4,6 @@ use warnings;
 
 my $delayS = 30 * 60;
 my $logFile = "/home/user/email-daemon.log";
-my $maybeIcon = "/home/user/maybe-email.png";
-my $notEmptyIcon = "email.png";
-my $emptyIcon = "email-empty.png";
 
 sub main(@){
   system "echo started daemon >> $logFile";
@@ -17,15 +14,7 @@ sub main(@){
   while(1){
     sleep $delayS;
     system "date >> $logFile";
-    system "email.pl --update G L 2>&1 | tee -a $logFile";
-    my $isEmpty = `email.pl --is-empty 2>&1`;
-    system "echo $isEmpty | tee -a $logFile";
-    system "rm -f ";
-    if($isEmpty =~ /^empty$/){
-      system "ln -s email-empty.png $maybeIcon";
-    }else{
-      system "ln -s email.png $maybeIcon";
-    }
+    system "n9-email 2>&1 | tee -a $logFile";
     system "echo >> $logFile";
     system "echo >> $logFile";
     system "echo >> $logFile";
