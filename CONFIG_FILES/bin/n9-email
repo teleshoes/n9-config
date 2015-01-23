@@ -2,6 +2,8 @@
 use strict;
 use warnings;
 
+sub run(@);
+
 my @accounts = qw(G L);
 
 my $maybeIcon = "/home/user/maybe-email.png";
