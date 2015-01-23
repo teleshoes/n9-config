@@ -6,6 +6,7 @@ HorizontalSpacing=2
 Tickless=false
 VerticalSpacing=1
 formatString=\
+  %cmd{echo '                    '} %icon{maybe-email.png} %cmd{email.pl --print} %newline{}\
   %batIcon{} %batPercent{%} %icon{gear.png} %batCurrent{mA} %icon{calendar.png} %date{MM/dd}
 minWaitTime=0
 maxWaitTime=30
