@@ -23,11 +23,19 @@ PLATFORM_HARMATTAN = 1
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+usage = """Usage:
+  %(exec)s CONFIG_FILE
+""" % {"exec": sys.argv[0]}
+
 def main():
-  if len(sys.argv) != 2:
-    print >> sys.stderr, "Usage: " + sys.argv[0] + " conf-file"
+  args = sys.argv
+  args.pop(0)
+
+  if len(args) != 1:
+    print >> sys.stderr, usage
     sys.exit(2)
-  configFile = sys.argv[1]
+
+  configFile = args[0]
 
   issue = open('/etc/issue').read().strip().lower()
   platform = None
