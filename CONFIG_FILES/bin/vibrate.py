@@ -114,13 +114,13 @@ class QmlGenerator():
         HapticsEffect {
           id: vibration
           attackIntensity: 0.0
-          attackTime: 250
+          attackTime: %(halfMillis)i
           intensity: 1.0
           duration: %(vibrateMillis)i
-          fadeTime: 250
+          fadeTime: %(halfMillis)i
           fadeIntensity: 0.0
         }
-      """ % {'vibrateMillis': self.vibrateMillis}
+      """ % {'vibrateMillis': self.vibrateMillis, 'halfMillis': int(self.vibrateMillis/2)}
 
   def indent(self, level, msg):
     lines = msg.splitlines()
