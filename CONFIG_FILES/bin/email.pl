@@ -7,7 +7,12 @@ use IO::Socket::SSL;
 sub mergeUnreadCounts($);
 sub readUnreadCounts();
 sub writeUnreadCounts($);
-sub getUnreadHeaders($);
+sub readUidFile($$);
+sub writeUidFile($$@);
+sub cacheAllHeaders($$$);
+sub getCachedHeaderUids($);
+sub readCachedHeader($$);
+sub examineFolder($$);
 sub getClient($);
 sub getSocket($);
 sub readSecrets();
@@ -18,25 +23,37 @@ my @extraConfigKeys = qw(ssl);
 
 my @headerFields = qw(Date Subject From);
 my $unreadCountsFile = "$ENV{HOME}/.unread-counts";
+my $emailDir = "$ENV{HOME}/.cache/email";
 
 my $settings = {
   Peek => 1,
   Uid => 1,
 };
 
+my $okCmds = join "|", qw(--update --print --has-new-unread --has-unread);
+
 my $usage = "
   $0 -h|--help
     show this message
 
   $0 [--update] [ACCOUNT_NAME ACCOUNT_NAME ...]
-    print unread message headers, and write unread counts to $unreadCountsFile
-    if accounts are specified, all but those are ignored
-    {ignored or missing accounts are preserved in $unreadCountsFile}
+    -for each account specified, or all if none are specified:
+      -fetch and write all message UIDs to
+        $emailDir/ACCOUNT_NAME/all
+      -fetch and cache all message headers in
+        $emailDir/ACCOUNT_NAME/headers/UID
+      -fetch all unread messages and write their UIDs to
+        $emailDir/ACCOUNT_NAME/unread
+      -write all message UIDs that are now in unread and were not before
+        $emailDir/ACCOUNT_NAME/new-unread
+      -print unread message headers
+    -update global unread counts file $unreadCountsFile
+      ignored or missing accounts are preserved in $unreadCountsFile
 
-    write the unread counts, one line per account, to $unreadCountsFile
-    e.g.: 3:AOL
-          6:GMAIL
-          0:WORK_GMAIL
+      write the unread counts, one line per account, to $unreadCountsFile
+      e.g.: 3:AOL
+            6:GMAIL
+            0:WORK_GMAIL
 
   $0 --print [ACCOUNT_NAME ACCOUNT_NAME ...]
     does not fetch anything, merely reads $unreadCountsFile
@@ -48,16 +65,25 @@ my $usage = "
     if accounts are specified, all but those are omitted
     e.g.: A3 G6
 
-  $0 --is-empty [ACCOUNT_NAME ACCOUNT_NAME ...]
+  $0 --has-new-unread [ACCOUNT_NAME ACCOUNT_NAME ...]
     does not fetch anything, merely reads $unreadCountsFile
-    checks for any unread emails
+    checks for any NEW unread emails, in any account
+      {UIDs in $emailDir/ACCOUNT_NAME/new-unread}
     if accounts are specified, all but those are ignored
-    print \"empty\" and exit with zero exit code if there are no unread emails
-    otherwise, print \"not empty\" and exit with non-zero exit code
+    print \"yes\" and exit with zero exit code if there are new unread emails
+    otherwise, print \"no\" and exit with non-zero exit code
+
+  $0 --has-unread [ACCOUNT_NAME ACCOUNT_NAME ...]
+    does not fetch anything, merely reads $unreadCountsFile
+    checks for any unread emails, in any account
+      {UIDs in $emailDir/ACCOUNT_NAME/unread}
+    if accounts are specified, all but those are ignored
+    print \"yes\" and exit with zero exit code if there are unread emails
+    otherwise, print \"no\" and exit with non-zero exit code
 ";
 
 sub main(@){
-  my $cmd = shift if @_ > 0 and $_[0] =~ /^(--update|--print|--is-empty)$/;
+  my $cmd = shift if @_ > 0 and $_[0] =~ /^($okCmds)$/;
   $cmd = "--update" if not defined $cmd;
 
   die $usage if @_ > 0 and $_[0] =~ /^(-h|--help)$/;
@@ -69,12 +95,32 @@ sub main(@){
   if($cmd =~ /^(--update)$/){
     my $counts = {};
     for my $accName(@accNames){
-      die "Unknown account $accName\n" if not defined $$accounts{$accName};
-      my $unread = getUnreadHeaders $$accounts{$accName};
-      $$counts{$accName} = keys %$unread;
-      for my $uid(sort keys %$unread){
-        my $hdr = $$unread{$uid};
-        print "$accName $uid $$hdr{Date} $$hdr{Subject}\n"
+      my $acc = $$accounts{$accName};
+      die "Unknown account $accName\n" if not defined $acc;
+      my $c = getClient($acc);
+      if(not defined $c or not $c->IsAuthenticated()){
+        warn "Could not authenticate $$acc{name} ($$acc{user})\n";
+        next;
+      }
+      my $f = examineFolder($acc, $c);
+      if(not defined $f){
+        warn "Error getting folder $$acc{folder}\n";
+        next;
+      }
+
+      cacheAllHeaders($acc, $c, $f);
+
+      my @unread = $c->unseen;
+      $$counts{$accName} = @unread;
+
+      my %oldUnread = map {$_ => 1} readUidFile $accName, "unread";
+      writeUidFile $accName, "unread", @unread;
+      my @newUnread = grep {not defined $oldUnread{$_}} @unread;
+      writeUidFile $accName, "new-unread", @newUnread;
+
+      for my $uid(@unread){
+        my $hdr = readCachedHeader($acc, $uid);
+        print "$accName $uid $$hdr{Date} $$hdr{From} $$hdr{Subject}\n"
       }
     }
     mergeUnreadCounts $counts;
@@ -87,19 +133,28 @@ sub main(@){
       push @fmts, substr($accName, 0, 1) . $count if $count > 0;
     }
     print "@fmts";
-  }elsif($cmd =~ /^(--is-empty)/){
-    my $counts = readUnreadCounts();
+  }elsif($cmd =~ /^(--has-new-unread)/){
     my @fmts;
     for my $accName(@accNames){
-      die "Unknown account $accName\n" if not defined $$counts{$accName};
-      my $count = $$counts{$accName};
-      if($count > 0){
-        print "not empty\n";
-        exit 1;
+      my @unread = readUidFile $accName, "new-unread";
+      if(@unread > 0){
+        print "yes\n";
+        exit 0;
       }
     }
-    print "empty\n";
-    exit 0;
+    print "no\n";
+    exit 1;
+  }elsif($cmd =~ /^(--has-unread)/){
+    my @fmts;
+    for my $accName(@accNames){
+      my @unread = readUidFile $accName, "unread";
+      if(@unread > 0){
+        print "yes\n";
+        exit 0;
+      }
+    }
+    print "no\n";
+    exit 1;
   }
 }
 
@@ -132,38 +187,107 @@ sub writeUnreadCounts($){
   close FH;
 }
 
-sub getUnreadHeaders($){
-  my $acc = shift;
-  my $c = getClient $acc;
+sub readUidFile($$){
+  my ($accName, $fileName) = @_;
+  my $dir = "$emailDir/$accName";
 
-  if(not defined $c or not $c->IsAuthenticated()){
-    warn "Could not authenticate $$acc{name} ($$acc{user})\n";
-    return;
+  if(not -f "$dir/$fileName"){
+    return ();
+  }else{
+    my @uids = `cat "$dir/$fileName"`;
+    chomp foreach @uids;
+    return @uids;
   }
+}
+
+sub writeUidFile($$@){
+  my ($accName, $fileName, @uids) = @_;
+  my $dir = "$emailDir/$accName";
+  system "mkdir", "-p", $dir;
+
+  open FH, "> $dir/$fileName" or die "Could not write $dir/$fileName\n";
+  print FH "$_\n" foreach @uids;
+  close FH;
+}
+
+sub cacheAllHeaders($$$){
+  my ($acc, $c, $f) = @_;
+  print "fetching all message ids\n";
+  my @messages = $c->messages;
+  print "fetched " . @messages . " ids\n";
+
+  my $dir = "$emailDir/$$acc{name}";
+  writeUidFile $$acc{name}, "all", @messages;
+
+  my $headersDir = "$dir/headers";
+  system "mkdir", "-p", $headersDir;
+
+  my %toSkip = map {$_ => 1} getCachedHeaderUids($acc);
+
+  @messages = grep {not defined $toSkip{$_}} @messages;
+  print "caching headers for " . @messages . " messages\n";
+
+  my $headers = $c->parse_headers(\@messages, @headerFields);
+  for my $uid(keys %$headers){
+    my $hdr = $$headers{$uid};
+    open FH, "> $headersDir/$uid";
+    for my $field(sort @headerFields){
+      my $vals = $$hdr{$field};
+      my $val = "";
+      if(not defined $vals or @$vals == 0){
+        warn "WARNING: $uid has no field $field\n";
+      }else{
+        $val = $$vals[0];
+      }
+      if($val =~ s/\n/\\n/){
+        warn "WARNING: newlines in $uid $field {replaced with \\n}\n";
+      }
+      print FH "$field: $val\n";
+    }
+    close FH;
+  }
+}
+
+sub getCachedHeaderUids($){
+  my $acc = shift;
+  my $headersDir = "$emailDir/$$acc{name}/headers";
+  my @cachedHeaders = `cd "$headersDir"; ls`;
+  chomp foreach @cachedHeaders;
+  return @cachedHeaders;
+}
+
+sub readCachedHeader($$){
+  my ($acc, $uid) = @_;
+  my $hdrFile = "$emailDir/$$acc{name}/headers/$uid";
+  if(not -e $hdrFile){
+    return undef;
+  }
+  my $header = {};
+  my @lines = `cat "$hdrFile"`;
+  for my $line(@lines){
+    if($line =~ /^(\w+): (.*)$/){
+      $$header{$1} = $2;
+    }else{
+      warn "WARNING: malformed header line: $line\n";
+    }
+  }
+  return $header;
+}
+
+sub examineFolder($$){
+  my ($acc, $c) = @_;
   my @folders = $c->folders($$acc{folder});
   if(@folders != 1){
-    warn "Error getting folder $$acc{folder}\n";
-    return;
+    return undef;
   }
 
   my $f = $folders[0];
-  $c->select($f);
-
-  my $unread = {};
-  for my $uid($c->unseen){
-    $$unread{$uid} = {uid => $uid};
-    my $hdr = $c->parse_headers($uid, @headerFields);
-    for my $field(@headerFields){
-      $$unread{$uid}{$field} = ${$$hdr{$field}}[0];
-    }
-  }
-
-
-  return $unread;
+  $c->examine($f);
+  return $f;
 }
 
 sub getClient($){
-  my $acc = shift;
+  my ($acc) = @_;
   my $network;
   if(defined $$acc{ssl} and $$acc{ssl} =~ /^false$/){
     $network = {
@@ -175,6 +299,7 @@ sub getClient($){
       Socket => getSocket($acc),
     };
   }
+  print "$$acc{name}: logging in\n";
   return Mail::IMAPClient->new(
     %$network,
     User     => $$acc{user},
