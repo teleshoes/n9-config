@@ -21,6 +21,7 @@ my @config = qw(
 
   dir-comm[
     mail
+    n9-email
     contacts
     call-log
     call-log-all
