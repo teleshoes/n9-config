@@ -12,8 +12,8 @@ from PySide.QtDeclarative import *
 import sys
 import tempfile
 
-VIBRATE_MILLIS = 500
-SLEEP_MILLIS = 500
+VIBRATE_MILLIS = 1000
+SLEEP_MILLIS = 1500
 
 def main():
   args = sys.argv
