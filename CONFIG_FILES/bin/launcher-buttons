@@ -25,7 +25,7 @@ my @config = qw(
     grob
     calc
 
-    mail
+    n9-email
     calendar
     qtbtn-power
     settings
@@ -56,10 +56,11 @@ my @config = qw(
     stellarium-n9
 
     emumaster
+    mail
     lirr_fdl_pen
     lirr_pen_fdl
-    lirr_cpg_rvc
 
+    lirr_cpg_rvc
     lirr_rvc_cpg
     lirr_cpg_pen
     lirr_pen_cpg
