@@ -1,0 +1,55 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub isEmpty(@);
+sub run(@);
+
+my @accounts = qw(G L);
+my %alerts = (
+  G => "/usr/share/sounds/soothing/jumpdown.wav",
+  L => "/usr/share/sounds/soothing/jumpup.wav",
+);
+
+my $maybeIcon = "/home/user/maybe-email.png";
+my $notEmptyIcon = "email.png";
+my $emptyIcon = "email-empty.png";
+
+sub main(@){
+  #setup was-empty
+  my %wasEmpty;
+  for my $acc(@accounts){
+    $wasEmpty{$acc} = isEmpty $acc;
+  }
+
+  #update email
+  run "email.pl --update @accounts";
+
+  #run alerts
+  for my $acc(@accounts){
+    if(not isEmpty $acc and $wasEmpty{$acc}){
+      run "source /etc/profile; vibrate.py $alerts{$acc}";
+    }
+  }
+
+  #setup lpsmagic
+  run "rm", "-f", $maybeIcon;
+  if(isEmpty()){
+    run "ln -s email-empty.png $maybeIcon";
+  }else{
+    run "ln -s email.png $maybeIcon";
+  }
+  run "source /etc/profile; lpsmagic -once 2>&1 | grep 'Rendering format string'";
+}
+
+sub isEmpty(@){
+  run "email.pl", "--is-empty", @_;
+  return $? == 0;
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+&main(@ARGV);
