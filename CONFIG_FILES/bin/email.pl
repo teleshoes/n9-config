@@ -30,7 +30,7 @@ my $settings = {
   Uid => 1,
 };
 
-my $okCmds = join "|", qw(--update --print --has-new-unread --has-unread);
+my $okCmds = join "|", qw(--update --print --has-error --has-new-unread --has-unread);
 
 my $usage = "
   $0 -h|--help
@@ -38,6 +38,7 @@ my $usage = "
 
   $0 [--update] [ACCOUNT_NAME ACCOUNT_NAME ...]
     -for each account specified, or all if none are specified:
+      -login to IMAP server, or create file $emailDir/ACCOUNT_NAME/error
       -fetch and write all message UIDs to
         $emailDir/ACCOUNT_NAME/all
       -fetch and cache all message headers in
@@ -64,6 +65,11 @@ my $usage = "
     if the count is zero for a given account, it is omitted
     if accounts are specified, all but those are omitted
     e.g.: A3 G6
+
+  $0 --has-error [ACCOUNT_NAME ACCOUNT_NAME ...]
+    checks if $emailDir/ACCOUNT_NAME/error exists
+    print \"yes\" and exit with zero exit code if it does
+    otherwise, print \"no\" and exit with non-zero exit code
 
   $0 --has-new-unread [ACCOUNT_NAME ACCOUNT_NAME ...]
     does not fetch anything, merely reads $unreadCountsFile
@@ -97,14 +103,24 @@ sub main(@){
     for my $accName(@accNames){
       my $acc = $$accounts{$accName};
       die "Unknown account $accName\n" if not defined $acc;
+      my $errorFile = "$emailDir/$accName/error";
+      system "rm", "-f", $errorFile;
       my $c = getClient($acc);
       if(not defined $c or not $c->IsAuthenticated()){
-        warn "Could not authenticate $$acc{name} ($$acc{user})\n";
+        my $msg = "Could not authenticate $$acc{name} ($$acc{user})\n";
+        warn $msg;
+        open FH, "> $errorFile";
+        print FH $msg;
+        close FH;
         next;
       }
       my $f = examineFolder($acc, $c);
       if(not defined $f){
-        warn "Error getting folder $$acc{folder}\n";
+        my $msg = "Error getting folder $$acc{folder}\n";
+        warn $msg;
+        open FH, "> $errorFile";
+        print FH $msg;
+        close FH;
         next;
       }
 
@@ -130,9 +146,24 @@ sub main(@){
     for my $accName(@accNames){
       die "Unknown account $accName\n" if not defined $$counts{$accName};
       my $count = $$counts{$accName};
-      push @fmts, substr($accName, 0, 1) . $count if $count > 0;
+      my $errorFile = "$emailDir/$accName/error";
+      my $fmt = substr($accName, 0, 1) . $count;
+      if(-f $errorFile){
+        push @fmts, "$fmt!err";
+      }else{
+        push @fmts, $fmt if $count > 0;
+      }
     }
     print "@fmts";
+  }elsif($cmd =~ /^(--has-error)/){
+    for my $accName(@accNames){
+      if(-f "$emailDir/$accName/error"){
+        print "yes\n";
+        exit 0;
+      }
+    }
+    print "no\n";
+    exit 1;
   }elsif($cmd =~ /^(--has-new-unread)/){
     my @fmts;
     for my $accName(@accNames){
@@ -295,8 +326,11 @@ sub getClient($){
       Port => $$acc{port},
     };
   }else{
+    my $socket = getSocket($acc);
+    return undef if not defined $socket;
+
     $network = {
-      Socket => getSocket($acc),
+      Socket => $socket,
     };
   }
   print "$$acc{name}: logging in\n";
