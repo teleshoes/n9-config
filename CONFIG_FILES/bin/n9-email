@@ -6,13 +6,33 @@ sub isEmpty(@);
 sub run(@);
 
 my @accounts = qw(G L);
+my %alerts = (
+  G => "/usr/share/sounds/soothing/jumpdown.wav",
+  L => "/usr/share/sounds/soothing/jumpup.wav",
+);
 
 my $maybeIcon = "/home/user/maybe-email.png";
 my $notEmptyIcon = "email.png";
 my $emptyIcon = "email-empty.png";
 
 sub main(@){
+  #setup was-empty
+  my %wasEmpty;
+  for my $acc(@accounts){
+    $wasEmpty{$acc} = isEmpty $acc;
+  }
+
+  #update email
   run "email.pl --update @accounts";
+
+  #run alerts
+  for my $acc(@accounts){
+    if(not isEmpty $acc and $wasEmpty{$acc}){
+      run "vibrate.py", $alerts{$acc};
+    }
+  }
+
+  #setup lpsmagic
   run "rm", "-f", $maybeIcon;
   if(isEmpty()){
     run "ln -s email-empty.png $maybeIcon";
