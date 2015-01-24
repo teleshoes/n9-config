@@ -35,6 +35,8 @@ sub main(@){
     run "ln -s email-empty.png $maybeIcon";
   }
   run "source /etc/profile; lpsmagic -once 2>&1 | grep 'Rendering format string'";
+
+  run "cat $ENV{HOME}/.unread-counts";
 }
 
 sub hasUnread(@){
