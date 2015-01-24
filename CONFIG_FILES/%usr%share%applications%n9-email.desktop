@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=n9-email
+Comment=n9-email
+Icon=n9-email
+Exec=term -r n9-email
+Type=Application
