@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 
+sub hasError(@);
 sub hasUnread(@);
 sub hasNewUnread(@);
 sub run(@);
@@ -22,7 +23,7 @@ sub main(@){
 
   #run alerts
   for my $acc(@accounts){
-    if(hasNewUnread $acc){
+    if(not hasError $acc and hasNewUnread $acc){
       run "source /etc/profile; vibrate.py $alerts{$acc}";
     }
   }
@@ -39,6 +40,10 @@ sub main(@){
   run "cat $ENV{HOME}/.unread-counts";
 }
 
+sub hasError(@){
+  run "email.pl", "--has-error", @_;
+  return $? == 0;
+}
 sub hasUnread(@){
   run "email.pl", "--has-unread", @_;
   return $? == 0;
