@@ -28,7 +28,7 @@ sub main(@){
   #run alerts
   for my $acc(@accounts){
     if(not isEmpty $acc and $wasEmpty{$acc}){
-      run "vibrate.py", $alerts{$acc};
+      run "source /etc/profile; vibrate.py $alerts{$acc}";
     }
   }
 
