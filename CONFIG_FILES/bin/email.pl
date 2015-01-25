@@ -12,7 +12,7 @@ sub readUidFile($$);
 sub writeUidFile($$@);
 sub cacheAllHeaders($$$);
 sub cacheBodies($$@);
-sub getBody($$);
+sub getBody($$$);
 sub hasWords($);
 sub parseBody($$);
 sub getCachedHeaderUids($);
@@ -30,13 +30,15 @@ my @headerFields = qw(Date Subject From);
 my $unreadCountsFile = "$ENV{HOME}/.unread-counts";
 my $emailDir = "$ENV{HOME}/.cache/email";
 
+my $VERBOSE = 0;
+
 my $settings = {
   Peek => 1,
   Uid => 1,
 };
 
 my $okCmds = join "|", qw(
-  --update
+  --update --body --body-html
   --print --summary --unread-line
   --has-error --has-new-unread --has-unread
 );
@@ -63,6 +65,13 @@ my $usage = "
       e.g.: 3:AOL
             6:GMAIL
             0:WORK_GMAIL
+
+  $0 --body ACCOUNT_NAME UID
+    download, format and print the body of message UID in account ACCOUNT_NAME
+    if body is cached, skip download
+
+  $0 --body-html ACCOUNT_NAME UID
+    same as --body, but prefer HTML instead of plaintext
 
   $0 --print [ACCOUNT_NAME ACCOUNT_NAME ...]
     format and print cached unread message headers and bodies
@@ -108,11 +117,11 @@ sub main(@){
 
   die $usage if @_ > 0 and $_[0] =~ /^(-h|--help)$/;
 
-  my @accNames = @_;
   my $accounts = readSecrets();
-  @accNames = sort keys %$accounts if @accNames == 0;
 
   if($cmd =~ /^(--update)$/){
+    $VERBOSE = 1;
+    my @accNames = @_ == 0 ? sort keys %$accounts : @_;
     my $counts = {};
     for my $accName(@accNames){
       my $acc = $$accounts{$accName};
@@ -120,7 +129,7 @@ sub main(@){
       my $errorFile = "$emailDir/$accName/error";
       system "rm", "-f", $errorFile;
       my $c = getClient($acc);
-      if(not defined $c or not $c->IsAuthenticated()){
+      if(not defined $c){
         my $msg = "Could not authenticate $$acc{name} ($$acc{user})\n";
         warn $msg;
         open FH, "> $errorFile";
@@ -151,13 +160,35 @@ sub main(@){
       writeUidFile $accName, "new-unread", @newUnread;
     }
     mergeUnreadCounts $counts;
+  }elsif($cmd =~ /^(--body|--body-html)$/){
+    die $usage if @_ != 2;
+    my $preferHtml = $cmd =~ /body-html/;
+    my $accName = shift;
+    my $uid = shift;
+    my $acc = $$accounts{$accName};
+    my $body = readCachedBody($accName, $uid);
+    if(not defined $body){
+      die "Unknown account $accName\n" if not defined $acc;
+      my $c = getClient($acc);
+      die "Could not authenticate $accName ($$acc{user})\n" if not defined $c;
+      my $f = examineFolder($acc, $c);
+      die "Error getting folder $$acc{folder}\n" if not defined $f;
+      cacheBodies($acc, $c, $uid);
+      $body = readCachedBody($accName, $uid);
+    }
+    die "No body found for $accName $uid\n" if not defined $body;
+    my $mimeParser = MIME::Parser->new();
+    my $fmt = getBody($mimeParser, $body, $preferHtml);
+    chomp $fmt;
+    print "$fmt\n";
   }elsif($cmd =~ /^(--print)$/){
+    my @accNames = @_ == 0 ? sort keys %$accounts : @_;
     my $mimeParser = MIME::Parser->new();
     for my $accName(@accNames){
       my @unread = readUidFile $accName, "unread";
       for my $uid(@unread){
         my $hdr = readCachedHeader($accName, $uid);
-        my $body = getBody($mimeParser, readCachedBody($accName, $uid));
+        my $body = getBody($mimeParser, readCachedBody($accName, $uid), 0);
         $body = "" if not defined $body;
         $body = "[NO BODY]\n" if $body =~ /^\s*$/;
         $body =~ s/^/  /mg;
@@ -173,6 +204,7 @@ sub main(@){
       }
     }
   }elsif($cmd =~ /^(--summary)$/){
+    my @accNames = @_ == 0 ? sort keys %$accounts : @_;
     for my $accName(@accNames){
       my @unread = readUidFile $accName, "unread";
       for my $uid(@unread){
@@ -181,6 +213,7 @@ sub main(@){
       }
     }
   }elsif($cmd =~ /^(--unread-line)$/){
+    my @accNames = @_ == 0 ? sort keys %$accounts : @_;
     my $counts = readUnreadCounts();
     my @fmts;
     for my $accName(@accNames){
@@ -196,6 +229,7 @@ sub main(@){
     }
     print "@fmts";
   }elsif($cmd =~ /^(--has-error)$/){
+    my @accNames = @_ == 0 ? sort keys %$accounts : @_;
     for my $accName(@accNames){
       if(-f "$emailDir/$accName/error"){
         print "yes\n";
@@ -205,6 +239,7 @@ sub main(@){
     print "no\n";
     exit 1;
   }elsif($cmd =~ /^(--has-new-unread)$/){
+    my @accNames = @_ == 0 ? sort keys %$accounts : @_;
     my @fmts;
     for my $accName(@accNames){
       my @unread = readUidFile $accName, "new-unread";
@@ -216,6 +251,7 @@ sub main(@){
     print "no\n";
     exit 1;
   }elsif($cmd =~ /^(--has-unread)$/){
+    my @accNames = @_ == 0 ? sort keys %$accounts : @_;
     my @fmts;
     for my $accName(@accNames){
       my @unread = readUidFile $accName, "unread";
@@ -283,9 +319,9 @@ sub writeUidFile($$@){
 
 sub cacheAllHeaders($$$){
   my ($acc, $c, $f) = @_;
-  print "fetching all message ids\n";
+  print "fetching all message ids\n" if $VERBOSE;
   my @messages = $c->messages;
-  print "fetched " . @messages . " ids\n";
+  print "fetched " . @messages . " ids\n" if $VERBOSE;
 
   my $dir = "$emailDir/$$acc{name}";
   writeUidFile $$acc{name}, "all", @messages;
@@ -296,7 +332,7 @@ sub cacheAllHeaders($$$){
   my %toSkip = map {$_ => 1} getCachedHeaderUids($acc);
 
   @messages = grep {not defined $toSkip{$_}} @messages;
-  print "caching headers for " . @messages . " messages\n";
+  print "caching headers for " . @messages . " messages\n" if $VERBOSE;
 
   my $headers = $c->parse_headers(\@messages, @headerFields);
   for my $uid(keys %$headers){
@@ -326,26 +362,34 @@ sub cacheBodies($$@){
 
   my %toSkip = map {$_ => 1} getCachedBodyUids($acc);
   @messages = grep {not defined $toSkip{$_}} @messages;
-  print "caching bodies for " . @messages . " messages\n";
+  print "caching bodies for " . @messages . " messages\n" if $VERBOSE;
 
   for my $uid(@messages){
     my $body = $c->message_string($uid);
-    open FH, "> $bodiesDir/$uid" or die "Could not write $bodiesDir/$uid\n";
-    print FH $body;
-    close FH;
+    $body = "" if not defined $body;
+    if($body =~ /^\s*$/){
+      warn "WARNING: no body found for $$acc{name} $uid\n" if $body =~ /^\s*$/;
+    }else{
+      open FH, "> $bodiesDir/$uid" or die "Could not write $bodiesDir/$uid\n";
+      print FH $body;
+      close FH;
+    }
   }
 }
 
-sub getBody($$){
-  my ($mimeParser, $bodyString) = @_;
+sub getBody($$$){
+  my ($mimeParser, $bodyString, $preferHtml) = @_;
   my $mimeBody = $mimeParser->parse_data($bodyString);
 
-  my $textBody = join "\n", parseBody($mimeBody, 0);
-  return $textBody if hasWords $textBody;
+  for my $isHtml($preferHtml ? (1, 0) : (0, 1)){
+    my $fmt = join "\n", parseBody($mimeBody, $isHtml);
+    if(hasWords $fmt){
+      $mimeParser->filer->purge;
+      return $fmt;
+    }
+  }
 
-  my $htmlBody = join "\n", parseBody($mimeBody, 1);
-  return $htmlBody if hasWords $htmlBody;
-
+  $mimeParser->filer->purge;
   return undef;
 }
 
@@ -360,7 +404,7 @@ sub parseBody($$){
   my $count = $entity->parts;
   if($count > 0){
     my @parts;
-    for(my $i=1; $i<$count; $i++){
+    for(my $i=0; $i<$count; $i++){
       my @subParts = parseBody($entity->parts($i - 1), $html);
       @parts = (@parts, @subParts);
     }
@@ -448,13 +492,15 @@ sub getClient($){
       Socket => $socket,
     };
   }
-  print "$$acc{name}: logging in\n";
-  return Mail::IMAPClient->new(
+  print "$$acc{name}: logging in\n" if $VERBOSE;
+  my $c = Mail::IMAPClient->new(
     %$network,
     User     => $$acc{user},
     Password => $$acc{password},
     %$settings,
   );
+  return undef if not $c->IsAuthenticated();
+  return $c;
 }
 
 sub getSocket($){
