@@ -43,6 +43,10 @@ sub main(@){
   run "source /etc/profile; lpsmagic -once 2>&1 | grep 'Rendering format string'";
 
   if(not $quiet){
+    run "email.pl", "--print";
+    print "\n";
+    run "email.pl", "--summary";
+    print "\n";
     run "email.pl", "--unread-line";
     print "\n";
   }
