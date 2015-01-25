@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Mail::IMAPClient;
 use IO::Socket::SSL;
+use MIME::Parser;
 
 sub mergeUnreadCounts($);
 sub readUnreadCounts();
@@ -10,6 +11,10 @@ sub writeUnreadCounts($);
 sub readUidFile($$);
 sub writeUidFile($$@);
 sub cacheAllHeaders($$$);
+sub cacheBodies($$@);
+sub getBody($$);
+sub hasWords($);
+sub parseBody($$);
 sub getCachedHeaderUids($);
 sub readCachedHeader($$);
 sub examineFolder($$);
@@ -30,7 +35,11 @@ my $settings = {
   Uid => 1,
 };
 
-my $okCmds = join "|", qw(--update --print --has-error --has-new-unread --has-unread);
+my $okCmds = join "|", qw(
+  --update
+  --print --summary --unread-line
+  --has-error --has-new-unread --has-unread
+);
 
 my $usage = "
   $0 -h|--help
@@ -47,7 +56,6 @@ my $usage = "
         $emailDir/ACCOUNT_NAME/unread
       -write all message UIDs that are now in unread and were not before
         $emailDir/ACCOUNT_NAME/new-unread
-      -print unread message headers
     -update global unread counts file $unreadCountsFile
       ignored or missing accounts are preserved in $unreadCountsFile
 
@@ -57,6 +65,12 @@ my $usage = "
             0:WORK_GMAIL
 
   $0 --print [ACCOUNT_NAME ACCOUNT_NAME ...]
+    format and print cached unread message headers and bodies
+
+  $0 --summary [ACCOUNT_NAME ACCOUNT_NAME ...]
+    format and print cached unread message headers
+
+  $0 --unread-line [ACCOUNT_NAME ACCOUNT_NAME ...]
     does not fetch anything, merely reads $unreadCountsFile
     format and print $unreadCountsFile
     the string is a space-separated list of the first character of
@@ -129,18 +143,44 @@ sub main(@){
       my @unread = $c->unseen;
       $$counts{$accName} = @unread;
 
+      cacheBodies($acc, $c, @unread);
+
       my %oldUnread = map {$_ => 1} readUidFile $accName, "unread";
       writeUidFile $accName, "unread", @unread;
       my @newUnread = grep {not defined $oldUnread{$_}} @unread;
       writeUidFile $accName, "new-unread", @newUnread;
-
-      for my $uid(@unread){
-        my $hdr = readCachedHeader($acc, $uid);
-        print "$accName $uid $$hdr{Date} $$hdr{From} $$hdr{Subject}\n"
-      }
     }
     mergeUnreadCounts $counts;
-  }elsif($cmd =~ /^(--print)/){
+  }elsif($cmd =~ /^(--print)$/){
+    my $mimeParser = MIME::Parser->new();
+    for my $accName(@accNames){
+      my @unread = readUidFile $accName, "unread";
+      for my $uid(@unread){
+        my $hdr = readCachedHeader($accName, $uid);
+        my $body = getBody($mimeParser, readCachedBody($accName, $uid));
+        $body = "" if not defined $body;
+        $body = "[NO BODY]\n" if $body =~ /^\s*$/;
+        $body =~ s/^/  /mg;
+        print "\n"
+          . "ACCOUNT: $accName\n"
+          . "UID: $uid\n"
+          . "DATE: $$hdr{Date}\n"
+          . "FROM: $$hdr{From}\n"
+          . "SUBJECT: $$hdr{Subject}\n"
+          . "BODY:\n$body\n"
+          . "\n"
+          ;
+      }
+    }
+  }elsif($cmd =~ /^(--summary)$/){
+    for my $accName(@accNames){
+      my @unread = readUidFile $accName, "unread";
+      for my $uid(@unread){
+        my $hdr = readCachedHeader($accName, $uid);
+        print "$accName $$hdr{Date} $$hdr{From}\n  $$hdr{Subject}\n";
+      }
+    }
+  }elsif($cmd =~ /^(--unread-line)$/){
     my $counts = readUnreadCounts();
     my @fmts;
     for my $accName(@accNames){
@@ -155,7 +195,7 @@ sub main(@){
       }
     }
     print "@fmts";
-  }elsif($cmd =~ /^(--has-error)/){
+  }elsif($cmd =~ /^(--has-error)$/){
     for my $accName(@accNames){
       if(-f "$emailDir/$accName/error"){
         print "yes\n";
@@ -164,7 +204,7 @@ sub main(@){
     }
     print "no\n";
     exit 1;
-  }elsif($cmd =~ /^(--has-new-unread)/){
+  }elsif($cmd =~ /^(--has-new-unread)$/){
     my @fmts;
     for my $accName(@accNames){
       my @unread = readUidFile $accName, "new-unread";
@@ -175,7 +215,7 @@ sub main(@){
     }
     print "no\n";
     exit 1;
-  }elsif($cmd =~ /^(--has-unread)/){
+  }elsif($cmd =~ /^(--has-unread)$/){
     my @fmts;
     for my $accName(@accNames){
       my @unread = readUidFile $accName, "unread";
@@ -279,6 +319,65 @@ sub cacheAllHeaders($$$){
   }
 }
 
+sub cacheBodies($$@){
+  my ($acc, $c, @messages) = @_;
+  my $bodiesDir = "$emailDir/$$acc{name}/bodies";
+  system "mkdir", "-p", $bodiesDir;
+
+  my %toSkip = map {$_ => 1} getCachedBodyUids($acc);
+  @messages = grep {not defined $toSkip{$_}} @messages;
+  print "caching bodies for " . @messages . " messages\n";
+
+  for my $uid(@messages){
+    my $body = $c->message_string($uid);
+    open FH, "> $bodiesDir/$uid" or die "Could not write $bodiesDir/$uid\n";
+    print FH $body;
+    close FH;
+  }
+}
+
+sub getBody($$){
+  my ($mimeParser, $bodyString) = @_;
+  my $mimeBody = $mimeParser->parse_data($bodyString);
+
+  my $textBody = join "\n", parseBody($mimeBody, 0);
+  return $textBody if hasWords $textBody;
+
+  my $htmlBody = join "\n", parseBody($mimeBody, 1);
+  return $htmlBody if hasWords $htmlBody;
+
+  return undef;
+}
+
+sub hasWords($){
+  my $msg = shift;
+  $msg =~ s/\W+//g;
+  return length($msg) > 0;
+}
+
+sub parseBody($$){
+  my ($entity, $html) = @_;
+  my $count = $entity->parts;
+  if($count > 0){
+    my @parts;
+    for(my $i=1; $i<$count; $i++){
+      my @subParts = parseBody($entity->parts($i - 1), $html);
+      @parts = (@parts, @subParts);
+    }
+    return @parts;
+  }else{
+    my $type = $entity->effective_type;
+    if(not $html and $type eq "text/plain"){
+      return ($entity->bodyhandle->as_string);
+    }elsif($html and $type eq "text/html"){
+      return ($entity->bodyhandle->as_string);
+    }else{
+      return ();
+    }
+  }
+}
+
+
 sub getCachedHeaderUids($){
   my $acc = shift;
   my $headersDir = "$emailDir/$$acc{name}/headers";
@@ -286,11 +385,27 @@ sub getCachedHeaderUids($){
   chomp foreach @cachedHeaders;
   return @cachedHeaders;
 }
+sub getCachedBodyUids($){
+  my $acc = shift;
+  my $bodiesDir = "$emailDir/$$acc{name}/bodies";
+  my @cachedBodies = `cd "$bodiesDir"; ls`;
+  chomp foreach @cachedBodies;
+  return @cachedBodies;
+}
+
+sub readCachedBody($$){
+  my ($accName, $uid) = @_;
+  my $bodyFile = "$emailDir/$accName/bodies/$uid";
+  if(not -f $bodyFile){
+    return undef;
+  }
+  return `cat "$bodyFile"`;
+}
 
 sub readCachedHeader($$){
-  my ($acc, $uid) = @_;
-  my $hdrFile = "$emailDir/$$acc{name}/headers/$uid";
-  if(not -e $hdrFile){
+  my ($accName, $uid) = @_;
+  my $hdrFile = "$emailDir/$accName/headers/$uid";
+  if(not -f $hdrFile){
     return undef;
   }
   my $header = {};
