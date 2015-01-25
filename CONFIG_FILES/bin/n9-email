@@ -17,7 +17,12 @@ my $maybeIcon = "/home/user/maybe-email.png";
 my $notEmptyIcon = "email.png";
 my $emptyIcon = "email-empty.png";
 
+my $usage = "Usage: $0 [-q|--quiet]\n";
+
 sub main(@){
+  my $quiet = shift if @_ > 0 and $_[0] =~ /^(-q|--quiet)$/;
+  die $usage if @_ > 0;
+
   #update email
   run "email.pl --update @accounts";
 
@@ -37,7 +42,10 @@ sub main(@){
   }
   run "source /etc/profile; lpsmagic -once 2>&1 | grep 'Rendering format string'";
 
-  run "cat $ENV{HOME}/.unread-counts";
+  if(not $quiet){
+    run "email.pl", "--unread-line";
+    print "\n";
+  }
 }
 
 sub hasError(@){
