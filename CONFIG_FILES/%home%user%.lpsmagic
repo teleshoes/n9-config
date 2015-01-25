@@ -6,7 +6,7 @@ HorizontalSpacing=2
 Tickless=false
 VerticalSpacing=1
 formatString=\
-  %cmd{echo '                    '} %icon{/home/user/maybe-email.png} %cmd{email.pl --print} %newline{}\
+  %cmd{echo '                    '} %icon{/home/user/maybe-email.png} %cmd{email.pl --unread-line} %newline{}\
   %batIcon{} %batPercent{%} %icon{gear.png} %batCurrent{mA} %icon{calendar.png} %date{MM/dd} %newline{}\
   %cmd{klomp-info -n ended percent playlist album} %newline{}\
   %cmd{klomp-info -n artist} %newline{}\
