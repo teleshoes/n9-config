@@ -30,7 +30,7 @@ my @config = qw(
   FBReader
 
   qtbtn-klomp
-  n9-email
+  email-gui
   contact-emily
   meeseepics
 
@@ -64,6 +64,7 @@ my @config = qw(
     stellarium-n9
   ]
   dir-junk[
+    n9-email
     mail
     contact-coocoo
     fennec
