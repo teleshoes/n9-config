@@ -224,6 +224,7 @@ class MainWindow(QDeclarativeView):
     context.setContextProperty('accountModel', accountModel)
     context.setContextProperty('headerModel', headerModel)
     context.setContextProperty('controller', controller)
+    self.setResizeMode(QDeclarativeView.SizeRootObjectToView)
     self.setSource(qmlFile)
 
 if __name__ == "__main__":
