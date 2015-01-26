@@ -36,7 +36,10 @@ def main():
   else:
     platform = PLATFORM_OTHER
 
-  qmlFile = "/opt/email-gui/harmattan.qml"
+  if platform == PLATFORM_HARMATTAN:
+    qmlFile = "/opt/email-gui/harmattan.qml"
+  else:
+    qmlFile = "/opt/email-gui/desktop.qml"
 
   emailManager = EmailManager()
   accountModel = AccountModel()
