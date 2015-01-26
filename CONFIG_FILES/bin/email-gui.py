@@ -50,7 +50,10 @@ def main():
 
   app = QApplication([])
   widget = MainWindow(qmlFile, controller, accountModel, headerModel)
-  widget.window().showFullScreen()
+  if platform == PLATFORM_HARMATTAN:
+    widget.window().showFullScreen()
+  else:
+    widget.window().show()
 
   app.exec_()
 
