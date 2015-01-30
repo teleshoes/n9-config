@@ -11,6 +11,9 @@ from PySide.QtCore import *
 from PySide.QtDeclarative import *
 from collections import deque
 
+import dbus
+import dbus.service
+import dbus.mainloop.glib
 import os
 import sys
 import subprocess
@@ -23,6 +26,8 @@ PLATFORM_HARMATTAN = 1
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+DBUS_SERVICE = "org.teleshoes.qtbtn"
+
 usage = """Usage:
   %(exec)s CONFIG_FILE
 
@@ -31,19 +36,29 @@ usage = """Usage:
       force landscape view in harmattan
     --portrait
       force portrait view in harmattan
-""" % {"exec": sys.argv[0]}
+    --dbus
+      instead of showing the window, listen for dbus signals controlling it
+      service: "%(dbusService)s"
+      path: "/"
+      methods:
+        show(): show the window
+        hide(): hide the window
+""" % {"exec": sys.argv[0], "dbusService": DBUS_SERVICE}
 
 def main():
   args = sys.argv
   args.pop(0)
 
   orientation=None
+  useDbus=False
   while len(args) > 0 and args[0].startswith("-"):
     arg = args.pop(0)
     if arg == "--landscape":
       orientation = "landscape"
     elif arg == "--portrait":
       orientation = "portrait"
+    elif arg == "--dbus":
+      useDbus = True
     else:
       print >> sys.stderr, usage
       sys.exit(2)
@@ -69,9 +84,30 @@ def main():
 
   app = QApplication([])
   widget = MainWindow(qmlFile)
-  widget.window().showFullScreen()
+
+  if useDbus:
+    app.setQuitOnLastWindowClosed(False)
+    dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+    qtBtnDbus = QtBtnDbus(widget.window())
+  else:
+    widget.showFullScreen()
 
   app.exec_()
+
+class QtBtnDbus(dbus.service.Object):
+  def __init__(self, window):
+    dbus.service.Object.__init__(self, self.getBusName(), '/')
+    self.window = window
+  def getBusName(self):
+    return dbus.service.BusName(DBUS_SERVICE, bus=dbus.SessionBus())
+  @dbus.service.method(DBUS_SERVICE)
+  def show(self):
+    print "show"
+    self.window.showFullScreen()
+  @dbus.service.method(DBUS_SERVICE)
+  def hide(self):
+    print "hide"
+    self.window.hide()
 
 class QmlGenerator():
   def __init__(self, platform, orientation, configFile):
