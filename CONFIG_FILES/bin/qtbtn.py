@@ -95,32 +95,37 @@ def main():
     app.setQuitOnLastWindowClosed(False)
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
     service = DBUS_SERVICE_PREFIX + "." + dbusServiceSuffix
-    qtBtnDbus = qtBtnDbusFactory(service, widget.window())
+    qtBtnDbus = qtBtnDbusFactory(service)
+    qtBtnDbus.signals.show.connect(widget.window().showFullScreen)
+    qtBtnDbus.signals.hide.connect(widget.window().hide)
   else:
     widget.showFullScreen()
 
   app.exec_()
 
+class DbusQtSignals(QObject):
+  show = Signal()
+  hide = Signal()
 
-def qtBtnDbusFactory(dbusService, window):
+def qtBtnDbusFactory(dbusService):
   class QtBtnDbus(dbus.service.Object):
-    def __init__(self, window):
+    def __init__(self):
       dbus.service.Object.__init__(self, self.getBusName(), '/')
-      self.window = window
+      self.signals = DbusQtSignals()
     def getBusName(self):
       return dbus.service.BusName(dbusService, bus=dbus.SessionBus())
 
     @dbus.service.method(dbusService)
     def show(self):
       print "show: " + dbusService
-      self.window.showFullScreen()
+      self.signals.show.emit()
 
     @dbus.service.method(dbusService)
     def hide(self):
       print "hide: " + dbusService
-      self.window.hide()
+      self.signals.hide.emit()
 
-  return QtBtnDbus(window)
+  return QtBtnDbus()
 
 class QmlGenerator():
   def __init__(self, platform, orientation, configFile):
