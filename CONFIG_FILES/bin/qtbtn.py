@@ -46,6 +46,7 @@ usage = """Usage:
       methods:
         show(): show the window
         hide(): hide the window
+        quit(): quit the application
 """ % {"exec": sys.argv[0], "dbusServicePrefix": DBUS_SERVICE_PREFIX}
 
 def main():
@@ -98,6 +99,7 @@ def main():
     qtBtnDbus = qtBtnDbusFactory(service)
     qtBtnDbus.signals.show.connect(widget.window().showFullScreen)
     qtBtnDbus.signals.hide.connect(widget.window().hide)
+    qtBtnDbus.signals.quit.connect(QCoreApplication.instance().quit)
   else:
     widget.showFullScreen()
 
@@ -106,6 +108,7 @@ def main():
 class DbusQtSignals(QObject):
   show = Signal()
   hide = Signal()
+  quit = Signal()
 
 def qtBtnDbusFactory(dbusService):
   class QtBtnDbus(dbus.service.Object):
@@ -124,6 +127,11 @@ def qtBtnDbusFactory(dbusService):
     def hide(self):
       print "hide: " + dbusService
       self.signals.hide.emit()
+
+    @dbus.service.method(dbusService)
+    def quit(self):
+      print "quit: " + dbusService
+      self.signals.quit.emit()
 
   return QtBtnDbus()
 
