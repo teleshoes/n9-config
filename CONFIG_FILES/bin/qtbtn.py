@@ -15,6 +15,7 @@ import dbus
 import dbus.service
 import dbus.mainloop.glib
 import os
+import re
 import sys
 import subprocess
 import signal
@@ -26,7 +27,7 @@ PLATFORM_HARMATTAN = 1
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-DBUS_SERVICE = "org.teleshoes.qtbtn"
+DBUS_SERVICE_PREFIX = "org.teleshoes.qtbtn"
 
 usage = """Usage:
   %(exec)s CONFIG_FILE
@@ -36,14 +37,16 @@ usage = """Usage:
       force landscape view in harmattan
     --portrait
       force portrait view in harmattan
-    --dbus
+    --dbus=SERVICE_SUFFIX
       instead of showing the window, listen for dbus signals controlling it
-      service: "%(dbusService)s"
+      service: "%(dbusServicePrefix)s.SERVICE_SUFFIX"
+        SERVICE_SUFFIX may contain only lowercase letters a-z
+        e.g.: %(dbusServicePrefix)s.powermenu
       path: "/"
       methods:
         show(): show the window
         hide(): hide the window
-""" % {"exec": sys.argv[0], "dbusService": DBUS_SERVICE}
+""" % {"exec": sys.argv[0], "dbusServicePrefix": DBUS_SERVICE_PREFIX}
 
 def main():
   args = sys.argv
@@ -51,13 +54,16 @@ def main():
 
   orientation=None
   useDbus=False
+  dbusServiceSuffix=None
   while len(args) > 0 and args[0].startswith("-"):
     arg = args.pop(0)
+    dbusMatch = re.match("--dbus=([a-z]+)", arg)
     if arg == "--landscape":
       orientation = "landscape"
     elif arg == "--portrait":
       orientation = "portrait"
-    elif arg == "--dbus":
+    elif dbusMatch:
+      dbusServiceSuffix = dbusMatch.group(1)
       useDbus = True
     else:
       print >> sys.stderr, usage
@@ -88,26 +94,33 @@ def main():
   if useDbus:
     app.setQuitOnLastWindowClosed(False)
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-    qtBtnDbus = QtBtnDbus(widget.window())
+    service = DBUS_SERVICE_PREFIX + "." + dbusServiceSuffix
+    qtBtnDbus = qtBtnDbusFactory(service, widget.window())
   else:
     widget.showFullScreen()
 
   app.exec_()
 
-class QtBtnDbus(dbus.service.Object):
-  def __init__(self, window):
-    dbus.service.Object.__init__(self, self.getBusName(), '/')
-    self.window = window
-  def getBusName(self):
-    return dbus.service.BusName(DBUS_SERVICE, bus=dbus.SessionBus())
-  @dbus.service.method(DBUS_SERVICE)
-  def show(self):
-    print "show"
-    self.window.showFullScreen()
-  @dbus.service.method(DBUS_SERVICE)
-  def hide(self):
-    print "hide"
-    self.window.hide()
+
+def qtBtnDbusFactory(dbusService, window):
+  class QtBtnDbus(dbus.service.Object):
+    def __init__(self, window):
+      dbus.service.Object.__init__(self, self.getBusName(), '/')
+      self.window = window
+    def getBusName(self):
+      return dbus.service.BusName(dbusService, bus=dbus.SessionBus())
+
+    @dbus.service.method(dbusService)
+    def show(self):
+      print "show: " + dbusService
+      self.window.showFullScreen()
+
+    @dbus.service.method(dbusService)
+    def hide(self):
+      print "hide: " + dbusService
+      self.window.hide()
+
+  return QtBtnDbus(window)
 
 class QmlGenerator():
   def __init__(self, platform, orientation, configFile):
