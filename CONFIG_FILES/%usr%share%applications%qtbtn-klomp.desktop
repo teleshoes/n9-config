@@ -2,5 +2,5 @@
 Name=qtbtn-klomp
 Comment=QT Button menu for klomp
 Icon=icon-m-content-playlist-inverse
-Exec=qtbtn.py /home/user/.config/qtbtn-klomp.conf
+Exec=n9-qtbtn klomp
 Type=Application
