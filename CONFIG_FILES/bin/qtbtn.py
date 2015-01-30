@@ -39,6 +39,7 @@ usage = """Usage:
       force portrait view in harmattan
     --dbus=SERVICE_SUFFIX
       instead of showing the window, listen for dbus signals controlling it
+      also, do not quit app on window close
       service: "%(dbusServicePrefix)s.SERVICE_SUFFIX"
         SERVICE_SUFFIX may contain only lowercase letters a-z
         e.g.: %(dbusServicePrefix)s.powermenu
