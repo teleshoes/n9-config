@@ -276,7 +276,7 @@ class QmlGenerator():
         Component{
           id: %(widgetId)s
           Text {
-            property variant command: "%(command)s"
+            property string command: "%(command)s"
             objectName: "infobar"
             font.pointSize: 16
             width: 100
@@ -377,8 +377,7 @@ class CommandRunner(QObject):
   def updateInfobars(self):
     for infobar in self.infobars:
       try:
-        context = QDeclarativeEngine.contextForObject(infobar)
-        cmd = context.contextProperty("command")
+        cmd = infobar.property("command")
         print "  running infobar command: " + cmd
         proc = subprocess.Popen(['sh', '-c', cmd],
           stdout=subprocess.PIPE)
