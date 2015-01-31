@@ -375,16 +375,23 @@ class CommandRunner(QObject):
     time.sleep(0.5)
     self.updateInfobars()
   def updateInfobars(self):
+    cmdCache = {}
     for infobar in self.infobars:
-      try:
-        cmd = infobar.property("command")
+      cmd = infobar.property("command")
+      if cmd in cmdCache:
+        msg = cmdCache[cmd]
+      else:
         print "  running infobar command: " + cmd
-        proc = subprocess.Popen(['sh', '-c', cmd],
-          stdout=subprocess.PIPE)
-        infobar.setProperty("text", proc.stdout.readline())
-        proc.terminate()
-      except:
-        infobar.setMessage("ERROR")
+
+        try:
+          proc = subprocess.Popen(['sh', '-c', cmd],
+            stdout=subprocess.PIPE)
+          msg = proc.stdout.readline()
+          proc.terminate()
+          cmdCache[cmd] = msg
+        except:
+          msg = "ERROR"
+      infobar.setProperty("text", msg)
 
 class MainWindow(QDeclarativeView):
   def __init__(self, qmlFile):
