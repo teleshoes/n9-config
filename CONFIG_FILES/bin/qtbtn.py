@@ -181,35 +181,31 @@ class QmlGenerator():
         orientLock = "LockPortrait"
       elif self.orientation == "landscape":
         orientLock = "LockLandscape"
+      else:
+        orientLock = "Automatic"
 
       qml = ""
       qml += "Page {\n"
-      qml += "  id: portrait\n"
-      if self.orientation:
-        qml += "  orientationLock: PageOrientation." + orientLock + "\n"
-      qml += self.indent(1, self.getLayout(self.portraitMaxRowLen))
+      qml += "  id: mainPage\n"
+      qml += "  orientationLock: PageOrientation." + orientLock + "\n"
+      qml += "  Rectangle {\n"
+      qml += "    id: portraitView\n"
+      qml += "    visible: inPortrait\n"
+      qml += "    anchors.fill: parent\n"
+      qml +=      self.indent(2, self.getLayout(self.portraitMaxRowLen))
+      qml += "  }\n"
+      qml += "  Rectangle {\n"
+      qml += "    id: landscapeView\n"
+      qml += "    visible: !inPortrait\n"
+      qml += "    anchors.fill: parent\n"
+      qml +=      self.indent(2, self.getLayout(self.landscapeMaxRowLen))
+      qml += "  }\n"
       qml += "}\n"
-      qml += "Page {\n"
-      qml += "  id: landscape\n"
-      if self.orientation:
-        qml += "  orientationLock: PageOrientation." + orientLock + "\n"
-      qml += self.indent(1, self.getLayout(self.landscapeMaxRowLen))
+      qml += "initialPage: mainPage\n"
+      qml += "onInPortraitChanged: {\n"
+      qml += "  portraitView.visible = inPortrait\n"
+      qml += "  landscapeView.visible = !inPortrait\n"
       qml += "}\n"
-      if self.orientation:
-        qml += "initialPage: " + self.orientation
-      else:
-        qml += self.indent(0, """
-          initialPage: inPortrait ? portrait : landscape
-          onInPortraitChanged: {
-            if (inPortrait && pageStack.currentPage!==portrait) {
-              pageStack.clear()
-              pageStack.push(portrait);
-            } else if (!inPortrait && pageStack.currentPage!==landscape) {
-              pageStack.clear()
-              pageStack.push(landscape)
-            }
-          }
-        """)
       return qml
     else:
       return self.getLayout(self.landscapeMaxRowLen)
