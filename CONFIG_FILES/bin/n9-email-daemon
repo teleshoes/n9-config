@@ -14,7 +14,7 @@ sub main(@){
   while(1){
     sleep $delayS;
     system "date >> $logFile";
-    system "n9-email 2>&1 | tee -a $logFile";
+    system "n9-email --quiet 2>&1 | tee -a $logFile";
     system "echo >> $logFile";
     system "echo >> $logFile";
     system "echo >> $logFile";
