@@ -52,6 +52,7 @@ my $normalPackages = {
     libtimedate-perl libemail-date-format-perl
   )],
   '3' => [qw(
+    qtemail
     stellarium-n9
     meefox
     screen
