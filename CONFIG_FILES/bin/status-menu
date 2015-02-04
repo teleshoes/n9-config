@@ -1,0 +1,61 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use File::Basename;
+
+sub writeMenuOrder($@);
+sub run(@);
+
+my $menuDir = "$ENV{HOME}/.status-menu";
+
+my $menuUseModern = 1;
+my $menuNotifications = 0;
+
+my @menuTopWidgets = qw(
+);
+
+my @menuFlickWidgets = qw(
+  volume
+  brightness
+  internet
+  mt-toggles
+  transfer
+  call
+);
+
+my @menuStandardWidgets = (@menuTopWidgets, @menuFlickWidgets);
+
+sub main(@){
+  if(`which n9` ne "" and `hostname` ne `n9`){
+    my $host = `n9`;
+    chomp $host;
+    my $name = basename $0;
+    print "copying to the device\n";
+    system "scp", $0, "root\@$host:/tmp/$name";
+    print "rerunning on the device\n";
+    exec "ssh", "root\@$host", "/tmp/$name", @_;
+  }
+  if(`whoami` ne "user\n"){
+    print "rerunning as user\n";
+    exec "udo", $0, @_;
+  }
+
+  run "mkdir", "-p", $menuDir;
+  writeMenuOrder "$menuDir/top-order.conf", @menuTopWidgets;
+  writeMenuOrder "$menuDir/pannable-order.conf", @menuFlickWidgets;
+  writeMenuOrder "$menuDir/items-order.conf", @menuStandardWidgets;
+}
+
+sub writeMenuOrder($@){
+  my ($file, @items) = @_;
+  open FH, "> $file" or die "Could not write $file\n";
+  print FH "statusindicatormenu-$_.desktop\n" foreach @items;
+  close FH;
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+&main(@ARGV);
