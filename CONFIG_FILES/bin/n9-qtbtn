@@ -1,0 +1,105 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $configDir = "$ENV{HOME}/.config";
+my $service = "org.teleshoes.qtbtn";
+
+sub ensureShowing($);
+sub qdbus($$);
+sub qdbusOrDie($$);
+sub startQtBtn($);
+sub run(@);
+
+my $delay = 1;
+my $limit = 10;
+
+my $usage = "Usage:
+  $0 -h|--help
+    show this message
+
+  $0 INSTANCE
+    do the same as $0 --show INSTANCE
+    if the dbus call fails, do the same as $0 --start,
+      and retry '$0 --show INSTANCE' every ${delay}s for ${limit}s
+      until it works or times out.
+
+  $0 --start INSTANCE
+    run 'qtbtn.py --dbus=INSTANCE $configDir/qtbtn-INSTANCE.conf',
+
+  $0 -s|--show INSTANCE
+    call method 'show' on object '/' for service $service.INSTANCE
+  $0 -h|--hide INSTANCE
+    call method 'hide' on object '/' for service $service.INSTANCE
+  $0 -q|--quit|-k|--kill INSTANCE_NAME
+    call method 'quit' on object '/' for service $service.INSTANCE
+";
+
+sub main(@){
+  my ($method, $instance);
+  if(@_ == 1 and $_[0] =~ /^(-h|--help)/){
+    die $usage;
+  }elsif(@_ == 1){
+    ensureShowing($_[0]);
+  }elsif(@_ == 2 and $_[0] =~ /^(--start)/){
+    startQtBtn($_[1]);
+  }elsif(@_ == 2 and $_[0] =~ /^(-s|--show)/){
+    qdbusOrDie($_[1], "show");
+  }elsif(@_ == 2 and $_[0] =~ /^(-h|--hide)/){
+    qdbusOrDie($_[1], "hide");
+  }elsif(@_ == 2 and $_[0] =~ /^(-q|--quit|-k|--kill)/){
+    qdbusOrDie($_[1], "quit");
+  }else{
+    die $usage;
+  }
+}
+
+sub ensureShowing($){
+  my $instance = shift;
+  if(not qdbus($instance, "show")){
+    print "qdbus failed, starting qtbtn.py and retrying\n";
+    startQtBtn($instance);
+    my $start = time;
+    my $success = 0;
+    while(time - $start < $limit){
+      sleep $delay;
+      if(qdbus $instance, "show"){
+        $success = 1;
+        last;
+      }
+    }
+    if(not $success){
+      die "FAILED: dbus service $service.$instance still not active\n";
+    }
+  }
+}
+
+sub qdbus($$){
+  my ($instance, $method) = @_;
+  run "qdbus", "$service.$instance", "/", $method;
+  if($? == 0){
+    return 1;
+  }else{
+    return 0;
+  }
+}
+
+sub qdbusOrDie($$){
+  my ($instance, $method) = @_;
+  if(not qdbus($_[0], $_[1])){
+    die "FAILED: calling dbus $service.$instance / $method\n";
+  }
+}
+
+sub startQtBtn($){
+  my $instance = shift;
+  my $configFile = "$configDir/qtbtn-$instance.conf";
+  run "source /etc/profile; qtbtn.py --dbus=$instance $configFile &";
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+&main(@ARGV);

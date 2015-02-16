@@ -11,7 +11,11 @@ from PySide.QtCore import *
 from PySide.QtDeclarative import *
 from collections import deque
 
+import dbus
+import dbus.service
+import dbus.mainloop.glib
 import os
+import re
 import sys
 import subprocess
 import signal
@@ -23,6 +27,8 @@ PLATFORM_HARMATTAN = 1
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+DBUS_SERVICE_PREFIX = "org.teleshoes.qtbtn"
+
 usage = """Usage:
   %(exec)s CONFIG_FILE
 
@@ -31,19 +37,36 @@ usage = """Usage:
       force landscape view in harmattan
     --portrait
       force portrait view in harmattan
-""" % {"exec": sys.argv[0]}
+    --dbus=SERVICE_SUFFIX
+      instead of showing the window, listen for dbus signals controlling it
+      also, do not quit app on window close
+      service: "%(dbusServicePrefix)s.SERVICE_SUFFIX"
+        SERVICE_SUFFIX may contain only lowercase letters a-z
+        e.g.: %(dbusServicePrefix)s.powermenu
+      path: "/"
+      methods:
+        show(): show the window
+        hide(): hide the window
+        quit(): quit the application
+""" % {"exec": sys.argv[0], "dbusServicePrefix": DBUS_SERVICE_PREFIX}
 
 def main():
   args = sys.argv
   args.pop(0)
 
   orientation=None
+  useDbus=False
+  dbusServiceSuffix=None
   while len(args) > 0 and args[0].startswith("-"):
     arg = args.pop(0)
+    dbusMatch = re.match("--dbus=([a-z]+)", arg)
     if arg == "--landscape":
       orientation = "landscape"
     elif arg == "--portrait":
       orientation = "portrait"
+    elif dbusMatch:
+      dbusServiceSuffix = dbusMatch.group(1)
+      useDbus = True
     else:
       print >> sys.stderr, usage
       sys.exit(2)
@@ -69,9 +92,49 @@ def main():
 
   app = QApplication([])
   widget = MainWindow(qmlFile)
-  widget.window().showFullScreen()
+
+  if useDbus:
+    app.setQuitOnLastWindowClosed(False)
+    dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+    service = DBUS_SERVICE_PREFIX + "." + dbusServiceSuffix
+    qtBtnDbus = qtBtnDbusFactory(service)
+    qtBtnDbus.signals.show.connect(widget.window().showFullScreen)
+    qtBtnDbus.signals.hide.connect(widget.window().hide)
+    qtBtnDbus.signals.quit.connect(QCoreApplication.instance().quit)
+  else:
+    widget.showFullScreen()
 
   app.exec_()
+
+class DbusQtSignals(QObject):
+  show = Signal()
+  hide = Signal()
+  quit = Signal()
+
+def qtBtnDbusFactory(dbusService):
+  class QtBtnDbus(dbus.service.Object):
+    def __init__(self):
+      dbus.service.Object.__init__(self, self.getBusName(), '/')
+      self.signals = DbusQtSignals()
+    def getBusName(self):
+      return dbus.service.BusName(dbusService, bus=dbus.SessionBus())
+
+    @dbus.service.method(dbusService)
+    def show(self):
+      print "show: " + dbusService
+      self.signals.show.emit()
+
+    @dbus.service.method(dbusService)
+    def hide(self):
+      print "hide: " + dbusService
+      self.signals.hide.emit()
+
+    @dbus.service.method(dbusService)
+    def quit(self):
+      print "quit: " + dbusService
+      self.signals.quit.emit()
+
+  return QtBtnDbus()
 
 class QmlGenerator():
   def __init__(self, platform, orientation, configFile):
@@ -118,35 +181,31 @@ class QmlGenerator():
         orientLock = "LockPortrait"
       elif self.orientation == "landscape":
         orientLock = "LockLandscape"
+      else:
+        orientLock = "Automatic"
 
       qml = ""
       qml += "Page {\n"
-      qml += "  id: portrait\n"
-      if self.orientation:
-        qml += "  orientationLock: PageOrientation." + orientLock + "\n"
-      qml += self.indent(1, self.getLayout(self.portraitMaxRowLen))
+      qml += "  id: mainPage\n"
+      qml += "  orientationLock: PageOrientation." + orientLock + "\n"
+      qml += "  Rectangle {\n"
+      qml += "    id: portraitView\n"
+      qml += "    visible: inPortrait\n"
+      qml += "    anchors.fill: parent\n"
+      qml +=      self.indent(2, self.getLayout(self.portraitMaxRowLen))
+      qml += "  }\n"
+      qml += "  Rectangle {\n"
+      qml += "    id: landscapeView\n"
+      qml += "    visible: !inPortrait\n"
+      qml += "    anchors.fill: parent\n"
+      qml +=      self.indent(2, self.getLayout(self.landscapeMaxRowLen))
+      qml += "  }\n"
       qml += "}\n"
-      qml += "Page {\n"
-      qml += "  id: landscape\n"
-      if self.orientation:
-        qml += "  orientationLock: PageOrientation." + orientLock + "\n"
-      qml += self.indent(1, self.getLayout(self.landscapeMaxRowLen))
+      qml += "initialPage: mainPage\n"
+      qml += "onInPortraitChanged: {\n"
+      qml += "  portraitView.visible = inPortrait\n"
+      qml += "  landscapeView.visible = !inPortrait\n"
       qml += "}\n"
-      if self.orientation:
-        qml += "initialPage: " + self.orientation
-      else:
-        qml += self.indent(0, """
-          initialPage: inPortrait ? portrait : landscape
-          onInPortraitChanged: {
-            if (inPortrait && pageStack.currentPage!==portrait) {
-              pageStack.clear()
-              pageStack.push(portrait);
-            } else if (!inPortrait && pageStack.currentPage!==landscape) {
-              pageStack.clear()
-              pageStack.push(landscape)
-            }
-          }
-        """)
       return qml
     else:
       return self.getLayout(self.landscapeMaxRowLen)
@@ -217,7 +276,7 @@ class QmlGenerator():
         Component{
           id: %(widgetId)s
           Text {
-            property variant command: "%(command)s"
+            property string command: "%(command)s"
             objectName: "infobar"
             font.pointSize: 16
             width: 100
@@ -316,17 +375,23 @@ class CommandRunner(QObject):
     time.sleep(0.5)
     self.updateInfobars()
   def updateInfobars(self):
+    cmdCache = {}
     for infobar in self.infobars:
-      try:
-        context = QDeclarativeEngine.contextForObject(infobar)
-        cmd = context.contextProperty("command")
+      cmd = infobar.property("command")
+      if cmd in cmdCache:
+        msg = cmdCache[cmd]
+      else:
         print "  running infobar command: " + cmd
-        proc = subprocess.Popen(['sh', '-c', cmd],
-          stdout=subprocess.PIPE)
-        infobar.setProperty("text", proc.stdout.readline())
-        proc.terminate()
-      except:
-        infobar.setMessage("ERROR")
+
+        try:
+          proc = subprocess.Popen(['sh', '-c', cmd],
+            stdout=subprocess.PIPE)
+          msg = proc.stdout.readline()
+          proc.terminate()
+          cmdCache[cmd] = msg
+        except:
+          msg = "ERROR"
+      infobar.setProperty("text", msg)
 
 class MainWindow(QDeclarativeView):
   def __init__(self, qmlFile):

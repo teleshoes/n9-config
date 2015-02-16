@@ -49,9 +49,10 @@ my $normalPackages = {
     imagemagick
     python-pyside.qtgui python-qmsystem python-pyside.qtdeclarative
     python-qtmobility.multimediakit
-    libtimedate-perl
+    libtimedate-perl libemail-date-format-perl
   )],
   '3' => [qw(
+    qtemail
     stellarium-n9
     meefox
     screen
