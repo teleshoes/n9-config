@@ -13,6 +13,8 @@ my %alerts = (
   L => "/usr/share/sounds/soothing/jumpup.wav",
 );
 
+my $emailExec = "/usr/bin/email.pl";
+
 my $maybeIcon = "/home/user/maybe-email.png";
 my $notEmptyIcon = "email.png";
 my $emptyIcon = "email-empty.png";
@@ -24,7 +26,7 @@ sub main(@){
   die $usage if @_ > 0;
 
   #update email
-  run "email.pl --update @accounts";
+  run "$emailExec --update @accounts";
 
   #setup lpsmagic
   run "rm", "-f", $maybeIcon;
@@ -44,25 +46,25 @@ sub main(@){
 
 
   if(not $quiet){
-    run "email.pl", "--print";
+    run $emailExec, "--print";
     print "\n";
-    run "email.pl", "--summary";
+    run $emailExec, "--summary";
     print "\n";
-    run "email.pl", "--unread-line";
+    run $emailExec, "--unread-line";
     print "\n";
   }
 }
 
 sub hasError(@){
-  run "email.pl", "--has-error", @_;
+  run $emailExec, "--has-error", @_;
   return $? == 0;
 }
 sub hasUnread(@){
-  run "email.pl", "--has-unread", @_;
+  run $emailExec, "--has-unread", @_;
   return $? == 0;
 }
 sub hasNewUnread(@){
-  run "email.pl", "--has-new-unread", @_;
+  run $emailExec, "--has-new-unread", @_;
   return $? == 0;
 }
 
