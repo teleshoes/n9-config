@@ -2,6 +2,7 @@
 [ -n "$PS1" ] && [ -f /etc/bash_completion ] && . /etc/bash_completion
 
 shopt -s dotglob
+shopt -s extglob
 
 ssh-add ~/.ssh/id_rsa 2> /dev/null
 
@@ -57,11 +58,6 @@ if [ -d $meego_gnu ]; then
   ;
 fi
 
-if [ `hostname -s` == "wolke-n9" ]; then
-  alias apt-get="AEGIS_FIXED_ORIGIN=com.nokia.maemo apt-get"
-  alias dpkg="AEGIS_FIXED_ORIGIN=com.nokia.maemo dpkg"
-fi
-
 #command prompt
 if [[ -z "$DISPLAY" ]]; then
   #host abbrevs
@@ -114,12 +110,9 @@ alias mkdir="mkdir -p"
 alias :q='exit'
 alias :r='. /etc/profile; . ~/.bashrc;'
 
-function sb           { seedbox "$@"; }
-function sbr          { seedbox -r "$@"; }
-function sbw          { seedbox -r ssh wolke@192.168.11.50 "$@"; }
-
 function vol          { pulse-vol "$@"; }
 function j            { fcron-job-toggle "$@"; }
+function f            { feh "$@"; }
 function snapshot     { backup --snapshot "$@"; }
 function qgroups-info { backup --info --quick --sort-by=size "$@"; }
 function dus          { du -s * | sort -g "$@"; }
@@ -139,7 +132,12 @@ function escape-pod   { ~/Code/escapepod/escape-pod-tool --escapepod "$@"; }
 function podcastle    { ~/Code/escapepod/escape-pod-tool --podcastle "$@"; }
 function pseudopod    { ~/Code/escapepod/escape-pod-tool --pseudopod "$@"; }
 function g            { git "$@"; }
+function gs           { g s; }
 function mp           { mplayer "$@"; }
+
+function sb           { seedbox "$@"; }
+function sbr          { seedbox -r "$@"; }
+function sbw          { seedbox -r ssh wolke@192.168.11.50 "$@"; }
 
 function s            { "$@" & disown; }
 function sx           { "$@" & disown && exit 0; }
@@ -154,8 +152,8 @@ function mck          { maven checkstyle:check "$@"; }
 function findmvn      { command find "$@" -not -regex '\(^\|.*/\)\(target\|gen\)\($\|/.*\)'; }
 function grepmvn      { command grep "$@" --exclude-dir=target --exclude-dir=gen; }
 
-function genservices  { ~/workspace/old-escribe/tools/genservices.pl "$@"; }
-function genibatis    { ~/workspace/old-escribe/tools/genibatis.pl "$@"; }
+function genservices  { ~/workspace/escribehost/legacy-tools/genservices.pl "$@"; }
+function genibatis    { ~/workspace/escribehost/legacy-tools/genibatis.pl "$@"; }
 function migl         { gvim `~/migs/latest-script` "$@"; }
 
 # common typos
@@ -202,10 +200,13 @@ function execAlarm() {
 }
 
 function update-repo {
+  repo="$1"
+  shift
   sudo apt-get update \
-    -o Dir::Etc::sourcelist="sources.list.d/$1" \
+    -o Dir::Etc::sourcelist="sources.list.d/$repo" \
     -o Dir::Etc::sourceparts="-" \
-    -o APT::Get::List-Cleanup="0"
+    -o APT::Get::List-Cleanup="0" \
+    "$@"
 }
 
 
