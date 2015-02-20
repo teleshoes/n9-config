@@ -13,7 +13,7 @@ my %alerts = (
   L => "/usr/share/sounds/soothing/jumpup.wav",
 );
 
-my $emailExec = "/usr/bin/email.pl";
+my $emailExec = "/opt/qtemail/bin/email.pl";
 
 my $maybeIcon = "/home/user/maybe-email.png";
 my $notEmptyIcon = "email.png";
