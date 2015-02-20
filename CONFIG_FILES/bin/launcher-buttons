@@ -30,7 +30,7 @@ my @config = qw(
   FBReader
 
   qtbtn-klomp
-  email-gui
+  qtemail
   contact-emily
   meeseepics
 
