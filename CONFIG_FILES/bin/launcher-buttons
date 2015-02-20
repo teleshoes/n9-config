@@ -21,7 +21,7 @@ my @config = qw(
 
   dir-comm[
     mail
-    email-gui
+    qtemail
     n9-email
     contacts
     call-log
