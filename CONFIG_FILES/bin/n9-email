@@ -22,6 +22,10 @@ my $emptyIcon = "email-empty.png";
 my $usage = "Usage: $0 [-q|--quiet]\n";
 
 sub main(@){
+  if(`whoami` ne "user\n"){
+    print "rerunning as user\n";
+    exec "udo", $0, @_;
+  }
   my $quiet = shift if @_ > 0 and $_[0] =~ /^(-q|--quiet)$/;
   die $usage if @_ > 0;
 
