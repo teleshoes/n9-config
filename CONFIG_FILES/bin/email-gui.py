@@ -7,7 +7,7 @@ sub main(@){
     print "rerunning as user\n";
     exec "udo", $0, @_;
   }
-  exec "/opt/qtemail/bin/email-gui.py";
+  exec "/opt/qtemail/bin/email-gui.py", @_;
 }
 
 &main(@ARGV);

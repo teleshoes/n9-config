@@ -7,7 +7,7 @@ sub main(@){
     print "rerunning as user\n";
     exec "udo", $0, @_;
   }
-  exec "/opt/qtemail/bin/email.pl";
+  exec "/opt/qtemail/bin/email.pl", @_;
 }
 
 &main(@ARGV);
