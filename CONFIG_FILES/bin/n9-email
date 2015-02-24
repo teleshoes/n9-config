@@ -28,8 +28,8 @@ sub main(@){
   #update email
   run "$emailExec --update @accounts";
 
-  #setup lpsmagic
-  run "source /etc/profile; lpsmagic -once 2>&1 | grep 'Rendering format string'";
+  #update billboard
+  run "billboard-refresh";
 
   #run alerts
   for my $acc(@accounts){
