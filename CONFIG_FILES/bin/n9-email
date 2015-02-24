@@ -44,7 +44,7 @@ sub main(@){
     print "\n";
     run $emailExec, "--summary";
     print "\n";
-    run $emailExec, "--unread-line";
+    run $emailExec, "--status-line";
     print "\n";
   }
 }
