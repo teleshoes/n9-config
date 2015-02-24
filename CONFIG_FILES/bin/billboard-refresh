@@ -1,0 +1,5 @@
+#!/bin/bash
+key=/apps/billboard/text
+val=$(gconftool -g $key)
+gconftool -s $key -t str "$val "
+gconftool -s $key -t str "$val"
