@@ -25,6 +25,7 @@ sub main(@){
 
   my $text = ''
     . "{script:chomp billboard-email}\n"
+    . "{{green}}{volume-bar}\n"
     . $batPer . $sep . $batCur . $sep . $date . "\n"
     . $klomp . "\n"
     ;
