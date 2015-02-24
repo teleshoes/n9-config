@@ -1,0 +1,35 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $key="/apps/billboard/text";
+
+sub main(@){
+  my $G="{{green}}";
+  my $R="{{red}}";
+
+  my $sep = $G . "※";
+  my $batPer = $R . "{battery}%";
+  my $batCur = $R. "{script: chomp batcur}mA";
+  my $date = $R . "{script:chomp date +%a}, {short-month} {day}";
+
+  my $klomp="{script:klomp-info --format=\""
+    . "$G %s %s %s %s\\n"
+    . "$G %s\\n"
+    . "$G %s %s"
+    . "\""
+    . " ended percent playlist album"
+    . " artist"
+    . " number title"
+    . "}";
+
+  my $text = ''
+    . "{script:chomp billboard-email}\n"
+    . $batPer . $sep . $batCur . $sep . $date . "\n"
+    . $klomp . "\n"
+    ;
+
+  system "gconftool", "-s", $key, "-t", "str", $text;
+}
+
+&main(@ARGV);
