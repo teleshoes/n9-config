@@ -1,7 +1,7 @@
 symlink=/home/user/MyDocs/Music/all
-startCmd=lpsmagic -once
+startCmd=billboard-refresh
 stopCmd=killall -9 mplayer
-playlistCmd=lpsmagic -once
+playlistCmd=billboard-refresh
 renice=-12
 targetUser=user
 disallowPause=true
