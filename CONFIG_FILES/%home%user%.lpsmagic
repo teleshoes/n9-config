@@ -8,7 +8,7 @@ VerticalSpacing=1
 formatString=\
   %cmd{echo '                    '}\
     %icon{/home/user/maybe-email.png}\
-    %cmd{/opt/qtemail/bin/email.pl --unread-line}\
+    %cmd{echo -n `cat /home/user/.cache/email/status-line`}\
     %newline{}\
   %batIcon{} %batPercent{%} %icon{gear.png} %batCurrent{mA} %icon{calendar.png} %date{MM/dd}
 minWaitTime=0
