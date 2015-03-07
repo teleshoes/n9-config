@@ -67,6 +67,7 @@ my $normalPackages = {
     wireless-tools
     qtodo brujula dropcache-mdn
     qml2048
+    gnuchess
   )],
   '5harmattan-dev' => [qw(
     linux-kernel-headers
