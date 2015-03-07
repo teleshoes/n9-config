@@ -68,6 +68,7 @@ my $normalPackages = {
     qtodo brujula dropcache-mdn
     qml2048
     gnuchess
+    josemobile
   )],
   '5harmattan-dev' => [qw(
     linux-kernel-headers
