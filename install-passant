@@ -3,8 +3,8 @@ use strict;
 use warnings;
 
 my $dir = "/root/passant";
-my $gitRepo = "https://github.com/xerxes2/passant.git";
-my $commit = "8ed9ce2";
+my $gitRepo = "https://github.com/teleshoes/passant.git";
+my $commit = "origin/master";
 
 sub run(@){
   print "@_\n";
