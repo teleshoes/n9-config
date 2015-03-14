@@ -82,6 +82,7 @@ my @config = qw(
     ovistoreclient
     pidgin
     n9-button-monitor
+    billboard-ui
     lirr_fdl_pen
     lirr_pen_fdl
     lirr_cpg_rvc
