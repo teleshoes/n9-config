@@ -67,6 +67,7 @@ my @config = qw(
     n9-email
     mail
     contact-coocoo
+    passant
     fennec
     grob
     camera-ui
