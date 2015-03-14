@@ -63,6 +63,7 @@ my @config = qw(
   ]
   dir-cute[
     qml2048
+    passant
     xmcr
     vmpkn9
     emumaster
