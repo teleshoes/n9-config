@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my @dirs = (
+  "/usr/share/sounds/soothing",
+);
+
+sub main(@){
+  die "Usage: $0 SOUND_NAME|FILE\n" if @_ != 1;
+  my $sound = shift;
+  if(not -f $sound){
+    $sound =~ s/(\.wav)?$/.wav/;
+    for my $dir(@dirs){
+      if(-f "$dir/$sound"){
+        $sound = "$dir/$sound";
+        last;
+      }
+    }
+  }
+
+  die "Could not find $sound in @dirs\n" if not -f $sound;
+  system "vibrate.py", $sound;
+}
+
+&main(@ARGV);
