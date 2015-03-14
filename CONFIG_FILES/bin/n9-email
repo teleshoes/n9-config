@@ -2,16 +2,9 @@
 use strict;
 use warnings;
 
-sub hasError(@);
-sub hasUnread(@);
-sub hasNewUnread(@);
 sub run(@);
 
 my @accounts = qw(G L);
-my %alerts = (
-  G => "/usr/share/sounds/soothing/jumpdown.wav",
-  L => "/usr/share/sounds/soothing/jumpup.wav",
-);
 
 my $emailExec = "/opt/qtemail/bin/email.pl";
 
@@ -31,14 +24,6 @@ sub main(@){
   #update billboard
   run "billboard-refresh";
 
-  #run alerts
-  for my $acc(@accounts){
-    if(not hasError $acc and hasNewUnread $acc){
-      run "source /etc/profile; vibrate.py $alerts{$acc}";
-    }
-  }
-
-
   if(not $quiet){
     run $emailExec, "--print";
     print "\n";
@@ -47,19 +32,6 @@ sub main(@){
     run $emailExec, "--status-line";
     print "\n";
   }
-}
-
-sub hasError(@){
-  run $emailExec, "--has-error", @_;
-  return $? == 0;
-}
-sub hasUnread(@){
-  run $emailExec, "--has-unread", @_;
-  return $? == 0;
-}
-sub hasNewUnread(@){
-  run $emailExec, "--has-new-unread", @_;
-  return $? == 0;
 }
 
 sub run(@){
