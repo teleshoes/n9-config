@@ -55,16 +55,17 @@ my @config = qw(
     qml2048
     stellarium-n9
 
+    passant
     emumaster
     n9-email
     mail
-    lirr_fdl_pen
 
+    lirr_fdl_pen
     lirr_pen_fdl
     lirr_cpg_rvc
     lirr_rvc_cpg
-    lirr_cpg_pen
 
+    lirr_cpg_pen
     lirr_pen_cpg
   ]
 );
