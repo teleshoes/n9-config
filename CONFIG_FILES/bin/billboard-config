@@ -20,7 +20,7 @@ sub getText(){
   my $G="{{green}}";
   my $R="{{red}}";
 
-  my $sep = $G . "※";
+  my $sep = $G . " ※ ";
   my $batPer = $R . "{battery}%";
   my $batCur = $R. "{script: chomp batcur}mA";
   my $date = $R . "{script:chomp date +%a}, {short-month} {day}";
