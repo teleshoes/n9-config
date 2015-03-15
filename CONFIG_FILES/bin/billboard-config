@@ -22,18 +22,10 @@ sub getText(){
 
   my $sep = $G . " ※ ";
   my $batPer = $R . "{battery}%";
-  my $batCur = $R. "{script: chomp batcur}mA";
+  my $batCur = $R. "{script:chomp batcur}mA";
   my $date = $R . "{script:chomp date +%a}, {short-month} {day}";
 
-  my $klomp="{script:klomp-info --format=\""
-    . "$G%s%s %s %s\\n"
-    . "$G%s\\n"
-    . "$G%s %s"
-    . "\""
-    . " ended percent playlist album"
-    . " artist"
-    . " number title"
-    . "}";
+  my $klomp="{script:cat /home/user/.cache/klomp-billboard.txt}";
 
   return ''
     . "{script:chomp billboard-email}\n"
