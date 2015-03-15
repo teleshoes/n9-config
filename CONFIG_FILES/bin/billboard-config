@@ -2,9 +2,19 @@
 use strict;
 use warnings;
 
-my $key="/apps/billboard/text";
+my $keyPrefix="/apps/billboard";
 
 sub main(@){
+  my $config = {
+    text => getText(),
+  };
+
+  for my $key(sort keys %$config){
+    system "gconftool", "-s", "$keyPrefix/$key", "-t", "str", $$config{$key};
+  }
+}
+
+sub getText(){
   my $G="{{green}}";
   my $R="{{red}}";
 
@@ -23,14 +33,12 @@ sub main(@){
     . " number title"
     . "}";
 
-  my $text = ''
+  return ''
     . "{script:chomp billboard-email}\n"
     . "{{green}}{volume-bar}\n"
     . $batPer . $sep . $batCur . $sep . $date . "\n"
     . $klomp . "\n"
     ;
-
-  system "gconftool", "-s", $key, "-t", "str", $text;
 }
 
 &main(@ARGV);
