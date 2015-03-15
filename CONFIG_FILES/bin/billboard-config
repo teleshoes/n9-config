@@ -14,9 +14,9 @@ sub main(@){
   my $date = $R . "{script:chomp date +%a}, {short-month} {day}";
 
   my $klomp="{script:klomp-info --format=\""
-    . "$G %s %s %s %s\\n"
-    . "$G %s\\n"
-    . "$G %s %s"
+    . "$G%s%s %s %s\\n"
+    . "$G%s\\n"
+    . "$G%s %s"
     . "\""
     . " ended percent playlist album"
     . " artist"
