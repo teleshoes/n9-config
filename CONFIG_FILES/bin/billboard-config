@@ -7,7 +7,7 @@ my $keyPrefix="/apps/billboard";
 sub main(@){
   my $config = {
     text => getText(),
-    font => 'Inconsolata',
+    font => '',
     alignment => 'left',
   };
 
@@ -19,19 +19,16 @@ sub main(@){
 sub getText(){
   my $G="{{green}}";
   my $R="{{red}}";
+  my $W="{{white}}";
 
-  my $sep = $G . " ※ ";
-  my $batPer = $R . "{battery}%";
-  my $batCur = $R. "{script:pad 3 chomp batcur}mA";
-  my $date = $R . "{script:chomp date +%a}, {short-month} {day}";
-
-  my $klomp="{script:cat /home/user/.cache/klomp-billboard.txt}";
+  my $sep = $G . " ★ ";
+  my $batPer = $W . "{battery}%";
+  my $batCur = $W . "{script:pad 3 chomp batcur}mA";
+  my $date = $W . "{script:chomp date +%A}, {month} {day}";
 
   return ''
-    . "{script:chomp billboard-email}\n"
-    . "{{green}}{volume-bar}\n"
-    . $batPer . $sep . $batCur . $sep . $date . "\n"
-    . $klomp . "\n"
+    . $date . "\n"
+    . $batPer . $sep . $batCur . "\n"
     ;
 }
 
