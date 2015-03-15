@@ -64,7 +64,6 @@ my @config = qw(
     stellarium-n9
   ]
   dir-junk[
-    n9-email
     mail
     contact-coocoo
     passant
