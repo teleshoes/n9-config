@@ -22,6 +22,16 @@ sub main(@){
   );
 
   my $text = readProc @cmd;
+  if($text !~ /^
+    $G  (.*)  \|\d+\|  [ ]  (.*) [ ] .+ \n
+    $G  (.+) \n
+    $G  ([0-9\/ .]*) [ ] (.+) \n
+    $/xs){
+    print $text;
+    print "malformed klomp-info, rerunning\n";
+    sleep 1;
+    $text = readProc @cmd;
+  }
 
   print $text;
 
