@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $usage = "Usage: $0 PAD_SIZE CMD [ARG ARG ..]\n";
+
+sub main(@){
+  die $usage if @_ < 2;
+  my ($pad, @cmd) = @_;
+  die $usage if $pad !~ /^\d+$/;
+  open FH, "-|", @cmd or die "Could not run @cmd\n";
+  my @lines = <FH>;
+  close FH;
+
+  for my $line(@lines){
+    my $test = $line;
+    chomp $test;
+    my $chars = $pad - length $test;
+    if($chars > 0){
+      $line = (' 'x$chars) . $line;
+    }
+  }
+
+  print @lines;
+}
+
+&main(@ARGV);
