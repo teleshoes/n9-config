@@ -22,7 +22,7 @@ sub getText(){
 
   my $sep = $G . " ※ ";
   my $batPer = $R . "{battery}%";
-  my $batCur = $R. "{script:chomp batcur}mA";
+  my $batCur = $R. "{script:pad 3 chomp batcur}mA";
   my $date = $R . "{script:chomp date +%a}, {short-month} {day}";
 
   my $klomp="{script:cat /home/user/.cache/klomp-billboard.txt}";
