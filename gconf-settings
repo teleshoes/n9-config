@@ -13,7 +13,7 @@ my $lockScreenBG = '/usr/share/backgrounds/lockscreen.jpg';
 my @vkbNormal = ('libmeego-keyboard.so', 'en_us.xml');
 my @vkbSwype = ('libswype-keyboard.so' , 'Swype');
 
-my $vkbEnabled = listString [$swype ? (@vkbNormal, @vkbSwype) : (@vkbNormal)];
+my $vkbEnabled = listString [$swype ? (@vkbSwype) : (@vkbNormal)];
 my $vkbActive = listString [$swype ? (@vkbSwype) : (@vkbNormal)];
 
 my %usbModes = (
