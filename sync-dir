@@ -8,6 +8,9 @@ sub run(@);
 my $backupDir = "$ENV{HOME}/Code/n9/backup";
 my $backups = {
   swype => ["/home/user/.swype", ["--del"], []],
+  fbreader => ["/home/user/.FBReader", ["--del"], [qw(
+    cache
+  )]],
   klomp => ["/home/user/.klomp", ["--del", "--no-perms"], [qw(
     db
     datecache

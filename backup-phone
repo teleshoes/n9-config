@@ -25,7 +25,7 @@ sub main(@){
   backup "sync-pixmirror";
   backup "sync-mydocs";
   backup "sync-home";
-  backup "sync-fbreader backup";
+  backup "sync-dir fbreader backup";
   backup "sync-dir klomp backup";
   backup "sync-dir swype backup";
   backup "sync-qtodo";
