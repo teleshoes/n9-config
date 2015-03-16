@@ -4,11 +4,15 @@ use warnings;
 use Time::HiRes qw(sleep);
 
 my $usage = "Usage: $0 NAME DELAY_MILLIS CMDSTR\n";
+my $logBaseDir = "/home/user/.cache/logs";
 
 sub main(@){
   die $usage if @_ != 3 or $_[0] !~ /^[a-zA-Z0-9_\-]+$/ or $_[1] !~ /^\d+$/;
   my ($name, $delayMillis, $cmd) = @_;
-  my $logFile = "/home/user/$name-daemon.log";
+  my $now = time;
+  my $logDir = "$logBaseDir/$name-daemon";
+  system "mkdir", "-p", $logDir;
+  my $logFile = "$logDir/$now.log";
   system "echo started $name daemon >> $logFile";
   system "date >> $logFile";
   system "echo >> $logFile";
