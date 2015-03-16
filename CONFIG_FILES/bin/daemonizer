@@ -16,6 +16,9 @@ sub main(@){
   my $logDir = "$logBaseDir/$name-daemon";
   system "mkdir", "-p", $logDir;
   my $logFile = "$logDir/$now.log";
+  system "touch", $logFile;
+  system "rm", "-f", "$logDir/latest";
+  system "ln", "-s", "$now.log", "$logDir/latest";
 
   $SIG{ALRM} = sub {die "timeout"};
 
