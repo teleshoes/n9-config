@@ -57,10 +57,12 @@ private
 .gntrc
 .grob
 .gstreamer-0.10
+.kde
 .local
 .meego-im-engines
 .messaging-ui
 .mms
+.mtp
 .mtpdeviceinfo.xml
 .obex-root
 .odnp
@@ -80,6 +82,7 @@ private
 .swype
 .sync
 .thumbnails
+.transferui
 .usetime
 );
 
