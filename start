@@ -47,5 +47,4 @@ sync-swype restore
 setup-vkb-toolbar
 klomp-sync user@`n9`
 #remove-aegis #reboots!
-#reset-accounts
 sync-mms
