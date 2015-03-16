@@ -40,7 +40,7 @@ restore-comm sms
 sync-mydocs
 sync-home
 sync-pidgin
-sync-fbreader restore
+sync-dir fbreader restore
 sync-dir klomp restore
 sync-dir swype restore
 setup-vkb-toolbar
