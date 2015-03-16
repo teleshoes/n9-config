@@ -30,6 +30,7 @@ sub main(@){
   backup "sync-dir klomp backup";
   backup "sync-dir swype backup";
   backup "sync-dir emumaster backup";
+  backup "sync-dir logs backup";
   backup "sync-qtodo";
   backup "sync-mms";
   backup "mms-to-sms";
