@@ -2,11 +2,7 @@
 use strict;
 use warnings;
 
-my $arg = shift();
-die "Usage: $0 [backup|restore]\n" if $arg !~ /^(backup|restore)$/;
-
-my $host = `n9`;
-chomp $host;
+sub run(@);
 
 my $dir = "$ENV{HOME}/Code/n9";
 my $localDir = "$dir/backup/klomp";
@@ -20,10 +16,26 @@ my @excludes = qw(
   datecache
   lib
 );
-for my $exclude(@excludes){
-  push @rsyncOpts, "--exclude=$exclude";
-}
 
+sub main(@){
+  die "Usage: $0 [backup|restore]\n" if @_ != 1 or $_[0] !~ /^(backup|restore)$/;
+  my $arg = shift();
+
+  my $host = `n9`;
+  chomp $host;
+
+  for my $exclude(@excludes){
+    push @rsyncOpts, "--exclude=$exclude";
+  }
+
+  if($arg eq 'backup'){
+    system "rm", "-r", $localDir;
+    system "mkdir", "-p", $localDir;
+    run "rsync", @rsyncOpts, "user\@$host:$remoteDir/", $localDir;
+  }elsif($arg eq 'restore'){
+    run "rsync", @rsyncOpts, "$localDir/", "user\@$host:$remoteDir/";
+  }
+}
 
 sub run(@){
   print "@_\n";
@@ -31,11 +43,4 @@ sub run(@){
   die "failed" if $? != 0;
 }
 
-if($arg eq 'backup'){
-  system "rm", "-r", $localDir;
-  system "mkdir", "-p", $localDir;
-  run "rsync", @rsyncOpts, "user\@$host:$remoteDir/", $localDir;
-}elsif($arg eq 'restore'){
-  run "rsync", @rsyncOpts, "$localDir/", "user\@$host:$remoteDir/";
-}
-
+&main(@ARGV);
