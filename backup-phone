@@ -28,7 +28,7 @@ sub main(@){
   backup "sync-home";
   backup "sync-fbreader backup";
   backup "sync-dir klomp backup";
-  backup "sync-swype backup";
+  backup "sync-dir swype backup";
   backup "sync-qtodo";
   backup "sync-mms";
   backup "mms-to-sms";
