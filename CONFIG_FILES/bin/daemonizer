@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+use IPC::Open3 qw(open3);
 use Time::HiRes qw(sleep);
 
 my $usage = "Usage: $0 NAME DELAY_MILLIS CMDSTR\n";
@@ -13,18 +14,22 @@ sub main(@){
   my $logDir = "$logBaseDir/$name-daemon";
   system "mkdir", "-p", $logDir;
   my $logFile = "$logDir/$now.log";
-  system "echo started $name daemon >> $logFile";
-  system "date >> $logFile";
-  system "echo >> $logFile";
-  system "echo >> $logFile";
-  system "echo >> $logFile";
+
+  open LOG, ">>$logFile" or die "Could not append to $logFile\n";
+  print LOG "started $name daemon\n";
+  print LOG "\n\n\n";
+  close LOG;
+
   while(1){
     sleep $delayMillis/1000.0;
-    system "date >> $logFile";
-    system "$cmd 2>&1 | tee -a $logFile";
-    system "echo >> $logFile";
-    system "echo >> $logFile";
-    system "echo >> $logFile";
+    open LOG, ">>$logFile" or die "Could not append to $logFile\n";
+    print LOG `date`;
+
+    my $pid = open3("<&STDIN", ">&LOG", ">&LOG", $cmd);
+    waitpid $pid, 0;
+
+    print LOG "\n\n\n";
+    close LOG;
   }
 }
 
