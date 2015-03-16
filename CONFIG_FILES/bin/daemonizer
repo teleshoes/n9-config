@@ -2,7 +2,9 @@
 use strict;
 use warnings;
 use IPC::Open3 qw(open3);
-use Time::HiRes qw(sleep);
+use Time::HiRes qw(alarm sleep);
+
+sub cmdTimeout($$);
 
 my $usage = "Usage: $0 NAME DELAY_MILLIS CMDSTR\n";
 my $logBaseDir = "/home/user/.cache/logs";
@@ -15,6 +17,8 @@ sub main(@){
   system "mkdir", "-p", $logDir;
   my $logFile = "$logDir/$now.log";
 
+  $SIG{ALRM} = sub {die "timeout"};
+
   open LOG, ">>$logFile" or die "Could not append to $logFile\n";
   print LOG "started $name daemon\n";
   print LOG "\n\n\n";
@@ -25,11 +29,26 @@ sub main(@){
     open LOG, ">>$logFile" or die "Could not append to $logFile\n";
     print LOG `date`;
 
-    my $pid = open3("<&STDIN", ">&LOG", ">&LOG", $cmd);
-    waitpid $pid, 0;
+    cmdTimeout $cmd, $delayMillis/2;
 
     print LOG "\n\n\n";
     close LOG;
+  }
+}
+
+sub cmdTimeout($$){
+  my ($cmd, $timeoutMillis) = @_;
+
+  my $pid = open3(undef, ">&LOG", ">&LOG", $cmd);
+  eval {
+    alarm $timeoutMillis/1000.0;
+    waitpid $pid, 0;
+    alarm 0;
+  };
+  if($@ =~ /timeout/){
+    print LOG "TIMEOUT $pid after ${timeoutMillis}ms\n";
+    system "kill", "-9", "$pid";
+    waitpid $pid, 0;
   }
 }
 
