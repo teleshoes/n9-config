@@ -1,0 +1,61 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub syncDir($$);
+sub run(@);
+
+my $backupDir = "$ENV{HOME}/Code/n9/backup";
+my $backups = {
+};
+
+my @rsyncOpts = qw(
+  -avP --no-owner --no-group
+);
+
+my $usage = "$0 NAME backup|restore\n";
+
+sub main(@){
+  die $usage if @_ != 2
+    or not defined $$backups{$_[0]}
+    or $_[1] !~ /^(backup|restore)$/;
+  my ($backup, $cmd) = @_;
+
+  syncDir $backup, $cmd;
+}
+
+sub syncDir($$){
+  my ($backup, $cmd) = @_;
+
+  my $host = `n9`;
+  chomp $host;
+
+  my $now = time;
+
+  my $localDir = "$backupDir/$backup";
+  my ($remoteDir, $extraOpts, $excludes) = @{$$backups{$backup}};
+
+  my @rsyncCmd = ("rsync", @rsyncOpts, @$extraOpts);
+  for my $exclude(@$excludes){
+    push @rsyncCmd, "--exclude=$exclude";
+  }
+
+  if($cmd eq 'backup'){
+    run @rsyncCmd, "user\@$host:$remoteDir/", $localDir;
+  }elsif($cmd eq 'restore'){
+    run "n9", "
+      if [ -e $remoteDir ]; then
+        cp -ar $remoteDir $remoteDir-backup-$now
+      fi
+    ";
+    run @rsyncCmd, "$localDir/", "user\@$host:$remoteDir/";
+  }
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+  die "failed" if $? != 0;
+}
+
+&main(@ARGV);
