@@ -7,6 +7,11 @@ sub run(@);
 
 my $backupDir = "$ENV{HOME}/Code/n9/backup";
 my $backups = {
+  klomp => ["/home/user/.klomp", ["--del", "--no-perms"], [qw(
+    db
+    datecache
+    lib
+  )]],
 };
 
 my @rsyncOpts = qw(
