@@ -42,7 +42,7 @@ sync-mydocs
 sync-home
 sync-pidgin
 sync-fbreader restore
-fetch-klomp-lists restore
+sync-dir klomp restore
 sync-swype restore
 setup-vkb-toolbar
 klomp-sync user@`n9`
