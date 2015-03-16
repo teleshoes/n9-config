@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Time::HiRes qw(sleep);
+
+my $usage = "Usage: $0 NAME DELAY_MILLIS CMDSTR\n";
+
+sub main(@){
+  die $usage if @_ != 3 or $_[0] !~ /^[a-zA-Z0-9_\-]+$/ or $_[1] !~ /^\d+$/;
+  my ($name, $delayMillis, $cmd) = @_;
+  my $logFile = "/home/user/$name-daemon.log";
+  system "echo started $name daemon >> $logFile";
+  system "date >> $logFile";
+  system "echo >> $logFile";
+  system "echo >> $logFile";
+  system "echo >> $logFile";
+  while(1){
+    sleep $delayMillis/1000.0;
+    system "date >> $logFile";
+    system "$cmd 2>&1 | tee -a $logFile";
+    system "echo >> $logFile";
+    system "echo >> $logFile";
+    system "echo >> $logFile";
+  }
+}
+
+&main(@ARGV);
