@@ -44,6 +44,7 @@ sync-pidgin
 sync-dir fbreader restore
 sync-dir klomp restore
 sync-dir swype restore
+sync-dir emumaster restore
 setup-vkb-toolbar
 klomp-sync user@`n9`
 #remove-aegis #reboots!
