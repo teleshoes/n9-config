@@ -43,7 +43,7 @@ sync-home
 sync-pidgin
 sync-fbreader restore
 sync-dir klomp restore
-sync-swype restore
+sync-dir swype restore
 setup-vkb-toolbar
 klomp-sync user@`n9`
 #remove-aegis #reboots!
