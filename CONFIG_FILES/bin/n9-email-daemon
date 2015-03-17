@@ -1,1 +1,1 @@
-daemonizer n9-email $((30 * 60 * 1000)) '/opt/qtemail/bin/email.pl'
+daemonizer n9-email $((30 * 60 * 1000)) '/opt/qtemail/bin/email.pl --folder=inbox'
