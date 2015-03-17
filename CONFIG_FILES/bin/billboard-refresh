@@ -1,1 +1,1 @@
-qdbus --system io.thp.billboard / render
+qdbus io.thp.billboard / render
