@@ -15,13 +15,16 @@ my $remote = "user\@$host:$myDocsRemote";
 my @excludes = qw(
 openvpn
 pixmirror
+revtun-port
 to-do-o
 .0dcim-pix-rev
 .brightness
 .emumaster
 .FBReader
 .bash_history
+.gntpositions
 .gnupg
+.gpg
 .klomp
 .lftp
 .lpsmagic
