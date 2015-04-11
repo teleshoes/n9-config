@@ -2,5 +2,5 @@
 Name=pen=>fdl
 Comment=LIRR train time
 Icon=lirr_pen_fdl
-Exec=lirr_train_time -b pen fdl
+Exec=/opt/lirrtraintime/bin/lirr_train_time -b pen fdl
 Type=Application

@@ -2,5 +2,5 @@
 Name=pen=>cpg
 Comment=LIRR train time
 Icon=lirr_pen_cpg
-Exec=lirr_train_time -b pen cpg
+Exec=/opt/lirrtraintime/bin/lirr_train_time -b pen cpg
 Type=Application
