@@ -54,6 +54,7 @@ my $normalPackages = {
   )],
   '3' => [qw(
     qtemail
+    lirrtraintime
     stellarium-n9
     meefox
     screen
