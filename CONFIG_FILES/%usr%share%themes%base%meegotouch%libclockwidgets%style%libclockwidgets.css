@@ -13,16 +13,16 @@ AlarmNotification MLabelStyle#CommonQueryText
 
 AlarmNotification MButtonStyle#AlarmNotificationButtonStop
 {
-        font: $FONT_FAMILY bold 32px;
+        font: $FONT_FAMILY bold 64px;
         text-color: #FFFFFF;
         preferred-size: 408px 64px;
-        minimum-size: 408px 64px;
-        maximum-size: 408px 64px;
+        minimum-size: 408px 128px;
+        maximum-size: 408px 128px;
 			
 
         background-image: meegotouch-dialog-button-positive $CORNER_MARGINS;
         margin-bottom: 0px;
-        margin-top: 36px;
+        margin-top: 64px;
 	border: 32px;
 }
 
@@ -34,15 +34,15 @@ AlarmNotification MButtonStyle#AlarmNotificationButtonStop:pressed
 
 AlarmNotification MButtonStyle#AlarmNotificationButtonSnooze
 {
-        font: $FONT_FAMILY bold 32px;
+        font: $FONT_FAMILY bold 64px;
         text-color: #FFFFFF;
         preferred-size: 408px 64px;
-        minimum-size: 408px 64px;
-        maximum-size: 408px 64px;
+        minimum-size: 408px 256px;
+        maximum-size: 408px 256px;
 
         background-image: meegotouch-dialog-button-negative $CORNER_MARGINS;
         margin-bottom: 0px;
-        margin-top: 40px;
+        margin-top: 64px;
 	border: 32px;
 }
 
