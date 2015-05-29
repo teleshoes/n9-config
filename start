@@ -32,7 +32,6 @@ config-files again...
 profile.pl
 install-klomp
 install-net
-install-email
 #reboot, to ensure timezone for messages
 restore-contacts
 restore-comm call #check times for timezone error
