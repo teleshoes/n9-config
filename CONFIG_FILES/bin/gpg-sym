@@ -1,0 +1,100 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub fromArmor($);
+sub toArmor($);
+sub decrypt($);
+sub encrypt($);
+sub gpg($$);
+
+my $passFile = "$ENV{HOME}/.gpg";
+my $pass = `cat $passFile 2>/dev/null`;
+my @opts = (
+  '--no-use-agent', '--no-mdc-warning', '-q',
+  '--armor',
+  '--passphrase', "'$pass'",
+);
+my $header = "-----BEGIN PGP MESSAGE-----";
+my $version = "Version: GnuPG v1.4.11 (GNU/Linux)";
+my $footer = "-----END PGP MESSAGE-----";
+
+my $usage = "Usage:
+  $0 -h|--help
+    Show this message
+  $0 MESSAGE [MESSAGE MESSAGE ..]
+    encrypts message symetrically using $passFile
+      $0 `$0 X` == 'X'
+
+    the encrypted message is a single line, consisting of an armor block
+    with the header and footer removed, and a few transformations:
+       format <=> original armor
+     1) '!e!' <=> '!'
+     2) '!h!' <=> '$header'
+     3) '!v!' <=> 'Version: *'  {replaced with '$version'}
+     4) '!f!' <=> '$footer'
+     5) '!p!' <=> '+'
+     6) '!s!' <=> ' '
+     7) '!t!' <=> '\\t'
+     8) '!n!' <=> '\\n'
+     when going from original armor => format, applied in the given order
+     when going from formt => original armor , applied in the reverse order
+
+    if the message starts with !h! and ends with !f!, it is decrypted
+";
+
+sub main(@){
+  die $usage if @_ == 0 or $_[0] =~ /^(-h|--help)$/;
+  for my $msg(@_){
+    if($msg =~ /^!h!.*!f!$/){
+      print decrypt(toArmor($msg));
+    }else{
+      print fromArmor(encrypt($msg));
+    }
+    print "\n";
+  }
+}
+
+sub gpg($$){
+  my $cmd = shift;
+  my $msg = shift;
+  $msg =~ s/'/'\\''/g;
+  my $out = `echo '$msg' | gpg @opts $cmd`;
+  die "gpg failed!\n" if $? != 0;
+  chomp $out;
+  return $out;
+}
+sub encrypt($){
+  return gpg '--symmetric', $_[0];
+}
+sub decrypt($){
+  return gpg '--decrypt', $_[0];
+}
+
+sub toArmor($){
+  my $s = shift;
+  $s =~ s/!n!/\n/g;
+  $s =~ s/!t!/\t/g;
+  $s =~ s/!s!/ /g;
+  $s =~ s/!p!/+/g;
+  $s =~ s/!f!/$footer/g;
+  $s =~ s/!v!/$version/g;
+  $s =~ s/!h!/$header/g;
+  $s =~ s/!e!/!/g;
+  return $s;
+}
+
+sub fromArmor($){
+  my $s = shift;
+  $s =~ s/!/!e!/g;
+  $s =~ s/$header/!h!/g;
+  $s =~ s/Version: .*/!v!/g;
+  $s =~ s/$footer/!f!/g;
+  $s =~ s/\+/!p!/g;
+  $s =~ s/ /!s!/g;
+  $s =~ s/\t/!t!/g;
+  $s =~ s/\n/!n!/g;
+  return $s;
+}
+
+&main(@ARGV);
