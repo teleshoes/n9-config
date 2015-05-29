@@ -1,0 +1,3 @@
+deb https://coderus.openrepos.net/n9mirror/001 ./
+deb https://coderus.openrepos.net/n9mirror/apps ./
+deb https://coderus.openrepos.net/n9mirror/tools ./
