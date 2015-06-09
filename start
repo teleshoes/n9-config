@@ -46,4 +46,5 @@ sync-dir emumaster restore
 setup-vkb-toolbar
 klomp-sync user@`n9`
 #remove-aegis #reboots!
+plotddr
 sync-mms
