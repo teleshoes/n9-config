@@ -15,11 +15,17 @@ my $remote = "user\@$host:$myDocsRemote";
 my @excludes = qw(
 openvpn
 pixmirror
+revtun-port
 to-do-o
+xgnuplotddr
 .0dcim-pix-rev
+.brightness
+.emumaster
 .FBReader
 .bash_history
+.gntpositions
 .gnupg
+.gpg
 .klomp
 .lftp
 .lpsmagic
@@ -56,10 +62,12 @@ private
 .gntrc
 .grob
 .gstreamer-0.10
+.kde
 .local
 .meego-im-engines
 .messaging-ui
 .mms
+.mtp
 .mtpdeviceinfo.xml
 .obex-root
 .odnp
@@ -79,6 +87,7 @@ private
 .swype
 .sync
 .thumbnails
+.transferui
 .usetime
 );
 

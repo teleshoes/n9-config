@@ -54,6 +54,7 @@ my $normalPackages = {
   )],
   '3' => [qw(
     qtemail
+    lirrtraintime
     stellarium-n9
     meefox
     screen
@@ -175,6 +176,12 @@ sub setupRepos(){
       echo $x
       apt-key add "$x"
     done
+  ';
+  runRemote '
+    echo COMMENTING OUT downloads.maemo.nokia.com:
+    sed -i \' \
+      s/^deb https:\/\/[a-zA-Z0-9]\+:[a-zA-Z0-9]\+@downloads.maemo.nokia.com\//#\0/ \
+      \' /etc/apt/sources.list.d/aegis.ssu-keyring-*.list
   ';
 
   my $after = getRepos();

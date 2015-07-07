@@ -1,1 +1,1 @@
-qdbus --system io.thp.billboard / render
+/opt/billboard/bin/billboard-cli -r

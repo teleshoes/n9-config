@@ -1,0 +1,881 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Time::HiRes qw(sleep);
+
+my $scoreDir = "$ENV{HOME}/Desktop/DCIM/xddr";
+$scoreDir = "/home/user/pixmirror/xddr" if not -d $scoreDir;
+my $gnuplotDefaultPngSize = "1920,1080";
+
+my $defaultNotes = {
+  'extra' => 1,
+  'highscore' => 0,
+  'nobar' => 0,
+  '3rd' => 0,
+};
+my $defaultNotesFormat = join ",", grep {$$defaultNotes{$_}} keys %$defaultNotes;
+
+my @okFilters = qw(
+  --song --hard --nothard
+  --singles --doubles --nonstop
+  --score --minscore --maxscore
+  --date --mindate
+  --maxdate
+  --recent --sixmos --sixmonths --6mos
+);
+my $argOptFiltersRegex = join "|", qw(
+  --song --score --minscore --maxscore --mindate --date --maxdate
+);
+
+my @okPlotOptions = qw(
+  --file
+  --size
+  --smooth
+);
+my $okPlotOptionsRegex = join "|", @okPlotOptions;
+my $argOptPlotOptionsRegex = join "|", qw( --file --size );
+
+my @songArr = (
+  ['arrabbiata'               => 'arbta' => 'hard' => 'expert'],
+  ['b4uvoltage'               => 'b4uvs' => 'hard' => 'challenge'],
+  ['chaos'                    => 'chaos' => 'hard' => 'expert'],
+  ['healingdvision'           => 'hgDvn' => 'hard' => 'expert'],
+  ['legendofmax'              => 'legmx' => 'hard' => 'expert'],
+  ['max300'                   => 'mx300' => 'hard' => 'expert'],
+  ['max300smmm'               => 'm3smm' => 'hard' => 'challenge'],
+  ['max300xspecial'           => 'm3xsp' => 'hard' => 'challenge'],
+  ['maxxunlimited'            => 'maxxU' => 'hard' => 'expert'],
+  ['paranoiarespect'          => 'prRsp' => 'hard' => 'expert'],
+  ['paranoiasurvivor270'      => 'prSur' => 'hard' => 'expert'],
+  ['xepher'                   => 'xephe' => 'hard' => 'challenge'],
+
+  ['321stars'                 => '321st' => 'other' => 'expert'],
+  ['astupidbarber'            => 'stBrb' => 'other' => 'expert'],
+  ['blindjustice'             => 'blnJs' => 'other' => 'expert'],
+  ['candystar'                => 'canSt' => 'other' => 'expert'],
+  ['doll'                     => 'dollT' => 'other' => 'challenge'],
+  ['dragonblade'              => 'drgnB' => 'other' => 'expert'],
+  ['dropout'                  => 'drpOt' => 'other' => 'expert'],
+  ['dynamiteraveairspecial'   => 'dyrvA' => 'other' => 'challenge'],
+  ['exoticethnic'             => 'exEth' => 'other' => 'expert'],
+  ['flowers'                  => 'flwrs' => 'other' => 'expert'],
+  ['healingvisionangelic'     => 'hgVnA' => 'other' => 'expert'],
+  ['matsurijapan'             => 'matsu' => 'other' => 'expert'],
+  ['mugen'                    => 'mugen' => 'other' => 'expert'],
+  ['mysummerlove'             => 'mySLv' => 'other' => 'expert'],
+  ['no13'                     => 'no13T' => 'other' => 'expert'],
+  ['orioneuro'                => 'ornEu' => 'other' => 'expert'],
+  ['paranoiaeternalstm200'    => 'prEte' => 'other' => 'expert'],
+  ['paranoiaevolution200'     => 'prEvo' => 'other' => 'expert'],
+  ['sanamollete'              => 'sanaM' => 'other' => 'expert'],
+  ['tsugaru'                  => 'tsuga' => 'other' => 'expert'],
+
+  ['bemanispirits'            => 'nonBS' => 'other' => 'difficult'],
+);
+
+my %songAbbrevs = map { $$_[0] => $$_[1] } @songArr;
+my %defaultDifficulty = map { $$_[0] => $$_[3] } @songArr;
+
+my @hardSongs = map { $$_[0] } grep { $$_[2] eq 'hard' } @songArr;
+my $okHardSongs = join '|', @hardSongs;
+
+my @otherSongs = map { $$_[0] } grep { $$_[2] eq 'other' } @songArr;
+my $okOtherSongs = join '|', @otherSongs;
+
+my @songArgs = sort {$a cmp $b} (@hardSongs, @otherSongs);
+my $okSongArgs = join '|', @songArgs;
+
+my @gameArgs = qw(doubles nonstop);
+my $okGameArgs = join '|', @gameArgs;
+
+my @difficultyArgs = qw(beginner basic difficult expert challenge);
+my $okDifficultyArgs = join '|', @difficultyArgs;
+
+my %difficultyAbbrevs = (
+  beginner => 'beg',
+  basic => 'bas',
+  difficult => 'dif',
+  expert => 'exp',
+  challenge => 'cha',
+);
+
+my @roundArgs = qw(1st 2nd 3rd 4nonstop);
+my $okRoundArgs = join '|', @roundArgs;
+
+my @barArgs = qw(bar nobar);
+my $okBarArgs = join '|', @barArgs;
+
+my @extraArgs = qw(fc pfc);
+my $okExtraArgs = join '|', @extraArgs;
+
+my $usage = "Usage:
+  $0 --fehterm
+    -open a terminal using term and get its window id with xwininfo
+    -open feh with --info set to type in the newly opened terminal with xdotool
+
+  $0 --datestats
+    format stats for each date
+
+  $0 --print [--notes NOTES_CSV] [FILTER FILTER ..]
+    parse filenames of score pictures in $scoreDir
+      and print the result
+
+    each successive FILTER can only remove scores
+    specifying the same FILTER twice is legal, but useless
+    some FILTERs override others as indicated, so specifying both is useless
+
+    NOTES_CSV
+      comma-separated list of notes to add.
+      default is '$defaultNotesFormat'.
+      use empty string for none
+
+      extra
+        add EXTRA if EXTRA is set for the song
+      highscore
+        add 'SCORE SONG' if SCORE is the highest in the bucket
+      nobar
+        add 'nobar' if SONG is a HARD_SONG and BAR is 'nobar'
+      3rd
+        add '3rd' if SONG is a HARD_SONG and ROUND is '3rd'
+
+    FILTER: SONG
+      --song REGEX
+        include only scores where the whole SONG string matches REGEX
+        {overrides --hard and --nothard}
+      --hard
+        include only scores where SONG is a HARD_SONG
+        {overrides --nothard and --song}
+      --nothard
+        include only scores where SONG is not a HARD_SONG
+        {overrides --song and --hard}
+
+    FILTER: GAME
+      --singles
+        include only scores where GAME is not defined
+        {overrides --doubles and --nonstop}
+      --doubles
+        include only scores where GAME is doubles
+        {overrides --singles and --nonstop}
+      --nonstop
+        include only scores where GAME is nonstop
+        {overrides --singles and --doubles}
+
+    FILTER: SCORE
+      --score N, --minscore N
+        include only scores where SCORE >= N
+      --maxscore N
+        include only scores where SCORE <= N
+
+    FILTER: DATE
+      --date YYYYMMDD, --mindate YYYYMMDD
+        include only scores where DATE >= YYYYMMDD
+        {overrides --recent}
+      --maxdate YYYYMMDD
+        include only scores where DATE <= YYYYMMDD
+      --recent, --sixmos, --sixmonths, --6mos
+        same as '--mindate N', where N is the date 180 days ago
+        {overrides --date}
+
+    scores are grouped into sections by '\"<SONG>-<GAME>-<DIFFICULTY>\"'
+    '<GAME>-' is omitted if GAME is not set
+    each section starts with the name, and then contains the scores,
+      one per line, formatted '<date>,<score>,<notes>'
+    sections are separated by two newlines
+    <notes> are space-separated list of:
+      EXTRA   if one of [$okExtraArgs] is present in the filename
+      nobar   if SONG is a HARD_SONG
+      3rd     if SONG is a HARD_SONG
+
+      e.g.: \"max300-doubles-expert\"
+            20140331,723150,
+            20140401,990000,pfc nobar
+            20140402,684120,nobar
+            20140403,784120,fc
+
+
+            \"paranoiarespect-expert\"
+            20140331,723150,
+
+  $0 --gnuplot [PLOT_OPTION PLOT_OPTION ..] [--notes=NOTES_CSV] [FILTER FILTER ..]
+    format songs as above and write to a tmp file
+    write a gnuplot script and run it in gnuplot
+      all PLOT_OPTIONs must precede all FILTERs
+
+    PLOT_OPTION
+      --file PNG_FILE_PATH
+        output PNG file to indicated path
+
+      --size PNG_SIZE
+        output PNG pixelsize, WIDTHxHEIGHT
+        'x' can be any combination of spaces, commas, and 'x's
+        default is: $gnuplotDefaultPngSize
+
+      --smooth
+        use 'smooth bezier' instead of 'with linespoints'
+        also turns off all notes unless --notes is given
+
+    NOTES_CSV
+      see --print NOTES_CSV
+
+    FILTER
+      see --print FILTER
+
+  $0 JPG_FILE [ARG ARG ..]
+
+  rename a jpeg file using a consistent format
+  \"########_###_SONG_GAME_DIFFICULTY_SCORE_EXTRA_BAR_ROUND.jpg\"
+  ######## is presumably a date in YYYYMMDD and ### is the camera pic index
+
+     JPG_FILE
+       jpeg file to rename
+       must start with '########_###' and end with '.jpg'
+
+     ARG
+       one of [SONG|GAME|DIFFICULTY|SCORE|ROUND|BAR|EXTRA]
+       exactly one SONG, DIFFICULTY, SCORE, ROUND, and BAR must be given
+       exactly zero or one GAME args can be given
+       exactly zero or one EXTRA args can be given
+
+     SONG
+       one of <HARD_SONG> or <OTHER_SONG>
+
+     HARD_SONG
+       one of [$okHardSongs]
+
+     OTHER_SONG
+       one of [$okOtherSongs]
+
+     GAME
+       one of [$okGameArgs]
+
+     DIFFICULTY
+       one of [$okDifficultyArgs]
+
+     SCORE
+       an integer between 100,000 and 1,000,000
+       must be a multiple of 10
+       commas, if present, are stripped out
+
+     EXTRA
+       one of [$okExtraArgs]
+
+     BAR
+       one of [$okBarArgs]
+
+     ROUND
+       one of [$okRoundArgs]
+
+  $0 --bash-complete COMP_LINE COMP_POINT
+     print a list of words for bash completion
+     COMP_LINE  - the full cmdline as a string
+     COMP_POINT - the cursor position in the cmdline
+";
+
+sub fehterm($@);
+sub scoreStats($@);
+sub name(@);
+sub parseArgs(@);
+sub getScoreFiles();
+sub parseScoreFiles(@);
+sub getScoreBuckets($@);
+sub formatBucketCsv($$$);
+sub formatScores($$);
+sub gnuplot($$);
+sub combine(@);
+sub bashComplete($$);
+sub run(@);
+
+sub main(@){
+  if(@_ == 3 and $_[0] =~ /^--bash-complete$/ and $_[2] =~ /^\d+$/){
+    print join ' ', bashComplete($_[1], $_[2]);
+    exit 0;
+  }
+
+  if(@_ == 1 and $_[0] =~ /^(--fehterm)$/){
+    my $cmd = shift;
+    fehterm($cmd, @_);
+  }elsif(@_ >= 1 and $_[0] =~ /^(--datestats)$/){
+    my $cmd = shift;
+    dateStats($cmd, @_);
+  }elsif(@_ >= 1 and $_[0] =~ /^(--print|--gnuplot)$/){
+    my $cmd = shift;
+    scoreStats($cmd, @_);
+  }else{
+    name(@_);
+  }
+}
+
+sub fehterm($@){
+  my $cmd = shift;
+  die $usage if @_ != 0;
+
+  my $windowTitle = "ddrname-fehterm";
+  run ("term",
+    "-t", $windowTitle,
+    "export WINDOW_TITLE=$windowTitle; bash",
+  );
+  sleep 0.5;
+
+  my $xwininfo = `xwininfo -name '$windowTitle'`;
+  if($xwininfo !~ /Window id: (0x[0-9a-f]+) "$windowTitle"/){
+    die "Could not find window id for name=$windowTitle\n";
+  }
+  my $windowId = $1;
+
+  my $infoCmd = ""
+    . "xdotool key --delay 1 --window $windowId" . (" BackSpace" x 50) . "; "
+    . "xdotool type --window $windowId 'ddrname \%f '; "
+    . "echo %f; "
+    ;
+
+  run "/usr/bin/feh", "-g", "800x800", "--info", $infoCmd;
+}
+
+sub dateStats($@){
+  my $cmd = shift;
+  die $usage if @_ != 0;
+
+  my @scoreFiles = getScoreFiles();
+  my $scoresByFile = parseScoreFiles(@scoreFiles);
+  my $dateBuckets = {};
+  for my $file(sort keys %$scoresByFile){
+    my $score = $$scoresByFile{$file};
+    my $date = $$score{date};
+    $$dateBuckets{$date} = [] if not defined $$dateBuckets{$date};
+    push @{$$dateBuckets{$date}}, $score;
+  }
+
+  my %isHardSong = map {$_ => 1} @hardSongs;
+
+  for my $date(reverse sort keys %$dateBuckets){
+    my @dateScores = @{$$dateBuckets{$date}};
+    my $hardSinglesCount = 0;
+    my $otherSinglesCount = 0;
+    my $doublesCount = 0;
+    my $total = @dateScores;
+    for my $score(@dateScores){
+      if(defined $$score{game} and $$score{game} eq "doubles"){
+        $doublesCount++;
+      }elsif($isHardSong{$$score{song}}){
+        $hardSinglesCount++;
+      }else{
+        $otherSinglesCount++;
+      }
+    }
+
+    my $buckets = getScoreBuckets \@dateScores, qw(song game difficulty);
+    my @bucketSummary;
+    for my $bucketName(sort keys %$buckets){
+      my @scores = @{$$buckets{$bucketName}};
+      my $first = $scores[0];
+      my ($song, $game, $difficulty) = (
+        $$first{song}, $$first{game}, $$first{difficulty});
+
+      my $songAbbrev = $songAbbrevs{$song};
+      my $diffAbbrev = $difficultyAbbrevs{$difficulty};
+      my $shortName = $songAbbrevs{$song};
+      my $isDoubles = 0;
+      if(defined $game and $game eq "doubles"){
+        $shortName .= "-DBL";
+        $isDoubles = 1;
+      }
+      if($difficulty ne $defaultDifficulty{$song}){
+        $shortName .= "-$diffAbbrev";
+      }
+
+      my $count = @scores;
+      push @bucketSummary, {
+        name=>$shortName,
+        count=>$count,
+        isDoubles=>$isDoubles ? 1 : 0,
+        isHardSingles=>(not $isDoubles and $isHardSong{$song}) ? 1 : 0,
+      };
+    }
+
+    printf "%s %2d-H %2d-D %2d-O",
+      $date, $hardSinglesCount, $doublesCount, $otherSinglesCount;
+
+    @bucketSummary = sort {
+      $$b{count} <=> $$a{count}
+        or $$b{isHardSingles} <=> $$a{isHardSingles}
+        or $$b{isDoubles} <=> $$a{isDoubles}
+        or $b cmp $a
+    } @bucketSummary;
+
+    for my $summary(@bucketSummary){
+      printf "  %2d %s", $$summary{count}, $$summary{name};
+    }
+
+    print "\n";
+  }
+}
+
+sub scoreStats($@){
+  my $cmd = shift;
+
+  my $plotOptions = {};
+  if($cmd =~ /^(--gnuplot)$/){
+    while(@_ > 0 and $_[0] =~ /^($okPlotOptionsRegex)$/){
+      my $opt = shift;
+      my $arg;
+      if($opt =~ /^($argOptPlotOptionsRegex)$/){
+        die "$usage\nmissing arg to $opt\n" if @_ == 0;
+        $arg = shift;
+      }
+
+      if($opt =~ /^(--file)$/){
+        $$plotOptions{file} = $arg;
+      }elsif($opt =~ /^(--size)$/){
+        die "$usage\ninvalid $opt: $arg\n" if $arg !~ /^(\d+)[ ,x]+(\d+)$/;
+        $$plotOptions{size} = "$1,$2";
+      }elsif($opt =~ /^(--smooth)$/){
+        $$plotOptions{smooth} = 1;
+      }
+    }
+  }
+
+  my $okNotes = $defaultNotes;
+  if($$plotOptions{smooth}){
+    $okNotes = {map {$_ => 0} keys %$okNotes};
+  }
+
+  if(@_ > 0 and $_[0] =~ /^(--notes)$/){
+    my $opt = shift;
+    die "$usage\nmissing arg to $opt\n" if @_ == 0;
+    my $arg = shift;
+    my $notesCsv = $arg;
+    $$okNotes{$_} = 0 foreach keys %$okNotes;
+
+    my @notes = split /\s*,\s*/, $notesCsv;
+    for my $note(@notes){
+      die "invalid $opt: $arg\n" if not defined $$okNotes{$note};
+      $$okNotes{$note} = 1;
+    }
+  }
+
+  my $filters = {};
+  while(@_ > 0){
+    my $opt = shift;
+    my $arg;
+    if($opt =~ /^($argOptFiltersRegex)$/){
+      die "$usage\nmissing arg to $opt\n" if @_ == 0;
+      $arg = shift;
+    }
+
+    if($opt =~ /^(--song)$/){
+      die "$usage\nmissing arg to $opt\n" if not defined $arg;
+      my $regex = "^$arg\$";
+      $$filters{songs} = {map {$_ => $_ =~ m/$regex/ ? 1 : 0} @songArgs};
+    }elsif($opt =~ /^(--hard)$/){
+      my $regex = "($okHardSongs)";
+      $$filters{songs} = {map {$_ => $_ =~ m/$regex/ ? 1 : 0} @songArgs};
+    }elsif($opt =~ /^(--nothard)$/){
+      my $regex = "($okOtherSongs)";
+      $$filters{songs} = {map {$_ => $_ =~ m/$regex/ ? 1 : 0} @songArgs};
+    }elsif($opt =~ /^(--singles)$/){
+      $$filters{game} = {nonstop => 0, doubles => 0, "" => 1};
+    }elsif($opt =~ /^(--doubles)$/){
+      $$filters{game} = {nonstop => 0, doubles => 1, "" => 0};
+    }elsif($opt =~ /^(--nonstop)$/){
+      $$filters{game} = {nonstop => 1, doubles => 0, "" => 0};
+    }elsif($opt =~ /^(--score|--minscore)$/){
+      die "$usage\ninvalid $opt: $arg\n" if $arg !~ /^(\d+)$/;
+      $$filters{minscore} = $1;
+    }elsif($opt =~ /^(--maxscore)$/){
+      die "$usage\ninvalid $opt: $arg\n" if $arg !~ /^(\d+)$/;
+      $$filters{maxscore} = $1;
+    }elsif($opt =~ /^(--mindate|--date)$/){
+      die "$usage\ninvalid $opt: $arg\n" if $arg !~ /^(\d{8})$/;
+      $$filters{mindate} = $1;
+    }elsif($opt =~ /^(--recent|--sixmonths|--sixmos|--6mos)$/){
+      eval {
+        require DateTime;
+        DateTime->import();
+        1;
+      } or die "--recent requires missing module DateTime\n";
+      my $sixmos = DateTime->now->subtract(days=>180)->strftime('%Y%m%d');
+      $$filters{mindate} = $sixmos;
+    }elsif($opt =~ /^(--maxdate)$/){
+      die "$usage\ninvalid $opt: $arg\n" if $arg !~ /^(\d{8})$/;
+      $$filters{maxdate} = $1;
+    }else{
+      die "$usage\nunknown filter: $opt\n";
+    }
+  }
+  my $fmt = formatScores($okNotes, $filters);
+  if($cmd =~ /^(--print)$/){
+    print $fmt;
+  }elsif($cmd =~ /^(--gnuplot)$/){
+    gnuplot $plotOptions, $fmt;
+  }
+}
+
+sub name(@){
+  my $file = shift;
+  my $info = parseArgs @_;
+  die $usage if not defined $file or not -f $file or not defined $info;
+  die "missing SONG\n" if not defined $$info{song};
+  die "missing DIFFICULTY\n" if not defined $$info{difficulty};
+  die "missing SCORE\n" if not defined $$info{score};
+  die "missing BAR\n" if not defined $$info{bar};
+  die "missing ROUND\n" if not defined $$info{round};
+
+  $file =~ s/^\.\///;
+
+  if($file !~ /^(\d{8}_\d{3}).*\.jpg$/){
+    die "misnamed jpg file: $file\n";
+  }
+  my $prefix = $1;
+
+  my $newFileName = '';
+  $newFileName .= "$prefix";
+  $newFileName .= "_$$info{song}";
+  $newFileName .= "_$$info{game}" if defined $$info{game};
+  $newFileName .= "_$$info{difficulty}";
+  $newFileName .= "_$$info{score}";
+  $newFileName .= "_$$info{extra}" if defined $$info{extra};
+  $newFileName .= "_$$info{bar}";
+  $newFileName .= "_$$info{round}";
+  $newFileName .= ".jpg";
+
+  my @cmd = ("mv", $file, $newFileName);
+  run @cmd;
+}
+
+sub parseArgs(@){
+  my $info = {};
+  for my $arg(@_){
+    if($arg =~ /^($okSongArgs)$/){
+      return undef if defined $$info{song};
+      $$info{song} = $arg;
+    }elsif($arg =~ /^($okGameArgs)$/){
+      return undef if defined $$info{game};
+      $$info{game} = $arg;
+    }elsif($arg =~ /^($okDifficultyArgs)$/){
+      return undef if defined $$info{difficulty};
+      $$info{difficulty} = $arg;
+    }elsif($arg =~ /^(\d,?){5,6}(\d)$/){
+      print STDERR "WARN: score non-multiple-of-ten: $arg\n" if $2 != 0;
+      my $score = $arg;
+      $score =~ s/,//g;
+      $score = int($score);
+      return undef if defined $$info{score} or $score > 1000000;
+      $$info{score} = $score;
+    }elsif($arg =~ /^($okExtraArgs)$/){
+      return undef if defined $$info{extra};
+      $$info{extra} = $arg;
+    }elsif($arg =~ /^($okBarArgs)$/){
+      return undef if defined $$info{bar};
+      $$info{bar} = $arg;
+    }elsif($arg =~ /^($okRoundArgs)$/){
+      return undef if defined $$info{round};
+      $$info{round} = $arg;
+    }else{
+      return undef;
+    }
+  }
+  return $info;
+}
+
+sub getScoreFiles(){
+  my @files = `cd $scoreDir && ls *.jpg`;
+  chomp foreach @files;
+  @files = grep {$_ =~ /^\d+_.*\.jpg$/ and $_ !~ /_reminder_/} @files;
+  return @files;
+}
+
+sub parseScoreFiles(@){
+  my @files = @_;
+  my $scores = {};
+  for my $file(@files){
+    if($file !~ /^
+      (\d{8})
+      _(\d+)
+      _($okSongArgs)
+      (?:_($okGameArgs))?
+      _($okDifficultyArgs)
+      _(\d+)
+      (?:_($okExtraArgs))?
+      _($okBarArgs)
+      _($okRoundArgs)
+      \.jpg$/x){
+      die "malformed file name: $file\n";
+    }
+    $$scores{$file} = {
+      file       => $file,
+      date       => $1,
+      index      => $2,
+      song       => $3,
+      game       => $4,
+      difficulty => $5,
+      score      => $6,
+      extra      => $7,
+      bar        => $8,
+      round      => $9,
+    };
+  }
+  return $scores;
+}
+
+sub getScoreBuckets($@){
+  my ($scores, @bucketFields) = @_;
+  my $buckets = {};
+  for my $score(@$scores){
+    my @bucketFieldVals = map {$$score{$_}} @bucketFields;
+
+    my $bucketName = join "-", grep {defined $_} @bucketFieldVals;
+    $$buckets{$bucketName} = [] if not defined $$buckets{$bucketName};
+    push @{$$buckets{$bucketName}}, $score;
+  }
+  return $buckets;
+}
+
+sub formatBucketCsv($$$){
+  my ($okNotes, $bucketName, $bucket) = @_;
+
+  my %isHardSong = map {$_ => 1} @hardSongs;
+
+  my $maxScore = undef;
+  my $maxScoreFile = undef;
+  for my $s(sort @$bucket){
+    if(not defined $maxScore or $$s{score} > $maxScore){
+      $maxScore = $$s{score};
+      $maxScoreFile = $$s{file};
+    }
+  }
+
+  my $fmt = "";
+  for my $s(sort @$bucket){
+    my @notes;
+    if($$okNotes{'extra'} and defined $$s{extra}){
+      push @notes, $$s{extra};
+    }
+    if($$okNotes{'highscore'} and $$s{file} eq $maxScoreFile){
+      my $abbrev = $songAbbrevs{$$s{song}};
+      push @notes, "$$s{score} $abbrev";
+    }
+    if($$okNotes{'nobar'} and $$s{bar} eq "nobar" and $isHardSong{$$s{song}}){
+      push @notes, $$s{bar};
+    }
+    if($$okNotes{'3rd'} and $$s{round} eq "3rd" and $isHardSong{$$s{song}}){
+      push @notes, $$s{round};
+    }
+
+    my $note = join " ", @notes;
+    $fmt .= "$$s{date},$$s{score},$note\n";
+  }
+
+  return $fmt;
+}
+
+sub formatScores($$){
+  my ($okNotes, $filters) = @_;
+
+  my @scoreFiles = getScoreFiles();
+  my $scoresByFile = parseScoreFiles(@scoreFiles);
+
+  for my $file(sort keys %$scoresByFile){
+    my $s = $$scoresByFile{$file};
+    my $ok = 1;
+    if(defined $$filters{songs}){
+      my $f = $$filters{songs};
+      my $song = $$s{song};
+      if(defined $$f{$song} and not $$f{$song}){
+        $ok = 0;
+      }
+    }
+    if(defined $$filters{game}){
+      my $f = $$filters{game};
+      my $game = $$s{game};
+      $game = "" if not defined $game;
+      if(defined $$f{$game} and not $$f{$game}){
+        $ok = 0;
+      }
+    }
+    if(defined $$filters{minscore}){
+      my $f = $$filters{minscore};
+      my $score = $$s{score};
+      if($score < $f){
+        $ok = 0;
+      }
+    }
+    if(defined $$filters{maxscore}){
+      my $f = $$filters{maxscore};
+      my $score = $$s{score};
+      if($score > $f){
+        $ok = 0;
+      }
+    }
+    if(defined $$filters{mindate}){
+      my $f = $$filters{mindate};
+      my $date = $$s{date};
+      if($date < $f){
+        $ok = 0;
+      }
+    }
+    if(defined $$filters{maxdate}){
+      my $f = $$filters{maxdate};
+      my $date = $$s{date};
+      if($date > $f){
+        $ok = 0;
+      }
+    }
+    delete $$scoresByFile{$file} if not $ok;
+  }
+  die "no scores found\n" if keys %$scoresByFile == 0;
+
+  my @scores = map { $$scoresByFile{$_} } sort keys %$scoresByFile;
+  my $buckets = getScoreBuckets(\@scores, qw(song game difficulty));
+
+  my $fmt = "";
+  for my $bucketName(sort keys %$buckets){
+    my $bucket = $$buckets{$bucketName};
+    $fmt .= "\n\n" unless $fmt eq "";
+    $fmt .= "\"$bucketName\"\n";
+    $fmt .= formatBucketCsv $okNotes, $bucketName, $bucket;
+  }
+  return $fmt;
+}
+
+sub gnuplot($$){
+  my ($plotOptions, $data) = @_;
+  my $dataFile = "/tmp/ddrname-gnuplot-data";
+  my $scriptFile = "/tmp/ddrname-gnuplot-script";
+
+  my $outputFile = "/tmp/ddrname-gnuplot-output.png";
+  $outputFile = $$plotOptions{file} if defined $$plotOptions{file};
+
+  my $pngSize = $gnuplotDefaultPngSize;
+  $pngSize = $$plotOptions{size} if defined $$plotOptions{size};
+
+  my @segments = split /\n\n/, $data;
+  my $segmentCount = @segments;
+  my $lastBucket = $segmentCount - 1;
+
+  my $script = "";
+  $script .= "set xdata time\n";
+  $script .= "set timefmt \"\%Y\%m\%d\"\n";
+  $script .= "set datafile separator \",\"\n";
+  $script .= "set key autotitle columnheader\n";
+
+  $script .= "set term pngcairo size $pngSize\n";
+  $script .= "set output \"$outputFile\"\n";
+
+  my $linePlot = ""
+    . " for [BUCKET=0:$lastBucket]"
+    . " \"$dataFile\" index BUCKET"
+    . " using 1:2"
+    . " with linespoints"
+    ;
+  my $smoothPlot = ""
+    . " for [BUCKET=0:$lastBucket]"
+    . " \"$dataFile\" index BUCKET"
+    . " using 1:2"
+    . " smooth bezier"
+    ;
+  my $notesPlot = ""
+    . " for [BUCKET=0:$lastBucket]"
+    . " \"$dataFile\" index BUCKET"
+    . " using 1:2:3"
+    . " with labels offset 0,-1"
+    . " notitle"
+    ;
+
+  my @plots = $$plotOptions{smooth} ? ($smoothPlot, $notesPlot) : ($linePlot, $notesPlot);
+
+  $script .= "plot " . join(", ", @plots) . "\n";
+
+  open FH, "> $dataFile" or die "Could not write $dataFile\n";
+  print FH $data;
+  close FH;
+  open FH, "> $scriptFile" or die "Could not write $scriptFile\n";
+  print FH $script;
+  close FH;
+
+  run "gnuplot", "-p", $scriptFile;
+  die "error runnning gnuplot script:\n===\n$script===\n" if $? != 0;
+}
+
+sub combine(@){
+  return ([]) if @_ == 0;
+  my $e = shift;
+  my @c;
+  my @rest = combine @_;
+  for my $list(@rest){
+    push @c, [$e, @$list];
+    push @c, [@$list];
+  }
+  return @c;
+}
+
+sub bashComplete($$){
+  my ($cmdLine, $pos) = @_;
+  my $cmd = substr $cmdLine, 0, $pos;
+  my $isNewWord = $cmd =~ /\s$/;
+  $cmd =~ s/^\s+//;
+  $cmd =~ s/\s+$//;
+
+  my @words = split /\s+/, $cmd;
+  shift @words;
+  pop @words if not $isNewWord;
+
+  if(@words == 0){
+    my @jpgFiles = `ls *.jpg 2>/dev/null`;
+    chomp foreach @jpgFiles;
+    return ("--fehterm", "--datestats", "--print", "--gnuplot", @jpgFiles);
+  }
+
+  if($words[0] =~ /^(--print|--gnuplot)$/){
+    my $cmd = shift @words;
+    my @complete;
+    my $lastWord = $words[-1] if @words > 0;
+    $lastWord = "" if not defined $lastWord;
+
+    if($lastWord =~ /^(--song)$/){
+      return @songArgs;
+    }elsif($lastWord =~ /^(--notes)$/){
+      my @combinations = combine sort keys %$defaultNotes;
+      my @csv = sort map {join ",", @$_} @combinations;
+      return sort @csv;
+    }elsif($lastWord =~ /^($argOptFiltersRegex|$argOptPlotOptionsRegex|--notes)$/){
+      return ();
+    }
+
+    if($cmd =~ /^(--gnuplot)$/){
+      while(@words > 0 and $words[0] =~ /^($okPlotOptionsRegex)$/){
+        my $opt = shift @words;
+        shift @words if $opt =~ /^($argOptPlotOptionsRegex)$/;
+      }
+      if(@words == 0){
+        @complete = (@okPlotOptions, @complete);
+      }
+    }
+    @complete = ("--notes", @complete) if @words == 0;
+    @complete = (@okFilters, @complete);
+    return @complete;
+  }
+
+  shift @words;
+
+  my $info = parseArgs @words;
+  if(not defined $info){
+    return ();
+  }
+
+  my @complete;
+  @complete = (@songArgs, @complete) if not defined $$info{song};
+  #@complete = (@gameArgs, @complete) if not defined $$info{game};
+  @complete = (@difficultyArgs, @complete) if not defined $$info{difficulty};
+  #@complete = (@extraArgs, @complete) if not defined $$info{extra};
+  @complete = (@barArgs, @complete) if not defined $$info{bar};
+  @complete = (@roundArgs, @complete) if not defined $$info{round};
+
+  return @complete;
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+&main(@ARGV);

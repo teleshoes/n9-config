@@ -90,6 +90,7 @@ my @config = qw(
     lirr_rvc_cpg
     lirr_cpg_pen
     lirr_pen_cpg
+    lirrtraintime
   ]
 );
 

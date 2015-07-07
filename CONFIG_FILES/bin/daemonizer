@@ -1,0 +1,58 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use IPC::Open3 qw(open3);
+use Time::HiRes qw(alarm sleep);
+
+sub cmdTimeout($$);
+
+my $usage = "Usage: $0 NAME DELAY_MILLIS CMDSTR\n";
+my $logBaseDir = "/home/user/.cache/logs";
+
+sub main(@){
+  die $usage if @_ != 3 or $_[0] !~ /^[a-zA-Z0-9_\-]+$/ or $_[1] !~ /^\d+$/;
+  my ($name, $delayMillis, $cmd) = @_;
+  my $now = time;
+  my $logDir = "$logBaseDir/$name-daemon";
+  system "mkdir", "-p", $logDir;
+  my $logFile = "$logDir/$now.log";
+  system "touch", $logFile;
+  system "rm", "-f", "$logDir/latest";
+  system "ln", "-s", "$now.log", "$logDir/latest";
+
+  $SIG{ALRM} = sub {die "timeout"};
+
+  open LOG, ">>$logFile" or die "Could not append to $logFile\n";
+  print LOG "started $name daemon\n";
+  print LOG "\n\n\n";
+  close LOG;
+
+  while(1){
+    sleep $delayMillis/1000.0;
+    open LOG, ">>$logFile" or die "Could not append to $logFile\n";
+    print LOG `date`;
+
+    cmdTimeout $cmd, $delayMillis/2;
+
+    print LOG "\n\n\n";
+    close LOG;
+  }
+}
+
+sub cmdTimeout($$){
+  my ($cmd, $timeoutMillis) = @_;
+
+  my $pid = open3(undef, ">&LOG", ">&LOG", $cmd);
+  eval {
+    alarm $timeoutMillis/1000.0;
+    waitpid $pid, 0;
+    alarm 0;
+  };
+  if($@ =~ /timeout/){
+    print LOG "TIMEOUT $pid after ${timeoutMillis}ms\n";
+    system "kill", "-9", "$pid";
+    waitpid $pid, 0;
+  }
+}
+
+&main(@ARGV);

@@ -26,9 +26,11 @@ sub main(@){
   backup "sync-pidgin";
   backup "sync-mydocs";
   backup "sync-home";
-  backup "sync-fbreader backup";
-  backup "fetch-klomp-lists backup";
-  backup "sync-swype backup";
+  backup "sync-dir fbreader backup";
+  backup "sync-dir klomp backup";
+  backup "sync-dir swype backup";
+  backup "sync-dir emumaster backup";
+  backup "sync-dir logs backup";
   backup "sync-qtodo";
   backup "sync-mms";
   backup "mms-to-sms";
