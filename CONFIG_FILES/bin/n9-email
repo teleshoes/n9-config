@@ -2,68 +2,36 @@
 use strict;
 use warnings;
 
-sub hasError(@);
-sub hasUnread(@);
-sub hasNewUnread(@);
 sub run(@);
 
 my @accounts = qw(G L);
-my %alerts = (
-  G => "/usr/share/sounds/soothing/jumpdown.wav",
-  L => "/usr/share/sounds/soothing/jumpup.wav",
-);
 
-my $maybeIcon = "/home/user/maybe-email.png";
-my $notEmptyIcon = "email.png";
-my $emptyIcon = "email-empty.png";
+my $emailExec = "/opt/qtemail/bin/email.pl";
 
 my $usage = "Usage: $0 [-q|--quiet]\n";
 
 sub main(@){
+  if(`whoami` ne "user\n"){
+    print "rerunning as user\n";
+    exec "udo", $0, @_;
+  }
   my $quiet = shift if @_ > 0 and $_[0] =~ /^(-q|--quiet)$/;
   die $usage if @_ > 0;
 
   #update email
-  run "email.pl --update @accounts";
+  run "$emailExec --update @accounts";
 
-  #setup lpsmagic
-  run "rm", "-f", $maybeIcon;
-  if(hasUnread()){
-    run "ln -s email.png $maybeIcon";
-  }else{
-    run "ln -s email-empty.png $maybeIcon";
-  }
-  run "source /etc/profile; lpsmagic -once 2>&1 | grep 'Rendering format string'";
-
-  #run alerts
-  for my $acc(@accounts){
-    if(not hasError $acc and hasNewUnread $acc){
-      run "source /etc/profile; vibrate.py $alerts{$acc}";
-    }
-  }
-
+  #update billboard
+  run "billboard-refresh";
 
   if(not $quiet){
-    run "email.pl", "--print";
+    run $emailExec, "--print";
     print "\n";
-    run "email.pl", "--summary";
+    run $emailExec, "--summary";
     print "\n";
-    run "email.pl", "--unread-line";
+    run $emailExec, "--status-line";
     print "\n";
   }
-}
-
-sub hasError(@){
-  run "email.pl", "--has-error", @_;
-  return $? == 0;
-}
-sub hasUnread(@){
-  run "email.pl", "--has-unread", @_;
-  return $? == 0;
-}
-sub hasNewUnread(@){
-  run "email.pl", "--has-new-unread", @_;
-  return $? == 0;
 }
 
 sub run(@){

@@ -1,0 +1,7 @@
+#!/bin/bash
+status=$(cat /home/user/.cache/email/status-line)
+img=""
+if [ ! -z "${status// }" ]; then
+  img="<</opt/qtemail/images/small.png>>"
+fi
+echo " $img$status"

@@ -21,8 +21,7 @@ my @config = qw(
 
   dir-comm[
     mail
-    email-gui
-    n9-email
+    qtemail
     contacts
     call-log
     call-log-all
@@ -63,6 +62,7 @@ my @config = qw(
   ]
   dir-cute[
     qml2048
+    passant
     xmcr
     vmpkn9
     emumaster
@@ -83,6 +83,7 @@ my @config = qw(
     calendar
     ovistoreclient
     calc
+    billboard-ui
     lirr_fdl_pen
     lirr_pen_fdl
     lirr_cpg_rvc

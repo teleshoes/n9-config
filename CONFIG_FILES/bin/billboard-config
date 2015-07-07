@@ -1,0 +1,38 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $keyPrefix="/apps/billboard";
+
+sub main(@){
+  my $config = {
+    text => getText(),
+    font => 'Inconsolata',
+    alignment => 'left',
+  };
+
+  for my $key(sort keys %$config){
+    system "gconftool", "-s", "$keyPrefix/$key", "-t", "str", $$config{$key};
+  }
+}
+
+sub getText(){
+  my $G="{{green}}";
+  my $R="{{red}}";
+
+  my $sep = $G . " ※ ";
+  my $batPer = $R . "{battery}%";
+  my $batCur = $R. "{script:pad 3 chomp batcur}mA";
+  my $date = $R . "{script:chomp date +%a}, {short-month} {day}";
+
+  my $klomp="{script:cat /home/user/.cache/klomp-billboard.txt}";
+
+  return ''
+    . "{script:chomp billboard-email}\n"
+    . "{{green}}{volume-bar}\n"
+    . $batPer . $sep . $batCur . $sep . $date . "\n"
+    . $klomp . "\n"
+    ;
+}
+
+&main(@ARGV);

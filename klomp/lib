@@ -1,6 +1,6 @@
-startCmd=lpsmagic -once
+startCmd=billboard-klomp
 stopCmd=killall -9 mplayer
-playlistCmd=lpsmagic -once
+playlistCmd=billboard-klomp
 renice=-12
 targetUser=user
 disallowPause=true

@@ -38,6 +38,7 @@ my $normalPackages = {
     bash vim rsync wget git sudo
   )],
   '2' => [qw(
+    billboard
     mplayer
     perl bash-completion python
     autossh
@@ -66,6 +67,7 @@ my $normalPackages = {
     wireless-tools
     qtodo brujula dropcache-mdn
     qml2048
+    gnuchess
   )],
   '5harmattan-dev' => [qw(
     linux-kernel-headers

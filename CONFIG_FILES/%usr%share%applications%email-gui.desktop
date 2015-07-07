@@ -1,6 +1,0 @@
-[Desktop Entry]
-Name=email-gui
-Comment=email-gui
-Icon=email-gui
-Exec=email-gui.py
-Type=Application

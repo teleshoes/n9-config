@@ -1,0 +1,31 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $dir = "/root/passant";
+my $gitRepo = "https://github.com/teleshoes/passant.git";
+my $commit = "origin/master";
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+run "n9", "-b", "
+  if [ -e $dir ]; then
+    echo updating git repo
+    cd $dir
+    git fetch
+    git reset $commit --hard
+    git clean -fd
+  else
+    echo fetching git repo
+    mkdir -p $dir
+    cd $dir
+    git clone $gitRepo .
+    git reset $commit --hard
+  fi
+  echo running setup.py install
+  cd $dir
+  python setup.py install
+";
