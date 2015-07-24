@@ -59,7 +59,15 @@ my @config = qw(
     emumaster
     stellarium-n9
   ]
-  dir-junk[
+  dir-lirr+junk[
+    lirr_fdl_pen
+    lirr_pen_fdl
+    lirr_cpg_rvc
+    lirr_rvc_cpg
+    lirr_cpg_pen
+    lirr_pen_cpg
+    lirrtraintime
+
     call-log
     call-log-all
     transmission
@@ -82,13 +90,6 @@ my @config = qw(
     pidgin
     n9-button-monitor
     billboard-ui
-    lirr_fdl_pen
-    lirr_pen_fdl
-    lirr_cpg_rvc
-    lirr_rvc_cpg
-    lirr_cpg_pen
-    lirr_pen_cpg
-    lirrtraintime
   ]
 );
 
