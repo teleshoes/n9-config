@@ -50,7 +50,7 @@ sync-mydocs
 sync-home
 sync-pidgin
 #sh -c 'cd ~/Code/qtemail; ./n9cp'
-rsync -avP ~/.cache/email/ user@`n9`:~/.cache/email/
+rsync -avP ~/.cache/email user@`n9`:~/MyDocs
 n9 email.pl --update
 sync-dir fbreader restore
 sync-dir klomp restore
