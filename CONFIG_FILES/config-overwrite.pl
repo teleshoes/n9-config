@@ -5,8 +5,8 @@ use warnings;
 my $hostName = "wolke-n9";
 
 my $DIR = '/opt/CONFIG_FILES';
-my $user = 'user';
-my $group = 'users';
+my $user = "user";
+my ($login,$pass,$uid,$gid) = getpwnam($user);
 my $binTarget = '/usr/bin';
 
 my @rsyncOpts = qw(
@@ -114,12 +114,11 @@ sub overwriteFile($$){
     system "cp", $realDest, $dest;
   }
 
+  my @chownFiles = -d $dest ? ($dest, glob("$dest/*")) : $dest;
   if($destDir =~ /^\/home\/$user/){
-    system 'chown', '-R',  "$user.$group",  "$dest";
-    system 'chown',  "$user.$group", "$destDir";
+    chown $uid, $gid, @chownFiles;
   }else{
-    system 'chown', '-R', 'root.root', "$dest";
-    system 'chown', 'root.root', "$destDir";
+    chown 0, 0, @chownFiles;
   }
 }
 
