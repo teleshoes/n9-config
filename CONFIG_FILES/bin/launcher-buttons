@@ -16,7 +16,7 @@ my @extraIncludePatterns = qw(
 my @config = qw(
   call-history
   messaging-ui
-  MeeFox
+  browser
   mtermite
 
   dir-comm[
@@ -71,7 +71,7 @@ my @config = qw(
     settings
     accountsui
     fennec
-    browser
+    MeeFox
     camera-ui
     gallery
     trojita-tp
