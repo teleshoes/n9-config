@@ -17,7 +17,7 @@ my @config = qw(
   call-history
   messaging-ui
   mtermite
-  MeeFox
+  browser
 
   finch
   klomp
@@ -68,7 +68,7 @@ my @config = qw(
     contact-coocoo
     passant
     fennec
-    browser
+    MeeFox
     camera-ui
     trojita-tp
     NokiaPt
