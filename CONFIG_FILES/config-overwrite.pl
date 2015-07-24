@@ -95,10 +95,11 @@ sub main(@){
 
 sub overwriteFile($$$){
   my ($src, $dest, $del) = @_;
-  my $destDir = $dest;
-  $destDir =~ s/\/[^\/]*$//;
 
-  system "mkdir", "-p", $destDir;
+  my $parentDir = $dest;
+  $parentDir =~ s/\/[^\/]*$//;
+  system "mkdir", "-p", $parentDir;
+
   print "\n%%% $dest\n";
   my @rsyncCmd = ("rsync", @rsyncOpts);
   push @rsyncCmd, "--del" if $del;
