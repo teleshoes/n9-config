@@ -81,7 +81,7 @@ my @quickLaunch = qw(
   call-history
   messaging-ui
   browser
-  camera-ui
+  cameraplus
 );
 
 
