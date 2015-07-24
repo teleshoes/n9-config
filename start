@@ -59,5 +59,4 @@ sync-dir emumaster restore
 rsync -avP --del backup/MyDocs/.maps/monav_data user@`n9`:~/MyDocs/.maps
 sync-pixmirror
 klomp-sync user@`n9`
-#remove-aegis #reboots!
 plotddr
