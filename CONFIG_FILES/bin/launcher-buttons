@@ -114,7 +114,7 @@ my %dirs;
 my %dirNames;
 
 my $appDir = '/usr/share/applications';
-my $unusedDir = '/opt/unused-applications';
+my $allDir = '/opt/unused-applications';
 my $directoryDir = '/home/user/.local/share/applications';
 my $quickLaunchDir = '/home/user/.local/share/applications';
 my $confFileDest = '/home/user/.config/meegotouchhome-nokia/launcherbuttons.data';
@@ -229,7 +229,7 @@ sub parseConfig(){
 }
 
 sub getValidDesktopNames(){
-  my @names = `ls $appDir/*.desktop $unusedDir/*.desktop`;
+  my @names = `ls $appDir/*.desktop $allDir/*.desktop`;
   for my $name(@names){
     $name =~ s/.desktop$//;
     $name =~ s/^.*\///;
@@ -246,18 +246,18 @@ sub launcherPath($){
 
 
 sub createAppDesktopFiles(){
-  run "mkdir", "-p", $unusedDir;
+  run "mkdir", "-p", $allDir;
   my @active = glob "$appDir/*.desktop";
-  run "rsync", "-avP", "--ignore-existing", @active, $unusedDir;
+  run "rsync", "-avP", "--ignore-existing", @active, $allDir;
   run "rm -rf $appDir";
   run "mkdir", "-p", $appDir;
   my @missing;
   for my $app(keys %apps){
-    run "cp", "-a", "$unusedDir/$app.desktop", $appDir;
+    run "cp", "-a", "$allDir/$app.desktop", $appDir;
     push @missing, $app if $? != 0;
   }
   for my $pattern(@extraIncludePatterns){
-    for my $file(glob "$unusedDir/$pattern"){
+    for my $file(glob "$allDir/$pattern"){
       run "cp", "-a", $file, $appDir;
     }
   }
