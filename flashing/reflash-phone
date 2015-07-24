@@ -6,6 +6,7 @@ sub flashAndRootStrap($$$);
 sub attemptSSH();
 sub attemptWifi($);
 sub slowInstalls();
+sub usbDev();
 sub run(@);
 sub tryrun(@);
 
@@ -62,18 +63,16 @@ sub flashAndRootStrap($$$){
 }
 
 sub attemptSSH(){
-  print "\n\n\nwaiting for kernel flash, rebooting, and attempting to ssh\n";
-  my $usbUpCmd = "sudo ifconfig usb0 192.168.2.14";
-  tryrun $usbUpCmd;
-  if($? != 0){
-    print "$usbUpCmd failed, quietly rerunning until success:\n";
-    while(1){
-      print ".";
-      system "$usbUpCmd > /dev/null 2>/dev/null";
-      last if $? == 0;
-      sleep 1;
-    }
+  print "\n\n\nattempting to ssh\n";
+  print "waiting for usb/enx device to appear in ifconfig -a\n";
+  my $dev;
+  while(not defined $dev){
+    print ".";
+    $dev = usbDev;
+    sleep 1;
   }
+  print "\n";
+  run "sudo", "ifconfig", $dev, "192.168.2.14";
   print "usb network up!\n";
 
   my $host = `n9`;
@@ -134,6 +133,17 @@ sub slowInstalls(){
   run "./packages.pl";
   run "./packages.pl";
   run "./config-files";
+}
+
+sub usbDev(){
+  my @ifconfigLines = `ifconfig -a`;
+  for my $line(@ifconfigLines){
+    return $1 if $line =~ /^(usb\d+)\s/;
+  }
+  for my $line(@ifconfigLines){
+    return $1 if $line =~ /^(enx[0-9a-f]+)\s/;
+  }
+  return undef;
 }
 
 sub run(@){
