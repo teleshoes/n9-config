@@ -68,7 +68,7 @@ my @config = qw(
     contact-coocoo
     passant
     fennec
-    grob
+    browser
     camera-ui
     trojita-tp
     NokiaPt
