@@ -28,16 +28,20 @@ ext4-mydocs
 n9 billboard-config
 gconf-settings
 setup-cities
-config-files again...
 profile.pl
 install-klomp
 install-net
 setup-vkb-toolbar
-#reboot, to ensure timezone for messages
+
+#insert sim card, wait until time zone is updated
+config-files #2nd time. then reboot
 restore-contacts
-restore-comm call #check times for timezone error
+restore-comm call
+#check call times for timezone error
 restore-comm sms
+#check texts for timezone error
 sync-mms
+
 #if status menu is borked:
 # Settings => Unrestricted System UI =>
 #   Menu extensions => Set modern menu => Set standard[t] menu =>
