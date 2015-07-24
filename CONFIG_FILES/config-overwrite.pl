@@ -8,6 +8,8 @@ my $DIR = '/opt/CONFIG_FILES';
 my $user = "user";
 my ($login,$pass,$uid,$gid) = getpwnam($user);
 my $binTarget = '/usr/bin';
+my $iconsTarget = '/usr/share/themes/blanco/meegotouch/icons';
+my $launchersTarget = '/opt/app-launchers';
 
 my @rsyncOpts = qw(
   -a  --no-owner --no-group
@@ -32,7 +34,7 @@ my %changedTriggers = (
   "/home/user/.profiled/custom.ini" => "reload-profile"
 );
 
-my $okTypes = join "|", qw(boing bin remove all);
+my $okTypes = join "|", qw(boing bin icons launchers remove all);
 
 my $usage = "Usage: $0 [$okTypes]\n";
 
@@ -79,6 +81,14 @@ sub main(@){
   if($type =~ /^(bin|all)$/){
     print "\n ---handling bin files...\n";
     overwriteFile "$DIR/bin/", "$binTarget/", 0;
+  }
+  if($type =~ /^(icons|all)$/){
+    print "\n ---handling icon files...\n";
+    overwriteFile "$DIR/icons/", "$iconsTarget/", 0;
+  }
+  if($type =~ /^(launchers|all)$/){
+    print "\n ---handling icon files...\n";
+    overwriteFile "$DIR/launchers/", "$launchersTarget/", 0;
   }
 
   if($type =~ /^(remove|all)$/){
