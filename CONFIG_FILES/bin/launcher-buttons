@@ -35,7 +35,11 @@ my @config = qw(
   meeseepics
 
   dir-tools[
+    qtbtn-power
     toggleBT
+    joikuspot
+    calc
+
     restart-wifi
     dontgosleep
     screenshotmee
@@ -43,20 +47,17 @@ my @config = qw(
     dcim-reindex
   ]
   dir-useful[
-    qtbtn-power
     qtodo
     brujula
     dingmee
   ]
   dir-cute[
-    joikuspot
     qtbigtext
     qml2048
     teatime
     vmpkn9
     coffee
     xmcr
-    calc
     emumaster
     stellarium-n9
     passant
