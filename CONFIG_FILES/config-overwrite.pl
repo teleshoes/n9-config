@@ -113,11 +113,13 @@ sub overwriteFile($$$){
     system "cp", $realDest, $dest;
   }
 
-  my @chownFiles = -d $dest ? ($dest, glob("$dest/*")) : $dest;
-  if($destDir =~ /^\/home\/$user/){
-    chown $uid, $gid, @chownFiles;
-  }else{
-    chown 0, 0, @chownFiles;
+  if(not -l $dest){
+    my @chownFiles = -d $dest ? ($dest, glob("$dest/*")) : $dest;
+    if($dest =~ /^\/home\/$user/){
+      chown $uid, $gid, @chownFiles;
+    }else{
+      chown 0, 0, @chownFiles;
+    }
   }
 }
 
