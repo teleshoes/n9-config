@@ -55,12 +55,13 @@ my @config = qw(
     coffee
   ]
   dir-cute[
-    qml2048
-    vmpkn9
-    xmcr
-    emumaster
     stellarium-n9
+    emumaster
+    vmpkn9
+    qml2048
+
     passant
+    xmcr
     dingmee
   ]
   dir-lirr+junk[
