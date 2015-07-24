@@ -114,7 +114,7 @@ my %dirs;
 my %dirNames;
 
 my $appDir = '/usr/share/applications';
-my $allDir = '/opt/unused-applications';
+my $allDir = '/opt/app-launchers';
 my $directoryDir = '/home/user/.local/share/applications';
 my $quickLaunchDir = '/home/user/.local/share/applications';
 my $confFileDest = '/home/user/.config/meegotouchhome-nokia/launcherbuttons.data';
