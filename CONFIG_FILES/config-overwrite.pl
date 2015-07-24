@@ -44,10 +44,10 @@ sub main(@){
   die "Usage: $0 [$okTypes]\n" if @_ > 0 or $type !~ /^($okTypes)$/;
   die "hostname must be $hostName" if `hostname` ne "$hostName\n";
 
-  my @boingFiles = `cd $DIR; ls -d %*`;
-  chomp foreach @boingFiles;
-  my @binFiles = `cd $DIR/bin; ls -d *`;
-  chomp foreach @binFiles;
+  my @boingFiles = glob "$DIR/%*";
+  s/^$DIR\/// foreach @boingFiles;
+  my @binFiles = glob "$DIR/bin/*";
+  s/^$DIR\/bin\/// foreach @binFiles;
   my @filesToRemove = `cat $DIR/config-files-to-remove`;
   chomp foreach @filesToRemove;
 
