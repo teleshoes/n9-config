@@ -158,7 +158,7 @@ sub main(@){
   run "/sbin/initctl stop xsession/mthome";
   appendHarmattans();
   parseConfig();
-  createAppDesktopFiles();
+  my @missing = createAppDesktopFiles();
   createDirDesktopFiles();
   createQuickLauncherDesktopFiles();
 
@@ -166,6 +166,8 @@ sub main(@){
   run "killall meegotouchhome";
   writeLauncherButtonsData($data);
   run "/sbin/initctl start xsession/mthome";
+
+  print "\n\n\n\nMISSING: @missing\n" if @missing > 0;
 }
 
 sub ensureRoot(){
@@ -249,14 +251,17 @@ sub createAppDesktopFiles(){
   run "rsync", "-avP", "--ignore-existing", @active, $unusedDir;
   run "rm -rf $appDir";
   run "mkdir", "-p", $appDir;
+  my @missing;
   for my $app(keys %apps){
     run "cp", "-a", "$unusedDir/$app.desktop", $appDir;
+    push @missing, $app if $? != 0;
   }
   for my $pattern(@extraIncludePatterns){
     for my $file(glob "$unusedDir/$pattern"){
       run "cp", "-a", $file, $appDir;
     }
   }
+  return @missing;
 }
 
 sub createDirDesktopFiles(){
