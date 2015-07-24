@@ -71,7 +71,7 @@ my @config = qw(
     settings
     accountsui
     fennec
-    grob
+    browser
     camera-ui
     gallery
     trojita-tp
