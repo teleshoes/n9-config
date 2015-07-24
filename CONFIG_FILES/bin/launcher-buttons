@@ -49,13 +49,14 @@ my @config = qw(
   dir-useful[
     qtodo
     brujula
+    qtbigtext
+    teatime
+
+    coffee
   ]
   dir-cute[
-    qtbigtext
     qml2048
-    teatime
     vmpkn9
-    coffee
     xmcr
     emumaster
     stellarium-n9
