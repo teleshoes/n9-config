@@ -31,10 +31,12 @@ config-files again...
 profile.pl
 install-klomp
 install-net
+setup-vkb-toolbar
 #reboot, to ensure timezone for messages
 restore-contacts
 restore-comm call #check times for timezone error
 restore-comm sms
+sync-mms
 #if status menu is borked:
 # Settings => Unrestricted System UI =>
 #   Menu extensions => Set modern menu => Set standard[t] menu =>
@@ -46,8 +48,6 @@ sync-dir fbreader restore
 sync-dir klomp restore
 sync-dir swype restore
 sync-dir emumaster restore
-setup-vkb-toolbar
 klomp-sync user@`n9`
 #remove-aegis #reboots!
 plotddr
-sync-mms
