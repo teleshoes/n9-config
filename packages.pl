@@ -62,6 +62,7 @@ my $normalPackages = {
     qtbigtext
     n9-button-monitor
     modrana
+    emumaster
   )],
   '4' => [qw(
     ad-hac
