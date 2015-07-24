@@ -103,15 +103,21 @@ sub overwriteFile($$$){
   print "\n%%% $dest\n";
   my @rsyncCmd = ("rsync", @rsyncOpts);
   push @rsyncCmd, "--del" if $del;
-  if(-d $src){
+  if(-l $src){
+    system "rm", $dest if -l $dest;
+
+    my $srcLink = readlink $src;
+    if(defined $symlinksToReplace{$dest}){
+      system "cp", $srcLink, $dest;
+    }elsif(not -e $dest){
+      system "ln", "-s", $srcLink, $dest;
+    }else{
+      die "Cannot replace non-symlink with symlink\n";
+    }
+  }elsif(-d $src){
     system @rsyncCmd, "$src/", "$dest";
   }else{
     system @rsyncCmd, "$src", "$dest";
-  }
-
-  if(defined $symlinksToReplace{$dest} and -l $dest){
-    my $realDest = readlink $dest;
-    system "cp", $realDest, $dest;
   }
 
   if(not -l $dest){
