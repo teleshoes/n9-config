@@ -32,15 +32,19 @@ my %changedTriggers = (
   #"/home/user/.profiled/custom.ini" => "reload-profile"
 );
 
+my $okTypes = join "|", qw(boing bin remove all);
+
+my $usage = "Usage: $0 [$okTypes]\n";
+
 sub overwriteFile($$$);
 sub removeFile($);
 sub md5sum($);
 
 sub main(@){
-  my $type = shift;
-  $type = 'all' if not defined $type;
-  my $okTypes = join "|", qw(boing bin remove all);
-  die "Usage: $0 [$okTypes]\n" if @_ > 0 or $type !~ /^($okTypes)$/;
+  my $type = 'all';
+  $type = shift if @_ > 0 and $_[0] =~ /^($okTypes)$/;
+  die $usage if @_ > 0;
+
   die "hostname must be $hostName" if `hostname` ne "$hostName\n";
 
   my @boingFiles = glob "$DIR/%*";
