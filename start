@@ -55,6 +55,7 @@ sync-dir fbreader restore
 sync-dir klomp restore
 sync-dir swype restore
 sync-dir emumaster restore
+rsync -avP --del backup/MyDocs/.maps/monav_data user@`n9`:~/MyDocs/.maps
 klomp-sync user@`n9`
 #remove-aegis #reboots!
 plotddr
