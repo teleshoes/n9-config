@@ -74,9 +74,7 @@ sub main(@){
 
   if($type =~ /^(bin|all)$/){
     print "\n ---handling bin files...\n";
-    for my $file(@binFiles){
-      overwriteFile "$DIR/bin/$file", "$binTarget/$file", 1;
-    }
+    overwriteFile "$DIR/bin/", "$binTarget/", 0;
   }
 
   if($type =~ /^(remove|all)$/){
