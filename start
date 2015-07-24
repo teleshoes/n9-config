@@ -31,6 +31,7 @@ setup-cities
 profile.pl
 install-klomp
 install-net
+install-passant
 setup-vkb-toolbar
 
 #insert sim card, wait until time zone is updated
