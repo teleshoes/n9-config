@@ -35,6 +35,7 @@ my @config = qw(
   meeseepics
 
   dir-tools[
+    toggleBT
     restart-wifi
     dontgosleep
     screenshotmee
@@ -58,6 +59,7 @@ my @config = qw(
     calc
     emumaster
     stellarium-n9
+    passant
   ]
   dir-lirr+junk[
     lirr_fdl_pen
@@ -74,7 +76,6 @@ my @config = qw(
     modrana
     mail
     contact-coocoo
-    passant
     fennec
     MeeFox
     camera-ui
@@ -83,7 +84,6 @@ my @config = qw(
     accountsui
     btinput-terminal
     btinput
-    toggleBT
     gallery
     calendar
     ovistoreclient
