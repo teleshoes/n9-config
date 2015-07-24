@@ -9,7 +9,7 @@ my %replacements = (
   'grob' => 'browser',
 );
 
-my @ignoredPatterns = qw(
+my @extraIncludePatterns = qw(
   web-search-*.desktop
 );
 
@@ -252,7 +252,11 @@ sub createAppDesktopFiles(){
   for my $app(keys %apps){
     run "cp", "-a", "$unusedDir/$app.desktop", $appDir;
   }
-  run "cd $unusedDir; mv @ignoredPatterns $appDir";
+  for my $pattern(@extraIncludePatterns){
+    for my $file(glob "$unusedDir/$pattern"){
+      run "cp", "-a", $file, $appDir;
+    }
+  }
 }
 
 sub createDirDesktopFiles(){
