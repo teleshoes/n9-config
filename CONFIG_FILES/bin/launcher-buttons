@@ -243,11 +243,12 @@ sub launcherPath($){
 
 sub createAppDesktopFiles(){
   run "mkdir", "-p", $unusedDir;
-  run "mv $appDir/*.desktop $unusedDir";
+  my @active = glob "$appDir/*.desktop";
+  run "rsync", "-avP", "--ignore-existing", @active, $unusedDir;
   run "rm -rf $appDir";
   run "mkdir", "-p", $appDir;
   for my $app(keys %apps){
-    run "mv", "$unusedDir/$app.desktop", $appDir;
+    run "cp", "-a", "$unusedDir/$app.desktop", $appDir;
   }
   run "cd $unusedDir; mv @ignoredPatterns $appDir";
 }
