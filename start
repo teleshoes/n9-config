@@ -48,6 +48,9 @@ sync-mms
 sync-mydocs
 sync-home
 sync-pidgin
+#sh -c 'cd ~/Code/qtemail; ./n9cp'
+rsync -avP ~/.cache/email/ user@`n9`:~/.cache/email/
+n9 email.pl --update
 sync-dir fbreader restore
 sync-dir klomp restore
 sync-dir swype restore
