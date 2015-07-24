@@ -51,8 +51,7 @@ sub main(@){
 
   my @boingFiles = glob "$DIR/%*";
   s/^$DIR\/// foreach @boingFiles;
-  my @binFiles = glob "$DIR/bin/*";
-  s/^$DIR\/bin\/// foreach @binFiles;
+
   my @filesToRemove = `cat $DIR/config-files-to-remove`;
   chomp foreach @filesToRemove;
 
