@@ -35,7 +35,6 @@ my @config = qw(
   meeseepics
 
   dir-tools[
-    modrana
     restart-wifi
     dontgosleep
     screenshotmee
@@ -45,11 +44,8 @@ my @config = qw(
   dir-useful[
     qtbtn-power
     qtodo
-    call-log
-    call-log-all
     brujula
     dingmee
-    transmission
   ]
   dir-cute[
     joikuspot
@@ -64,6 +60,10 @@ my @config = qw(
     stellarium-n9
   ]
   dir-junk[
+    call-log
+    call-log-all
+    transmission
+    modrana
     mail
     contact-coocoo
     passant
