@@ -13,50 +13,50 @@
 # C) run:
 
 n9 -t
-set-passwd
-set-host
-keygen.pl
-sync-wifi
-respawn-limit
-packages
-packages #to fix any debs that install in the wrong order
-config-files
-launcher-buttons
-status-menu
-ext4-mydocs
+./set-passwd
+./set-host
+./keygen.pl
+./sync-wifi
+./respawn-limit
+./packages
+./packages #to fix any debs that install in the wrong order
+./config-files
+./launcher-buttons
+./status-menu
+./ext4-mydocs
 n9 billboard-config
-gconf-settings
-setup-cities
-profile.pl
-install-klomp
-install-net
-install-passant
-setup-vkb-toolbar
+./gconf-settings
+./setup-cities
+./profile.pl
+./install-klomp
+./install-net
+./install-passant
+./setup-vkb-toolbar
 
 #insert sim card, wait until time zone is updated
-config-files #2nd time. then reboot
-restore-contacts
-restore-comm call
+./config-files #2nd time. then reboot
+./restore-contacts
+./restore-comm call
 #check call times for timezone error
-restore-comm sms
+./restore-comm sms
 #check texts for timezone error
-sync-mms
+./sync-mms
 
 #if status menu is borked:
 # Settings => Unrestricted System UI =>
 #   Menu extensions => Set modern menu => Set standard[t] menu =>
 #   {enable on internetconnections, rearrange as neccesary} => Restart sysuid
-sync-mydocs
-sync-home
-sync-pidgin
+./sync-mydocs
+./sync-home
+./sync-pidgin
 #sh -c 'cd ~/Code/qtemail; ./n9cp'
 rsync -avP ~/.cache/email user@`n9`:~/MyDocs
 n9 email.pl --update
-sync-dir fbreader restore
-sync-dir klomp restore
-sync-dir swype restore
-sync-dir emumaster restore
+./sync-dir fbreader restore
+./sync-dir klomp restore
+./sync-dir swype restore
+./sync-dir emumaster restore
 rsync -avP --del backup/MyDocs/.maps/monav_data user@`n9`:~/MyDocs/.maps
-sync-pixmirror
+./sync-pixmirror
 klomp-sync user@`n9`
 plotddr
