@@ -9,6 +9,7 @@ sub parseHeader($);
 sub getContactsFromSmsRepo();
 sub removeUSCountryCode($);
 sub run(@);
+sub runQuiet(@);
 
 my $dir = "$ENV{HOME}/Code/n9";
 my $mmsLocal = "$dir/backup/backup-mms";
@@ -41,6 +42,8 @@ sub main(@){
 sub createMsgSymlinks(){
   run "rm", "-rf", $msgByDateDir, $msgByFromDir, $msgPixDir;
   run "mkdir", "-p", $msgByDateDir, $msgByFromDir, $msgPixDir;
+
+  print "\ncreating symlinks\n";
   my $contacts = getContactsFromSmsRepo();
   for my $msgDir(glob "$mmsLocal/msg/*"){
     my $id = $1 if $msgDir =~ /([^\/]+)$/;
@@ -64,14 +67,15 @@ sub createMsgSymlinks(){
     }
     my $symName = formatHeader $header, $contacts;
 
-    run "ln", "-s", "../msg/$id", "$msgByDateDir/$symName";
+    runQuiet "ln", "-s", "../msg/$id", "$msgByDateDir/$symName";
 
     my $fromFmt = formatContactList $contacts, @{$$header{from}};
-    run "mkdir", "-p", "$msgByFromDir/$fromFmt";
-    run "ln", "-s", "../../msg/$id", "$msgByFromDir/$fromFmt/$symName";
+    runQuiet "mkdir", "-p", "$msgByFromDir/$fromFmt";
+    runQuiet "touch", "$msgByFromDir/$fromFmt", "-r", $msgDir;
+    runQuiet "ln", "-s", "../../msg/$id", "$msgByFromDir/$fromFmt/$symName";
 
     for my $pic(@pix){
-      run "ln", "-s", "../msg/$id/$pic", "$msgPixDir/$symName-$pic";
+      runQuiet "ln", "-s", "../msg/$id/$pic", "$msgPixDir/$symName-$pic";
     }
   }
 }
@@ -150,6 +154,9 @@ sub removeUSCountryCode($){
 
 sub run(@){
   print "@_\n";
+  runQuiet @_;
+}
+sub runQuiet(@){
   system @_;
   die "failed" if $? != 0;
 }
