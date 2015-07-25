@@ -145,7 +145,9 @@ sub overwriteFile($$$){
     ($chownUid, $chownGid) = (0, 0);
   }
 
-  if(not -l $dest){
+  if(-l $dest){
+    system "chown", "-h", "$chownUid.$chownGid", @chownFiles;
+  }else{
     chown $chownUid, $chownGid, @chownFiles;
   }
 }
