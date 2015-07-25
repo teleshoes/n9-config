@@ -3,8 +3,9 @@ use strict;
 use warnings;
 
 sub createMsgSymlinks();
-sub formatHeader($);
+sub formatHeader($$);
 sub parseHeader($);
+sub getContactsFromSmsRepo();
 sub removeUSCountryCode($);
 sub run(@);
 
@@ -37,6 +38,7 @@ sub main(@){
 sub createMsgSymlinks(){
   run "rm", "-rf", $msgByDateDir;
   run "mkdir", "-p", $msgByDateDir;
+  my $contacts = getContactsFromSmsRepo();
   for my $msgDir(glob "$mmsLocal/msg/*"){
     my $id = $1 if $msgDir =~ /([^\/]+)$/;
     my $mtime = (stat $msgDir)[9];
@@ -53,19 +55,21 @@ sub createMsgSymlinks(){
         subject   => "",
       };
     }
-    my $symName = formatHeader $header;
+    my $symName = formatHeader $header, $contacts;
 
     run "ln", "-s", "../msg/$id", "$msgByDateDir/$symName";
   }
 }
 
-sub formatHeader($){
-  my ($header) = @_;
+sub formatHeader($$){
+  my ($header, $contacts) = @_;
   my @from = @{$$header{from}};
+  @from = map {defined $$contacts{$_} ? $$contacts{$_} : $_} @from;
   my $fromFmt = join ",", @from;
   $fromFmt = "UNKNOWN" if @from == 0;
 
   my @to = @{$$header{to}};
+  @to = map {defined $$contacts{$_} ? $$contacts{$_} : $_} @to;
   my $toFmt = join ",", @to;
   $toFmt = "UNKNOWN" if @to == 0;
 
@@ -106,6 +110,16 @@ sub parseHeader($){
     subject   => $subject,
     timestamp => $timestamp,
   };
+}
+
+sub getContactsFromSmsRepo(){
+  my $smsRepo = "$dir/backup/backup-sms/repo";
+  my @numFiles = glob "$smsRepo/*-*.sms";
+  my $contacts = {};
+  for my $numFile(@numFiles){
+    $$contacts{$2} = $1 if $numFile =~ /([^\/]+)-(\d+)\.sms$/;
+  }
+  return $contacts;
 }
 
 sub removeUSCountryCode($){
