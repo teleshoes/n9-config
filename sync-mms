@@ -16,6 +16,7 @@ my $mmsRemote = "/home/user/.mms";
 
 my $msgByDateDir = "$mmsLocal/msg-bydate";
 my $msgByFromDir = "$mmsLocal/msg-byfrom";
+my $msgPixDir = "$mmsLocal/msg-pix";
 
 my @rsyncOpts = qw(
   -a --no-owner --no-group
@@ -38,12 +39,16 @@ sub main(@){
 }
 
 sub createMsgSymlinks(){
-  run "rm", "-rf", $msgByDateDir, $msgByFromDir;
-  run "mkdir", "-p", $msgByDateDir, $msgByFromDir;
+  run "rm", "-rf", $msgByDateDir, $msgByFromDir, $msgPixDir;
+  run "mkdir", "-p", $msgByDateDir, $msgByFromDir, $msgPixDir;
   my $contacts = getContactsFromSmsRepo();
   for my $msgDir(glob "$mmsLocal/msg/*"){
     my $id = $1 if $msgDir =~ /([^\/]+)$/;
     my $mtime = (stat $msgDir)[9];
+
+    my @files = glob "$msgDir/*";
+    my @pix = grep {/\.(jpg|jpeg|png|gif|bmp)/i} @files;
+    s/^.*\/// foreach @pix;
 
     my $headerFile = "$msgDir/header";
     my $header;
@@ -64,6 +69,10 @@ sub createMsgSymlinks(){
     my $fromFmt = formatContactList $contacts, @{$$header{from}};
     run "mkdir", "-p", "$msgByFromDir/$fromFmt";
     run "ln", "-s", "../../msg/$id", "$msgByFromDir/$fromFmt/$symName";
+
+    for my $pic(@pix){
+      run "ln", "-s", "../msg/$id/$pic", "$msgPixDir/$symName-$pic";
+    }
   }
 }
 
