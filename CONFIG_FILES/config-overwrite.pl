@@ -133,13 +133,20 @@ sub overwriteFile($$$){
     system @rsyncCmd, "$src", "$dest";
   }
 
+  my @chownFiles = ($dest);
+  if(not -l $dest and -d $dest){
+    @chownFiles = (@chownFiles, glob("$dest/*"));
+  }
+
+  my ($chownUid, $chownGid);
+  if($dest =~ /^\/home\/$user/){
+    ($chownUid, $chownGid) = ($uid, $gid);
+  }else{
+    ($chownUid, $chownGid) = (0, 0);
+  }
+
   if(not -l $dest){
-    my @chownFiles = -d $dest ? ($dest, glob("$dest/*")) : $dest;
-    if($dest =~ /^\/home\/$user/){
-      chown $uid, $gid, @chownFiles;
-    }else{
-      chown 0, 0, @chownFiles;
-    }
+    chown $chownUid, $chownGid, @chownFiles;
   }
 }
 
