@@ -15,6 +15,7 @@ my $mmsLocal = "$dir/backup/backup-mms";
 my $mmsRemote = "/home/user/.mms";
 
 my $msgByDateDir = "$mmsLocal/msg-bydate";
+my $msgByFromDir = "$mmsLocal/msg-byfrom";
 
 my @rsyncOpts = qw(
   -a --no-owner --no-group
@@ -37,8 +38,8 @@ sub main(@){
 }
 
 sub createMsgSymlinks(){
-  run "rm", "-rf", $msgByDateDir;
-  run "mkdir", "-p", $msgByDateDir;
+  run "rm", "-rf", $msgByDateDir, $msgByFromDir;
+  run "mkdir", "-p", $msgByDateDir, $msgByFromDir;
   my $contacts = getContactsFromSmsRepo();
   for my $msgDir(glob "$mmsLocal/msg/*"){
     my $id = $1 if $msgDir =~ /([^\/]+)$/;
@@ -59,6 +60,10 @@ sub createMsgSymlinks(){
     my $symName = formatHeader $header, $contacts;
 
     run "ln", "-s", "../msg/$id", "$msgByDateDir/$symName";
+
+    my $fromFmt = formatContactList $contacts, @{$$header{from}};
+    run "mkdir", "-p", "$msgByFromDir/$fromFmt";
+    run "ln", "-s", "../../msg/$id", "$msgByFromDir/$fromFmt/$symName";
   }
 }
 
