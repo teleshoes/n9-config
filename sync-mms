@@ -4,6 +4,7 @@ use warnings;
 
 sub createMsgSymlinks();
 sub formatHeader($$);
+sub formatContactList($@);
 sub parseHeader($);
 sub getContactsFromSmsRepo();
 sub removeUSCountryCode($);
@@ -63,15 +64,9 @@ sub createMsgSymlinks(){
 
 sub formatHeader($$){
   my ($header, $contacts) = @_;
-  my @from = @{$$header{from}};
-  @from = map {defined $$contacts{$_} ? $$contacts{$_} : $_} @from;
-  my $fromFmt = join ",", @from;
-  $fromFmt = "UNKNOWN" if @from == 0;
 
-  my @to = @{$$header{to}};
-  @to = map {defined $$contacts{$_} ? $$contacts{$_} : $_} @to;
-  my $toFmt = join ",", @to;
-  $toFmt = "UNKNOWN" if @to == 0;
+  my $fromFmt = formatContactList $contacts, @{$$header{from}};
+  my $toFmt = formatContactList $contacts, @{$$header{to}};
 
   my $timestamp = $$header{timestamp};
   my $dateFmt = `date --date=\@$timestamp +%Y%m%d_%H_%M_%S`;
@@ -85,6 +80,16 @@ sub formatHeader($$){
   $subjectFmt = "none" if length $subjectFmt == 0;
 
   return "$dateFmt-$fromFmt-$toFmt-$subjectFmt";
+}
+
+sub formatContactList($@){
+  my ($contacts, @list) = @_;
+
+  @list = map {defined $$contacts{$_} ? $$contacts{$_} : $_} @list;
+
+  my $fmt = join ",", @list;
+  $fmt = "UNKNOWN" if @list == 0;
+  return $fmt;
 }
 
 sub parseHeader($){
