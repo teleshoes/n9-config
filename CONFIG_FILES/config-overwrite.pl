@@ -21,6 +21,7 @@ my %symlinksToReplace = map {$_ => 1} (
   "$bgDir/meegotouch-desktop-bg-events.jpg",
   "$bgDir/meegotouch-desktop-bg-launcher.jpg",
   "$bgDir/meegotouch-desktop-bg-switcher.jpg",
+  "/root/.bashrc",
 );
 
 my %changedTriggers = (
