@@ -53,6 +53,7 @@ my @config = qw(
     teatime
 
     coffee
+    maps
   ]
   dir-cute[
     stellarium-n9
