@@ -4,10 +4,14 @@ use warnings;
 
 my $tmpFile = "/tmp/ubiboot-expect-command";
 
+sub usbDev();
+
 sub main(@){
   my $cmd = "@_";
-  system qw(sudo ifconfig usb0 up);
-  system qw(sudo ifconfig usb0 192.168.2.14);
+  my $dev = usbDev;
+  die "Error: no usb/enx dev\n" if not defined $dev;
+  system "sudo", "ifconfig", $dev, "up";
+  system "sudo", "ifconfig", $dev, "192.168.2.14";
   open FH, "> $tmpFile" or die "Couldnt write $tmpFile\n";
   print FH ''
     . "spawn telnet 192.168.2.15\n"
@@ -18,6 +22,17 @@ sub main(@){
     ;
   close FH;
   system "expect", "-f", $tmpFile;
+}
+
+sub usbDev(){
+  my @ifconfigLines = `ifconfig -a`;
+  for my $line(@ifconfigLines){
+    return $1 if $line =~ /^(usb\d+)\s/;
+  }
+  for my $line(@ifconfigLines){
+    return $1 if $line =~ /^(enx[0-9a-f]+)\s/;
+  }
+  return undef;
 }
 
 &main(@ARGV);

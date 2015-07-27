@@ -9,14 +9,14 @@ my %replacements = (
   'grob' => 'browser',
 );
 
-my @ignoredPatterns = qw(
+my @extraIncludePatterns = qw(
   web-search-*.desktop
 );
 
 my @config = qw(
   call-history
   messaging-ui
-  MeeFox
+  browser
   mtermite
 
   dir-comm[
@@ -71,7 +71,7 @@ my @config = qw(
     settings
     accountsui
     fennec
-    grob
+    MeeFox
     camera-ui
     gallery
     trojita-tp
@@ -103,8 +103,8 @@ for my $entry(@config){
 my @quickLaunch = qw(
   call-history
   messaging-ui
-  fennec
-  camera-ui
+  browser
+  cameraplus
 );
 
 
@@ -113,8 +113,8 @@ my %appDirs;
 my %dirs;
 my %dirNames;
 
-my $appDir = '/usr/share/applications';
-my $unusedDir = '/opt/unused-applications';
+my $activeDir = '/usr/share/applications';
+my $allDir = '/opt/app-launchers';
 my $directoryDir = '/home/user/.local/share/applications';
 my $quickLaunchDir = '/home/user/.local/share/applications';
 my $confFileDest = '/home/user/.config/meegotouchhome-nokia/launcherbuttons.data';
@@ -158,7 +158,7 @@ sub main(@){
   run "/sbin/initctl stop xsession/mthome";
   appendHarmattans();
   parseConfig();
-  createAppDesktopFiles();
+  my @missing = createAppDesktopFiles();
   createDirDesktopFiles();
   createQuickLauncherDesktopFiles();
 
@@ -166,6 +166,8 @@ sub main(@){
   run "killall meegotouchhome";
   writeLauncherButtonsData($data);
   run "/sbin/initctl start xsession/mthome";
+
+  print "\n\n\n\nMISSING: @missing\n" if @missing > 0;
 }
 
 sub ensureRoot(){
@@ -227,7 +229,7 @@ sub parseConfig(){
 }
 
 sub getValidDesktopNames(){
-  my @names = `ls $appDir/*.desktop $unusedDir/*.desktop`;
+  my @names = `ls $activeDir/*.desktop $allDir/*.desktop`;
   for my $name(@names){
     $name =~ s/.desktop$//;
     $name =~ s/^.*\///;
@@ -244,14 +246,22 @@ sub launcherPath($){
 
 
 sub createAppDesktopFiles(){
-  run "mkdir", "-p", $unusedDir;
-  run "mv $appDir/*.desktop $unusedDir";
-  run "rm -rf $appDir";
-  run "mkdir", "-p", $appDir;
+  run "mkdir", "-p", $allDir;
+  my @active = glob "$activeDir/*.desktop";
+  run "rsync", "-avP", "--ignore-existing", @active, $allDir;
+  run "rm -rf $activeDir";
+  run "mkdir", "-p", $activeDir;
+  my @missing;
   for my $app(keys %apps){
-    run "mv", "$unusedDir/$app.desktop", $appDir;
+    run "cp", "-a", "$allDir/$app.desktop", $activeDir;
+    push @missing, $app if $? != 0;
   }
-  run "cd $unusedDir; mv @ignoredPatterns $appDir";
+  for my $pattern(@extraIncludePatterns){
+    for my $file(glob "$allDir/$pattern"){
+      run "cp", "-a", $file, $activeDir;
+    }
+  }
+  return @missing;
 }
 
 sub createDirDesktopFiles(){
@@ -278,7 +288,7 @@ sub createQuickLauncherDesktopFiles(){
   run "rm $quickLaunchDir/*.desktop";
   for(my $i=0; $i<@quickLaunch; $i++){
     my $qlFile = "$quickLaunchDir/quicklaunchbar$i.desktop";
-    run "ln", "-s", "$appDir/$quickLaunch[$i].desktop", $qlFile;
+    run "ln", "-s", "$activeDir/$quickLaunch[$i].desktop", $qlFile;
   }
   run "chown", "user.users", "-R", $quickLaunchDir;
 }
@@ -291,7 +301,7 @@ sub getAppData(){
     my $dir = $appDirs{$app};
     $dir = 0 if not defined $dir;
 
-    my $desktopFile = "$appDir/$app.desktop";
+    my $desktopFile = "$activeDir/$app.desktop";
     $data .= launcherPath($desktopFile) . "=launcher/$dir/$index\n";
   }
   return $data;

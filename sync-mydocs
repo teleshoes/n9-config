@@ -16,6 +16,8 @@ my @excludes = map {"--exclude=$_"} qw(
 
   Music
 
+  email
+
   backup-contacts
   backup-sms
   backup-sms-repo

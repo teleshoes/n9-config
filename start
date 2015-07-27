@@ -1,50 +1,62 @@
-A) if this is a brand new phone, get a root terminal and remove the disclaimer
-  Settings -> Security {???} -> Dev Mode
-  phone will restart after it is done installing
-  you can just wait {about 2 minutes} once it prompts for:
-    ~2.6MB additional installation required
-
-  open a terminal
-  devel-su #password is rootme
-  disclaimer-cal remove View-openmode
-
-B) reflash-phone {flashing/instructions}
-
-C) run:
+# A) if this is a brand new phone, get a root terminal and remove the disclaimer
+#  Settings -> Security {???} -> Dev Mode
+#  phone will restart after it is done installing
+#  you can just wait {about 2 minutes} once it prompts for:
+#    ~2.6MB additional installation required
+#
+#  open a terminal
+#  devel-su #password is rootme
+#  disclaimer-cal remove View-openmode
+#
+# B) reflash-phone {flashing/instructions}
+#
+# C) run:
 
 n9 -t
-set-passwd
-set-host
-keygen.pl
-sync-wifi
-respawn-limit
-packages
-packages #to fix any debs that install in the wrong order
-config-files
-launcher-buttons
-status-menu
-packages.pl --reinstall extra #to fix mt-toggles
-ext4-mydocs
+./set-passwd
+./set-host
+./keygen.pl
+./sync-wifi
+./respawn-limit
+./packages
+./packages #to fix any debs that install in the wrong order
+./config-files
+./launcher-buttons
+./status-menu
+./ext4-mydocs
 n9 billboard-config
-gconf-settings
-setup-cities
-config-files again...
-profile.pl
-install-klomp
-install-net
-#reboot, to ensure timezone for messages
-restore-contacts
-restore-comm call #check times for timezone error
-restore-comm sms
-sync-mydocs
-sync-home
-sync-pidgin
-sync-dir fbreader restore
-sync-dir klomp restore
-sync-dir swype restore
-sync-dir emumaster restore
-setup-vkb-toolbar
+./gconf-settings
+./setup-cities
+./profile.pl
+./install-klomp
+./install-net
+./install-passant
+./setup-vkb-toolbar
+
+#insert sim card, wait until time zone is updated
+./config-files #2nd time. then reboot
+./restore-contacts
+./restore-comm call
+#check call times for timezone error
+./restore-comm sms
+#check texts for timezone error
+./sync-mms
+
+#if status menu is borked:
+# Settings => Unrestricted System UI =>
+#   Menu extensions => Set modern menu => Set standard[t] menu =>
+#   {enable on internetconnections, rearrange as neccesary} => Restart sysuid
+./sync-mydocs
+./sync-home
+./sync-pidgin
+#sh -c 'cd ~/Code/qtemail; ./n9cp'
+rsync -avP ~/.cache/email user@`n9`:~/MyDocs
+n9 email.pl --update
+./sync-dir fbreader restore
+./sync-dir klomp restore
+./sync-dir swype restore
+./sync-dir emumaster restore
+#rsync -avP --del backup/MyDocs/.maps/monav_data user@`n9`:~/MyDocs/.maps
+./sync-pixmirror
 klomp-sync user@`n9`
-#remove-aegis #reboots!
 plotddr
-sync-mms

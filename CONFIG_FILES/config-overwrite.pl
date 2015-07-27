@@ -5,13 +5,14 @@ use warnings;
 my $hostName = "zuserm-n9";
 
 my $DIR = '/opt/CONFIG_FILES';
-my $user = 'user';
-my $group = 'users';
+my $user = "user";
+my ($login,$pass,$uid,$gid) = getpwnam($user);
 my $binTarget = '/usr/bin';
+my $iconsTarget = '/usr/share/themes/blanco/meegotouch/icons';
+my $launchersTarget = '/opt/app-launchers';
 
 my @rsyncOpts = qw(
   -a  --no-owner --no-group
-  --del
   --out-format=%n
 );
 
@@ -20,6 +21,7 @@ my %symlinksToReplace = map {$_ => 1} (
   "$bgDir/meegotouch-desktop-bg-events.jpg",
   "$bgDir/meegotouch-desktop-bg-launcher.jpg",
   "$bgDir/meegotouch-desktop-bg-switcher.jpg",
+  "/root/.bashrc",
 );
 
 my %changedTriggers = (
@@ -33,21 +35,24 @@ my %changedTriggers = (
   "/home/user/.profiled/custom.ini" => "reload-profile"
 );
 
-sub overwriteFile($$);
+my $okTypes = join "|", qw(boing bin icons launchers remove all);
+
+my $usage = "Usage: $0 [$okTypes]\n";
+
+sub overwriteFile($$$);
 sub removeFile($);
 sub md5sum($);
 
 sub main(@){
-  my $type = shift;
-  $type = 'all' if not defined $type;
-  my $okTypes = join "|", qw(boing bin remove all);
-  die "Usage: $0 [$okTypes]\n" if @_ > 0 or $type !~ /^($okTypes)$/;
+  my $type = 'all';
+  $type = shift if @_ > 0 and $_[0] =~ /^($okTypes)$/;
+  die $usage if @_ > 0;
+
   die "hostname must be $hostName" if `hostname` ne "$hostName\n";
 
-  my @boingFiles = `cd $DIR; ls -d %*`;
-  chomp foreach @boingFiles;
-  my @binFiles = `cd $DIR/bin; ls -d *`;
-  chomp foreach @binFiles;
+  my @boingFiles = glob "$DIR/%*";
+  s/^$DIR\/// foreach @boingFiles;
+
   my @filesToRemove = `cat $DIR/config-files-to-remove`;
   chomp foreach @filesToRemove;
 
@@ -62,7 +67,7 @@ sub main(@){
       if(defined $changedTriggers{$dest}){
         $old = md5sum $dest;
       }
-      overwriteFile "$DIR/$file", $dest;
+      overwriteFile "$DIR/$file", $dest, 1;
       if(defined $changedTriggers{$dest}){
         $new = md5sum $dest;
         if($old ne $new){
@@ -75,9 +80,15 @@ sub main(@){
 
   if($type =~ /^(bin|all)$/){
     print "\n ---handling bin files...\n";
-    for my $file(@binFiles){
-      overwriteFile "$DIR/bin/$file", "$binTarget/$file";
-    }
+    overwriteFile "$DIR/bin/", "$binTarget/", 0;
+  }
+  if($type =~ /^(icons|all)$/){
+    print "\n ---handling icon files...\n";
+    overwriteFile "$DIR/icons/", "$iconsTarget/", 0;
+  }
+  if($type =~ /^(launchers|all)$/){
+    print "\n ---handling icon files...\n";
+    overwriteFile "$DIR/launchers/", "$launchersTarget/", 0;
   }
 
   if($type =~ /^(remove|all)$/){
@@ -96,30 +107,49 @@ sub main(@){
   system "chmod", "0440", "/etc/sudoers";
 }
 
-sub overwriteFile($$){
-  my ($src, $dest) = @_;
-  my $destDir = $dest;
-  $destDir =~ s/\/[^\/]*$//;
+sub overwriteFile($$$){
+  my ($src, $dest, $del) = @_;
 
-  system "mkdir", "-p", $destDir;
+  my $parentDir = $dest;
+  $parentDir =~ s/\/[^\/]*$//;
+  system "mkdir", "-p", $parentDir;
+
   print "\n%%% $dest\n";
-  if(-d $src){
-    system 'rsync', @rsyncOpts, "$src/", "$dest";
+  my @rsyncCmd = ("rsync", @rsyncOpts);
+  push @rsyncCmd, "--del" if $del;
+  if(-l $src){
+    system "rm", $dest if -l $dest;
+
+    my $srcLink = readlink $src;
+    if(defined $symlinksToReplace{$dest}){
+      system "cp", $srcLink, $dest;
+    }elsif(not -e $dest){
+      system "ln", "-s", $srcLink, $dest;
+    }else{
+      die "Cannot replace non-symlink with symlink\n";
+    }
+  }elsif(-d $src){
+    system @rsyncCmd, "$src/", "$dest";
   }else{
-    system 'rsync', @rsyncOpts, "$src", "$dest";
+    system @rsyncCmd, "$src", "$dest";
   }
 
-  if(defined $symlinksToReplace{$dest} and -l $dest){
-    my $realDest = readlink $dest;
-    system "cp", $realDest, $dest;
+  my @chownFiles = ($dest);
+  if(not -l $dest and -d $dest){
+    @chownFiles = (@chownFiles, glob("$dest/*"));
   }
 
-  if($destDir =~ /^\/home\/$user/){
-    system 'chown', '-R',  "$user.$group",  "$dest";
-    system 'chown',  "$user.$group", "$destDir";
+  my ($chownUid, $chownGid);
+  if($dest =~ /^\/home\/$user/){
+    ($chownUid, $chownGid) = ($uid, $gid);
   }else{
-    system 'chown', '-R', 'root.root', "$dest";
-    system 'chown', 'root.root', "$destDir";
+    ($chownUid, $chownGid) = (0, 0);
+  }
+
+  if(-l $dest){
+    system "chown", "-h", "$chownUid.$chownGid", @chownFiles;
+  }else{
+    chown $chownUid, $chownGid, @chownFiles;
   }
 }
 

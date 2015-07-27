@@ -1,6 +1,8 @@
 startCmd=billboard-klomp
 stopCmd=killall -9 mplayer
+hardStopCmd=billboard-klomp
 playlistCmd=billboard-klomp
+updateCurCmd=billboard-klomp
 renice=-12
 targetUser=user
 disallowPause=true
