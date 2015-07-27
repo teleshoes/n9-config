@@ -22,7 +22,7 @@ my @config = qw(
   dir-stuff[
     cameraplus
     contacts
-    grob
+    browser
     calc
 
     qtemail
@@ -80,7 +80,7 @@ for my $entry(@config){
 my @quickLaunch = qw(
   call-history
   messaging-ui
-  grob
+  browser
   camera-ui
 );
 
