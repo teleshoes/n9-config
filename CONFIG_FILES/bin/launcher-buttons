@@ -45,7 +45,7 @@ my @config = qw(
     brujula
     vmpkn9
 
-    meefox
+    MeeFox
     camera-ui
     accountsui
     ovistoreclient
