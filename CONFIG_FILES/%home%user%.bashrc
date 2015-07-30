@@ -5,7 +5,7 @@ shopt -s dotglob
 shopt -s extglob
 
 ssh-add ~/.ssh/id_rsa 2> /dev/null
-
+export HISTTIMEFORMAT="%F %T "
 export HISTSIZE=1000000
 export HISTCONTROL=ignoredups # don't put duplicate lines in the history
 export HISTCONTROL=ignoreboth # ... and ignore same sucessive entries.
@@ -110,9 +110,10 @@ alias mkdir="mkdir -p"
 alias :q='exit'
 alias :r='. /etc/profile; . ~/.bashrc;'
 
+function e            { email.pl --print "$@"; }
 function vol          { pulse-vol "$@"; }
 function j            { fcron-job-toggle "$@"; }
-function f            { feh "$@"; }
+function f            { feh -ZF "$@"; }
 function snapshot     { backup --snapshot "$@"; }
 function qgroups-info { backup --info --quick --sort-by=size "$@"; }
 function dus          { du -s * | sort -g "$@"; }
@@ -132,7 +133,7 @@ function escape-pod   { ~/Code/escapepod/escape-pod-tool --escapepod "$@"; }
 function podcastle    { ~/Code/escapepod/escape-pod-tool --podcastle "$@"; }
 function pseudopod    { ~/Code/escapepod/escape-pod-tool --pseudopod "$@"; }
 function g            { git "$@"; }
-function gs           { g s; }
+function gs           { g s "$@"; }
 function mp           { mplayer "$@"; }
 
 function sb           { seedbox "$@"; }
@@ -146,7 +147,7 @@ function spawnex      { "$@" & disown && exit 0; }
 function spawnexsudo  { gksudo "$@" & disown && exit 0; }
 
 function m            { maven -Psdm -Pdev -Pfast-tests -Dgwt.compiler.skip=true install "$@"; }
-function mtest        { maven -Psdm -Pdev test "$@"; }
+function mdebug       { mavenDebug -Psdm -Pdev -Dgwt.compiler.skip=true "$@"; }
 function mc           { maven -Psdm -Pdev -Pfast-tests -Dgwt.draftCompile=true clean install "$@"; }
 function mck          { maven checkstyle:check "$@"; }
 function findmvn      { command find "$@" -not -regex '\(^\|.*/\)\(target\|gen\)\($\|/.*\)'; }
@@ -169,8 +170,23 @@ function maven() {
   if ! [[ "$@" =~ (^| )checkstyle:check($| ) ]]; then
     args="$args -Dcheckstyle.skip=true"
   fi
+  echo mvn $args $@
   execAlarm mvn $args $@;
 }
+function mavenDebug() {
+  port="8000"
+  debugOpts="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$port -Xnoagent -Djava.compiler=NONE"
+  args=""
+  if ! [[ "$@" =~ (^| )test($| ) ]]; then
+    args="$args -DskipTests"
+  fi
+  if ! [[ "$@" =~ (^| )checkstyle:check($| ) ]]; then
+    args="$args -Dcheckstyle.skip=true"
+  fi
+  echo mvn -Dmaven.surefire.debug=\'$debugOpts\' $args $@
+  execAlarm mvn -Dmaven.surefire.debug="$debugOpts" $args $@;
+}
+
 
 function find() {
   if [[ "$PWD" =~ "escribe" ]]; then
