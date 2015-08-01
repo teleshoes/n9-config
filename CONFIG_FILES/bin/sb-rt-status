@@ -3,11 +3,14 @@ use strict;
 use warnings;
 use Time::HiRes qw(time);
 
+my $rtView = "rat_0";
+
 my $remoteHome = "/home2/teleshoes";
 my $remoteDir = "$remoteHome/rt-status";
 
 my $skipDirRegex = "^$remoteHome/seeds";
 
+sub formatTimeS($);
 sub formatTorrent($);
 sub parseTorrents($);
 sub parsePeers($);
@@ -22,12 +25,13 @@ sub main(@){
   run "ssh", $host, "
     rm -rf $remoteDir
     mkdir $remoteDir
-    rtxmlrpc d.multicall main \\
-      d.get_hash=             \\
-      d.get_name=             \\
-      d.get_directory=        \\
-      d.get_completed_bytes=  \\
-      d.get_size_bytes=       \\
+    rtxmlrpc d.multicall $rtView \\
+      d.get_hash=                \\
+      d.get_name=                \\
+      d.get_directory=           \\
+      d.get_completed_bytes=     \\
+      d.get_size_bytes=          \\
+      d.get_down_rate=           \\
       > $remoteDir/info
     hashes=`grep -oP \"^\\[\\'[A-F0-9]{40}\" $remoteDir/info | cut -c3-`
     echo processing \$(echo \$hashes | wc -w) torrents
@@ -60,6 +64,19 @@ sub main(@){
   }
 }
 
+sub formatTimeS($){
+  my $sex = shift;
+  my $d = int($sex / 60 / 60 / 24);
+  my $h = int($sex / 60 / 60);
+  my $m = int($sex / 60);
+  my $s = $sex % 60;
+  $d = $d > 0 ? sprintf "%02dd", $d : "";
+  $h = $h > 0 ? sprintf "%02dh", $h : "";
+  $m = $m > 0 ? sprintf "%02dm", $m : "";
+  $s = $s > 0 ? sprintf "%02ds", $s : "";
+  return sprintf "%12s", "$d$h$m$s";
+}
+
 sub formatTorrent($){
   my $t = shift;
   my @peerCountsFmt;
@@ -69,12 +86,17 @@ sub formatTorrent($){
   my $percent = int(100 * $$t{completedBytes} / $$t{sizeBytes});
   my $completedMiB = $$t{completedBytes} / 1024 / 1024;
   my $sizeMiB = $$t{sizeBytes} / 1024 / 1024;
-  return sprintf "%s\n%3d%s %s\n     %9.3fMiB / %9.3fMiB\n  PEERS: %s\n",
+  my $downRateMiBs = $$t{downRate} / 1024 / 1024;
+  my $etaS = $downRateMiBs == 0 ? 0 : ($sizeMiB-$completedMiB)/$downRateMiBs;
+  my $eta = formatTimeS $etaS;
+  return sprintf "%s\n%3d%s %s\n     %9.3fMiB / %9.3fMiB  @ %9.3fMiB/s    ETA: %s\n  PEERS: %s\n",
     "-" x 30,
     $percent, '%',
     $$t{name},
     $completedMiB,
     $sizeMiB,
+    $downRateMiBs,
+    $eta,
     "@peerCountsFmt",
     ;
 }
@@ -89,6 +111,7 @@ sub parseTorrents($){
     ^\s '(.*)',\n
     ^\s '(.*)',\n
     ^\s (\d+),\n
+    ^\s (\d+),\n
     ^\s (\d+)\]\n
     /mgx){
     push @torrents, {
@@ -97,6 +120,7 @@ sub parseTorrents($){
       dir  => $3,
       completedBytes => $4,
       sizeBytes => $5,
+      downRate => $6,
     };
   }
 
