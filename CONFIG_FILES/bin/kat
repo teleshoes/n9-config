@@ -1,0 +1,254 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Time::HiRes qw(time);
+
+my $katUrl = "kat.cr";
+my $magnetCommand = "seedbox";
+my $defaultSort="field=size&sorder=desc";
+my %sortFields = (
+  size        => ['size'],
+  files_count => ['files_count', 'files'],
+  time_add    => ['time_add', 'age', 'date'],
+  seeders     => ['seeders', 'seed'],
+  leechers    => ['leechers', 'leech'],
+);
+my %sortFieldSyns = map {my $key=$_; map {$_ => $key} @{$sortFields{$key}}} keys %sortFields;
+my $sortFieldFmt = join "\n      ", map {"$_ => @{$sortFields{$_}}"} sort keys %sortFields;
+my $okSortField = join '|', sort keys %sortFieldSyns;
+
+my $usage = "Usage:
+  $0 [--sort=SORT] WORD [WORD ..]
+    fetch web page at \"$katUrl/usearch/WORD WORD..\"
+    parse the resulting HTML and display each torrent with an index
+    prompt the user for indices to run '$magnetCommand <magnet_link>'
+
+    WORD = query word
+      first WORD cannot start with hyphen
+
+    SORT = FIELD | FIELD-ORDER
+
+    FIELD
+      one of the following fields to pass as 'field=FIELD' param
+      $sortFieldFmt
+
+    ORDER = asc | desc
+      passed as 'order=ORDER'
+      if not given, defaults to 'desc'
+";
+
+sub getKatHtml($$);
+sub formatTorrent($);
+sub parseTorrents($);
+sub run(@);
+
+sub main(@){
+  my $sort = $defaultSort;
+  while(@_ > 0 and $_[0] =~ /^-/){
+    my $arg = shift;
+    if($arg =~ /^--sort=($okSortField)(?:-(asc|desc))?$/){
+      my ($field, $order) = ($1, $2);
+      $field = $sortFieldSyns{$field};
+      $order = 'desc' if not $order;
+      $sort = "field=$field&sorder=$order";
+    }else{
+      die $usage;
+    }
+  }
+
+  my $html = getKatHtml "@_", $sort;
+
+  my @torrents = parseTorrents($html);
+
+  if(@torrents == 0){
+    print "no torrents found for query: \"@_\"\n";
+    exit;
+  }
+
+  my %magnets;
+  for my $t(reverse @torrents){
+    print formatTorrent $t;
+    $magnets{$$t{index}} = $$t{magnet} if $$t{magnet} =~ /^magnet/;
+  }
+
+  print "\nrun '$magnetCommand' on torrents INDEX INDEX ...: ";
+  my $response = <STDIN>;
+  my @magnetsToDownload;
+  for my $idx($response =~ /(\d+)/g){
+    if(not defined $magnets{$idx}){
+      print STDERR "WARNING: no magnet for $idx\n";
+    }else{
+      push @magnetsToDownload, $magnets{$idx};
+    }
+  }
+  run $magnetCommand, @magnetsToDownload if @magnetsToDownload > 0;
+}
+
+sub getKatHtml($$){
+  my ($query, $sort) = @_;
+
+  my $url = "$katUrl/usearch/$query?$sort";
+  my $tmpFile = "/tmp/kickasstorrents-" . int(time*1000);
+  run "wget", $url, "-O", $tmpFile;
+
+  if(-f $tmpFile){
+    run "mv", $tmpFile, "$tmpFile.gz";
+    run "gunzip $tmpFile.gz >/dev/null 2>/dev/null";
+    if(-f "$tmpFile.gz"){
+      run "mv", "$tmpFile.gz", $tmpFile;
+    }
+  }
+
+  my $html = `cat $tmpFile`;
+  run "rm", $tmpFile;
+
+  print "="x30 . "\n";
+
+  return $html;
+}
+
+sub formatTorrent($){
+  my ($t) = @_;
+  my $verified = $$t{verified} =~ /verified/ ? "V" : " ";
+  my $error = $$t{magnet} =~ /^magnet/ ? "" : "!!! NO MAGNET !!!";
+  return sprintf "%s\n#%-3d %s\n  %s | %9.3fMB | %s | %sC | %s in %s | %s | %sS | %sL\n",
+      '-'x30,
+      $$t{index},
+      $$t{title},
+      $error,
+      $$t{sizeMB},
+      $verified,
+      $$t{comments},
+      $$t{postedBy},
+      $$t{postedIn},
+      $$t{age},
+      $$t{seeders},
+      $$t{leechers},
+      ;
+}
+
+sub parseTorrents($){
+  my $html = shift;
+
+  my $tag = "[^<>]*";
+  my $otag = "[^<>\\/]*";
+  my $ws = "[ \\t\\n]*";
+
+  my @trs;
+  for(my $i=0; $i<length $html; $i++){
+    my $substr = substr $html, $i, (length $html) - $i;
+    if($substr =~ /^<tr\W/){
+      my $tr = $substr;
+      $tr =~ s/(<\s*\/\s*tr\s*>).*/$1/s;
+      push @trs, $tr;
+    }
+  }
+
+  my $index = 1;
+
+  my @torrents;
+  for my $tr(@trs){
+    if($tr =~ /^               $ws
+       <tr$tag>                $ws
+         <td$otag> (.*) <\/td> $ws
+         <td$otag> (.*) <\/td> $ws
+         <td$otag> (.*) <\/td> $ws
+         <td$otag> (.*) <\/td> $ws
+         <td$otag> (.*) <\/td> $ws
+         <td$otag> (.*) <\/td> $ws
+       <\/tr>                  $ws
+       $/xs){
+       my ($nameTD, $sizeTD, $filesTD, $ageTD, $seedTD, $leechTD) =
+         ($1, $2, $3, $4, $5, $6);
+
+       my $magnet = "?";
+       if($nameTD =~ /<a $tag href="(magnet:[^"]+)"/){
+         $magnet = $1;
+       }
+
+       my $title = $nameTD;
+       $title =~ s/<a $tag class="[^"]*icommentjs[^"]*"$tag>.*?<\/a>//xs;
+       $title =~ s/<$tag>$ws Posted $ws by $ws <$tag>.*//sx;
+       $title =~ s/<$tag >$ws in $ws <$tag>.*//sx;
+       $title =~ s/<$tag>//g;
+       $title =~ s/^$ws//;
+       $title =~ s/$ws$//;
+       $title =~ s/\&quot;/"/g;
+
+       my $verified = "?";
+       if($nameTD =~ /<a $tag title="Verified\ Torrent"$tag>/xs){
+         $verified = "verified";
+       }
+
+       my $comments = "?";
+       if($nameTD =~ /<a $tag class="[^"]*icommentjs[^"]*"$tag>(?:<$tag>)*(\d+)/xs){
+         $comments = $1;
+       }
+
+       my $postedBy = "?";
+       if($nameTD =~ /<$tag>$ws Posted $ws by $ws <$tag> .* href="\/user\/([^"\/]+)\/"/sx){
+         $postedBy = $1;
+       }
+
+       my $postedIn = "?";
+       if($nameTD =~ /<$tag> $ws in $ws <$tag> (.*)/sx){
+         $postedIn = $1;
+         $postedIn =~ s/<$tag>//g;
+         $postedIn =~ s/^$ws//;
+         $postedIn =~ s/$ws$//;
+       }
+
+       my $sizeMB = $sizeTD;
+       $sizeMB =~ s/<$tag>//g;
+       if($sizeMB =~ /^(\d+(?:\.\d+)?)\s*(GB|MB|KB)/){
+         my ($val, $unit) = ($1, $2);
+         $sizeMB = $val if $unit eq "MB";
+         $sizeMB = $val * 1000 if $unit eq "GB";
+         $sizeMB = $val / 1000 if $unit eq "KB";
+       }else{
+         $sizeMB = "?";
+       }
+
+       my $fileCount = $filesTD;
+       $fileCount =~ s/<$tag>//g;
+       $fileCount = $fileCount =~ /(\d+)/ ? $1 : "?";
+
+       my $age = $ageTD;
+       $age =~ s/<$tag>//g;
+       $age =~ s/\&nbsp;/ /g;
+
+       my $seeders = $seedTD;
+       $seeders =~ s/<$tag>//g;
+       $seeders = $seeders =~ /(\d+)/ ? $1 : "?";
+
+       my $leechers = $leechTD;
+       $leechers =~ s/<$tag>//g;
+       $leechers = $leechers =~ /(\d+)/ ? $1 : "?";
+
+       push @torrents, {
+         index => $index,
+         magnet => $magnet,
+         title => $title,
+         verified => $verified,
+         comments => $comments,
+         postedBy => $postedBy,
+         postedIn => $postedIn,
+         sizeMB => $sizeMB,
+         fileCount => $fileCount,
+         age => $age,
+         seeders => $seeders,
+         leechers => $leechers,
+       };
+       $index++;
+    }
+  }
+
+  return @torrents;
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+&main(@ARGV);
