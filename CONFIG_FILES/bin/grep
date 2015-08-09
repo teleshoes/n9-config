@@ -1,0 +1,6 @@
+#!/bin/sh
+if [ -f /opt/gnu-utils/bin/grep ]; then
+  /opt/gnu-utils/bin/grep "$@"
+else
+  /bin/grep "$@"
+fi
