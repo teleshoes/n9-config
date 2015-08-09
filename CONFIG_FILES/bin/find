@@ -1,0 +1,6 @@
+#!/bin/sh
+if [ -f /opt/gnu-utils/bin/find ]; then
+  /opt/gnu-utils/bin/find "$@"
+else
+  /bin/find "$@"
+fi
