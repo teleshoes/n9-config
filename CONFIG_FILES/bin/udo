@@ -2,4 +2,4 @@
 use strict;
 use warnings;
 
-exec "/usr/bin/aegis-exec", "-s", "-u", "user", "bash", "-c", "@ARGV";
+exec "/usr/bin/aegis-exec", "-s", "-u", "user", @ARGV;
