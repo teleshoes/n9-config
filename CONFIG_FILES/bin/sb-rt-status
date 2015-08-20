@@ -3,7 +3,10 @@ use strict;
 use warnings;
 use Time::HiRes qw(time);
 
-my $rtView = "rat_0";
+my $rtViews = {
+  default => "rat_0",
+  all => "main",
+};
 
 my $remoteHome = "/home2/teleshoes";
 my $remoteDir = "$remoteHome/rt-status";
@@ -16,8 +19,24 @@ sub parseTorrents($);
 sub parsePeers($);
 sub run(@);
 
+my $usage = "Usage: $0 [--all]\n";
+
 sub main(@){
-  die "Usage: $0\n" if @_ > 0;
+  my $all = 0;
+  while(@_ > 0 and $_[0] =~ /^-/){
+    my $arg = shift;
+    if($arg =~ /^(--all)$/){
+      $all = 1;
+    }else{
+      die $usage;
+    }
+  }
+  die $usage if @_ > 0;
+
+  my $rtViewType = "default";
+  $rtViewType = "all" if $all;
+
+  my $rtView = $$rtViews{$rtViewType};
 
   my $host = `seedbox --host`;
   chomp $host;
@@ -56,7 +75,8 @@ sub main(@){
 
   run "rm", "-rf", $localDir;
 
-  my @okTorrents = grep {$$_{dir} !~ /$skipDirRegex/} @torrents;
+  my @okTorrents = @torrents;
+  @okTorrents = grep {$$_{dir} !~ /$skipDirRegex/} @okTorrents if not $all;
 
   print "\n\n\nshowing " . (0+@okTorrents) . " torrents\n";
   for my $t(@okTorrents){
@@ -67,9 +87,9 @@ sub main(@){
 sub formatTimeS($){
   my $sex = shift;
   my $d = int($sex / 60 / 60 / 24);
-  my $h = int($sex / 60 / 60);
-  my $m = int($sex / 60);
-  my $s = $sex % 60;
+  my $h = int($sex / 60 / 60) % 24;
+  my $m = int($sex / 60) % 60;
+  my $s = int($sex) % 60;
   $d = $d > 0 ? sprintf "%02dd", $d : "";
   $h = $h > 0 ? sprintf "%02dh", $h : "";
   $m = $m > 0 ? sprintf "%02dm", $m : "";
