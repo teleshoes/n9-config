@@ -20,7 +20,7 @@ sub main(@){
   run "mkdir", "-p", $dest;
 
   my %subdirs;
-  for my $subdir(`find $src -maxdepth 1 -mindepth 1 -type d`){
+  for my $subdir(`$find $src -maxdepth 1 -mindepth 1 -type d`){
     chomp $subdir;
     my $name = $subdir;
     $name =~ s/.*\///;
