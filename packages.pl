@@ -42,6 +42,7 @@ my $normalPackages = {
     mplayer
     perl bash-completion python
     autossh
+    dig
     htop lftp
     x11-utils xresponse
     meecast
