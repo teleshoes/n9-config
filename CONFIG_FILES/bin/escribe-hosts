@@ -1,0 +1,151 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $hostsFile = "/etc/hosts";
+my $sshConfigFile = "$ENV{HOME}/.ssh/config";
+my $defaultUser = "ewolk";
+my $marker = "###escribe-hosts###";
+
+sub dig($$);
+sub getHosts();
+sub getSSHConfig();
+
+my $nameserver = '10.128.3.10';
+
+my $hosts = [
+  'ehr.dev.int.aws.lillegroup.com'      => ['ehr.dev'],
+  'ehr.dev.escribe.com'                 => ['ehr.dev.escribe.com'],
+  'ehr.stage.escribe.com'               => ['ehr.stage.escribe.com'],
+  'ehr.stage.int.aws.lillegroup.com'    => ['ehr.stage'],
+  'ehr.escribe.com'                     => ['ehr.escribe.com'],
+  'ehr.prod.int.aws.lillegroup.com'     => ['ehr.prod'],
+  'ehr.prod.escribe.com'                => ['ehr.prod.escribe.com'],
+  'ehr-db.dev.int.aws.lillegroup.com'   => ['ehr-db.dev'],
+  'ehr-db.dev-leg.int.aws.lillegroup.com'=> ['ehr-db.dev-leg'],
+  'ehr-db.stage.int.aws.lillegroup.com' => ['ehr-db.stage'],
+  'ehr-db.stage-leg.int.aws.lillegroup.com' => ['ehr-db.stage-leg'],
+  'ehr-proxy.dev.int.aws.lillegroup.com'=> ['ehr-proxy.dev'],
+  'ci.dev.int.aws.lillegroup.com'       => ['ci.dev'],
+  'ci.stage.int.aws.lillegroup.com'     => ['ci.stage'],
+  'trac.int.aws.lillegroup.com'         => ['trac'],
+  'trac-db.int.aws.lillegroup.com'      => ['trac-db'],
+  'mvn.int.aws.lillegroup.com'          => ['mvn'],
+
+  'www-01.prod.int.aws.lillegroup.com'  => ['www-01.prod'],
+  'garuda.escribe.com'   =>  ['garuda'],
+  'dev.escribe.com'      =>  ['dev'],
+  'datadict.escribe.com' =>  ['datadict'],
+  'source.escribe.com'   =>  ['source'],
+  'trac.escribe.com'     =>  ['trac'],
+  'build.escribe.com'    =>  ['build'],
+  'demo.escribe.com'     =>  ['demo'],
+  'proxy.escribe.com'    =>  ['proxy'],
+  'web.escribe.com'      =>  ['web'],
+  'backupa.escribe.com'  =>  ['backupa'],
+  'tx.escribe.com'       =>  ['tx'],
+  'edi.escribe.com'      =>  ['edi'],
+  'edi-dev.escribe.com'  =>  ['edi-dev'],
+  'monitor.escribe.com'  =>  ['monitor'],
+  'escribehost.com'      =>  [],
+];
+my $fixedHosts = [
+  'dev1'                => '172.18.10.91',
+  'dev2'                => '172.18.10.92',
+  'web.escribehost.com' => '10.1.14.20',
+  'escribehost.com'     => '10.1.14.20',
+];
+
+sub main(@){
+  die "Cannot run $0 as root\n" if `whoami` eq "root\n";
+  die "Usage: $0\n" if @_ != 0;
+
+  my %hostIps;
+  my @hostOrder;
+
+  for(my $i=0; $i < @$hosts; $i+=2){
+    my $host = $$hosts[$i];
+    my @syns = @{$$hosts[$i+1]};
+    my $ip = dig $host, $nameserver;
+    die "Unknown server: $host\n" if not defined $ip;
+    for my $hostname($host, @syns){
+      $hostIps{$hostname} = $ip;
+      push @hostOrder, $hostname;
+    }
+  }
+
+  for(my $i=0; $i < @$fixedHosts; $i+=2){
+    my $hostname = $$fixedHosts[$i];
+    my $ip = $$fixedHosts[$i+1];
+    $hostIps{$hostname} = $ip;
+    push @hostOrder, $hostname;
+  }
+
+  my @hostLines = getHosts();
+  my @sshConfigLines = getSSHConfig();
+  push @sshConfigLines, "$marker\n";
+  for my $host(@hostOrder){
+    my $ip = $hostIps{$host};
+    push @hostLines, "$ip\t$host $marker\n";
+    push @sshConfigLines, ("Host $host\n", "    User $defaultUser\n");
+  }
+  push @sshConfigLines, "$marker\n";
+
+  print "\n\nhosts:\n";
+  open FH, "| sudo tee $hostsFile" or die "Could not write to $hostsFile\n";
+  print FH @hostLines;
+  close FH;
+
+  print "\n\nssh config:\n";
+  open FH, "| tee $sshConfigFile" or die "Could not write to $hostsFile\n";
+  print FH @sshConfigLines;
+  close FH;
+}
+
+sub dig($$){
+  my ($host, $nameserver) = @_;
+  my $section = undef;
+  for my $line(`dig \@$nameserver $host`){
+    if($line =~ /^;; (\w+) SECTION:$/){
+      $section = $1;
+    }
+    if(defined $section and $section eq "ANSWER"){
+      if($line =~ /(\d+\.\d+\.\d+\.\d+)/){
+        return $1;
+      }
+    }
+  }
+  return undef;
+}
+
+sub getHosts(){
+  open FH, "< $hostsFile" or die "Could not read $hostsFile\n";
+  my @lines = <FH>;
+  close FH;
+
+  #remove lines with comment #escribe-host at the end
+  for my $line(@lines){
+    $line = '' if $line =~ /$marker\s*$/;
+  }
+  return @lines;
+}
+
+sub getSSHConfig(){
+  return () if not -e $sshConfigFile;
+  open FH, "< $sshConfigFile" or die "Could not read $sshConfigFile\n";
+  my @lines = <FH>;
+  close FH;
+
+  my $remove = 0;
+  my @okLines;
+  for my $line(@lines){
+    if($line =~ /^\s*$marker\s*$/){
+      $remove = not $remove;
+    }else{
+      push @okLines, $line unless $remove;
+    }
+  }
+  return @okLines;
+}
+
+&main(@ARGV);
