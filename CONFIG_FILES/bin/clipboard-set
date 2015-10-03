@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+from PySide.QtGui import QApplication, QClipboard
+from PySide.QtCore import QTimer
+import sys
+import os
+import time
+
+app = QApplication([])
+clipboard = QApplication.clipboard()
+clipboard.setText(sys.argv[1], QClipboard.Clipboard)
+
+timer = QTimer()
+timer.start(1000)
+timer.timeout.connect(lambda: QApplication.quit())
+app.exec_()
