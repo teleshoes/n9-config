@@ -1,36 +1,136 @@
-#!/bin/bash
-USAGE="Usage: $0 [on|off|toggle]"
-if [ $# -ne 1 ]; then
-  echo $USAGE
-  exit 1
-fi;
+#!/usr/bin/perl
+use strict;
+use warnings;
 
-if [ $1 = 'on' ]; then
-  echo starting, maybe...
-  cd ~/openvpn
-  if [ ! -e "client.pem" -o -h "client.pem" ]; then
-    if [ -e "client.pem.$HOSTNAME" ]; then
-      rm -f client.pem
-      ln -s client.pem.$HOSTNAME client.pem
-    elif [ -e "default.pem" ]; then
-      rm -f client.pem
-      ln -s default.pem client.pem
-    fi
-  fi
-  rm status
-  openvpn --config client.conf --status status 1
-elif [ $1 = 'off' ]; then
-  echo stopping, maybe...
-  killall -9 openvpn
-elif [ $1 = 'toggle' ]; then
-  if [ `pidof openvpn` ]; then
-    $0 off
-  else
-    $0 on
-  fi
-else
-  echo $USAGE
-  exit 1
-fi;
+my $dir = "$ENV{HOME}/openvpn";
+my $status = "status";
+my $user = "ewolk";
+my $defaultName = "escribe";
 
-exit 0;
+sub ensureRoot();
+sub getPasswordFile();
+sub getYubiExec();
+sub symlinkPem($);
+sub isRunning($);
+sub run(@);
+
+my $usage = "Usage:
+  $0 on [CONF_NAME]
+    start openvpn using --config CONF_NAME.conf
+  $0 off [CONF_NAME]
+    kill openvpn with '--config CONF_NAME'
+  $0 running CONF_NAME
+    check for openvpn with '--config CONF_NAME'
+    exits with 0 for running and 1 for not running
+  $0 toggle [CONF_NAME]
+    check '$0 running CONF_NAME' and then run:
+      '$0 off CONF_NAME' or '$0 on CONF_NAME'
+
+  CONF_NAME
+    optional, defaults to $defaultName
+    there should be a file named $dir/CONF_NAME.conf
+";
+
+my $okCmds = join "|", qw(on off running running toggle);
+
+sub main(@){
+  ensureRoot();
+  my $cmd = shift;
+  my $name = shift;
+
+  die $usage if @_ != 0 or not defined $cmd or $cmd !~ /^($okCmds)$/;
+  chdir $dir or die "couldnt set cwd to $dir\n";
+
+  $name = $defaultName if not defined $name;
+  $name =~ s/\.conf$//;
+  die "$dir/$name.conf not found\n" if not -f "$name.conf";
+
+  my $procPattern = "^openvpn.*--config $name\\.conf ";
+
+  if($cmd eq 'on'){
+    print "starting, maybe...\n";
+
+    symlinkPem($name);
+
+    run "modprobe", "tun";
+    run "rm", "-f", "status";
+    run "openvpn",
+      "--daemon",
+      "--auth-user-pass", getPasswordFile(),
+      "--config", "$name.conf",
+      "--status", $status,
+      "--reneg-sec", 0,
+      "1";
+  }elsif($cmd eq 'running'){
+    exit (isRunning $procPattern ? 0 : 1);
+  }elsif($cmd eq 'off'){
+    print "stopping, maybe...\n";
+    run "pkill", "-f", $procPattern;
+  }elsif($cmd eq 'toggle'){
+    my @cmd;
+    push @cmd, $0;
+    push @cmd, isRunning $procPattern ? 'off' : 'on';
+    push @cmd, $name if defined $name;
+    exec @cmd;
+  }
+}
+
+sub ensureRoot(){
+  if(`whoami` ne "root\n"){
+    print "rerunning as root\n";
+    exec "sudo", $0, @ARGV;
+  }
+}
+
+sub getYubiExec(){
+  my $exec = "";
+  $exec = `which yubi     2>/dev/null` if $exec =~ /^\s*$/;
+  $exec = `which yubi-nfc 2>/dev/null` if $exec =~ /^\s*$/;
+  $exec = undef if $exec =~ /^\s*$/;
+  return $exec;
+}
+
+sub getPasswordFile(){
+  my $yubiExec = getYubiExec;
+  my $pass = `$yubiExec`;
+  chomp $pass;
+
+  my $file = "/tmp/openvpn-auth-" . time;
+  open FH, "> $file" or die "Cant write to $file\n";
+  print FH "$user\n";
+  print FH "$pass\n";
+  close FH;
+  return $file;
+}
+
+sub symlinkPem($){
+  my $name = shift;
+  my $pem = "$name.pem";
+
+  my $hostname = `hostname`;
+  chomp $hostname;
+
+  my $hostPem = "$pem.$hostname";
+  my $defaultPem = "$pem.default";
+
+  run "rm", "-f", $pem if -l $pem;
+  die "$pem exists and is not a symlink" if -e $pem;
+
+  run "ln", "-s", $hostPem, $pem if not -e $pem and -e $hostPem;
+  run "ln", "-s", $defaultPem, $pem if not -e $pem and -e $defaultPem;
+
+  die "could not select $pem\n" if not -e $pem;
+}
+
+sub isRunning($){
+  my $procPattern = shift;
+  run "pgrep -f '$procPattern' >/dev/null 2>/dev/null";
+  return $? == 0;
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+&main(@ARGV);
