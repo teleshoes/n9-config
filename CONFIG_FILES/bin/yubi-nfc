@@ -9,7 +9,7 @@ sub main(@){
   print STDERR "$killNfcdCmd\n";
   system $killNfcdCmd;
 
-  my $nfcdCmd = "nfcd -d -l 5 2>&1";
+  my $nfcdCmd = "sudo nfcd -d -l 5 2>&1";
   print STDERR "$nfcdCmd\n";
   open FH, "-|", $nfcdCmd or die "Could not run nfcd\n";
 
