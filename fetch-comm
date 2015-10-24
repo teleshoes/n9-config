@@ -15,7 +15,7 @@ my $usage = "Usage:
 
 sub main(@){
   my $type = shift() || '';
-  die $usage if $type !~ /^(sms|call)$/;
+  die $usage if $type !~ /^(sms|call)$/ or @_ > 0;
 
   my $dir = "$ENV{HOME}/Code/n9";
   my $dest = "$dir/backup";
