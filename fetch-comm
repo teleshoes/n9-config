@@ -5,9 +5,17 @@ use warnings;
 sub run(@);
 sub runOrDie(@);
 
+my $usage = "Usage:
+  $0 sms
+    backup SMS
+
+  $0 call
+    backup calls
+";
+
 sub main(@){
   my $type = shift() || '';
-  die "Usage: $0 [sms|call]\n" if $type !~ /^(sms|call)$/;
+  die $usage if $type !~ /^(sms|call)$/;
 
   my $dir = "$ENV{HOME}/Code/n9";
   my $dest = "$dir/backup";
