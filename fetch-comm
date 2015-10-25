@@ -5,23 +5,42 @@ use warnings;
 sub run(@);
 sub runOrDie(@);
 
-my $MODE_N9E = "n9-export";
-my $MODE_SCBR = "sms-call-backup-restore";
+my $MODE_N9E = "n9e";
+my $MODE_SCBR = "scbr";
+my $MODE_DEFAULT = "default";
 
 my $defaultSmsMode = $MODE_N9E;
 my $defaultCallMode = $MODE_SCBR;
 
 my $usage = "Usage:
-  $0 sms
+  $0 sms [--mode=MODE]
     backup SMS
 
-  $0 call
+  $0 call [--mode=MODE]
     backup calls
+
+  MODE:
+    $MODE_N9E:      use mode=$MODE_N9E (n9export)
+    $MODE_SCBR:     use mode=$MODE_SCBR (smsbackuprestore/callbackuprestore)
+    $MODE_DEFAULT:  use mode=$defaultSmsMode for 'sms' and mode=$defaultCallMode for 'call'
 ";
 
 sub main(@){
-  my $type = shift() || '';
-  die $usage if $type !~ /^(sms|call)$/ or @_ > 0;
+  my $type;
+  if(@_ > 0 and $_[0] =~ /^(sms|call)$/){
+    $type = shift;
+  }
+
+  my $mode = $MODE_DEFAULT;
+  if(@_ > 0 and $_[0] =~ /^--mode=($MODE_N9E|$MODE_SCBR|$MODE_DEFAULT)$/){
+    $mode = $1;
+    shift;
+  }
+
+  die $usage if not defined $type or @_ > 0;
+
+  $mode = $defaultSmsMode if $mode eq $MODE_DEFAULT and $type eq "sms";
+  $mode = $defaultCallMode if $mode eq $MODE_DEFAULT and $type eq "call";
 
   my $dir = "$ENV{HOME}/Code/n9";
   my $dest = "$dir/backup";
@@ -34,10 +53,6 @@ sub main(@){
   my $destDir = "$dest/backup-$type";
 
   my $remoteRepoDir = "$srcDir-repo";
-
-  my $mode;
-  $mode = $defaultSmsMode if $type eq "sms";
-  $mode = $defaultCallMode if $type eq "call";
 
   if($mode eq $MODE_N9E){
     runOrDie "n9", "-b", "backup-comm-n9e $type";
