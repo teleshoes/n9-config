@@ -15,7 +15,12 @@ TO MAKE UBI ROOTSTRAP:
 1) remove sim card
 2) flash the firmware with a CLOSED kernel
 3) run ./ubi-console TWICE, one right after the other, IMMEDIATELY
-4) ./ubi-mnt -m
+4) ./ubi-mnt -m #ls /media/n9-root
+   if /media/n9-root/ is empty:
+     #dont unplug phone, try ubi-console again
+     ./ubi-mnt -u
+     ./ubi-console #and let it hang
+     #hold power button til off, hold power button til on
 5) rsync -avP /media/n9-root/ origroot/
 6) cp %etc%apt%sources.list.d%n9mirror.list /media/n9-root/etc/apt-sources.list.d
 7) commend out every line in /media/n9-root/etc/apt-sources.list.d/aegis*.list
