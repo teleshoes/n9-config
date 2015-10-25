@@ -72,7 +72,14 @@ sub flashAndRootStrap($$$){
   my $fwRegex = "DFL61_HARMATTAN_${version}_PR_LEGACY_00\\d-OEM1-958_ARM.bin";
   my $emmcRegex = "DFL61_HARMATTAN_${version}.[A-Z]+_EMMC_[A-Z]+.bin";
   my $kernelRegex = "zImage";
-  die "weird firmware: $fw\n" if not -f $fw or $fw !~ /$fwRegex/;
+
+  if(not -f $fw or $fw !~ /$fwRegex/){
+    if(-f $fw and $fw =~ /DFL61_HARMATTAN_${version}_PR_LEGACY_(\d\d\d)/){
+      print "\n\nWARN: very high FW version number: $1\n";
+    }else{
+      die "weird firmware: $fw\n";
+    }
+  }
   die "weird emmc: $emmc\n" if not -f $emmc or $emmc !~ /$emmcRegex/;
   die "weird kernel: $kernel\n" if not -f $kernel or $kernel !~ /$kernelRegex/;
 
