@@ -171,10 +171,10 @@ sub slowInstalls(){
 sub usbDev(){
   my @ifconfigLines = `ifconfig -a`;
   for my $line(@ifconfigLines){
-    return $1 if $line =~ /^(usb\d+)\s/;
+    return $1 if $line =~ /^(usb\d+):?\s/;
   }
   for my $line(@ifconfigLines){
-    return $1 if $line =~ /^(enx[0-9a-f]+)\s/;
+    return $1 if $line =~ /^(enx[0-9a-f]+):?\s/;
   }
   return undef;
 }
