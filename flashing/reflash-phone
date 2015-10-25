@@ -20,14 +20,16 @@ my $usage = "Usage:
      just attempt to ssh
 ";
 
-sub main(@){
-  if(@_ == 1 and $_[0] =~ /^(-s|--ssh)$/){
-    attemptSSH();
-    exit 0;
-  }
+my $MODE_FLASH = "flash";
+my $MODE_SSH = "ssh";
 
+sub main(@){
   my ($fw, $emmc, $kernel);
-  if(@_ == 3){
+  my $mode;
+  if(@_ == 1 and $_[0] =~ /^(-s|--ssh)$/){
+    $mode = $MODE_SSH;
+  }elsif(@_ == 3){
+    $mode = $MODE_FLASH;
     ($fw, $emmc, $kernel) = @_;
   }else{
     die $usage;
@@ -35,15 +37,21 @@ sub main(@){
 
   $|=1;
 
-  run "sudo", "dpkg", "-i", "flasher_3.12.1_amd64.deb";
-  run "sudo", "apt-get", "install", @deps;
+  if($mode eq $MODE_FLASH){
+    run "sudo", "dpkg", "-i", "flasher_3.12.1_amd64.deb";
+    run "sudo", "apt-get", "install", @deps;
 
-  flashAndRootStrap $fw, $emmc, $kernel;
+    flashAndRootStrap $fw, $emmc, $kernel;
+  }
+
   attemptSSH();
-  run "n9", "-t", "192.168.2.15";
-  chdir "../";
-  attemptWifi(3);
-  slowInstalls();
+
+  if($mode eq $MODE_FLASH){
+    run "n9", "-t", "192.168.2.15";
+    chdir "../";
+    attemptWifi(3);
+    slowInstalls();
+  }
 }
 
 sub flashAndRootStrap($$$){
