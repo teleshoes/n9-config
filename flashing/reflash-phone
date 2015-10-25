@@ -12,9 +12,18 @@ sub tryrun(@);
 
 my @deps = qw(telnet expect rsync);
 
+my $usage = "Usage:
+  $0 FIRMWARE EMMC KERNEL
+    flash firmware, emmc, and kernel indicated
+";
+
 sub main(@){
-  die "Usage: $0 FIRMWARE EMMC KERNEL\n" if @_ != 3;
-  my ($fw, $emmc, $kernel) = @_;
+  my ($fw, $emmc, $kernel);
+  if(@_ == 3){
+    ($fw, $emmc, $kernel) = @_;
+  }else{
+    die $usage;
+  }
 
   run "sudo", "dpkg", "-i", "flasher_3.12.1_amd64.deb";
   run "sudo", "apt-get", "install", @deps;
