@@ -22,8 +22,10 @@ TO MAKE UBI ROOTSTRAP:
      ./ubi-console #and let it hang
      #hold power button til off, hold power button til on
 5) sudo rsync -avP /media/n9-root/ origroot/
-6) cp %etc%apt%sources.list.d%n9mirror.list /media/n9-root/etc/apt-sources.list.d
-7) commend out every line in /media/n9-root/etc/apt-sources.list.d/aegis*.list
+6) add mirror for nokia sources
+    sudo cp %etc%apt%sources.list.d%n9mirror.list /media/n9-root/etc/apt/sources.list.d/n9mirror.list
+7) remove nokia sources
+    sudo sed -i 's/^/#/' /media/n9-root/etc/apt/sources.list.d/aegis*.list
 8) boot, get to home screen
 9) connect to wifi
 10) Applications -> Manage Applicationss -> update tab -> refresh button
