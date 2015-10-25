@@ -16,12 +16,12 @@ my $usage = "Usage:
   $0 FIRMWARE EMMC KERNEL
     flash firmware, emmc, and kernel indicated
 
-  $0 --ssh
+  $0 -s|--ssh
      just attempt to ssh
 ";
 
 sub main(@){
-  if(@_ == 1 and $_[0] =~ /^(--ssh)$/){
+  if(@_ == 1 and $_[0] =~ /^(-s|--ssh)$/){
     attemptSSH();
     exit 0;
   }
