@@ -53,8 +53,18 @@ TO MAKE UBI ROOTSTRAP:
 TO GET RID OF OPENMODE WARRANTY DISCLAIMER:
 1) flash firmware (closed mode)
 2) boot
-3) download meego-terminal from the browser
-4) disclaimer-cal remove View-openmode
+3) copy meego term deb
+   #mass storage mode
+   mnt
+   cp meego-terminal*.deb /media/Nokia\ N9/term.deb
+   mnt -u
+   #unplug usb !!!
+4) enable other sources
+   Settings => Applications => Installations => Allow
+5) install meego-terminal from browser
+   type in address bar: file:///home/user/MyDocs/term.deb
+   click on file in transfers
+6) disclaimer-cal remove View-openmode
 =================================
 
 
