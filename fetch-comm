@@ -2,15 +2,19 @@
 use strict;
 use warnings;
 
+sub reverseMode($);
 sub run(@);
 sub runOrDie(@);
 
 my $MODE_N9E = "n9e";
 my $MODE_SCBR = "scbr";
 my $MODE_DEFAULT = "default";
+my $MODE_REVERSE = "reverse";
 
 my $defaultSmsMode = $MODE_N9E;
 my $defaultCallMode = $MODE_SCBR;
+my $reverseSmsMode = reverseMode $defaultSmsMode;
+my $reverseCallMode = reverseMode $defaultCallMode;
 
 my $usage = "Usage:
   $0 sms [--mode=MODE]
@@ -23,6 +27,7 @@ my $usage = "Usage:
     $MODE_N9E:      use mode=$MODE_N9E (n9export)
     $MODE_SCBR:     use mode=$MODE_SCBR (smsbackuprestore/callbackuprestore)
     $MODE_DEFAULT:  use mode=$defaultSmsMode for 'sms' and mode=$defaultCallMode for 'call'
+    $MODE_REVERSE:  use mode=$reverseSmsMode for 'sms' and mode=$reverseCallMode for 'call'
 ";
 
 sub main(@){
@@ -32,7 +37,7 @@ sub main(@){
   }
 
   my $mode = $MODE_DEFAULT;
-  if(@_ > 0 and $_[0] =~ /^--mode=($MODE_N9E|$MODE_SCBR|$MODE_DEFAULT)$/){
+  if(@_ > 0 and $_[0] =~ /^--mode=($MODE_N9E|$MODE_SCBR|$MODE_DEFAULT|$MODE_REVERSE)$/){
     $mode = $1;
     shift;
   }
@@ -41,6 +46,8 @@ sub main(@){
 
   $mode = $defaultSmsMode if $mode eq $MODE_DEFAULT and $type eq "sms";
   $mode = $defaultCallMode if $mode eq $MODE_DEFAULT and $type eq "call";
+  $mode = $reverseSmsMode if $mode eq $MODE_REVERSE and $type eq "sms";
+  $mode = $reverseCallMode if $mode eq $MODE_REVERSE and $type eq "call";
 
   my $dir = "$ENV{HOME}/Code/n9";
   my $dest = "$dir/backup";
@@ -73,6 +80,17 @@ sub main(@){
   run "n9", "-s", "chown user.users -R $srcDir/all.$type";
   run "rsync", "-a", "$destDir/repo/", "root\@$host:$remoteRepoDir/";
   run "n9", "-s", "chown user.users -R $remoteRepoDir";
+}
+
+sub reverseMode($){
+  my $mode = shift;
+  if($mode eq $MODE_N9E){
+    return $MODE_SCBR;
+  }elsif($mode eq $MODE_SCBR){
+    return $MODE_N9E;
+  }else{
+    die "invalid mode: $mode\n";
+  }
 }
 
 sub run(@){
