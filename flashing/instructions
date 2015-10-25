@@ -33,8 +33,9 @@ TO MAKE UBI ROOTSTRAP:
    (retry if it fails with error fetching, refreshing cache)
    you can just wait {about 2 minutes} once it prompts for:
    ~2.6MB additional installation required
-12) sudo rsync -avP /media/n9-root/ devmoderoot/
-13) figure it out from here
+12) ./ubi-mnt -m
+13) sudo rsync -avP /media/n9-root/ devmoderoot/
+14) figure it out from here
     if same firmware version, try extract previous rootstrap.tar,
       include only new files, perhaps like this:
     mkdir old; cd old; cp ../ubi-rootstrap-files.tar.gz .; tar -xzf *.gz
