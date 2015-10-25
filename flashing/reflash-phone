@@ -18,16 +18,23 @@ my $usage = "Usage:
 
   $0 -s|--ssh
      just attempt to ssh
+
+  $0 -i|--installs
+     skip flashAndRootStrap, and skip installing flasher and deps
+     just attemp ssh, wifi, and slow installs
 ";
 
 my $MODE_FLASH = "flash";
 my $MODE_SSH = "ssh";
+my $MODE_INSTALLS = "installs";
 
 sub main(@){
   my ($fw, $emmc, $kernel);
   my $mode;
   if(@_ == 1 and $_[0] =~ /^(-s|--ssh)$/){
     $mode = $MODE_SSH;
+  }elsif(@_ == 1 and $_[0] =~ /^(-i|--installs)$/){
+    $mode = $MODE_INSTALLS;
   }elsif(@_ == 3){
     $mode = $MODE_FLASH;
     ($fw, $emmc, $kernel) = @_;
@@ -46,7 +53,7 @@ sub main(@){
 
   attemptSSH();
 
-  if($mode eq $MODE_FLASH){
+  if($mode eq $MODE_FLASH or $mode eq $MODE_INSTALLS){
     run "n9", "-t", "192.168.2.15";
     chdir "../";
     attemptWifi(3);
