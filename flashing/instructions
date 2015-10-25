@@ -21,7 +21,7 @@ TO MAKE UBI ROOTSTRAP:
      ./ubi-mnt -u
      ./ubi-console #and let it hang
      #hold power button til off, hold power button til on
-5) rsync -avP /media/n9-root/ origroot/
+5) sudo rsync -avP /media/n9-root/ origroot/
 6) cp %etc%apt%sources.list.d%n9mirror.list /media/n9-root/etc/apt-sources.list.d
 7) commend out every line in /media/n9-root/etc/apt-sources.list.d/aegis*.list
 8) boot, get to home screen
@@ -33,14 +33,14 @@ TO MAKE UBI ROOTSTRAP:
    (retry if it fails with error fetching, refreshing cache)
    you can just wait {about 2 minutes} once it prompts for:
    ~2.6MB additional installation required
-12) rsync -avP /media/n9-root/ devmoderoot/
+12) sudo rsync -avP /media/n9-root/ devmoderoot/
 13) figure it out from here
     if same firmware version, try extract previous rootstrap.tar,
       include only new files, perhaps like this:
     mkdir old; cd old; cp ../ubi-rootstrap-files.tar.gz .; tar -xzf *.gz
-    cp -ar devmoderoot newrootstrap
-    rsync -avP --existing --del old/ubi-rootstrap-files/ newrootstrap/
-    rsync -avP --existing --del devmoderoot/ newrootstrap/
+    sudo cp -ar devmoderoot newrootstrap
+    sudo rsync -avP --existing --del old/ubi-rootstrap-files/ newrootstrap/
+    sudo rsync -avP --existing --del devmoderoot/ newrootstrap/
     mv newrootstrap ubi-rootstrap-files
     tar -czf newrootstrap.tar.gz ubi-rootstrap-files
 =================================
