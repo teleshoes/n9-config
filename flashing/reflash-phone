@@ -38,9 +38,9 @@ sub main(@){
   run "sudo", "dpkg", "-i", "flasher_3.12.1_amd64.deb";
   run "sudo", "apt-get", "install", @deps;
 
-  run "n9", "-t", "192.168.2.15";
   flashAndRootStrap $fw, $emmc, $kernel;
   attemptSSH();
+  run "n9", "-t", "192.168.2.15";
   chdir "../";
   attemptWifi(3);
   slowInstalls();
