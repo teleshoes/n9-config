@@ -22,13 +22,13 @@ TO MAKE UBI ROOTSTRAP:
      ./ubi-console #and let it hang
      #hold power button til off, hold power button til on
 5) sudo rsync -avP /media/n9-root/ origroot/
-6) add mirror for nokia sources
+6) replace nokia sources with mirror
     sudo cp %etc%apt%sources.list.d%n9mirror.list /media/n9-root/etc/apt/sources.list.d/n9mirror.list
-7) remove nokia sources
     sudo sed -i 's/^/#/' /media/n9-root/etc/apt/sources.list.d/aegis*.list
-8) boot, get to home screen
-9) connect to wifi
-10) Applications -> Manage Applicationss -> update tab -> refresh button
+7) boot, get to home screen
+8) connect to wifi
+9) Applications -> Manage Applicationss -> update tab -> refresh button
+10) plug phone in via usb, do NOT enable sync, run ./ubi-console and let it hang
 11) enable dev mode to get a terminal:
    Settings -> Security {???} -> Dev Mode
    phone will restart after it is done installing
