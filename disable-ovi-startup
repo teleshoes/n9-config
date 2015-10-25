@@ -1,0 +1,2 @@
+set -x
+n9 chmod -x /usr/bin/ovi-startup
