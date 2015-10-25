@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 my $dir = "/root/passant";
-my $gitRepo = "https://github.com/teleshoes/passant.git";
+my $gitRepo = "git://github.com/teleshoes/passant.git";
 my $commit = "origin/master";
 
 sub run(@){
