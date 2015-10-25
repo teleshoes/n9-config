@@ -40,7 +40,7 @@ TO MAKE UBI ROOTSTRAP:
 14) figure it out from here
     if same firmware version, try extract previous rootstrap.tar,
       include only new files, perhaps like this:
-    mkdir old; cd old; cp ../ubi-rootstrap-files.tar.gz .; tar -xzf *.gz
+    mkdir old; cd old; cp ../ubi-rootstrap-files.tar.gz .; tar -xzf *.gz; cd ..
     sudo cp -ar devmoderoot newrootstrap
     sudo rsync -avP --existing --del old/ubi-rootstrap-files/ newrootstrap/
     sudo rsync -avP --existing --del devmoderoot/ newrootstrap/
