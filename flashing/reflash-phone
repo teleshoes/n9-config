@@ -68,7 +68,7 @@ sub flashAndRootStrap($$$){
   $emmc = readlink $emmc if -l $emmc;
   $kernel = readlink $kernel if -l $kernel;
 
-  my $version = "\\d\\d.\\d\\d\\d\\d.\\d\\d-\\d";
+  my $version = "\\d\\d.\\d\\d\\d\\d.\\d\\d-\\d(?:.\\d\\d\\d.\\d\\d.\\d)?";
   my $fwRegex = "DFL61_HARMATTAN_${version}_PR_LEGACY_00\\d-OEM1-958_ARM.bin";
   my $emmcRegex = "DFL61_HARMATTAN_${version}.[A-Z]+_EMMC_[A-Z]+.bin";
   my $kernelRegex = "zImage";
