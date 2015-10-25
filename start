@@ -33,6 +33,7 @@ n9 billboard-config
 ./install-net
 ./install-passant
 ./setup-vkb-toolbar
+./disable-ovi-startup
 
 #insert sim card, wait until time zone is updated
 ./config-files #2nd time. then reboot
