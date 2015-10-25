@@ -20,7 +20,7 @@ my $msgByFromDir = "$mmsLocal/msg-byfrom";
 my $msgPixDir = "$mmsLocal/msg-pix";
 
 my @rsyncOpts = qw(
-  -a --no-owner --no-group
+  -a --no-owner --no-group --omit-dir-times
   -v -P
   --exclude=private/
 );
