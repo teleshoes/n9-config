@@ -68,14 +68,17 @@ sub createMsgSymlinks(){
     my $symName = formatHeader $header, $contacts;
 
     runQuiet "ln", "-s", "../msg/$id", "$msgByDateDir/$symName";
+    runQuiet "touch", "-h", "-r", $msgDir, "$msgByDateDir/$symName";
 
     my $fromFmt = formatContactList $contacts, @{$$header{from}};
     runQuiet "mkdir", "-p", "$msgByFromDir/$fromFmt";
     runQuiet "touch", "$msgByFromDir/$fromFmt", "-r", $msgDir;
     runQuiet "ln", "-s", "../../msg/$id", "$msgByFromDir/$fromFmt/$symName";
+    runQuiet "touch", "-h", "-r", $msgDir, "$msgByFromDir/$fromFmt/$symName";
 
     for my $pic(@pix){
       runQuiet "ln", "-s", "../msg/$id/$pic", "$msgPixDir/$symName-$pic";
+      runQuiet "touch", "-h", "-r", "$msgDir/$pic", "$msgPixDir/$symName-$pic";
     }
   }
 }
