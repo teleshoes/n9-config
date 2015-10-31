@@ -32,11 +32,11 @@ sub main(@){
   my $local = $mmsLocal;
   my $remote = "user\@$host:$mmsRemote";
 
-  run "rsync", @rsyncOpts, "$remote/", $local;
+  run "rsync @rsyncOpts $remote/* $local/";
 
   createMsgSymlinks();
 
-  run "rsync", @rsyncOpts, "--omit-dir-times", "$local/", $remote;
+  run "rsync @rsyncOpts $local/* $remote/";
 }
 
 sub createMsgSymlinks(){
