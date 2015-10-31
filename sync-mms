@@ -8,6 +8,7 @@ sub formatContactList($@);
 sub parseHeader($);
 sub getContactsFromSmsRepo();
 sub removeUSCountryCode($);
+sub lsSortTimeInc($);
 sub run(@);
 sub runQuiet(@);
 
@@ -45,7 +46,7 @@ sub createMsgSymlinks(){
 
   print "\ncreating symlinks\n";
   my $contacts = getContactsFromSmsRepo();
-  for my $msgDir(glob "$mmsLocal/msg/*"){
+  for my $msgDir(lsSortTimeInc "$mmsLocal/msg"){
     my $id = $1 if $msgDir =~ /([^\/]+)$/;
     my $mtime = (stat $msgDir)[9];
 
@@ -153,6 +154,13 @@ sub removeUSCountryCode($){
   $num =~ s/^\s*//;
   $num =~ s/^\+?1?(\d{10})$/$1/;
   return $num;
+}
+
+sub lsSortTimeInc($){
+  my ($dir) = @_;
+  my @files = glob "$dir/*";
+  my %mtimes = map {$_ => (stat $_)[9]} @files;
+  return sort {$mtimes{$a} <=> $mtimes{$b}} @files;
 }
 
 sub run(@){
