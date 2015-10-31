@@ -20,7 +20,7 @@ my $msgByFromDir = "$mmsLocal/msg-byfrom";
 my $msgPixDir = "$mmsLocal/msg-pix";
 
 my @rsyncOpts = qw(
-  -a --no-owner --no-group --omit-dir-times
+  -a --no-owner --no-group
   -v -P
   --exclude=private/
 );
@@ -36,7 +36,7 @@ sub main(@){
 
   createMsgSymlinks();
 
-  run "rsync", @rsyncOpts, "$local/", $remote;
+  run "rsync", @rsyncOpts, "--omit-dir-times", "$local/", $remote;
 }
 
 sub createMsgSymlinks(){
