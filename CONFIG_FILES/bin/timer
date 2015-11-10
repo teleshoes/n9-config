@@ -42,6 +42,6 @@ sub main(@){
     sleep 1;
   }
   #system "bigtext", "-k";
-  system "alarm";
+  system "alarm", "--noterm";
 }
 &main(@ARGV);
