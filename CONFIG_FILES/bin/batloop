@@ -1,0 +1,100 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Time::HiRes qw(sleep);
+
+my $batteryCurrentExec = "batcur";
+my $defaultDelayMillis = 3000;
+my $defaultIterations = 20;
+
+sub msgWarn($);
+sub msg($);
+
+my $usage = "Usage:
+  $0 [OPT OPT ..]
+    run '$batteryCurrentExec' every <DELAY_MILLIS>ms,
+      format the output, print it to STDOUT and to \"/tmp/batloop-<DATE>_<EPOCH>\"
+    print: \"<CURRENT_MAH>   <DATE> <TIME> <EPOCH>\" after every iteration
+    print: \"<MEAN_CURRENT_MAH>  (x<ITERATION>)\" after every <ITERATION> iterations
+
+  DATE:         date, formatted as YYYY-MM-DD
+  TIME:         time, formatted as HH:MM:SS
+  EPOCH:        seconds since 1970-01-01 00:00:00
+  CUR_MAH:      instantaneous current in mAh, as measured with $batteryCurrentExec
+  MEAN_CUR_MAH: average value of <CUR_MAH> after <ITERATIONS> iterations, rounded to nearest integer
+  DELAY_MILLIS: milliseconds to wait between iterations (default=${defaultDelayMillis}ms)
+  ITERATIONS:   the number of iterations to perform before printing the average (default=$defaultIterations)
+
+  OPT
+    --delay=DELAY_MILLIS
+      delay <MILLIS>ms between iterations instead of the default ${defaultDelayMillis}ms
+
+    --iteration=ITERATIONS
+      print the average after <ITERATIONS> iterations
+
+    --alarm
+      run \"alarm -s success\" after every <ITERATIONS> iterations
+";
+
+sub main(@){
+  my $delayMillis = $defaultDelayMillis;
+  my $iterations = $defaultIterations;
+  my $alarm = 0;
+  while(@_ > 0){
+    my $arg = shift;
+    if($arg =~ /^--delay=(\d+)$/){
+      $delayMillis = $1;
+    }elsif($arg =~ /^--iterations=(\d+)$/){
+      $iterations = $1;
+    }elsif($arg =~ /^--alarm$/){
+      $alarm = 1;
+    }else{
+      die $usage;
+    }
+  }
+  die "<ITERATIONS> must be positive\n" if $iterations <= 0;
+
+  my $logDateFmt = `date +%Y-%m-%d_%s`;
+  chomp $logDateFmt;
+  my $logFile = "/tmp/batloop-$logDateFmt";
+  open LOG_FH, "> $logFile" or die "Could not write to $logFile\n";
+
+  my $sum = 0;
+  my $count = 0;
+  while(1){
+    my $currentMah = `$batteryCurrentExec`;
+    chomp $currentMah;
+    if($currentMah !~ /^\d+$/){
+      msgWarn "malformed result of '$batteryCurrentExec': $currentMah\n";
+      next;
+    }
+    my $dateFmt = `date +'%Y-%m-%d %H:%m:%S %s'`;
+    chomp $dateFmt;
+    msg "$currentMah   $dateFmt\n";
+
+    $count++;
+    $sum += $currentMah;
+    if($count >= $iterations){
+      my $avg = int($sum/$count + 0.5);
+      msg "avg: $avg  (x$count)\n";
+      $count = 0;
+      $sum = 0;
+      if($alarm){
+        system "alarm", "-s", "success";
+      }
+    }
+    sleep $delayMillis/1000;
+  }
+}
+
+sub msgWarn($){
+  print STDERR $_[0];
+  msg $_[0];
+}
+sub msg($){
+  print $_[0];
+  print LOG_FH $_[0];
+}
+
+
+&main(@ARGV);
