@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $alarmDir = "/usr/share/alarms";
+my $soundsDir = "/usr/share/sounds/custom";
+my $remoteFlacMirrors = "/home/user/MyDocs/Music/flacmirrors";
+
+my $alarms = {
+  "default" => "lost.ogg",
+  "co" => "escape.ogg",
+  "te" => "sun.ogg",
+  "escape.ogg" => "$remoteFlacMirrors/1/Zoë Keating/Into the Trees (Deluxe Edition)/02 Escape Artist.ogg",
+  "lost.ogg" => "$remoteFlacMirrors/1/Zoë Keating/Into the Trees (Deluxe Edition)/05 Lost.ogg",
+  "sun.ogg" => "$remoteFlacMirrors/1/Zoë Keating/One Cello x 16: Natoma/04 Sun Will Set.ogg",
+  "tetris.ogg" => "$remoteFlacMirrors/1/Zoë Keating/One Cello x 16: Natoma/03 Tetrishead.ogg",
+};
+
+sub run(@);
+
+sub main(@){
+  my $host = `n9`;
+  chomp $host;
+  run "rsync", "-avP", "--del", "--no-owner", "--no-group",
+    "$soundsDir/", "root\@$host:$soundsDir";
+
+  my @alarmCmds = ("set -x", "echo CREATING ALARMS");
+  push @alarmCmds, "rm -rf $alarmDir";
+  push @alarmCmds, "mkdir -p $alarmDir";
+  for my $alarmName(keys %$alarms){
+    my $target = $$alarms{$alarmName};
+    $target =~ s/'/'\\''/g;
+    push @alarmCmds, "ln -s '$target' $alarmDir/$alarmName";
+  }
+  run "n9", "\n  " . join("\n  ", @alarmCmds) . "\n";
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+  die "\"@_\" failed\n" if $? != 0;
+}
+
+&main(@ARGV);
