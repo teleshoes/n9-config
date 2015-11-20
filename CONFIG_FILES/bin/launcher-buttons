@@ -45,6 +45,7 @@ my @config = qw(
     screenshotmee
     dropcache-mdn
     dcim-reindex
+    restart-messaging-ui
   ]
   dir-useful[
     qtodo
