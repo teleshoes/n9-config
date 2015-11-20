@@ -53,6 +53,7 @@ my @config = qw(
     dontgosleep
     dropcache-mdn
     dcim-reindex
+    restart-messaging-ui
   ]
   dir-useful[
     qtbigtext
