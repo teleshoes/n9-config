@@ -21,6 +21,7 @@ n9 -t
 ./packages
 ./packages #to fix any debs that install in the wrong order
 ./config-files
+./install-passant
 ./launcher-buttons
 ./status-menu
 ./ext4-mydocs
@@ -30,7 +31,6 @@ n9 billboard-config
 ./profile.pl
 ./install-klomp
 ./install-net
-./install-passant
 ./setup-vkb-toolbar
 ./disable-ovi-startup
 
