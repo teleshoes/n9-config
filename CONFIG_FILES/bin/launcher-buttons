@@ -61,13 +61,15 @@ my @config = qw(
     billboard-ui
 
     maps
+    restart-messaging-ui
     lirr_fdl_pen
     lirr_pen_fdl
-    lirr_cpg_rvc
 
+    lirr_cpg_rvc
     lirr_rvc_cpg
     lirr_cpg_pen
     lirr_pen_cpg
+
     lirrtraintime
   ]
 );
