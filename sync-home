@@ -13,6 +13,7 @@ my $local = $myDocsLocal;
 my $remote = "user\@$host:$myDocsRemote";
 
 my @excludes = qw(
+mms-pix
 openvpn
 pixmirror
 revtun-port
@@ -56,6 +57,7 @@ private
 .commhistoryd
 .config
 .contacts
+.cpan/
 .emoticonthemecache
 .emoticonthemepreview
 .facebook
@@ -70,6 +72,7 @@ private
 .mms
 .mtp
 .mtpdeviceinfo.xml
+.nfc/
 .obex-root
 .odnp
 .odnp-fpcd
