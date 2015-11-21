@@ -58,7 +58,7 @@ n9 -u user email.pl --update
 ./sync-dir swype restore
 ./sync-dir emumaster restore
 #rsync -avP --del backup/MyDocs/.maps/monav_data user@`n9`:~/MyDocs/.maps
-#n9 chown user.users /home/user/.config/com.meecast.omweather/
+n9 chown user.users /home/user/.config/com.meecast.omweather/
 ./sync-pixmirror
 klomp-sync user@`n9`
 plotddr
