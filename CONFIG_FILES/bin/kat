@@ -89,7 +89,7 @@ sub getKatHtml($$){
 
   my $url = "$katUrl/usearch/$query?$sort";
   my $tmpFile = "/tmp/kickasstorrents-" . int(time*1000);
-  run "wget", $url, "-O", $tmpFile;
+  run "wget", $url, "--no-check-certificate", "-O", $tmpFile;
 
   if(-f $tmpFile){
     run "mv", $tmpFile, "$tmpFile.gz";
