@@ -1,0 +1,158 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub createMsgSymlinks();
+sub formatHeader($$);
+sub formatContactList($@);
+sub parseHeader($);
+sub getContactsFromSmsRepo();
+sub removeUSCountryCode($);
+sub lsSortTimeInc($);
+sub run(@);
+sub runQuiet(@);
+
+my $dir = "$ENV{HOME}/Code/n9";
+my $mmsLocal = "$dir/backup/backup-mms";
+
+my $msgByDateDir = "$mmsLocal/msg-bydate";
+my $msgByFromDir = "$mmsLocal/msg-byfrom";
+my $msgPixDir = "$mmsLocal/msg-pix";
+
+sub main(@){
+  createMsgSymlinks();
+}
+
+sub createMsgSymlinks(){
+  run "rm", "-rf", $msgByDateDir, $msgByFromDir, $msgPixDir;
+  run "mkdir", "-p", $msgByDateDir, $msgByFromDir, $msgPixDir;
+
+  print "\ncreating symlinks\n";
+  my $contacts = getContactsFromSmsRepo();
+  for my $msgDir(lsSortTimeInc "$mmsLocal/msg"){
+    my $id = $1 if $msgDir =~ /([^\/]+)$/;
+    my $mtime = (stat $msgDir)[9];
+
+    my @files = glob "$msgDir/*";
+    my @pix = grep {/\.(jpg|jpeg|png|gif|bmp)/i} @files;
+    s/^.*\/// foreach @pix;
+
+    my $headerFile = "$msgDir/header";
+    my $header;
+    if(-f $headerFile){
+      $header = parseHeader $headerFile;
+    }else{
+      $header = {
+        from      => [],
+        to        => [],
+        timestamp => $mtime,
+        subject   => "",
+      };
+    }
+    my $symName = formatHeader $header, $contacts;
+
+    runQuiet "ln", "-s", "../msg/$id", "$msgByDateDir/$symName";
+    runQuiet "touch", "-h", "-r", $msgDir, "$msgByDateDir/$symName";
+
+    my $fromFmt = formatContactList $contacts, @{$$header{from}};
+    runQuiet "mkdir", "-p", "$msgByFromDir/$fromFmt";
+    runQuiet "ln", "-s", "../../msg/$id", "$msgByFromDir/$fromFmt/$symName";
+    runQuiet "touch", "-h", "-r", $msgDir, "$msgByFromDir/$fromFmt/$symName";
+    runQuiet "touch", "$msgByFromDir/$fromFmt", "-r", $msgDir;
+
+    for my $pic(@pix){
+      runQuiet "ln", "-s", "../msg/$id/$pic", "$msgPixDir/$symName-$pic";
+      runQuiet "touch", "-h", "-r", "$msgDir/$pic", "$msgPixDir/$symName-$pic";
+    }
+  }
+}
+
+sub formatHeader($$){
+  my ($header, $contacts) = @_;
+
+  my $fromFmt = formatContactList $contacts, @{$$header{from}};
+  my $toFmt = formatContactList $contacts, @{$$header{to}};
+
+  my $timestamp = $$header{timestamp};
+  my $dateFmt = `date --date=\@$timestamp +%Y%m%d_%H_%M_%S`;
+  chomp $dateFmt;
+
+  my $subjectFmt = $$header{subject};
+  $subjectFmt =~ s/^\s*no\s*subject\s*$//i;
+  $subjectFmt =~ s/\W+/_/g;
+  $subjectFmt =~ s/^_+//g;
+  $subjectFmt =~ s/_+$//g;
+  $subjectFmt = "none" if length $subjectFmt == 0;
+
+  return "$dateFmt-$fromFmt-$toFmt-$subjectFmt";
+}
+
+sub formatContactList($@){
+  my ($contacts, @list) = @_;
+
+  @list = map {defined $$contacts{$_} ? $$contacts{$_} : $_} @list;
+
+  my $fmt = join ",", @list;
+  $fmt = "UNKNOWN" if @list == 0;
+  return $fmt;
+}
+
+sub parseHeader($){
+  my $headerFile = shift;
+  open FH, "< $headerFile" or die "Could not read $headerFile\n";
+  my $hdr = join '', <FH>;
+  close FH;
+
+  my $numRe = "\\+?\\d+";
+  my $numListRe = "(?:$numRe\\s*,\\s*)*$numRe";
+
+  my $from = $1 if $hdr =~ /^message-from\s*=\s*($numListRe)\s*$/m;
+  my $to = $1 if $hdr =~ /^message-to\s*=\s*($numListRe)$/m;
+  my $subject = $1 if $hdr =~ /^message-subject\s*=\s*(.+)$/m;
+  my $timestamp = $1 if $hdr =~ /^message-timestamp\s*=\s*(\d+)$/m;
+
+  my @fromList = map {removeUSCountryCode $_} $from =~ /$numRe/g;
+  my @toList = map {removeUSCountryCode $_} $to =~ /$numRe/g;
+
+  return {
+    from      => [@fromList],
+    to        => [@toList],
+    subject   => $subject,
+    timestamp => $timestamp,
+  };
+}
+
+sub getContactsFromSmsRepo(){
+  my $smsRepo = "$dir/backup/backup-sms/repo";
+  my @numFiles = glob "$smsRepo/*-*.sms";
+  my $contacts = {};
+  for my $numFile(@numFiles){
+    $$contacts{$2} = $1 if $numFile =~ /([^\/]+)-(\d+)\.sms$/;
+  }
+  return $contacts;
+}
+
+sub removeUSCountryCode($){
+  my $num = shift;
+  $num =~ s/^\s*//;
+  $num =~ s/^\+?1?(\d{10})$/$1/;
+  return $num;
+}
+
+sub lsSortTimeInc($){
+  my ($dir) = @_;
+  my @files = glob "$dir/*";
+  my %mtimes = map {$_ => (stat $_)[9]} @files;
+  return sort {$mtimes{$a} <=> $mtimes{$b}} @files;
+}
+
+sub run(@){
+  print "@_\n";
+  runQuiet @_;
+}
+sub runQuiet(@){
+  system @_;
+  die "failed" if $? != 0;
+}
+
+&main(@ARGV);
