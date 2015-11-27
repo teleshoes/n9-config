@@ -50,6 +50,7 @@ my @config = qw(
     qtbtn-power
     screenshotmee
     restart-wifi
+    mms-picviewer
     dontgosleep
     dropcache-mdn
     dcim-reindex
