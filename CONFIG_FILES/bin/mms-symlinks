@@ -12,12 +12,12 @@ sub lsSortTimeInc($);
 sub run(@);
 sub runQuiet(@);
 
-my $dir = "$ENV{HOME}/Code/n9";
-my $mmsLocal = "$dir/backup/backup-mms";
+my $mmsDir = "/home/user/.mms";
+my $smsRepoDir = "/home/user/MyDocs/backup-sms-repo";
 
-my $msgByDateDir = "$mmsLocal/msg-bydate";
-my $msgByFromDir = "$mmsLocal/msg-byfrom";
-my $msgPixDir = "$mmsLocal/msg-pix";
+my $msgByDateDir = "$mmsDir/msg-bydate";
+my $msgByFromDir = "$mmsDir/msg-byfrom";
+my $msgPixDir = "$mmsDir/msg-pix";
 
 sub main(@){
   createMsgSymlinks();
@@ -29,7 +29,7 @@ sub createMsgSymlinks(){
 
   print "\ncreating symlinks\n";
   my $contacts = getContactsFromSmsRepo();
-  for my $msgDir(lsSortTimeInc "$mmsLocal/msg"){
+  for my $msgDir(lsSortTimeInc "$mmsDir/msg"){
     my $id = $1 if $msgDir =~ /([^\/]+)$/;
     my $mtime = (stat $msgDir)[9];
 
@@ -123,8 +123,7 @@ sub parseHeader($){
 }
 
 sub getContactsFromSmsRepo(){
-  my $smsRepo = "$dir/backup/backup-sms/repo";
-  my @numFiles = glob "$smsRepo/*-*.sms";
+  my @numFiles = glob "$smsRepoDir/*-*.sms";
   my $contacts = {};
   for my $numFile(@numFiles){
     $$contacts{$2} = $1 if $numFile =~ /([^\/]+)-(\d+)\.sms$/;
