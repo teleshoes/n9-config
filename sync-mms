@@ -25,7 +25,8 @@ sub main(@){
 
   run "rsync @rsyncOpts $local/* $remote/";
 
-  system "n9", "-u", "user", "mms-symlinks";
+  print "\n\n";
+  run "n9", "-u", "user", "mms-symlinks";
 }
 
 sub run(@){
