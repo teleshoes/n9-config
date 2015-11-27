@@ -37,7 +37,12 @@ sub main(@){
     exec "ssh", "$user\@$host", "/tmp/$name", @_;
   }
   if(`whoami` ne "$user\n"){
-    die "must be run as user '$user'\n";
+    if(`whoami` eq "root\n"){
+      print "rerunning as user '$user'\n";
+      exec "sudo", "-u", "user", $0, @ARGV;
+    }else{
+      die "must be run as user '$user'\n";
+    }
   }
 
   createMsgSymlinks();
