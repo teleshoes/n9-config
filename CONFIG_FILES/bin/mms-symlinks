@@ -29,7 +29,7 @@ sub main(@){
   my $host = `n9`;
   chomp $host;
 
-  if(`hostname` ne `$host\n`){
+  if(`hostname` ne "$host\n"){
     my $name = basename $0;
     print "copying to device $host\n";
     system "scp", $0, "$user\@$host:/tmp/$name";
