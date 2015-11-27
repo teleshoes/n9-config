@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=MMS Pix
+Comment=put MMS symlinks in a dir and open it in meeseepics
+Icon=mms-picviewer
+Exec=mms-picviewer
+Type=Application
