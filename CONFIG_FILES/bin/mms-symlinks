@@ -22,6 +22,8 @@ my $msgPixDir = "$mmsDir/msg-pix";
 my $touchCmd = "/opt/gnu-utils/bin/touch";
 
 sub main(@){
+  die "Usage: $0\n" if @_ != 0;
+
   createMsgSymlinks();
 }
 
