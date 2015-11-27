@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+use File::Basename qw(basename);
 
 sub createMsgSymlinks();
 sub formatHeader($$);
@@ -25,6 +26,16 @@ sub main(@){
   die "Usage: $0\n" if @_ != 0;
 
   my $user = 'user';
+  my $host = `n9`;
+  chomp $host;
+
+  if(`hostname` ne `$host\n`){
+    my $name = basename $0;
+    print "copying to device $host\n";
+    system "scp", $0, "$user\@$host:/tmp/$name";
+    print "rerunning on $host as user '$user'\n";
+    exec "ssh", "$user\@$host", "/tmp/$name", @_;
+  }
   if(`whoami` ne "$user\n"){
     die "must be run as user '$user'\n";
   }
