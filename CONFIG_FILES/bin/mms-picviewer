@@ -1,0 +1,23 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub run(@);
+sub tryrun(@);
+
+sub main(@){
+  tryrun "notify-meego", "organizing mms first, takes 10s";
+  run "mms-symlinks";
+  run "/opt/meeseepics/bin/meeseepics", "/home/user/mms-pix";
+}
+
+sub run(@){
+  tryrun @_;
+  die "ERROR: \"@_\" failed\n" if $? != 0;
+}
+sub tryrun(@){
+  print "@_\n";
+  system @_;
+}
+
+&main(@ARGV);
