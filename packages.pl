@@ -57,6 +57,7 @@ my $normalPackages = {
     qtemail
     lirrtraintime
     stellarium-n9
+    meeseepics
     meefox
     screen
     cameraplus
