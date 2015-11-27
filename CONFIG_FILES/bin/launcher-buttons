@@ -50,9 +50,10 @@ my @config = qw(
   dir-useful[
     qtodo
     brujula
-    qtbigtext
+    mms-picviewer
     teatime
 
+    qtbigtext
     coffee
     maps
   ]
