@@ -32,7 +32,7 @@ sub main(@){
   if(`hostname` ne "$host\n"){
     my $name = basename $0;
     print "copying to device $host\n";
-    system "scp", $0, "$user\@$host:/tmp/$name";
+    run "scp", $0, "$user\@$host:/tmp/$name";
     print "rerunning on $host as user '$user'\n";
     exec "ssh", "$user\@$host", "/tmp/$name", @_;
   }
