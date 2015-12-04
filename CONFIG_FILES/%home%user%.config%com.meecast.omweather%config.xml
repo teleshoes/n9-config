@@ -5,13 +5,16 @@
  <temperature_unit>F</temperature_unit>
  <wind_speed_unit>mi/h</wind_speed_unit>
  <pressure_unit>mbar</pressure_unit>
- <current_station_id>0</current_station_id>
+ <visible_unit>m</visible_unit>
+ <language>System</language>
+ <current_station_id>3</current_station_id>
  <update_period>14400</update_period>
  <update_connect>false</update_connect>
  <fullscreen>false</fullscreen>
  <lockscreen>false</lockscreen>
  <standbyscreen>false</standbyscreen>
  <gps>false</gps>
+ <splash>true</splash>
  <station>
   <source_name>weather.com</source_name>
   <station_name>Copiague</station_name>
@@ -21,7 +24,10 @@
   <file_name>/home/user/.config/com.meecast.omweather/weather.com_USNY0330</file_name>
   <forecast_url>http://xml.weather.com/weather/local/USNY0330?cm_ven=1CW&amp;site=wx.com-bar&amp;cm_ite=wx-cc&amp;par=1CWFFv1.1.9&amp;cm_pla=wx.com-bar&amp;cm_cat=FFv1.1.9&amp;unit=m&amp;dayf=9&amp;cc=*</forecast_url>
   <cookie></cookie>
+  <latitude>0</latitude>
+  <longitude>0</longitude>
   <detail_url>http://xml.weather.com/weather/local/USNY0330?cm_ven=1CW&amp;site=wx.com-bar&amp;cm_ite=wx-cc&amp;par=1CWFFv1.1.9&amp;cm_pla=wx.com-bar&amp;cm_cat=FFv1.1.9&amp;unit=m&amp;hbhf=12</detail_url>
+  <hours_url></hours_url>
   <view_url>http://www.weather.com/weather/tenday/USNY0330</view_url>
   <converter>/opt/com.meecast.omweather/lib/weathercom</converter>
   <gps>false</gps>
@@ -35,7 +41,10 @@
   <file_name>/home/user/.config/com.meecast.omweather/weather.com_USNY0996</file_name>
   <forecast_url>http://xml.weather.com/weather/local/USNY0996?cm_ven=1CW&amp;site=wx.com-bar&amp;cm_ite=wx-cc&amp;par=1CWFFv1.1.9&amp;cm_pla=wx.com-bar&amp;cm_cat=FFv1.1.9&amp;unit=m&amp;dayf=9&amp;cc=*</forecast_url>
   <cookie></cookie>
+  <latitude>0</latitude>
+  <longitude>0</longitude>
   <detail_url>http://xml.weather.com/weather/local/USNY0996?cm_ven=1CW&amp;site=wx.com-bar&amp;cm_ite=wx-cc&amp;par=1CWFFv1.1.9&amp;cm_pla=wx.com-bar&amp;cm_cat=FFv1.1.9&amp;unit=m&amp;hbhf=12</detail_url>
+  <hours_url></hours_url>
   <view_url>http://www.weather.com/weather/tenday/USNY0996</view_url>
   <converter>/opt/com.meecast.omweather/lib/weathercom</converter>
   <gps>false</gps>
@@ -49,7 +58,10 @@
   <file_name>/home/user/.config/com.meecast.omweather/weather.com_USNY0011</file_name>
   <forecast_url>http://xml.weather.com/weather/local/USNY0011?cm_ven=1CW&amp;site=wx.com-bar&amp;cm_ite=wx-cc&amp;par=1CWFFv1.1.9&amp;cm_pla=wx.com-bar&amp;cm_cat=FFv1.1.9&amp;unit=m&amp;dayf=9&amp;cc=*</forecast_url>
   <cookie></cookie>
+  <latitude>0</latitude>
+  <longitude>0</longitude>
   <detail_url>http://xml.weather.com/weather/local/USNY0011?cm_ven=1CW&amp;site=wx.com-bar&amp;cm_ite=wx-cc&amp;par=1CWFFv1.1.9&amp;cm_pla=wx.com-bar&amp;cm_cat=FFv1.1.9&amp;unit=m&amp;hbhf=12</detail_url>
+  <hours_url></hours_url>
   <view_url>http://www.weather.com/weather/tenday/USNY0011</view_url>
   <converter>/opt/com.meecast.omweather/lib/weathercom</converter>
   <gps>false</gps>
