@@ -10,6 +10,7 @@ my @cleanupCmd = ("find $remoteDownloads/ -type d -execdir chmod og-w {} \\;");
 
 sub handleTorrent($$);
 sub ftpCommand($@);
+sub rsyncRevtun($$$$@);
 sub rsyncFetch($);
 sub ssh($;\@);
 sub readCmd($$);
@@ -75,6 +76,33 @@ my $usage = "Usage:
      compare mtime of $remoteDownloads on seedbox and contents of file $mtimeFile
      if different, print 'modified', else print 'up-to-date'
 
+  $0 --rsync-revtun [RSYNC_OPTS] :REMOTE_SRC LOCAL_DEST
+  $0 --rsync-revtun [RSYNC_OPTS] LOCAL_SRC :REMOTE_DEST
+     copy files using rsync to/from the revtun server over two SSH tunnels
+     the remote file arg must start with ':', and the local file arg must not
+
+     it is sort of like this pseudo-code:
+       $0 --rsync-revtun -avP :~/pix/ backup/pix/
+         =>
+       rsync -avP 'ssh SERVER ssh REVTUN_USER\@localhost -p `cat revtun-port`':~/pix pix
+
+     it is very much like this real code:
+       SERVER=\"<config:server>\"
+       SB_USER=\"<config:username>\"
+       REVTUN_USERNAME=\"<config:revtun.username>\"
+       REVTUN_PORTFILE=\"<config:revtun.portfile>\"
+       REMOTE_SRC=\"\"
+       LOCAL_DEST=\"\"
+
+       SSH_OPTS=\"@revtunRemoteOpts\"
+       REVTUN_PORT=`ssh \$SSH_OPTS \$SB_USER\@\$SERVER cat REVTUN_PORTFILE`
+       RSYNC_PROXYCMD=\"ssh \$SSH_OPTS \$SB_USER\@\$SERVER -W localhost:\$REVTUN_PORT\"
+       #note the user below is REVTUN_USER and not SB_USER
+       rsync \$RSYNC_OPTS \\
+         -e \"ssh \$SSH_OPTS -o ProxyCommand='\$RSYNC_PROXYCMD'\" \\
+         \$REVTUN_USER\@\$SERVER:\$REMOTE_SRC \$LOCAL_DEST
+         #or: \$LOCAL_SRC \$REVTUN_USER\@\$SERVER:\$REMOTE_DEST
+
   $0 --rsync
      use rsync to sync seedbox:$remoteDownloads => $localDownloads
      like: rsync -avP SERVER:$remoteDownloads/ $localDownloads
@@ -125,6 +153,24 @@ sub main(@){
     }
   }elsif(@_ == 1 and $_[0] =~ /^(--rsync)$/){
     rsyncFetch $config;
+  }elsif(@_ >= 3 and $_[0] =~ /^(--rsync-revtun)$/){
+    shift @_;
+    my $dest = pop @_;
+    my $src = pop @_;
+    my @rsyncOpts = @_;
+
+    my $direction;
+    if($src =~ /^:/ and $dest !~ /^:/){
+      $direction = "from";
+      $src =~ s/^://;
+    }elsif($dest =~ /^:/ and $src !~ /^:/){
+      $direction = "to";
+      $dest =~ s/^://;
+    }else{
+      die "exactly one of SRC or DEST must start with ':'\n";
+    }
+
+    rsyncRevtun $config, $src, $dest, $direction, @rsyncOpts;
   }elsif(@_ == 1 and $_[0] =~ /^(--cleanup)$/){
     ssh $config, @cleanupCmd;
   }elsif(@_ >= 1 and $_[0] =~ /^(-s)$/){
@@ -200,6 +246,41 @@ sub ftpCommand($@){
       close FH;
     }
   }
+}
+
+sub rsyncRevtun($$$$@){
+  my ($config, $src, $dest, $direction, @rsyncOpts) = @_;
+
+  my $sbUser = $$config{"username"};
+  my $sbServer = $$config{"server"};
+  my $revtunUsername = $$config{"revtun.username"};
+  my $revtunPortFile = $$config{"revtun.portfile"};
+
+  my @revtunPortCmd = (
+    "ssh", @revtunRemoteOpts, "$sbUser\@$sbServer", "cat", $revtunPortFile);
+
+  print "fetching revtun port\n";
+  print "@revtunPortCmd\n";
+
+  my $revtunPort = `@revtunPortCmd`;
+  $revtunPort =~ s/[\n\r]+$//;
+  if($revtunPort !~ /^\d+$/){
+    die "Error fetching revtun port with cmd \"@revtunPortCmd\"\n";
+  }
+
+  my $rsyncProxyCmd = "ssh @revtunRemoteOpts $sbUser\@$sbServer -W localhost:$revtunPort";
+
+  my $remoteHost = "$revtunUsername\@$sbServer";
+
+
+  my @rsyncCmd = ("rsync", @rsyncOpts,
+    "-e", "ssh @revtunRemoteOpts -o ProxyCommand='$rsyncProxyCmd'",
+    ($direction eq "from" ? "$remoteHost:$src" : "$src"),
+    ($direction eq "to" ? "$remoteHost:$dest" : "$dest"),
+  );
+
+  print "\n\n@rsyncCmd\n";
+  exec @rsyncCmd;
 }
 
 sub rsyncFetch($){
