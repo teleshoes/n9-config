@@ -17,7 +17,7 @@ my @config = qw(
   call-history
   messaging-ui
   mtermite
-  browser
+  heliumreborn
 
   finch
   klomp
@@ -82,6 +82,7 @@ my @config = qw(
     modrana
     mail
     contact-coocoo
+    browser
     fennec
     MeeFox
     camera-ui
