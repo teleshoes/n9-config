@@ -35,6 +35,9 @@ if($? != 0){
   run "n9", "-s", "chown -R $remoteUserGroup $remotePurpleDir/";
 }
 
+print "\n\n\nDONT SYNC LOGS ON emily-n9\n\n\n";
+exit 0;
+
 print "\n\nlogs REMOTE => LOCAL\n";
 run "rsync", @opts, "$rem/logs/", "$loc/logs";
 print "\n\nlogs LOCAL => REMOTE\n";
