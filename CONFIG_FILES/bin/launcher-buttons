@@ -22,7 +22,7 @@ my @config = qw(
   dir-stuff[
     cameraplus
     contacts
-    browser
+    heliumreborn
     calc
 
     qtemail
@@ -46,30 +46,31 @@ my @config = qw(
     vmpkn9
 
     MeeFox
+    browser
     camera-ui
     accountsui
-    ovistoreclient
 
+    ovistoreclient
     teatime
     modrana
     qml2048
-    stellarium-n9
 
+    stellarium-n9
     passant
     emumaster
     mail
-    billboard-ui
 
+    billboard-ui
     maps
     restart-messaging-ui
     mms-picviewer
-    lirr_fdl_pen
 
+    lirr_fdl_pen
     lirr_pen_fdl
     lirr_cpg_rvc
     lirr_rvc_cpg
-    lirr_cpg_pen
 
+    lirr_cpg_pen
     lirr_pen_cpg
     lirrtraintime
   ]
