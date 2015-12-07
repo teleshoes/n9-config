@@ -136,8 +136,8 @@ sub parseHeader($){
   my $subject = $1 if $hdr =~ /^message-subject\s*=\s*(.+)$/m;
   my $timestamp = $1 if $hdr =~ /^message-timestamp\s*=\s*(\d+)$/m;
 
-  my @fromList = map {removeUSCountryCode $_} $from =~ /$numRe/g;
-  my @toList = map {removeUSCountryCode $_} $to =~ /$numRe/g;
+  my @fromList = map {removeUSCountryCode $_} $from =~ /$numRe/g if defined $from;
+  my @toList = map {removeUSCountryCode $_} $to =~ /$numRe/g if defined $to;
 
   return {
     from      => [@fromList],
