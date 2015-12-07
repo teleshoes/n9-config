@@ -75,6 +75,7 @@ my @config = qw(
     heliumreborn
     fennec
     MeeFox
+    dfilebrowser
     camera-ui
     gallery
     trojita-tp
