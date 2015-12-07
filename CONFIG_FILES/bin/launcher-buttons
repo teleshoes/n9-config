@@ -65,11 +65,12 @@ my @config = qw(
     restart-messaging-ui
     mms-picviewer
 
+    dfilebrowser
     lirr_fdl_pen
     lirr_pen_fdl
     lirr_cpg_rvc
-    lirr_rvc_cpg
 
+    lirr_rvc_cpg
     lirr_cpg_pen
     lirr_pen_cpg
     lirrtraintime
