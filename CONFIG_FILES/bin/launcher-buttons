@@ -72,6 +72,7 @@ my @config = qw(
   dir-junk[
     settings
     accountsui
+    heliumreborn
     fennec
     MeeFox
     camera-ui
