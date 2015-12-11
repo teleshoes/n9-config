@@ -76,8 +76,8 @@ my $usage = "Usage:
      compare mtime of $remoteDownloads on seedbox and contents of file $mtimeFile
      if different, print 'modified', else print 'up-to-date'
 
-  $0 --rsync-revtun [RSYNC_OPTS] :REMOTE_SRC LOCAL_DEST
-  $0 --rsync-revtun [RSYNC_OPTS] LOCAL_SRC :REMOTE_DEST
+  $0 --rsync-revtun [RSYNC_OPTS] :REMOTE_SRC [RSYNC_OPTS]  LOCAL_DEST  [RSYNC_OPTS]
+  $0 --rsync-revtun [RSYNC_OPTS] LOCAL_SRC   [RSYNC_OPTS] :REMOTE_DEST [RSYNC_OPTS]
      copy files using rsync to/from the revtun server over two SSH tunnels
      the remote file arg must start with ':', and the local file arg must not
 
@@ -155,9 +155,25 @@ sub main(@){
     rsyncFetch $config;
   }elsif(@_ >= 3 and $_[0] =~ /^(--rsync-revtun)$/){
     shift @_;
-    my $dest = pop @_;
-    my $src = pop @_;
-    my @rsyncOpts = @_;
+
+    my ($src, $dest, @rsyncOpts);
+    my $srcDestMsg = "exactly two args that do not start with '-' must be given\n";
+    for my $arg(@_){
+      if($arg !~ /^-/){
+        if(not defined $src){
+          $src = $arg;
+        }elsif(not defined $dest){
+          $dest = $arg;
+        }else{
+          die $srcDestMsg;
+        }
+      }else{
+        push @rsyncOpts, $arg;
+      }
+    }
+    if(not defined $src or not defined $dest){
+      die $srcDestMsg;
+    }
 
     my $direction;
     if($src =~ /^:/ and $dest !~ /^:/){
@@ -268,7 +284,15 @@ sub rsyncRevtun($$$$@){
     die "Error fetching revtun port with cmd \"@revtunPortCmd\"\n";
   }
 
-  my $rsyncProxyCmd = "ssh @revtunRemoteOpts $sbUser\@$sbServer -W localhost:$revtunPort";
+  my $rsyncProxyCmd;
+
+  #test local ssh for 'ssh -W' netcat mode feature, if not present use netcat directly
+  my $sshUsage = `ssh 2>&1`;
+  if($sshUsage =~ /-W/){
+    $rsyncProxyCmd = "ssh @revtunRemoteOpts $sbUser\@$sbServer -W localhost:$revtunPort";
+  }else{
+    $rsyncProxyCmd = "ssh @revtunRemoteOpts $sbUser\@$sbServer nc localhost $revtunPort";
+  }
 
   my $remoteHost = "$revtunUsername\@$sbServer";
 
