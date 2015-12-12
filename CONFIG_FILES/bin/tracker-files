@@ -1,0 +1,217 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my @imageOnlyTables = qw(nfo:Image nmm:Photo);
+my @videoOnlyTables = qw(nfo:Video nmm:Video);
+my @otherFileTables = qw(nie:DataObject nie:InformationElement nfo:Media nfo:Visual);
+
+my @allTables = (@imageOnlyTables, @videoOnlyTables, @otherFileTables);
+
+my $equipment = "urn:equipment:Nokia:N9:";
+
+my $imageRdfType = "http://www.tracker-project.org/temp/nmm#Photo";
+my $videoRdfType = "http://www.tracker-project.org/temp/nmm#Video";
+
+sub getFiles();
+sub insertImage($);
+sub insertVideo($);
+sub deleteFilesRegex($);
+sub deleteUrn($);
+sub runQuery($);
+sub absolutePath($);
+sub mtimeNanoFracS($);
+sub formatDateTimeUTCNanoFracS($);
+
+my $usage = "Usage:
+  $0 --print
+    print all files: \"urn:uuid:<UUID> <FILE>\"
+
+  $0 --image FILE [FILE FILE]
+    insert image files (@imageOnlyTables)
+      nie:contentCreated => mtime in UTC, formatted: YYYY-mm-ddTHH:MM:SS.SSSZ
+      nfo:equipment      => \"$equipment\"
+      rdf:type           => \"$imageRdfType\"
+
+  $0 --video FILE [FILE FILE]
+    insert video files (@videoOnlyTables)
+      nie:contentCreated => mtime in UTC, formatted: YYYY-mm-ddTHH:MM:SS.SSSZ
+      nfo:equipment      => \"$equipment\"
+      rdf:type           => \"$videoRdfType\"
+
+  $0 --delete [FILE_REGEX]
+    delete all files that match the given FILE_REGEX
+";
+
+sub main(@){
+  die $usage if @_ == 0 or $_[0] =~ /^-h|--help/;
+  my $cmd = shift;
+  if($cmd =~ /^(--print)$/ and @_ == 0){
+    my $files = getFiles();
+    for my $urn(sort {$$files{$a} cmp $$files{$b}} keys %$files){
+      print "$urn $$files{$urn}\n";
+    }
+  }elsif($cmd =~ /^(--image)$/ and @_ > 0){
+    for my $file(@_){
+      $file = absolutePath $file;
+      insertImage $file;
+    }
+  }elsif($cmd =~ /^(--video)$/ and @_ > 0){
+    for my $file(@_){
+      $file = absolutePath $file;
+      insertVideo $file;
+    }
+  }elsif($cmd =~ /^(--delete)$/ and @_ == 1){
+    my ($fileRegex) = @_;
+    deleteFilesRegex $fileRegex;
+  }else{
+    die $usage;
+  }
+}
+
+sub getFiles(){
+  my $files = {};
+  for my $table(@allTables){
+    my $query = "SELECT ?uuid ?url WHERE {?uuid a $table; nie:url ?url . }";
+    my @rows = runQuery $query;
+    shift @rows if @rows > 0 and $rows[0] =~ /^\s*Results:\s*$/;
+    for my $row(@rows){
+      next if $row =~ /^\s*$/;
+      if($row =~ /^\s*(urn:uuid:[0-9a-f\-]+),\s*file:\/\/(.+)$/){
+        my ($urn, $file) = ($1, $2);
+        $$files{$urn} = $file;
+      }
+    }
+  }
+  return $files;
+}
+
+sub insertImage($){
+  my $file = shift;
+  die "\"$file\" not found\n" if not -f $file;
+
+  my $fracS = mtimeNanoFracS $file;
+  my $mtimeFmt = formatDateTimeUTCNanoFracS $fracS;
+
+  my $tablesCsv = join ", ", (@imageOnlyTables, @otherFileTables);
+
+  print "inserting $file\n";
+  runQuery ''
+    . "  INSERT {"
+    . "    _:x a $tablesCsv ;"
+    . "    nie:url \"file://$file\" ;"
+    . "    rdf:type \"$imageRdfType\" ;"
+    . "    nfo:equipment \"$equipment\" ;"
+    . "    nie:contentCreated \"$mtimeFmt\""
+    . "    ."
+    . "  }"
+    ;
+  system "tracker-control", "-f", $file;
+}
+
+sub insertVideo($){
+  my $file = shift;
+  die "\"$file\" not found\n" if not -f $file;
+
+  my $fracS = mtimeNanoFracS $file;
+  my $mtimeFmt = formatDateTimeUTCNanoFracS $fracS;
+
+  my $tablesCsv = join ", ", (@videoOnlyTables, @otherFileTables);
+
+  print "inserting $file\n";
+  runQuery ''
+    . "  INSERT {"
+    . "    _:x a $tablesCsv ;"
+    . "    nie:url \"file://$file\" ;"
+    . "    rdf:type \"$videoRdfType\" ;"
+    . "    nfo:equipment \"$equipment\" ;"
+    . "    nie:contentCreated \"$mtimeFmt\""
+    . "    ."
+    . "  }"
+    ;
+  system "tracker-control", "-f", $file;
+}
+
+sub deleteFilesRegex($){
+  my $fileRegex = shift;
+  my $files = getFiles();
+  my @urns;
+  for my $urn(keys %$files){
+    my $file = $$files{$urn};
+    if($file =~ /^$fileRegex$/){
+      push @urns, $urn;
+    }
+  }
+
+  if(@urns == 0){
+    print "no tracker entries matching '$fileRegex' found\n";
+  }else{
+    print "removing " . (0+@urns) . " tracker entries:\n";
+    print "  $$files{$_}\n" foreach @urns;
+    print "ok? [y/N]";
+    my $response = <STDIN>;
+    if($response !~ /^[y|Y]\n*$/){
+      die "cancelled\n";
+    }
+  }
+
+  for my $urn(@urns){
+    my $file = $$files{$urn};
+    print "removing from tracker: $file ($urn)\n";
+    deleteUrn($urn);
+  }
+}
+
+sub deleteUrn($){
+  my $urn = shift;
+  for my $table(@allTables){
+    runQuery "DELETE { <$urn> a $table . }";
+  }
+}
+
+sub runQuery($){
+  my $query = shift;
+  my @mode = ($query =~ /^\s*(INSERT|DELETE)/i) ? qw(-u -q) : qw(-q);
+  my @cmd = ("tracker-sparql", @mode, $query);
+  open SPARQL, "-|", @cmd
+    or die "Could not run @cmd\n";
+  my @lines = <SPARQL>;
+  close SPARQL;
+  return @lines;
+}
+
+sub absolutePath($){
+  my $relPath = shift;
+  $relPath =~ s/"/""/g;
+  my $absPath = `readlink -m "$relPath"`;
+  chomp $absPath;
+
+  if($absPath =~ /^\s*$/){
+    $absPath = `readlink -f "$relPath"`;
+    chomp $absPath;
+  }
+
+  return $absPath;
+}
+
+sub mtimeNanoFracS($){
+  my $statMtime = `stat -c %y "$_[0]"`;
+  chomp $statMtime;
+  my $fracS = `date --date='$statMtime' +%s.%N`;
+  return $fracS;
+}
+
+sub formatDateTimeUTCNanoFracS($){
+  my $fracS = shift;
+  my $millis = '';
+  if($fracS =~ /\.(\d+)$/){
+    $millis = 1000 * "0.$1";
+    $millis = int( $millis + 0.5);
+    $millis = sprintf ".%03d", $millis;
+  }
+  my $fmt = `date --utc --date='\@$fracS' +%Y-%m-%dT%H:%M:%S${millis}Z`;
+  chomp $fmt;
+  return $fmt;
+}
+
+&main(@ARGV);
