@@ -183,6 +183,7 @@ sub runQuery($){
     or die "Could not run @cmd\n";
   my @lines = <SPARQL>;
   close SPARQL;
+  die "Error runing query: $query\n" if $? != 0;
   return @lines;
 }
 
