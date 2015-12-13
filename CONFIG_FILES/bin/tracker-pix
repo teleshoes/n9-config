@@ -37,12 +37,10 @@ sub main(@){
   print "indexing any files that are in $dir and not in $handledPixFile\n";
   for my $pic(@dirPix){
     next if defined $handledPix{$pic};
-    system "tracker-files", "--image", $pic;
+    system "tracker-files --image $pic 2>/dev/null";
     my $exitCode = $?;
+    #ignore first error, delete entry, and try again
     if($exitCode != 0){
-      print STDERR ''
-        . "\n\n\nERROR: tracker-files --image \"$pic\" failed,"
-        . "  removing \"$pic\" from tracker and rerunning\n\n\n";
       for my $urn(keys %$trackerFiles){
         my $file = $$trackerFiles{$urn};
         if($file eq $pic){
