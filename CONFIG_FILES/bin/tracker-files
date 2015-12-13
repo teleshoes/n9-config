@@ -41,6 +41,9 @@ my $usage = "Usage:
 
   $0 --delete FILE_REGEX
     delete all files that match the given FILE_REGEX
+
+  $0 --delete-urn URN
+    URN is of the form 'urn:uuid:<UUID>'
 ";
 
 sub main(@){
@@ -64,6 +67,9 @@ sub main(@){
   }elsif($cmd =~ /^(--delete)$/ and @_ == 1){
     my ($fileRegex) = @_;
     deleteFilesRegex $fileRegex;
+  }elsif($cmd =~ /^(--delete-urn)$/ and @_ == 1){
+    my ($urn) = @_;
+    deleteUrn $urn;
   }else{
     die $usage;
   }
