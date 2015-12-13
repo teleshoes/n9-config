@@ -149,6 +149,8 @@ sub deleteFilesRegex($){
     }
   }
 
+  @urns = sort {$$files{$a} cmp $$files{$b}} @urns;
+
   if(@urns == 0){
     print "no tracker entries matching '$fileRegex' found\n";
   }else{
