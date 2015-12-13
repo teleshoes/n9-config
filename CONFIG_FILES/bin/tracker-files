@@ -170,9 +170,8 @@ sub deleteFilesRegex($){
 
 sub deleteUrn($){
   my $urn = shift;
-  for my $table(@allTables){
-    runQuery "DELETE { <$urn> a $table . }";
-  }
+  my $tablesCsv = join ", ", @allTables;
+  runQuery "DELETE { <$urn> a $tablesCsv . }";
 }
 
 sub runQuery($){
