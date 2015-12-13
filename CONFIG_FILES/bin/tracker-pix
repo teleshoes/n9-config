@@ -33,6 +33,7 @@ sub main(@){
       system "tracker-files", "--delete-urn", $urn;
     }
   }
+  print "\n";
 
   print "indexing any files that are in $dir and not in $handledPixFile\n";
   for my $pic(@dirPix){
