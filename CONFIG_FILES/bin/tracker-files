@@ -170,6 +170,7 @@ sub deleteFilesRegex($){
 
 sub deleteUrn($){
   my $urn = shift;
+  die "malformed urn \"$urn\"\n" if $urn !~ /^urn:uuid:[0-9a-f\-]+$/;
   my $tablesCsv = join ", ", @allTables;
   runQuery "DELETE { <$urn> a $tablesCsv . }";
 }
