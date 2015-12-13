@@ -24,7 +24,7 @@ sub main(@){
 
   print "removing any files in tracker that are missing from $dir\n";
   my $trackerFiles = getTrackerFiles();
-  for my $urn(keys %$trackerFiles){
+  for my $urn(sort {$$trackerFiles{$a} cmp $$trackerFiles{$b}} keys %$trackerFiles){
     my $file = $$trackerFiles{$urn};
     next unless $file =~ /^$dir/;
 
