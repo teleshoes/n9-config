@@ -39,7 +39,7 @@ my $usage = "Usage:
       nfo:equipment      => \"$equipment\"
       rdf:type           => \"$videoRdfType\"
 
-  $0 --delete [FILE_REGEX]
+  $0 --delete FILE_REGEX
     delete all files that match the given FILE_REGEX
 ";
 
