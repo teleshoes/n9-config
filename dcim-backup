@@ -57,6 +57,9 @@ sub main(@){
       $localByMd5sum, $remoteByMd5sum, $remoteByFile);
   }
   system "n9", "-s", "chown user.metadata-users -R $remoteDCIM";
+
+  print "\n\nupdating tracker\n";
+  system "n9", ". .bashrc && udo tracker-pix $remoteDCIM";
 }
 
 sub reorganizeBackedUpRemotes($$$$){
