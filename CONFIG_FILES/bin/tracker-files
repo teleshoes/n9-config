@@ -22,6 +22,7 @@ sub runQuery($);
 sub absolutePath($);
 sub mtimeNanoFracS($);
 sub formatDateTimeUTCNanoFracS($);
+sub run(@);
 
 my $usage = "Usage:
   $0 --print
@@ -112,7 +113,7 @@ sub insertImage($){
     . "    ."
     . "  }"
     ;
-  system "tracker-control", "-f", $file;
+  run "tracker-control", "-f", $file;
 }
 
 sub insertVideo($){
@@ -135,7 +136,7 @@ sub insertVideo($){
     . "    ."
     . "  }"
     ;
-  system "tracker-control", "-f", $file;
+  run "tracker-control", "-f", $file;
 }
 
 sub deleteFilesRegex($){
@@ -221,6 +222,11 @@ sub formatDateTimeUTCNanoFracS($){
   my $fmt = `date --utc --date='\@$fracS' +%Y-%m-%dT%H:%M:%S${millis}Z`;
   chomp $fmt;
   return $fmt;
+}
+
+sub run(@){
+  system @_;
+  die "Error running \"@_\"\n" if $? != 0;
 }
 
 &main(@ARGV);
