@@ -2,5 +2,5 @@
 Name=dcim reindex
 Comment=Reindex tracker for DCIM/*.*
 Icon=dcim-reindex
-Exec=udo term -r -e 'tracker-index /home/user/MyDocs/DCIM/*.*; echo OK'
+Exec=udo term -r -e 'tracker-pix /home/user/MyDocs/DCIM/'
 Type=Application
