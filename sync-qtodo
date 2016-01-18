@@ -42,7 +42,7 @@ sub main(@){
   chomp $host;
   system "scp", $tmpFile, "user\@$host:$remoteFile";
 
-  system "todo-parse", "--upload";
+  system "website-upload", "--skip-plotddr";
 }
 
 sub getTodos(){

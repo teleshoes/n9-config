@@ -12,20 +12,53 @@ sub tryrun(@);
 
 my @deps = qw(telnet expect rsync);
 
+my $usage = "Usage:
+  $0 FIRMWARE EMMC KERNEL
+    flash firmware, emmc, and kernel indicated
+
+  $0 -s|--ssh
+     just attempt to ssh
+
+  $0 -i|--installs
+     skip flashAndRootStrap, and skip installing flasher and deps
+     just attemp ssh, wifi, and slow installs
+";
+
+my $MODE_FLASH = "flash";
+my $MODE_SSH = "ssh";
+my $MODE_INSTALLS = "installs";
+
 sub main(@){
-  die "Usage: $0 FIRMWARE EMMC KERNEL\n" if @_ != 3;
-  my ($fw, $emmc, $kernel) = @_;
+  my ($fw, $emmc, $kernel);
+  my $mode;
+  if(@_ == 1 and $_[0] =~ /^(-s|--ssh)$/){
+    $mode = $MODE_SSH;
+  }elsif(@_ == 1 and $_[0] =~ /^(-i|--installs)$/){
+    $mode = $MODE_INSTALLS;
+  }elsif(@_ == 3){
+    $mode = $MODE_FLASH;
+    ($fw, $emmc, $kernel) = @_;
+  }else{
+    die $usage;
+  }
 
-  run "sudo", "dpkg", "-i", "flasher_3.12.1_amd64.deb";
-  run "sudo", "apt-get", "install", @deps;
-
-  run "n9", "-t", "192.168.2.15";
   $|=1;
-  flashAndRootStrap $fw, $emmc, $kernel;
+
+  if($mode eq $MODE_FLASH){
+    run "sudo", "dpkg", "-i", "flasher_3.12.1_amd64.deb";
+    run "sudo", "apt-get", "install", @deps;
+
+    flashAndRootStrap $fw, $emmc, $kernel;
+  }
+
   attemptSSH();
-  chdir "../";
-  attemptWifi(3);
-  slowInstalls();
+
+  if($mode eq $MODE_FLASH or $mode eq $MODE_INSTALLS){
+    run "n9", "-t", "192.168.2.15";
+    chdir "../";
+    attemptWifi(3);
+    slowInstalls();
+  }
 }
 
 sub flashAndRootStrap($$$){
@@ -35,11 +68,18 @@ sub flashAndRootStrap($$$){
   $emmc = readlink $emmc if -l $emmc;
   $kernel = readlink $kernel if -l $kernel;
 
-  my $version = "\\d\\d.\\d\\d\\d\\d.\\d\\d-\\d";
+  my $version = "\\d\\d.\\d\\d\\d\\d.\\d\\d-\\d(?:.\\d\\d\\d.\\d\\d.\\d)?";
   my $fwRegex = "DFL61_HARMATTAN_${version}_PR_LEGACY_00\\d-OEM1-958_ARM.bin";
   my $emmcRegex = "DFL61_HARMATTAN_${version}.[A-Z]+_EMMC_[A-Z]+.bin";
   my $kernelRegex = "zImage";
-  die "weird firmware: $fw\n" if not -f $fw or $fw !~ /$fwRegex/;
+
+  if(not -f $fw or $fw !~ /$fwRegex/){
+    if(-f $fw and $fw =~ /DFL61_HARMATTAN_${version}_PR_LEGACY_(\d\d\d)/){
+      print "\n\nWARN: very high FW version number: $1\n";
+    }else{
+      die "weird firmware: $fw\n";
+    }
+  }
   die "weird emmc: $emmc\n" if not -f $emmc or $emmc !~ /$emmcRegex/;
   die "weird kernel: $kernel\n" if not -f $kernel or $kernel !~ /$kernelRegex/;
 
@@ -138,10 +178,10 @@ sub slowInstalls(){
 sub usbDev(){
   my @ifconfigLines = `ifconfig -a`;
   for my $line(@ifconfigLines){
-    return $1 if $line =~ /^(usb\d+)\s/;
+    return $1 if $line =~ /^(usb\d+):?\s/;
   }
   for my $line(@ifconfigLines){
-    return $1 if $line =~ /^(enx[0-9a-f]+)\s/;
+    return $1 if $line =~ /^(enx[0-9a-f]+):?\s/;
   }
   return undef;
 }

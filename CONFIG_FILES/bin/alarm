@@ -1,2 +1,186 @@
-#!/bin/sh
-mplayer "/home/user/MyDocs/Food/coffee.mp3"
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Getopt::Long qw(GetOptionsFromArray :config bundling);
+use Cwd 'abs_path';
+
+my @exts = qw(mp3 flac ogg m4a wma wav);
+
+sub selectAlarmFile($);
+sub listFiles($);
+sub pulseExec(@);
+sub bashComplete($$);
+
+my $alarmsDir = '/usr/share/alarms';
+my $soundsDir = '/usr/share/sounds/custom';
+die "$alarmsDir/ doesnt exist or isnt a dir\n" if not -d $alarmsDir;
+
+my @alarms = listFiles $alarmsDir;
+my @sounds = listFiles $soundsDir;
+die "$alarmsDir is empty\n" if @alarms == 0;
+
+my $validAlarms = join '|', @alarms;
+my $validSounds = join '|', @sounds;
+
+my $usage = "Usage:
+  $0 [OPTS] [ALARM_NAME|SOUND_NAME]
+    Runs 'term mplayer $alarmsDir/ALARM_NAME -loop 0'.
+    If run as root, reruns as the user running pulseaudio.
+
+  $0 --print-alarms
+    Print files in $alarmsDir
+
+  $0 --print-sounds
+    Print files in $soundsDir
+
+  $0 --bash-complete COMP_LINE COMP_POINT
+    print a list of words for bash completion, one per line
+    COMP_LINE:  the full cmdline as a string
+    COMP_POINT: the cursor position in the cmdline
+
+    ALARM_NAME:
+      File name under $alarmsDir
+      Optional; default is 'default'
+      Valid values: $validAlarms
+
+    SOUND_NAME:
+      File name under $soundsDir
+      Valid values: $validSounds
+
+    OPTS:
+      -h|--help       Show this message
+      -n|--norerun    Do not rerun as pulse user
+      -o|--once       Do not repeat alarm {don't pass '-loop 0' to mplayer}
+      -g|--guess      If alarm does not match, use 'default' instead of failing
+      -v N|--vol=N    Attempt to unmute and set volume to N % using pulse-vol
+      -b|--background Run in background (useless without --noterm)
+      -t|--noterm     Do not run in term
+      -s|--sound      Same as '--once --noterm --background'
+";
+
+sub main(@){
+  if(@_ == 3 and $_[0] =~ /^--bash-complete$/ and $_[2] =~ /^\d+$/){
+    print map {"$_\n"} bashComplete($_[1], $_[2]);
+    exit 0;
+  }elsif(@_ == 1 and $_[0] =~ /^--print-alarms$/){
+    print map {"$_\n"} @alarms;
+    exit 0;
+  }elsif(@_ == 1 and $_[0] =~ /^--print-sounds$/){
+    print map {"$_\n"} @sounds;
+    exit 0;
+  }
+
+  my ($help, $norerun, $once, $guess, $vol, $background, $noterm, $sound);
+  my $ok = GetOptionsFromArray(\@_,
+    "h|help"       => \$help,
+    "n|norerun"    => \$norerun,
+    "o|once"       => \$once,
+    "g|guess"      => \$guess,
+    "v|vol=i"      => \$vol,
+    "b|background" => \$background,
+    "t|noterm"     => \$noterm,
+    "s|sound"      => \$sound,
+  );
+
+  $once = 1 if $sound;
+  $noterm = 1 if $sound;
+  $background = 1 if $sound;
+
+  my $defaultFile = "$alarmsDir/default";
+
+  my $name = shift() || 'default';
+  my $file;
+  $file = selectAlarmFile $name if not defined $file;
+  for my $ext(@exts){
+    $file = selectAlarmFile "$name.$ext" if not defined $file;
+  }
+
+  if(not defined $file and defined $guess and -e $defaultFile){
+    print "Could not find '$name'; using '$defaultFile'\n";
+    $file = $defaultFile;
+  }
+
+  die $usage if not $ok or @_ > 0
+    or defined $help
+    or not defined $file
+    or (defined $vol and $vol < 0)
+    ;
+
+  pulseExec $0, @ARGV unless defined $norerun;
+
+  my $absFile = abs_path $file if -l $file;
+  die "Missing alarm file $file\n" if not -f $absFile;
+
+  if(defined $vol){
+    system "pulse-vol", "unmute";
+    system "pulse-vol", $vol;
+  }
+
+  my @cmd;
+  @cmd = (@cmd, "term") unless $noterm;
+  @cmd = (@cmd, "mplayer", $file);
+  @cmd = (@cmd, "-loop", "0") unless $once;
+
+  if(not $background){
+    exec @cmd;
+  }else{
+    if(not fork){
+      close STDOUT;
+      close STDERR;
+      exec @cmd;
+    }
+  }
+}
+
+sub selectAlarmFile($){
+  my $name = shift;
+  if($name =~ /^($validAlarms)$/){
+    return "$alarmsDir/$name";
+  }elsif($name =~ /^($validSounds)$/){
+    return "$soundsDir/$name";
+  }else{
+    return undef;
+  }
+}
+
+sub listFiles($){
+  my $dir = shift;
+  my @files = `find $dir/ -type f -or -type l`;
+  for my $file(@files){
+    $file =~ s/^$dir\///;
+    chomp $file;
+  }
+  return sort @files;
+}
+
+sub pulseExec(@){
+  my $user = `whoami`;
+  chomp $user;
+  my $pulseUser = `ps --no-heading -o user -C pulseaudio 2>/dev/null | head -1`;
+  chomp $pulseUser;
+
+  if($user eq 'root' and $pulseUser ne 'root' and length($pulseUser) > 0){
+    print "rerunning as pulse user $pulseUser\n";
+    exec "su", $pulseUser, "-c", "@_";
+  }
+}
+
+sub bashComplete($$){
+  my ($cmdLine, $pos) = @_;
+  my @cmds = qw(
+    --print-alarms
+    --print-sounds
+  );
+  my @opts = qw(
+    -h --help
+    -n --norerun
+    -o --once
+    -g --guess
+    -v --vol
+    -b --background
+    -s --sound
+  );
+  return (@cmds, @opts, @alarms, @sounds);
+}
+
+&main(@ARGV);

@@ -50,9 +50,11 @@ my @config = qw(
     qtbtn-power
     screenshotmee
     restart-wifi
+    mms-picviewer
     dontgosleep
     dropcache-mdn
     dcim-reindex
+    restart-messaging-ui
   ]
   dir-useful[
     qtbigtext
@@ -70,8 +72,10 @@ my @config = qw(
   dir-junk[
     settings
     accountsui
+    heliumreborn
     fennec
     MeeFox
+    dfilebrowser
     camera-ui
     gallery
     trojita-tp

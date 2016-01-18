@@ -15,27 +15,35 @@ TO MAKE UBI ROOTSTRAP:
 1) remove sim card
 2) flash the firmware with a CLOSED kernel
 3) run ./ubi-console TWICE, one right after the other, IMMEDIATELY
-4) ./ubi-mnt -m
-5) rsync -avP /media/n9-root/ origroot/
-6) cp %etc%apt%sources.list.d%n9mirror.list /media/n9-root/etc/apt-sources.list.d
-7) commend out every line in /media/n9-root/etc/apt-sources.list.d/aegis*.list
-8) boot, get to home screen
-9) connect to wifi
-10) Applications -> Manage Applicationss -> update tab -> refresh button
+4) ./ubi-mnt -m #ls /media/n9-root
+   if /media/n9-root/ is empty:
+     #dont unplug phone, try ubi-console again
+     ./ubi-mnt -u
+     ./ubi-console #and let it hang
+     #hold power button til off, hold power button til on
+5) sudo rsync -avP /media/n9-root/ origroot/
+6) replace nokia sources with mirror
+    sudo cp %etc%apt%sources.list.d%n9mirror.list /media/n9-root/etc/apt/sources.list.d/n9mirror.list
+    sudo sed -i 's/^/#/' /media/n9-root/etc/apt/sources.list.d/aegis*.list
+7) boot, get to home screen
+8) connect to wifi
+9) Applications -> Manage Applicationss -> update tab -> refresh button
+10) plug phone in via usb, do NOT enable sync, run ./ubi-console and let it hang
 11) enable dev mode to get a terminal:
    Settings -> Security {???} -> Dev Mode
    phone will restart after it is done installing
    (retry if it fails with error fetching, refreshing cache)
    you can just wait {about 2 minutes} once it prompts for:
    ~2.6MB additional installation required
-12) rsync -avP /media/n9-root/ devmoderoot/
-13) figure it out from here
+12) ./ubi-mnt -m
+13) sudo rsync -avP /media/n9-root/ devmoderoot/
+14) figure it out from here
     if same firmware version, try extract previous rootstrap.tar,
       include only new files, perhaps like this:
-    mkdir old; cd old; cp ../ubi-rootstrap-files.tar.gz .; tar -xzf *.gz
-    cp -ar devmoderoot newrootstrap
-    rsync -avP --existing --del old/ubi-rootstrap-files/ newrootstrap/
-    rsync -avP --existing --del devmoderoot/ newrootstrap/
+    mkdir old; cd old; cp ../ubi-rootstrap-files.tar.gz .; tar -xzf *.gz; cd ..
+    sudo cp -ar --reflink=auto devmoderoot newrootstrap
+    sudo rsync -avP --existing --del old/ubi-rootstrap-files/ newrootstrap/
+    sudo rsync -avP --existing --del devmoderoot/ newrootstrap/
     mv newrootstrap ubi-rootstrap-files
     tar -czf newrootstrap.tar.gz ubi-rootstrap-files
 =================================
@@ -45,8 +53,18 @@ TO MAKE UBI ROOTSTRAP:
 TO GET RID OF OPENMODE WARRANTY DISCLAIMER:
 1) flash firmware (closed mode)
 2) boot
-3) download meego-terminal from the browser
-4) disclaimer-cal remove View-openmode
+3) copy meego term deb
+   #mass storage mode
+   mnt
+   cp meego-terminal*.deb /media/Nokia\ N9/term.deb
+   mnt -u
+   #unplug usb !!!
+4) enable other sources
+   Settings => Applications => Installations => Allow
+5) install meego-terminal from browser
+   type in address bar: file:///home/user/MyDocs/term.deb
+   click on file in transfers
+6) disclaimer-cal remove View-openmode
 =================================
 
 

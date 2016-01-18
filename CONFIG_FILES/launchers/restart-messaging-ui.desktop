@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=fix msg kb
+Comment=pkill messaging-ui
+Icon=keyboard
+Exec=pkill -9 messaging-ui
+Type=Application

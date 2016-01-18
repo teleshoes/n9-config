@@ -1,29 +1,100 @@
 #!/usr/bin/perl
+use strict;
+use warnings;
 
-my $usage = "usage: $0 [-d] [optional-sleep-delay] command\n";
-if(@ARGV == 0){
-  die $usage;
-}
-my $date = 0;
-if($ARGV[0] eq '-d'){
-  shift;
-  $date = 1;
-}
-my $sleepDelay = -1;
-if($ARGV[0] =~ /^-?\d+(\.\d+)?$/){
-  $sleepDelay = shift;
-  if($sleepDelay <= 0){
-    die "sleep delay must be a positive real number {not 0}\n";
+my $usage = "Usage:
+  $0 -h|--help
+     print this message
+  $0 [-s|-f|-d] [DELAY] COMMAND
+     run 'COMMAND' with shell interpolation repeatedly
+  $0 [-s|-f|-d] [DELAY] EXEC [ARG ARG ..]
+     run 'EXEC ARG ARG ..' without interpolation repeatedly
+     note that normal shell interpolation still happens when running $0
+  e.g.:
+    $0 'ls *'
+      while [ 1 ]; do sh -c 'ls *'; sleep 1; done
+      {* is interpolated each time}
+    $0 ls *
+      x=\$(echo *); while [ 1 ]; do ls \$x; sleep 1; done
+      {* is interpolated once, up front}
+
+  DELAY              how long to sleep between commands, in (fractional) seconds
+                       non-negative real number, e.g.: '30', '0.001', '2.5', '0'
+                       '0' means do not sleep
+                        default is '1'
+  -d|--date           run 'date' before each invokation
+  -s|--success        run until success
+                        do not rerun 'command' after a zero exit code
+  -f|--failure        run until failure
+                        do not rerun 'command' after a non-zero exit code
+  -a|--alarm          run alarm command after exiting with --success|--failure
+                        run 'alarm -s success' before terminating with --success
+                        run 'alarm -s failure' before terminating with --failure
+  --alarm-success     run 'alarm -s success' after each zero exit code
+  --alarm-failure     run 'alarm -s failure' after each non-zero exit code
+";
+
+sub runOrDie(@);
+
+sub main(@){
+  my $printDate = 0;
+  my $untilSuccess = 0;
+  my $untilFailure = 0;
+  my $alarmOnExit = 0;
+  my $alarmSuccess = 0;
+  my $alarmFailure = 0;
+  while(@_ > 0 and $_[0] =~ /^-/){
+    my $arg = shift;
+    if($arg =~ /^(-h|--help)$/){
+      print $usage;
+      exit 0;
+    }elsif($arg =~ /^(-d|--date)$/){
+      $printDate = 1;
+    }elsif($arg =~ /^(-s|--success)$/){
+      $untilSuccess = 1;
+    }elsif($arg =~ /^(-f|--failure)$/){
+      $untilFailure = 1;
+    }elsif($arg =~ /^(-a|--alarm)$/){
+      $alarmOnExit = 1;
+    }elsif($arg =~ /^(--alarm-success)$/){
+      $alarmSuccess = 1;
+    }elsif($arg =~ /^(--alarm-failure)$/){
+      $alarmFailure = 1;
+    }else{
+      die $usage;
+    }
+  }
+
+  my $delay = 1;
+  $delay = shift if @_ > 0 and $_[0] =~ /^\d+(?:\.\d+)?$/;
+
+  die $usage if @_ == 0;
+
+  while(1){
+    runOrDie "date" if $printDate;
+
+    system @_;
+
+    my $exitCode = $?;
+    if($exitCode == 0){
+      if($alarmSuccess or ($alarmOnExit and $untilSuccess)){
+        system "alarm -s success";
+      }
+      exit $exitCode if $untilSuccess;
+    }else{
+      if($alarmFailure or ($alarmOnExit and $untilFailure)){
+        system "alarm -s failure";
+      }
+      exit $exitCode if $untilFailure;
+    }
+
+    runOrDie "sleep", $delay if $delay > 0;
   }
 }
-if(@ARGV == 0){
-  die $usage;
+
+sub runOrDie(@){
+  system @_;
+  exit $? if $? != 0;
 }
-my $cmd = join ' ', @ARGV;
-if($date > 0){
-  $cmd = "date; $cmd";
-}
-if($sleepDelay > 0){
-  $cmd = "$cmd; sleep $sleepDelay";
-}
-exec "while [ 1 ]; do $cmd; done";
+
+&main(@ARGV);

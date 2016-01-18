@@ -150,7 +150,9 @@ class QmlGenerator():
     qml += self.indent(1, self.getMain())
     qml += "\n"
     for entry in self.entries:
-      if entry['infobar']:
+      if entry['rowbreak']:
+        qml += "\n"
+      elif entry['infobar']:
         qml += self.indent(1, self.getInfobar(entry))
       else:
         qml += self.indent(1, self.getButton(entry))
@@ -242,6 +244,10 @@ class QmlGenerator():
           rows.append(row)
           row = []
         rows.append([entry])
+      elif entry['rowbreak']:
+        if len(row) > 0:
+          rows.append(row)
+          row = []
       else:
         if len(row) >= maxRowLen:
           rows.append(row)
@@ -406,8 +412,10 @@ class MainWindow(QDeclarativeView):
 class Config():
   def __init__(self, confFile):
     self.confFile = confFile
-  def getEntry(self, number, name, icon, command, infobar=False):
-    if infobar:
+  def getEntry(self, number, name, icon, command, infobar=False, rowbreak=False):
+    if rowbreak:
+      widgetId = None
+    elif infobar:
       widgetId = "infobar" + str(number)
     else:
       widgetId = "button" + str(number)
@@ -416,6 +424,7 @@ class Config():
            , "icon": self.getIconPath(icon)
            , "command": command
            , "infobar": infobar
+           , "rowbreak": rowbreak
            }
   def getIconPath(self, icon):
     if icon != None and os.path.isfile(icon) and os.path.isabs(icon):
@@ -440,7 +449,9 @@ class Config():
       line = line.strip()
       if len(line) > 0:
         csv = line.split(',', 3)
-        if len(csv) == 2 and csv[0].strip() == "infobar":
+        if len(csv) == 1 and csv[0].strip() == "rowbreak":
+          cmds.append(self.getEntry(number, None, None, None, False, True))
+        elif len(csv) == 2 and csv[0].strip() == "infobar":
           cmd = csv[1].strip()
           cmds.append(self.getEntry(number, None, None, cmd, True))
           number+=1

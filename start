@@ -21,6 +21,7 @@ n9 -t
 ./packages
 ./packages #to fix any debs that install in the wrong order
 ./config-files
+./install-passant
 ./launcher-buttons
 ./status-menu
 ./ext4-mydocs
@@ -30,8 +31,9 @@ n9 billboard-config
 ./profile.pl
 ./install-klomp
 ./install-net
-./install-passant
+./setup-alarms
 ./setup-vkb-toolbar
+./disable-ovi-startup
 
 #insert sim card, wait until time zone is updated
 ./config-files #2nd time. then reboot
@@ -51,12 +53,13 @@ n9 billboard-config
 ./sync-pidgin
 #sh -c 'cd ~/Code/qtemail; ./n9cp'
 rsync -avP ~/.cache/email user@`n9`:~/MyDocs
-n9 email.pl --update
+n9 -u user email.pl --update
 ./sync-dir fbreader restore
 ./sync-dir klomp restore
 ./sync-dir swype restore
 ./sync-dir emumaster restore
 #rsync -avP --del backup/MyDocs/.maps/monav_data user@`n9`:~/MyDocs/.maps
+n9 chown user.users /home/user/.config/com.meecast.omweather/
 ./sync-pixmirror
 klomp-sync user@`n9`
 plotddr

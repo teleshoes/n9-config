@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+from PySide.QtGui import QApplication
+import sys
+QApplication(sys.argv)
+clipboard = QApplication.clipboard()
+print clipboard.text()

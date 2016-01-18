@@ -1,0 +1,186 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Time::HiRes qw(time);
+
+my $rtViews = {
+  default => "rat_0",
+  all => "main",
+};
+
+my $remoteHome = "/home2/teleshoes";
+my $remoteDir = "$remoteHome/rt-status";
+
+my $skipDirRegex = "^$remoteHome/seeds";
+
+sub formatTimeS($);
+sub formatTorrent($);
+sub parseTorrents($);
+sub parsePeers($);
+sub run(@);
+
+my $usage = "Usage: $0 [--all]\n";
+
+sub main(@){
+  my $all = 0;
+  while(@_ > 0 and $_[0] =~ /^-/){
+    my $arg = shift;
+    if($arg =~ /^(--all)$/){
+      $all = 1;
+    }else{
+      die $usage;
+    }
+  }
+  die $usage if @_ > 0;
+
+  my $rtViewType = "default";
+  $rtViewType = "all" if $all;
+
+  my $rtView = $$rtViews{$rtViewType};
+
+  my $host = `seedbox --host`;
+  chomp $host;
+
+  run "ssh", $host, "
+    rm -rf $remoteDir
+    mkdir $remoteDir
+    rtxmlrpc d.multicall $rtView \\
+      d.get_hash=                \\
+      d.get_name=                \\
+      d.get_directory=           \\
+      d.get_completed_bytes=     \\
+      d.get_size_bytes=          \\
+      d.get_down_rate=           \\
+      > $remoteDir/info
+    hashes=`grep -oP \"^\\[\\'[A-F0-9]{40}\" $remoteDir/info | cut -c3-`
+    echo processing \$(echo \$hashes | wc -w) torrents
+    for h in \$hashes; do
+      echo \"  \$h\"
+      rtxmlrpc p.multicall \$h '' \\
+        p.get_completed_percent=  \\
+        p.get_down_rate=          \\
+        p.get_down_total=         \\
+        > $remoteDir/peers-\$h
+    done
+    echo finished
+    echo
+  ";
+
+  my $localDir = "/tmp/rt-status-" . int(time*1000);
+
+  run "mkdir", "-p", $localDir;
+  run "rsync", "-avP", "$host:$remoteDir/", $localDir;
+
+  my @torrents = parseTorrents $localDir;
+
+  run "rm", "-rf", $localDir;
+
+  my @okTorrents = @torrents;
+  @okTorrents = grep {$$_{dir} !~ /$skipDirRegex/} @okTorrents if not $all;
+
+  print "\n\n\nshowing " . (0+@okTorrents) . " torrents\n";
+  for my $t(@okTorrents){
+    print formatTorrent $t;
+  }
+}
+
+sub formatTimeS($){
+  my $sex = shift;
+  my $d = int($sex / 60 / 60 / 24);
+  my $h = int($sex / 60 / 60) % 24;
+  my $m = int($sex / 60) % 60;
+  my $s = int($sex) % 60;
+  $d = $d > 0 ? sprintf "%02dd", $d : "";
+  $h = $h > 0 ? sprintf "%02dh", $h : "";
+  $m = $m > 0 ? sprintf "%02dm", $m : "";
+  $s = $s > 0 ? sprintf "%02ds", $s : "";
+  return sprintf "%12s", "$d$h$m$s";
+}
+
+sub formatTorrent($){
+  my $t = shift;
+  my @peerCountsFmt;
+  for my $bucket(sort keys %{$$t{peerCounts}}){
+    push @peerCountsFmt, "$bucket=$$t{peerCounts}{$bucket}";
+  }
+  my $percent = int(100 * $$t{completedBytes} / $$t{sizeBytes});
+  my $completedMiB = $$t{completedBytes} / 1024 / 1024;
+  my $sizeMiB = $$t{sizeBytes} / 1024 / 1024;
+  my $downRateMiBs = $$t{downRate} / 1024 / 1024;
+  my $etaS = $downRateMiBs == 0 ? 0 : ($sizeMiB-$completedMiB)/$downRateMiBs;
+  my $eta = formatTimeS $etaS;
+  return sprintf "%s\n%3d%s %s\n     %9.3fMiB / %9.3fMiB  @ %9.3fMiB/s    ETA: %s\n  PEERS: %s\n",
+    "-" x 30,
+    $percent, '%',
+    $$t{name},
+    $completedMiB,
+    $sizeMiB,
+    $downRateMiBs,
+    $eta,
+    "@peerCountsFmt",
+    ;
+}
+
+sub parseTorrents($){
+  my $localDir = shift;
+  my $infoFile = "$localDir/info";
+  my $info = `cat "$infoFile"`;
+  my @torrents;
+  while($info =~ /
+    ^\[ '([0-9A-F]{40})',\n
+    ^\s '(.*)',\n
+    ^\s '(.*)',\n
+    ^\s (\d+),\n
+    ^\s (\d+),\n
+    ^\s (\d+)\]\n
+    /mgx){
+    push @torrents, {
+      hash => $1,
+      name => $2,
+      dir  => $3,
+      completedBytes => $4,
+      sizeBytes => $5,
+      downRate => $6,
+    };
+  }
+
+  for my $t(@torrents){
+    my $peersInfo = `cat "$localDir/peers-$$t{hash}"`;
+    $$t{peerCounts} = parsePeers $peersInfo;
+  }
+
+  return @torrents;
+}
+
+sub parsePeers($){
+  my $peersInfo = shift;
+
+  my $peerCounts = {};
+  for my $peer(split /\n/, $peersInfo){
+    if($peer =~ /^\[(\d+), (\d+), (\d+)\]$/){
+      my ($percent, $downRate, $downTotal) = ($1, $2, $3);
+      my $bucket;
+      if($percent == 100){
+        $bucket = "ALL";
+      }elsif($percent >= 50){
+        $bucket = "HALF";
+      }elsif($percent > 0){
+        $bucket = "LITTLE";
+      }elsif($percent == 0){
+        $bucket = "NONE";
+      }else{
+        $bucket = "UNKNOWN";
+      }
+      my $cur = defined $$peerCounts{$bucket} ? $$peerCounts{$bucket} : 0;
+      $$peerCounts{$bucket} = $cur + 1;
+    }
+  }
+  return $peerCounts;
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+&main(@ARGV);

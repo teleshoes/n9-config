@@ -4,19 +4,26 @@ use warnings;
 
 my $remoteTorrentDir = "watch";
 my $remoteDownloads = "files";
-my $localDownloads = "$ENV{HOME}/Desktop/Torrents/seedbox";
+my $remotePartial = "partial";
+my $localDownloads = "/media/seedbox";
+my @cleanupCmd = ("find $remoteDownloads/ -type d -execdir chmod og-w {} \\;");
 
+sub handleTorrent($$);
 sub ftpCommand($@);
+sub rsyncRevtun($$$$@);
 sub rsyncFetch($);
 sub ssh($;\@);
+sub readCmd($$);
 sub sshRevtun($;\@);
 sub magnetToTorrent($);
+sub fetchMtime($);
+sub readMtime();
+sub writeMtime($);
 sub readSecrets();
 
 my $secretsFile = "$ENV{HOME}/.secrets";
+my $mtimeFile = "$ENV{HOME}/.cache/seedbox-mtime";
 my @configKeys = qw(server port username password revtun.username revtun.portfile);
-
-my @mirrorOpts = ("-c", "--parallel=8");
 
 my @revtunLocalOpts = ("-t",
   "-o", "LogLevel=ERROR",
@@ -36,17 +43,72 @@ my @ftpInitCmds = (
   "set ftp:ssl-protect-data true",
   "set ssl:verify-certificate no",
 );
+my @mirrorOptions = qw(
+  --continue
+  --verbose
+  --use-pget=3
+  --parallel=2
+);
+my @pgetOptions = qw(
+  -c
+  -n 3
+);
 
 my $usage = "Usage:
-  $0 [-h]
+  $0 [--host]
      print \"user\@seedbox\"
 
   $0 -f
      read from stdin and send the commands to lftp
 
   $0 -g
-     sync seedbox:$remoteDownloads => $localDownloads
-     {runs rsync -avP USERNAME\@SERVER:$remoteDownloads/ $localDownloads}
+     use lftp mirror to sync seedbox:$remoteDownloads => $localDownloads
+     like: lftp SERVER -c \"mirror $remoteDownloads $localDownloads\"
+
+  $0 -p PATH_GLOB
+     fetch a single file from $remotePartial to CWD using pget
+     like: lftp SERVER -c \"glob -- pget @pgetOptions partial/PATH_GLOB\"
+
+  $0 --mark-up-to-date
+     fetch mtime of $remoteDownloads from seedbox and write to file $mtimeFile
+
+  $0 --is-up-to-date
+     compare mtime of $remoteDownloads on seedbox and contents of file $mtimeFile
+     if different, print 'modified', else print 'up-to-date'
+
+  $0 --rsync-revtun [RSYNC_OPTS] :REMOTE_SRC [RSYNC_OPTS]  LOCAL_DEST  [RSYNC_OPTS]
+  $0 --rsync-revtun [RSYNC_OPTS] LOCAL_SRC   [RSYNC_OPTS] :REMOTE_DEST [RSYNC_OPTS]
+     copy files using rsync to/from the revtun server over two SSH tunnels
+     the remote file arg must start with ':', and the local file arg must not
+
+     it is sort of like this pseudo-code:
+       $0 --rsync-revtun -avP :~/pix/ backup/pix/
+         =>
+       rsync -avP 'ssh SERVER ssh REVTUN_USER\@localhost -p `cat revtun-port`':~/pix pix
+
+     it is very much like this real code:
+       SERVER=\"<config:server>\"
+       SB_USER=\"<config:username>\"
+       REVTUN_USERNAME=\"<config:revtun.username>\"
+       REVTUN_PORTFILE=\"<config:revtun.portfile>\"
+       REMOTE_SRC=\"\"
+       LOCAL_DEST=\"\"
+
+       SSH_OPTS=\"@revtunRemoteOpts\"
+       REVTUN_PORT=`ssh \$SSH_OPTS \$SB_USER\@\$SERVER cat REVTUN_PORTFILE`
+       RSYNC_PROXYCMD=\"ssh \$SSH_OPTS \$SB_USER\@\$SERVER -W localhost:\$REVTUN_PORT\"
+       #note the user below is REVTUN_USER and not SB_USER
+       rsync \$RSYNC_OPTS \\
+         -e \"ssh \$SSH_OPTS -o ProxyCommand='\$RSYNC_PROXYCMD'\" \\
+         \$REVTUN_USER\@\$SERVER:\$REMOTE_SRC \$LOCAL_DEST
+         #or: \$LOCAL_SRC \$REVTUN_USER\@\$SERVER:\$REMOTE_DEST
+
+  $0 --rsync
+     use rsync to sync seedbox:$remoteDownloads => $localDownloads
+     like: rsync -avP SERVER:$remoteDownloads/ $localDownloads
+
+  $0 --cleanup
+     run '@cleanupCmd' on seedbox
 
   $0 -s [CMD]
      ssh to seedbox
@@ -56,6 +118,9 @@ my $usage = "Usage:
 
       ssh -t @revtunRemoteOpts REVTUN_USERNAME\@localhost -p REVTUN_PORT
 
+  $0 -i
+     read lines from STDIN and parse as TORRENT below
+
   $0 TORRENT [TORRENT TORRENT ..]
      if TORRENT is the path to a torrent file, send it to seedbox:$remoteTorrentDir
      if TORRENT is a magnet link, create a .torrent file
@@ -64,13 +129,66 @@ my $usage = "Usage:
 sub main(@){
   my $config = readSecrets();
 
-  if(@_ == 0 or @_ == 1 and $_[0] =~ /^(-h)$/){
+  if(@_ == 0 or @_ == 1 and $_[0] =~ /^(--host)$/){
     print "$$config{username}\@$$config{server}\n";
     exit 0;
   }elsif(@_ == 1 and $_[0] =~ /^(-f)$/){
     ftpCommand $config;
   }elsif(@_ == 1 and $_[0] =~ /^(-g)$/){
+    ftpCommand $config, "mirror @mirrorOptions $remoteDownloads $localDownloads";
+  }elsif(@_ == 2 and $_[0] =~ /^(-p)$/){
+    my $pathGlob = $_[1];
+    ftpCommand $config, "glob -- pget @pgetOptions partial/$pathGlob";
+  }elsif(@_ == 1 and $_[0] =~ /^(--mark-up-to-date)$/){
+    my $mtime = fetchMtime $config;
+    writeMtime $mtime;
+    print "stored mtime $mtime\n";
+  }elsif(@_ == 1 and $_[0] =~ /^(--is-up-to-date)$/){
+    my $mtime = fetchMtime $config;
+    my $prevMtime = readMtime();
+    if(defined $prevMtime and $mtime == $prevMtime){
+      print "up-to-date\n";
+    }else{
+      print "modified\n";
+    }
+  }elsif(@_ == 1 and $_[0] =~ /^(--rsync)$/){
     rsyncFetch $config;
+  }elsif(@_ >= 3 and $_[0] =~ /^(--rsync-revtun)$/){
+    shift @_;
+
+    my ($src, $dest, @rsyncOpts);
+    my $srcDestMsg = "exactly two args that do not start with '-' must be given\n";
+    for my $arg(@_){
+      if($arg !~ /^-/){
+        if(not defined $src){
+          $src = $arg;
+        }elsif(not defined $dest){
+          $dest = $arg;
+        }else{
+          die $srcDestMsg;
+        }
+      }else{
+        push @rsyncOpts, $arg;
+      }
+    }
+    if(not defined $src or not defined $dest){
+      die $srcDestMsg;
+    }
+
+    my $direction;
+    if($src =~ /^:/ and $dest !~ /^:/){
+      $direction = "from";
+      $src =~ s/^://;
+    }elsif($dest =~ /^:/ and $src !~ /^:/){
+      $direction = "to";
+      $dest =~ s/^://;
+    }else{
+      die "exactly one of SRC or DEST must start with ':'\n";
+    }
+
+    rsyncRevtun $config, $src, $dest, $direction, @rsyncOpts;
+  }elsif(@_ == 1 and $_[0] =~ /^(--cleanup)$/){
+    ssh $config, @cleanupCmd;
   }elsif(@_ >= 1 and $_[0] =~ /^(-s)$/){
     shift;
     my @cmd = @_;
@@ -79,21 +197,37 @@ sub main(@){
     shift;
     my @cmd = @_;
     sshRevtun $config, @cmd;
+  }elsif(@_ == 1 and $_[0] =~ /^(-i)$/){
+    while(my $line = <STDIN>){
+      my $torrent = $line;
+      chomp $torrent;
+      if(not handleTorrent $config, $torrent){
+        print STDERR "WARN: could not parse $torrent\n";
+      }
+    }
   }else{
     for my $torrent(@_){
-      if($torrent =~ /\.torrent$/ and -f $torrent){
-        my $torrentFile = $torrent;
-        $torrentFile =~ s/'/'\\''/g;
-        ftpCommand $config, "cd $remoteTorrentDir && put '$torrentFile'";
-      }elsif($_[0] =~ /xt=urn:btih:/){
-        my $torrentFile = magnetToTorrent $torrent;
-        $torrentFile =~ s/'/'\\''/g;
-        ftpCommand $config, "cd $remoteTorrentDir && put '$torrentFile'";
-      }else{
-        die $torrent;
+      if(not handleTorrent $config, $torrent){
         die $usage;
       }
     }
+  }
+}
+
+sub handleTorrent($$){
+  my ($config, $torrent) = @_;
+  if($torrent =~ /\.torrent$/ and -f $torrent){
+    my $torrentFile = $torrent;
+    $torrentFile =~ s/'/'\\''/g;
+    ftpCommand $config, "cd $remoteTorrentDir && put '$torrentFile'";
+    return 1;
+  }elsif($torrent =~ /xt=urn:btih:/){
+    my $torrentFile = magnetToTorrent $torrent;
+    $torrentFile =~ s/'/'\\''/g;
+    ftpCommand $config, "cd $remoteTorrentDir && put '$torrentFile'";
+    return 1;
+  }else{
+    return 0;
   }
 }
 
@@ -101,6 +235,13 @@ sub ftpCommand($@){
   my ($config, @cmds) = @_;
   my $url = "ftp://$$config{server}:$$config{port}";
   my @lftpCmd = ("lftp", "-u", "$$config{username},$$config{password}", $url);
+
+  my @fakeCmd = ("lftp", "-u", "$$config{username},PASSWORD", $url);
+  print "running:\n";
+  print "  @fakeCmd\n";
+  print "  $_\n" foreach @ftpInitCmds;
+  print "  $_\n" foreach @cmds;
+  print "\n";
 
   open FH, "|-", @lftpCmd;
   my $fh = select FH;
@@ -116,11 +257,54 @@ sub ftpCommand($@){
     }
   }else{
     for my $cmd(@cmds){
-      print "running $cmd\n";
+      print "running: $cmd\n";
       print FH "$cmd\nexit\n";
       close FH;
     }
   }
+}
+
+sub rsyncRevtun($$$$@){
+  my ($config, $src, $dest, $direction, @rsyncOpts) = @_;
+
+  my $sbUser = $$config{"username"};
+  my $sbServer = $$config{"server"};
+  my $revtunUsername = $$config{"revtun.username"};
+  my $revtunPortFile = $$config{"revtun.portfile"};
+
+  my @revtunPortCmd = (
+    "ssh", @revtunRemoteOpts, "$sbUser\@$sbServer", "cat", $revtunPortFile);
+
+  print "fetching revtun port\n";
+  print "@revtunPortCmd\n";
+
+  my $revtunPort = `@revtunPortCmd`;
+  $revtunPort =~ s/[\n\r]+$//;
+  if($revtunPort !~ /^\d+$/){
+    die "Error fetching revtun port with cmd \"@revtunPortCmd\"\n";
+  }
+
+  my $rsyncProxyCmd;
+
+  #test local ssh for 'ssh -W' netcat mode feature, if not present use netcat directly
+  my $sshUsage = `ssh 2>&1`;
+  if($sshUsage =~ /-W/){
+    $rsyncProxyCmd = "ssh @revtunRemoteOpts $sbUser\@$sbServer -W localhost:$revtunPort";
+  }else{
+    $rsyncProxyCmd = "ssh @revtunRemoteOpts $sbUser\@$sbServer nc localhost $revtunPort";
+  }
+
+  my $remoteHost = "$revtunUsername\@$sbServer";
+
+
+  my @rsyncCmd = ("rsync", @rsyncOpts,
+    "-e", "ssh @revtunRemoteOpts -o ProxyCommand='$rsyncProxyCmd'",
+    ($direction eq "from" ? "$remoteHost:$src" : "$src"),
+    ($direction eq "to" ? "$remoteHost:$dest" : "$dest"),
+  );
+
+  print "\n\n@rsyncCmd\n";
+  exec @rsyncCmd;
 }
 
 sub rsyncFetch($){
@@ -140,6 +324,13 @@ sub ssh($;\@){
   my @sshCmd = ("ssh", "$$config{username}\@$$config{server}", @$cmd);
   print STDERR "@sshCmd\n";
   exec @sshCmd;
+}
+
+sub readCmd($$){
+  my ($config, $cmd) = @_;
+  $cmd =~ s/'/'\\''/g;
+  my $res = `ssh $$config{username}\@$$config{server} '$cmd'`;
+  return $res;
 }
 
 sub sshRevtun($;\@){
@@ -168,6 +359,29 @@ sub magnetToTorrent($){
   print FH "d10:magnet-uri${len}:${magnet}e\n";
   close FH;
   return $tmpFile;
+}
+
+sub fetchMtime($){
+  my $config = shift;
+  my $mtime = readCmd($config, "stat -c%Y $remoteDownloads");
+  chomp $mtime;
+  die "error geting mtime\n" if $mtime !~ /^\d+$/;
+  return $mtime;
+}
+sub readMtime(){
+  return undef if not -f $mtimeFile;
+  open FH, "< $mtimeFile" or die "Could not read $mtimeFile\n";
+  my $mtime = join '', <FH>;
+  close FH;
+  chomp $mtime;
+  die "Invalid stored mtime: $mtime\n" if $mtime !~ /^\d+$/;
+  return $mtime;
+}
+sub writeMtime($){
+  my $mtime = shift;
+  open FH, "> $mtimeFile" or die "Could not write $mtimeFile\n";
+  print FH "$mtime\n";
+  close FH;
 }
 
 sub readSecrets(){

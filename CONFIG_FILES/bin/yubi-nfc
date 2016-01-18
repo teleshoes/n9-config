@@ -1,0 +1,46 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub run(@);
+
+sub main(@){
+  my $killNfcdCmd = "sudo pkill nfcd";
+  print STDERR "$killNfcdCmd\n";
+  system $killNfcdCmd;
+
+  my $nfcdCmd = "sudo nfcd -d -l 5 2>&1";
+  print STDERR "$nfcdCmd\n";
+  open FH, "-|", $nfcdCmd or die "Could not run nfcd\n";
+
+  my $h = "[0-9a-f]";
+  my $key = "";
+  while(my $line = <FH>){
+    if($line =~ /.*nfc_debug_dump.* :: \[($h{4})\] ((?:$h{2} )+)\s*(.+?)\s*$/){
+      my ($addr, $hex, $char) = ($1, $2, $3);
+      print STDERR "$addr|$hex|$char\n";
+      $key .= $char;
+      if($addr eq "0040"){
+        last;
+      }
+    }
+    if($line =~ /nfc_ui_tag_read_status|nfc_bt_parse_property|INFO: nfc_stack/){
+      next if $line =~ /BT adapter UUID/;
+      print STDERR $line;
+    }
+  }
+  close FH;
+  $key =~ s/.*\///;
+  $key =~ s/\s+$//;
+  print STDERR "key: $key\n";
+
+  print "$key\n";
+}
+
+#1443891692.060181,DEBUG: nfc_mw_log.c:242:nfc_debug_dump():  :: [0000] d1 01 3f 55 04 6d 79 2e 79 75 62 69 63 6f 2e 63 	..?U.my.yubico.c#
+#1443891692.060303,DEBUG: nfc_mw_log.c:242:nfc_debug_dump():  :: [0010] 6f 6d 2f 6e 65 6f 2f 76 76 66 72 64 6c 69 72 63 	om/neo/vvfrdlirc#
+#1443891692.060394,DEBUG: nfc_mw_log.c:242:nfc_debug_dump():  :: [0020] 74 6e 72 6e 66 6b 68 6e 68 65 6c 66 75 6e 74 62 	tnrnfkhnhelfuntb#
+#1443891692.060516,DEBUG: nfc_mw_log.c:242:nfc_debug_dump():  :: [0030] 76 6b 63 76 69 6e 62 64 72 69 6b 66 75 64 65 69 	vkcvinbdrikfudei#
+#1443891692.060608,DEBUG: nfc_mw_log.c:242:nfc_debug_dump():  :: [0040] 62 6a 69                                        	bji             #
+
+&main(@ARGV);

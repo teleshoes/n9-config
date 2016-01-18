@@ -1,0 +1,93 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $handledPixFile = "/home/user/.tracker-pix";
+
+sub getTrackerFiles();
+sub getDirPix($);
+sub getHandledPix();
+
+sub main(@){
+  if(`whoami` ne "user\n"){
+    print "rerunning as user\n";
+    exec "udo", $0, @_;
+  }
+
+  die "Usage: $0 DIR\n" if not @_ == 1;
+  my $dir = shift;
+  die "'$dir' is not a dir\n" if not -d $dir;
+  die "'$dir' must be absolute path\n" if $dir !~ /^\//;
+
+  my @dirPix = getDirPix $dir;
+  my %handledPix = map {$_ => 1} getHandledPix();
+
+  print "removing any files in tracker that are missing from $dir\n";
+  my $trackerFiles = getTrackerFiles();
+  for my $urn(sort {$$trackerFiles{$a} cmp $$trackerFiles{$b}} keys %$trackerFiles){
+    my $file = $$trackerFiles{$urn};
+    next unless $file =~ /^$dir/;
+
+    if(not -e $file){
+      print "removing missing file \"$file\"\n";
+      system "tracker-files", "--delete-urn", $urn;
+    }
+  }
+  print "\n";
+
+  print "indexing any files that are in $dir and not in $handledPixFile\n";
+  for my $pic(@dirPix){
+    next if defined $handledPix{$pic};
+    system "tracker-files --image $pic 2>/dev/null";
+    my $exitCode = $?;
+    #ignore first error, delete entry, and try again
+    if($exitCode != 0){
+      for my $urn(keys %$trackerFiles){
+        my $file = $$trackerFiles{$urn};
+        if($file eq $pic){
+          system "tracker-files", "--delete-urn", $urn;
+          system "tracker-files", "--image", $pic;
+          $exitCode = $?;
+          last;
+        }
+      }
+    }
+    if($exitCode == 0){
+      open FH, ">> $handledPixFile";
+      print FH "$pic\n";
+      close FH;
+    }else{
+      print STDERR "\n\n\nfailed to add \"$pic\" to tracker\n\n\n";
+    }
+  }
+
+  print "\n\n\nFINISHED!\n";
+}
+
+sub getTrackerFiles(){
+  my @trackerRows = `tracker-files --print`;
+  my $files = {};
+  for my $row(@trackerRows){
+    if($row !~ /^(urn:uuid:[0-9a-f\-]+) (.+)$/){
+      die "malformed row from tracker-files: $row";
+    }
+    my ($urn, $file) = ($1, $2);
+    $$files{$urn} = $file;
+  }
+  return $files;
+}
+
+sub getDirPix($){
+  my $dir = shift;
+  my @files = `find "$dir" -type f -iname "*.jpg"`;
+  chomp foreach @files;
+  return sort @files;
+}
+
+sub getHandledPix(){
+  my @handledPix = `cat $handledPixFile 2>/dev/null`;
+  chomp foreach @handledPix;
+  return @handledPix;
+}
+
+&main(@ARGV);

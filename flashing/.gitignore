@@ -1,2 +1,6 @@
 flasher*.deb
 Cache
+
+origroot*/
+devmoderoot*/
+*/ubi-rootstrap-files/

@@ -5,10 +5,11 @@ shopt -s dotglob
 shopt -s extglob
 
 ssh-add ~/.ssh/id_rsa 2> /dev/null
-
+export HISTTIMEFORMAT="%F %T "
 export HISTSIZE=1000000
-export HISTCONTROL=ignoredups # don't put duplicate lines in the history
-export HISTCONTROL=ignoreboth # ... and ignore same sucessive entries.
+# ignoredups: do not add duplicate history entries
+# ignoredspace: do not add history entries that start with space
+export HISTCONTROL=ignoredups:ignorespace
 export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/
 
 shopt -s checkwinsize # update LINES and COLUMNS based on window size
@@ -24,6 +25,16 @@ if [ "$TERM" == "rxvt" ]; then
   p2='echo -ne "\033]0;Terminal: ${PWD/$HOME/~}\007"'
   PROMPT_COMMAND='if [ "$WINDOW_TITLE" ]; then '$p1'; else '$p2'; fi'
 fi
+
+###horrible fucking oracle variables
+if [[ -z "$ORACLE_HOME" ]] && [[ -f /etc/ld.so.conf.d/oracle.conf ]]; then
+  oralibdir=`cat /etc/ld.so.conf.d/oracle.conf`
+  export ORACLE_HOME=`dirname "$oralibdir"`
+fi
+if [[ -z "$SQLPATH" ]] && [[ -n "$ORACLE_HOME" ]]; then
+  export SQLPATH=$ORACLE_HOME/lib
+fi
+###
 
 pathAppend ()  { for x in $@; do pathRemove $x; export PATH="$PATH:$x"; done }
 pathPrepend () { for x in $@; do pathRemove $x; export PATH="$x:$PATH"; done }
@@ -60,8 +71,9 @@ fi
 
 #command prompt
 if [[ -z "$DISPLAY" ]]; then
+  host_alias=`hostname -f | cut -f 1,2 -d '.'`
   #host abbrevs
-  case `hostname` in
+  case "$host_alias" in
     "wolke-w520"              ) h='@w520' ;;
     "wolk-desktop"            ) h='@desk' ;;
     "wolke-n9"                ) h='@n9' ;;
@@ -70,7 +82,7 @@ if [[ -z "$DISPLAY" ]]; then
     "Benjamins-MacBook-Pro"   ) h='@bensmac' ;;
     ci-*.dev.*                ) h='@ci.dev' ;;
     ci-*.stage.*              ) h='@ci.stage' ;;
-    *                         ) h='@\h' ;;
+    *                         ) h="@$host_alias" ;;
   esac
 else
   #if display is set, you probably know where you are
@@ -79,7 +91,7 @@ fi
 
 #make a wild guess at the DISPLAY you might want
 if [[ -z "$DISPLAY" ]]; then
-  export DISPLAY=`ps -ef | grep /usr/bin/X | grep ' :[0-9] ' -o | grep :[0-9] -o`
+  export DISPLAY=`ps -ef | grep '\(/usr/bin/X\|/usr/lib/xorg/Xorg\)' | grep ' :[0-9] ' -o | grep :[0-9] -o`
 fi
 
 u="\u"
@@ -110,6 +122,7 @@ alias mkdir="mkdir -p"
 alias :q='exit'
 alias :r='. /etc/profile; . ~/.bashrc;'
 
+function e            { email.pl --print "$@"; }
 function vol          { pulse-vol "$@"; }
 function j            { fcron-job-toggle "$@"; }
 function f            { feh "$@"; }
@@ -132,12 +145,14 @@ function escape-pod   { ~/Code/escapepod/escape-pod-tool --escapepod "$@"; }
 function podcastle    { ~/Code/escapepod/escape-pod-tool --podcastle "$@"; }
 function pseudopod    { ~/Code/escapepod/escape-pod-tool --pseudopod "$@"; }
 function g            { git "$@"; }
-function gs           { g s; }
+function gs           { g s "$@"; }
 function mp           { mplayer "$@"; }
 
 function sb           { seedbox "$@"; }
 function sbr          { seedbox -r "$@"; }
 function sbw          { seedbox -r ssh wolke@192.168.11.50 "$@"; }
+function sbs          { sb-rt-status "$@"; }
+function sbrsync      { seedbox --rsync-revtun "$@"; }
 
 function s            { "$@" & disown; }
 function sx           { "$@" & disown && exit 0; }
@@ -146,7 +161,7 @@ function spawnex      { "$@" & disown && exit 0; }
 function spawnexsudo  { gksudo "$@" & disown && exit 0; }
 
 function m            { maven -Psdm -Pdev -Pfast-tests -Dgwt.compiler.skip=true install "$@"; }
-function mtest        { maven -Psdm -Pdev test "$@"; }
+function mdebug       { mavenDebug -Psdm -Pdev -Dgwt.compiler.skip=true "$@"; }
 function mc           { maven -Psdm -Pdev -Pfast-tests -Dgwt.draftCompile=true clean install "$@"; }
 function mck          { maven checkstyle:check "$@"; }
 function findmvn      { command find "$@" -not -regex '\(^\|.*/\)\(target\|gen\)\($\|/.*\)'; }
@@ -155,6 +170,9 @@ function grepmvn      { command grep "$@" --exclude-dir=target --exclude-dir=gen
 function genservices  { ~/workspace/escribehost/legacy-tools/genservices.pl "$@"; }
 function genibatis    { ~/workspace/escribehost/legacy-tools/genibatis.pl "$@"; }
 function migl         { gvim `~/migs/latest-script` "$@"; }
+
+function first        { ls "$@" | head -1; }
+function last         { ls "$@" | tail -1; }
 
 # common typos
 function mkdit        { mkdir "$@"; }
@@ -169,8 +187,23 @@ function maven() {
   if ! [[ "$@" =~ (^| )checkstyle:check($| ) ]]; then
     args="$args -Dcheckstyle.skip=true"
   fi
+  echo mvn $args $@
   execAlarm mvn $args $@;
 }
+function mavenDebug() {
+  port="8000"
+  debugOpts="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$port -Xnoagent -Djava.compiler=NONE"
+  args=""
+  if ! [[ "$@" =~ (^| )test($| ) ]]; then
+    args="$args -DskipTests"
+  fi
+  if ! [[ "$@" =~ (^| )checkstyle:check($| ) ]]; then
+    args="$args -Dcheckstyle.skip=true"
+  fi
+  echo mvn -Dmaven.surefire.debug=\'$debugOpts\' $args $@
+  execAlarm mvn -Dmaven.surefire.debug="$debugOpts" $args $@;
+}
+
 
 function find() {
   if [[ "$PWD" =~ "escribe" ]]; then
@@ -182,9 +215,9 @@ function find() {
 
 function grep() {
   if [[ "$PWD" =~ "escribe" ]]; then
-    grepmvn "$@"
+    grepmvn -s "$@"
   else
-    command grep "$@"
+    command grep -s "$@"
   fi
 }
 

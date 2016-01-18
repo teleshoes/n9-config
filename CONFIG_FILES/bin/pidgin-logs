@@ -1,0 +1,64 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my @dirExcludes = qw( .system aolsystemmsg );
+
+my $logDir = "$ENV{HOME}/.purple/logs";
+my $linesPerFile = 5;
+my $recentFiles = 5;
+
+sub mtime($);
+
+sub main(@){
+  my @files = `find $logDir -type f`;
+  for my $dir(@dirExcludes){
+    @files = grep {$_ !~ /\/\Q$dir\E\//} @files;
+  }
+  chomp foreach @files;
+
+  my %latest;
+  for my $file(@files){
+    if($file !~ /^(.*)\/[^\/]+$/){
+      die "malformed file: $file\n";
+    }
+    my $dir = $1;
+    if(not defined $latest{$dir} or $file gt $latest{$dir}){
+      $latest{$dir} = $file;
+    }
+  }
+  @files = values %latest;
+
+  my %mtimes;
+  for my $file(@files){
+    $mtimes{$file} = mtime $file;
+  }
+  @files = sort {$mtimes{$a} <=> $mtimes{$b}} @files;
+
+  shift @files while @files > $recentFiles;
+
+  my $sep = "========================\n";
+
+  my $fmt = $sep;
+
+  for my $file(@files){
+    my $lines = `tail -$linesPerFile "$file"`;
+    $lines =~ s/^[ \t\n]*//;
+
+    my ($protocol, $from, $to, $fileName);
+    if($file =~ /^$logDir\/([^\/]+)\/([^\/]+)\/([^\/]+)\/([^\/]+)$/){
+      ($protocol, $from, $to, $fileName) = ($1, $2, $3, $4);
+    }
+    $fmt .= "$to  ($fileName $protocol $from)\n";
+    $fmt .= $lines;
+    $fmt .= $sep;
+  }
+
+  print $fmt;
+}
+
+sub mtime($){
+  return (stat $_[0])[9];
+}
+
+&main(@ARGV);

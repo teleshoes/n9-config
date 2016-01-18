@@ -15,11 +15,20 @@ sub main(@){
   die "$mntDir not found\n" if not -d $mntDir;
 
   my @rsyncArgs = ("-avP", "--no-owner", "--no-group");
+  print "\npreparing temp dir $dir\n";
   run "sudo", "rm", "-rf", $dir;
   run "sudo", "tar", "-xf", "$dir.tar.gz";
   run "sudo", "rsync", @rsyncArgs, "$dir-extra/", $dir;
+  print "\n\n";
+
+  print "\nsyncing combined root strap\n";
   run "sudo", "rsync", @rsyncArgs, "$dir/", $mntDir;
+  print "\n\n";
+
+  print "\nsyncing kernelplus files\n";
   run "sudo", "rsync", @rsyncArgs, "kernelplus-root/", $mntDir;
+  print "\n\n";
+
   run "sudo", "rm", "-rf", $dir;
 }
 
