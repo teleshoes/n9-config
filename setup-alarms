@@ -4,16 +4,10 @@ use warnings;
 
 my $alarmDir = "/usr/share/alarms";
 my $soundsDir = "/usr/share/sounds/custom";
-my $remoteFlacMirrors = "/home/user/MyDocs/Music/flacmirrors";
 
 my $alarms = {
-  "default" => "lost.ogg",
-  "co" => "escape.ogg",
-  "te" => "sun.ogg",
-  "escape.ogg" => "$remoteFlacMirrors/1/Zoë Keating/Into the Trees (Deluxe Edition)/02 Escape Artist.ogg",
-  "lost.ogg" => "$remoteFlacMirrors/1/Zoë Keating/Into the Trees (Deluxe Edition)/05 Lost.ogg",
-  "sun.ogg" => "$remoteFlacMirrors/1/Zoë Keating/One Cello x 16: Natoma/04 Sun Will Set.ogg",
-  "tetris.ogg" => "$remoteFlacMirrors/1/Zoë Keating/One Cello x 16: Natoma/03 Tetrishead.ogg",
+  "default" => "co",
+  "co" => "/home/user/MyDocs/Food/coffee.mp3",
 };
 
 sub run(@);
