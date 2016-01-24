@@ -1,0 +1,40 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub run(@);
+
+my $version = "2.6.19";
+
+my $tarDir = "MHonArc-$version";
+my $tarFile = "$tarDir.tar.gz";
+my $tarUrl = "http://download.savannah.gnu.org/releases/mhonarc/$tarFile";
+
+sub main(@){
+  if(not -f $tarFile){
+    run "wget", $tarUrl;
+  }
+  die "could not download $tarUrl\n" if not -f $tarFile;
+
+  run "tar", "-xf", $tarFile;
+
+  my $host = `n9`;
+  chomp $host;
+
+  run "ssh", "root\@$host", "rm -rf /opt/mhonarc";
+  run "rsync",
+    "-avP", "--no-owner", "--no-group",
+    "$tarDir/",
+    "root\@$host:/opt/mhonarc",
+    ;
+
+  run "rm", "-rf", $tarFile, $tarDir;
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+  die "error running \"@_\"\n" if $? != 0;
+}
+
+&main(@ARGV);
