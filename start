@@ -31,6 +31,7 @@ n9 billboard-config
 ./profile.pl
 ./install-klomp
 ./install-net
+./install-mhonarc
 ./setup-alarms
 ./setup-vkb-toolbar
 ./disable-ovi-startup
