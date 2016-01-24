@@ -1,0 +1,1 @@
+PERL5LIB=/opt/mhonarc/lib /opt/mhonarc/mhonarc $@
