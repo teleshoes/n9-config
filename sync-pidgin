@@ -25,12 +25,17 @@ sub main(@){
   my $localUserGroup = "$ENV{USER}" . "." . `id -gn $ENV{USER}`;
   chomp $localUserGroup;
 
-  system "n9", "-s", "test -d $remotePurpleDir";
-  if($? != 0){
-    print "!!no purple at all, syncing purple\n";
+  my $dirOk = `n9 -s 'test -d $remotePurpleDir && echo success || echo failure'`;
+  chomp $dirOk;
+  if($dirOk eq "success"){
+    print "$remotePurpleDir exists, syncing just logs\n";
+  }elsif($dirOk eq "failure"){
+    print "!!$remotePurpleDir does NOT exist, syncing all of purple\n";
     run "rsync", @opts, "--exclude=logs", "$loc/", $rem;
     run "n9", "-s", "mkdir $remotePurpleDir/logs";
     run "n9", "-s", "chown -R $remoteUserGroup $remotePurpleDir/";
+  }else{
+    die "error detecting $remotePurpleDir\n";
   }
 
   print "\n\nlogs REMOTE => LOCAL\n";
