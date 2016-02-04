@@ -25,7 +25,7 @@ sub main(@){
   my $localUserGroup = "$ENV{USER}" . "." . `id -gn $ENV{USER}`;
   chomp $localUserGroup;
 
-  system "n9", "-s", "test -e $remotePurpleDir";
+  system "n9", "-s", "test -d $remotePurpleDir";
   if($? != 0){
     print "!!no purple at all, syncing purple\n";
     run "rsync", @opts, "--exclude=logs", "$loc/", $rem;
