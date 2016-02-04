@@ -2,18 +2,8 @@
 use strict;
 use warnings;
 
-my $host = `n9`;
-chomp $host;
-
-my $remoteUserGroup = "user.users";
-my $localUserGroup = "$ENV{USER}" . "." . `id -gn $ENV{USER}`;
-chomp $localUserGroup;
-
 my $localPurpleDir = "$ENV{HOME}/.purple";
 my $remotePurpleDir = "/home/user/.purple";
-
-my $rem = "root\@$host:$remotePurpleDir";
-my $loc = $localPurpleDir;
 
 my @opts = qw(
   -a  --no-owner --no-group
@@ -21,26 +11,42 @@ my @opts = qw(
   -z
 );
 
+sub run(@);
+
+sub main(@){
+  my $host = `n9`;
+  chomp $host;
+
+  my $rem = "root\@$host:$remotePurpleDir";
+  my $loc = $localPurpleDir;
+
+  my $remoteUserGroup = "user.users";
+  my $localUserGroup = "$ENV{USER}" . "." . `id -gn $ENV{USER}`;
+  chomp $localUserGroup;
+
+  system "n9", "-s", "test -e $remotePurpleDir";
+  if($? != 0){
+    print "!!no purple at all, syncing purple\n";
+    run "rsync", @opts, "--exclude=logs", "$loc/", $rem;
+    run "n9", "-s", "mkdir $remotePurpleDir/logs";
+    run "n9", "-s", "chown -R $remoteUserGroup $remotePurpleDir/";
+  }
+
+  print "\n\nlogs REMOTE => LOCAL\n";
+  run "rsync", @opts, "$rem/logs/", "$loc/logs";
+  print "\n\nlogs LOCAL => REMOTE\n";
+  run "rsync", @opts, "$loc/logs/", "$rem/logs";
+
+  print "\n\nCHOWN REMOTE\n";
+  run "ssh", "root\@$host", "chown -R $remoteUserGroup $remotePurpleDir/logs";
+  print "\n\nCHOWN LOCAL\n";
+  run "chown", "-R", $localUserGroup, "$localPurpleDir/logs";
+}
+
 sub run(@){
   print "@_\n";
   system @_;
   die "failed" if $? != 0;
 }
 
-system "n9", "-s", "test -e $remotePurpleDir";
-if($? != 0){
-  print "!!no purple at all, syncing purple\n";
-  run "rsync", @opts, "--exclude=logs", "$loc/", $rem;
-  run "n9", "-s", "mkdir $remotePurpleDir/logs";
-  run "n9", "-s", "chown -R $remoteUserGroup $remotePurpleDir/";
-}
-
-print "\n\nlogs REMOTE => LOCAL\n";
-run "rsync", @opts, "$rem/logs/", "$loc/logs";
-print "\n\nlogs LOCAL => REMOTE\n";
-run "rsync", @opts, "$loc/logs/", "$rem/logs";
-
-print "\n\nCHOWN REMOTE\n";
-run "ssh", "root\@$host", "chown -R $remoteUserGroup $remotePurpleDir/logs";
-print "\n\nCHOWN LOCAL\n";
-run "chown", "-R", $localUserGroup, "$localPurpleDir/logs";
+&main(@ARGV);
