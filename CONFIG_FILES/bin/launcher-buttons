@@ -58,6 +58,7 @@ my @config = qw(
     stellarium-n9
     passant
     emumaster
+    index-office
 
     billboard-ui
     maps
