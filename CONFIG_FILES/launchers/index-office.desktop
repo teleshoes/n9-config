@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=Office (index)
+Icon=icon-l-documents
+Exec=/usr/bin/index-office
