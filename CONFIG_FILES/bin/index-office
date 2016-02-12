@@ -5,6 +5,11 @@ use warnings;
 my $officeCmd = 'invoker --type=m /usr/bin/office-tools -showfrontpage';
 
 my @exts = qw(
+  pdf pdfx
+  tex
+  odf odt ods odp odg
+  doc docx dox
+  ppt pptx
 );
 
 sub main(@){
