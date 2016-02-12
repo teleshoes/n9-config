@@ -4,6 +4,9 @@ use warnings;
 
 my $officeCmd = 'invoker --type=m /usr/bin/office-tools -showfrontpage';
 
+my @exts = qw(
+);
+
 sub main(@){
   my $user = 'user';
   my $host = `n9`;
@@ -23,6 +26,22 @@ sub main(@){
 
   die "Usage: $0\n" if @_ != 0;
 
+  my @findCmd = (
+    "find",
+      "/home/user",
+      "/home/user/MyDocs",
+      "-type", "f",
+      "-maxdepth", "1", "-mindepth", "1",
+  );
+
+  @findCmd = (@findCmd, "-false", map {("-or", "-iname", "*.$_")} @exts);
+
+  open FH, "-|", @findCmd or die "ERROR: \"@findCmd\" failed: $!\n";
+  my @files = <FH>;
+  close FH;
+  chomp foreach @files;
+
+  system "tracker-index", @files;
   system $officeCmd;
 }
 
