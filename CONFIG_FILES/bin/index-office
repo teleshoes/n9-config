@@ -2,6 +2,8 @@
 use strict;
 use warnings;
 
+my $officeCmd = 'invoker --type=m /usr/bin/office-tools -showfrontpage';
+
 sub main(@){
   my $user = 'user';
   my $host = `n9`;
@@ -20,6 +22,8 @@ sub main(@){
   }
 
   die "Usage: $0\n" if @_ != 0;
+
+  system $officeCmd;
 }
 
 &main(@ARGV);
