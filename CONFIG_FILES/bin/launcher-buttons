@@ -53,6 +53,7 @@ my @config = qw(
     mms-picviewer
     teatime
 
+    index-office
     qtbigtext
     coffee
     maps
