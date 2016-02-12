@@ -3,6 +3,22 @@ use strict;
 use warnings;
 
 sub main(@){
+  my $user = 'user';
+  my $host = `n9`;
+  chomp $host;
+
+  if(`hostname` ne "$host\n"){
+    die "ERROR: `hostname` must match `n9`\n";
+  }
+  if(`whoami` ne "$user\n"){
+    if(`whoami` eq "root\n"){
+      print "rerunning as user '$user'\n";
+      exec "sudo", "-u", "user", $0, @ARGV;
+    }else{
+      die "must be run as user '$user'\n";
+    }
+  }
+
   die "Usage: $0\n" if @_ != 0;
 }
 
