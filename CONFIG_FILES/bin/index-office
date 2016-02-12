@@ -46,6 +46,9 @@ sub main(@){
   close FH;
   chomp foreach @files;
 
+  my $count = @files;
+  system "notify-meego", "wait, indexing $count file(s)";
+
   system "tracker-index", @files;
   system $officeCmd;
 }
