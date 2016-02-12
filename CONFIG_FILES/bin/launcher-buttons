@@ -66,6 +66,7 @@ my @config = qw(
     qml2048
     passant
     xmcr
+    index-office
     vmpkn9
     emumaster
   ]
