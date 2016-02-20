@@ -28,6 +28,7 @@ sub tryRun(@);
 sub readProc(@);
 sub tryReadProc(@);
 sub tryReadProcQuiet(@);
+sub fail($);
 
 sub main(@){
   run "bat";
@@ -73,17 +74,17 @@ sub ensureConnection($){
     my @hostnameCmd = sshCmd($config, "hostname");
     $host = tryReadProc @hostnameCmd;
   }
-  die "Failed to connect to $remoteHost\n" if $host ne $remoteHost;
+  fail "Failed to connect to $remoteHost\n" if $host ne $remoteHost;
   print "connected!\n";
 }
 
 sub getLocalPort($){
   my $config = shift;
   my $file = $$config{'revtun.portfile'};
-  die "missing revtun.portfile: $file\n" if not -f $file;
+  fail "missing revtun.portfile: $file\n" if not -f $file;
   my $port = `cat $file`;
   chomp $port;
-  die "malformed port: $port\n" if $port !~ /^\d+$/;
+  fail "malformed port: $port\n" if $port !~ /^\d+$/;
   return $port;
 }
 
@@ -115,14 +116,14 @@ sub readSecrets(){
     }
   }
   for my $key(sort @configKeys){
-    die "Missing config '$key' in $secretsFile\n" if not defined $$cfg{$key};
+    fail "Missing config '$key' in $secretsFile\n" if not defined $$cfg{$key};
   }
   return $cfg;
 }
 
 sub run(@){
   tryRun @_;
-  die "Error running @_\n" if $? != 0;
+  fail "Error running @_\n" if $? != 0;
 }
 
 sub tryRun(@){
@@ -132,7 +133,7 @@ sub tryRun(@){
 
 sub readProc(@){
   my $out = tryReadProc @_;
-  die "Error running @_\n" if $? != 0;
+  fail "Error running @_\n" if $? != 0;
   return $out;
 }
 
@@ -148,6 +149,11 @@ sub tryReadProcQuiet(@){
   my $out = join '', @lines;
   chomp $out if @lines == 1;
   return $out;
+}
+sub fail($){
+  my ($msg) = @_;
+  chomp $msg;
+  die "$msg\n";
 }
 
 &main(@ARGV);
