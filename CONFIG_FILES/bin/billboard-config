@@ -27,7 +27,7 @@ sub getText(){
   my $time = $W . "{script:chomp date +%H:%M}";
   my $date = $W . "{script:chomp date +%A}, {month} {day}";
 
-  my $klomp="{script:cat /home/user/.cache/billboard_01_klomp.txt}";
+  my $text="{script:sh -c \"cat /home/user/.cache/billboard*.txt\"}";
 
   return ''
     . $date . "\n"
