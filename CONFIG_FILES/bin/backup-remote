@@ -16,6 +16,7 @@ my $remoteUser = "wolke";
 my $remoteHost = "wolke-nuc";
 
 my $backupDir = "~/backup-n9";
+my $dcimDir = "/home/user/MyDocs/DCIM";
 
 sub ensureConnection($);
 sub getLocalPort($);
@@ -38,7 +39,7 @@ sub main(@){
 
   run sshCmd($config, "mkdir", "-p", $backupDir);
 
-  run rsyncCmd($config, "/home/user/MyDocs/DCIM/", "$backupDir/DCIM"),
+  run rsyncCmd($config, "$dcimDir/", "$backupDir/DCIM"),
     "--exclude=/*/";
 
   my $callFile = "/tmp/backup-call-tmp";
