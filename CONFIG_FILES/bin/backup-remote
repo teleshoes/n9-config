@@ -214,6 +214,10 @@ sub nowHrMin(){
 sub fail($){
   my ($msg) = @_;
   chomp $msg;
+
+  my $now = nowHrMin;
+  billboardMsg sprintf "%28s", "!$now";
+
   die "$msg\n";
 }
 
