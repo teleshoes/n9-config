@@ -70,7 +70,7 @@ sub main(@){
   #######
 
   ######
-  billboardMsg "";
+  billboardMsg sprintf "%28s", "b\@" . nowHrMin();
   run "sudo", "screen-cmd", "-q", "revtun", "--unsafe", "--local";
   system "echo " . nowHrMin() . " > $lastSuccessFile";
   ######
