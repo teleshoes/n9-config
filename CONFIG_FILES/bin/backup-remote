@@ -18,10 +18,12 @@ my $remoteHost = "wolke-nuc";
 my $backupDir = "~/backup-n9";
 my $dcimDir = "/home/user/MyDocs/DCIM";
 
+my $billboardFile = "/home/user/.cache/billboard_02_backup.txt";
 my $lastSuccessFile = "/home/user/.cache/backup-last-success";
 
 sub ensureConnection($);
 sub getLocalPort($);
+sub billboardMsg($);
 sub sshCmd($@);
 sub rsyncCmd($$$);
 sub readSecrets();
@@ -30,6 +32,7 @@ sub tryRun(@);
 sub readProc(@);
 sub tryReadProc(@);
 sub tryReadProcQuiet(@);
+sub nowHrMin();
 sub fail($);
 
 sub main(@){
@@ -37,6 +40,7 @@ sub main(@){
   run "bat";
 
   ######
+  billboardMsg sprintf "BAK-CNXN: %s", nowHrMin();
   my $config = readSecrets();
   run "sudo", "screen-cmd", "-q", "revtun", "-r", "--unsafe", "--local";
   run "sudo", "screen-cmd", "revtun", "-r", "--unsafe", "--local";
@@ -45,23 +49,27 @@ sub main(@){
   ######
 
   ######
+  billboardMsg sprintf "BAK-DCIM: %s", nowHrMin();
   run rsyncCmd($config, "$dcimDir/", "$backupDir/DCIM"),
     "--exclude=/*/";
   ######
 
   ######
+  billboardMsg sprintf "BAK-CALL: %s", nowHrMin();
   my $callFile = "/tmp/backup-call-tmp";
   run "backup-comm-n9e", "call", $callFile;
   run rsyncCmd($config, $callFile, $backupDir);
   ######
 
   ######
+  billboardMsg sprintf "BAK-SMS : %s", nowHrMin();
   my $smsFile = "/tmp/backup-sms-tmp";
   run "backup-comm-n9e", "sms", $smsFile;
   run rsyncCmd($config, $smsFile, $backupDir);
   #######
 
   ######
+  billboardMsg "";
   run "sudo", "screen-cmd", "-q", "revtun", "--unsafe", "--local";
   system "echo " . nowHrMin() . " > $lastSuccessFile";
   ######
@@ -100,6 +108,22 @@ sub getLocalPort($){
   chomp $port;
   fail "malformed port: $port\n" if $port !~ /^\d+$/;
   return $port;
+}
+
+sub billboardMsg($){
+  my ($msg) = @_;
+  if(not defined $msg or $msg =~ /^\s*$/){
+    run "rm", "-f", $billboardFile;
+  }else{
+    $msg =~ s/\n+$//;
+    $msg =~ s/\n/ /g;
+    $msg = "$msg\n";
+
+    open FH, "> $billboardFile" or fail "Could not write $billboardFile: $!\n";
+    print FH $msg;
+    close FH;
+  }
+  run "billboard-refresh";
 }
 
 sub sshCmd($@){
@@ -164,6 +188,12 @@ sub tryReadProcQuiet(@){
   chomp $out if @lines == 1;
   return $out;
 }
+sub nowHrMin(){
+  my $hrMin = `date +%H:%M`;
+  chomp $hrMin;
+  return $hrMin;
+}
+
 sub fail($){
   my ($msg) = @_;
   chomp $msg;
