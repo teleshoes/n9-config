@@ -215,8 +215,9 @@ sub fail($){
   my ($msg) = @_;
   chomp $msg;
 
+  my $lastSuccess = `cat $lastSuccessFile 2>/dev/null`;
   my $now = nowHrMin;
-  billboardMsg sprintf "%28s", "!$now";
+  billboardMsg sprintf "%28s", "!$now \@b$lastSuccess";
 
   die "$msg\n";
 }
