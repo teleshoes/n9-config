@@ -31,6 +31,7 @@ sub tryReadProcQuiet(@);
 sub fail($);
 
 sub main(@){
+  run "date";
   run "bat";
 
   ######
@@ -62,6 +63,7 @@ sub main(@){
   run "sudo", "screen-cmd", "-q", "revtun", "--unsafe", "--local";
   ######
 
+  run "date";
   run "bat";
 }
 
