@@ -33,25 +33,34 @@ sub fail($);
 sub main(@){
   run "bat";
 
+  ######
   my $config = readSecrets();
   run "sudo", "screen-cmd", "-q", "revtun", "-r", "--unsafe", "--local";
   run "sudo", "screen-cmd", "revtun", "-r", "--unsafe", "--local";
   ensureConnection($config);
-
   run sshCmd($config, "mkdir", "-p", $backupDir);
+  ######
 
+  ######
   run rsyncCmd($config, "$dcimDir/", "$backupDir/DCIM"),
     "--exclude=/*/";
+  ######
 
+  ######
   my $callFile = "/tmp/backup-call-tmp";
   run "backup-comm-n9e", "call", $callFile;
   run rsyncCmd($config, $callFile, $backupDir);
+  ######
 
+  ######
   my $smsFile = "/tmp/backup-sms-tmp";
   run "backup-comm-n9e", "sms", $smsFile;
   run rsyncCmd($config, $smsFile, $backupDir);
+  #######
 
+  ######
   run "sudo", "screen-cmd", "-q", "revtun", "--unsafe", "--local";
+  ######
 
   run "bat";
 }
