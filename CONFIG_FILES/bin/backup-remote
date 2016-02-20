@@ -23,6 +23,7 @@ my $lastSuccessFile = "/home/user/.cache/backup-last-success";
 
 sub ensureConnection($);
 sub getLocalPort($);
+sub getDCIMSummary();
 sub billboardMsg($);
 sub sshCmd($@);
 sub rsyncCmd($$$);
@@ -49,7 +50,7 @@ sub main(@){
   ######
 
   ######
-  billboardMsg sprintf "BAK-DCIM: %s", nowHrMin();
+  billboardMsg sprintf "BAK-DCIM: %s %s", getDCIMSummary(), nowHrMin();
   run rsyncCmd($config, "$dcimDir/", "$backupDir/DCIM"),
     "--exclude=/*/";
   ######
@@ -108,6 +109,22 @@ sub getLocalPort($){
   chomp $port;
   fail "malformed port: $port\n" if $port !~ /^\d+$/;
   return $port;
+}
+
+sub getDCIMSummary(){
+  my $dcimSizeMiB;
+  my $dcimDu = `du -bc $dcimDir/*.* 2>/dev/null | tail -1`;
+  if($dcimDu =~ /^(\d+)\s*total$/){
+    $dcimSizeMiB = int($1/1024/1024 + 0.5) . "M";
+  }else{
+    $dcimSizeMiB = "???";
+  }
+
+  my $dcimCount = `ls $dcimDir/*.* 2>/dev/null | wc -l`;
+  chomp $dcimCount;
+  $dcimCount = "???" unless $dcimCount =~ /^\d+$/;
+
+  return sprintf "%03dM %03df", $dcimSizeMiB, $dcimCount;
 }
 
 sub billboardMsg($){
