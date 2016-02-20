@@ -25,13 +25,13 @@ sub getText(){
   my $batCur = $R. "{script:pad 3 chomp batcur}mA";
   my $date = $R . "{script:chomp date +%a}, {short-month} {day}";
 
-  my $klomp="{script:cat /home/user/.cache/billboard_01_klomp.txt}";
+  my $text="{script:sh -c \"cat /home/user/.cache/billboard*.txt\"}";
 
   return ''
     . "{script:chomp billboard-email}\n"
     . "{{green}}{volume-bar}\n"
     . $batPer . $sep . $batCur . $sep . $date . "\n"
-    . $klomp . "\n"
+    . $text . "\n"
     ;
 }
 
