@@ -18,6 +18,8 @@ my $remoteHost = "wolke-nuc";
 my $backupDir = "~/backup-n9";
 my $dcimDir = "/home/user/MyDocs/DCIM";
 
+my $lastSuccessFile = "/home/user/.cache/backup-last-success";
+
 sub ensureConnection($);
 sub getLocalPort($);
 sub sshCmd($@);
@@ -61,6 +63,7 @@ sub main(@){
 
   ######
   run "sudo", "screen-cmd", "-q", "revtun", "--unsafe", "--local";
+  system "echo " . nowHrMin() . " > $lastSuccessFile";
   ######
 
   run "date";
