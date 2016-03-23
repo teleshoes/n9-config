@@ -152,6 +152,9 @@ sub updateMd5sums(){
       $out .= "$newByFile{$file}  $file\n";
     }else{
       print "removing md5sum for $file\n";
+      my $md5 = $newByFile{$file};
+      delete $newByFile{$file};
+      delete $newByMd5sum{$md5};
     }
   }
 
