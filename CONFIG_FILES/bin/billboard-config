@@ -24,10 +24,12 @@ sub getText(){
   my $sep = $G . " ★ ";
   my $batPer = $W . "{battery}%";
   my $batCur = $W . "{script:pad 3 chomp batcur}mA";
+  my $time = $W . "{script:chomp date +%H:%M}";
   my $date = $W . "{script:chomp date +%A}, {month} {day}";
 
   return ''
     . $date . "\n"
+    . $time . "\n"
     . $batPer . $sep . $batCur . "\n"
     ;
 }
