@@ -5,7 +5,12 @@ use Time::HiRes qw(sleep);
 
 my $scoreDir = "$ENV{HOME}/Desktop/DCIM/xddr";
 $scoreDir = "/home/user/pixmirror/xddr" if not -d $scoreDir;
+
+my $EXIFTOOL_EXEC = "exiftool";
+my $PIX_EXEC = "pix";
+
 my $gnuplotDefaultPngSize = "1920,1080";
+my $stageGapSeconds = 5 * 60;
 
 my $defaultNotes = {
   'extra' => 1,
@@ -17,28 +22,40 @@ my $defaultNotesFormat = join ",", grep {$$defaultNotes{$_}} keys %$defaultNotes
 
 my @okFilters = qw(
   --song --hard --nothard
-  --singles --doubles --nonstop
-  --score --minscore --maxscore
+  --singles --doubles --nonstop --nonstopdoubles
+  --score --minscore --maxscore --monotonic --increasing --records
   --date --mindate
   --maxdate
   --recent --sixmos --sixmonths --6mos
+  --bar --nobar --diffbar --samebar
 );
 my $argOptFiltersRegex = join "|", qw(
   --song --score --minscore --maxscore --mindate --date --maxdate
 );
 
-my @okPlotOptions = qw(
-  --file
-  --size
-  --smooth
-);
+my @okFormatOptDates = qw(--showscores --reverse --short);
+my $okFormatOptDatesRegex = join "|", @okFormatOptDates;
+my $argOptFormatOptDatesRegex = join "|", qw();
+
+my @okFormatOptCourses = qw(--minlen);
+my $okFormatOptCoursesRegex = join "|", @okFormatOptCourses;
+my $argOptFormatOptCoursesRegex = join "|", qw(--minlen);
+
+my @okFormatOptSongs = qw(--notes --abbrev);
+my $okFormatOptSongsRegex = join "|", @okFormatOptSongs;
+my $argOptFormatOptSongsRegex = join "|", qw(--notes);
+
+my @okPlotOptions = qw(--file --size --smooth);
 my $okPlotOptionsRegex = join "|", @okPlotOptions;
 my $argOptPlotOptionsRegex = join "|", qw( --file --size );
 
 my @songArr = (
   ['arrabbiata'               => 'arbta' => 'hard' => 'expert'],
+  ['am3pchaos'                => 'am3pc' => 'hard' => 'challenge'],
   ['b4uvoltage'               => 'b4uvs' => 'hard' => 'challenge'],
+  ['bag'                      => 'bagRe' => 'hard' => 'expert'],
   ['chaos'                    => 'chaos' => 'hard' => 'expert'],
+  ['fascinationeternallove'   => 'fascE' => 'hard' => 'expert'],
   ['healingdvision'           => 'hgDvn' => 'hard' => 'expert'],
   ['legendofmax'              => 'legmx' => 'hard' => 'expert'],
   ['max300'                   => 'mx300' => 'hard' => 'expert'],
@@ -47,30 +64,74 @@ my @songArr = (
   ['maxxunlimited'            => 'maxxU' => 'hard' => 'expert'],
   ['paranoiarespect'          => 'prRsp' => 'hard' => 'expert'],
   ['paranoiasurvivor270'      => 'prSur' => 'hard' => 'expert'],
+  ['paranoiasurvivormax290'   => 'prSrM' => 'hard' => 'expert'],
+  ['trim'                     => 'trimK' => 'hard' => 'expert'],
+  ['tripmachinephoenix'       => 'trpMP' => 'hard' => 'challenge'],
   ['xepher'                   => 'xephe' => 'hard' => 'challenge'],
 
   ['321stars'                 => '321st' => 'other' => 'expert'],
+  ['aadjamuro'                => 'aaDJA' => 'other' => 'expert'],
+  ['arenaissance'             => 'aRena' => 'other' => 'challenge'],
   ['astupidbarber'            => 'stBrb' => 'other' => 'expert'],
+  ['belovin'                  => 'beLov' => 'other' => 'expert'],
   ['blindjustice'             => 'blnJs' => 'other' => 'expert'],
   ['candystar'                => 'canSt' => 'other' => 'expert'],
+  ['colors'                   => 'color' => 'other' => 'challenge'],
+  ['comeclean'                => 'cmCln' => 'other' => 'expert'],
+  ['destinylovers'            => 'dstnL' => 'other' => 'expert'],
+  ['dive'                     => 'diveB' => 'other' => 'expert'],
   ['doll'                     => 'dollT' => 'other' => 'challenge'],
   ['dragonblade'              => 'drgnB' => 'other' => 'expert'],
   ['dropout'                  => 'drpOt' => 'other' => 'expert'],
+  ['dynamiterave'             => 'dyrav' => 'other' => 'expert'],
   ['dynamiteraveairspecial'   => 'dyrvA' => 'other' => 'challenge'],
   ['exoticethnic'             => 'exEth' => 'other' => 'expert'],
   ['flowers'                  => 'flwrs' => 'other' => 'expert'],
+  ['flow'                     => 'flwJa' => 'other' => 'expert'],
+  ['groove2001'               => 'grv21' => 'other' => 'expert'],
+  ['healingvision'            => 'hgVsn' => 'other' => 'expert'],
   ['healingvisionangelic'     => 'hgVnA' => 'other' => 'expert'],
+  ['himawari'                 => 'himaw' => 'other' => 'expert'],
+  ['holdonme'                 => 'hldOM' => 'other' => 'expert'],
+  ['holic'                    => 'holic' => 'other' => 'expert'],
+  ['huntingforyou'            => 'hnt4U' => 'other' => 'expert'],
+  ['hypereurobeat'            => 'hyEur' => 'other' => 'expert'],
+  ['magicdoor'                => 'mgcDr' => 'other' => 'expert'],
+  ['marswar3'                 => 'mrswr' => 'other' => 'expert'],
   ['matsurijapan'             => 'matsu' => 'other' => 'expert'],
   ['mugen'                    => 'mugen' => 'other' => 'expert'],
   ['mysummerlove'             => 'mySLv' => 'other' => 'expert'],
   ['no13'                     => 'no13T' => 'other' => 'expert'],
   ['orioneuro'                => 'ornEu' => 'other' => 'expert'],
+  ['orioncivilization'        => 'ornCi' => 'other' => 'expert'],
+  ['paranoia'                 => 'paran' => 'other' => 'expert'],
   ['paranoiaeternalstm200'    => 'prEte' => 'other' => 'expert'],
   ['paranoiaevolution200'     => 'prEvo' => 'other' => 'expert'],
+  ['paranoiamaxdirtymix190'   => 'prDrt' => 'other' => 'expert'],
+  ['peace'                    => 'peave' => 'other' => 'expert'],
+  ['pluto'                    => 'pluto' => 'other' => 'expert'],
+  ['putyourfaithinme'         => 'PYFIM' => 'other' => 'expert'],
+  ['rainbowrainbow'           => 'rnbow' => 'other' => 'expert'],
+  ['raspberryheart'           => 'rsphr' => 'other' => 'expert'],
+  ['rememberyou'              => 'remYo' => 'other' => 'expert'],
+  ['sakura'                   => 'sakra' => 'other' => 'expert'],
   ['sanamollete'              => 'sanaM' => 'other' => 'expert'],
+  ['stealth'                  => 'stlth' => 'other' => 'expert'],
+  ['sunkissdrop'              => 'snkdr' => 'other' => 'expert'],
+  ['sunrise'                  => 'sunri' => 'other' => 'expert'],
+  ['sweetsweetmagic'          => 'swtma' => 'other' => 'expert'],
   ['tsugaru'                  => 'tsuga' => 'other' => 'expert'],
+  ['tsugaruapplemix'          => 'tsuAM' => 'other' => 'challenge'],
+  ['trust'                    => 'trust' => 'other' => 'expert'],
+  ['try2luvyou'               => 'try2L' => 'other' => 'expert'],
+  ['twomonthsoff'             => 'twoMO' => 'other' => 'expert'],
+  ['vforextreme'              => 'v4Ext' => 'other' => 'challenge'],
+  ['whynot'                   => 'whynt' => 'other' => 'expert'],
 
   ['bemanispirits'            => 'nonBS' => 'other' => 'difficult'],
+  ['classic'                  => 'nonCL' => 'other' => 'difficult'],
+  ['skipmaster'               => 'nonSM' => 'other' => 'difficult'],
+  ['terra'                    => 'nonTR' => 'other' => 'difficult'],
 );
 
 my %songAbbrevs = map { $$_[0] => $$_[1] } @songArr;
@@ -85,7 +146,7 @@ my $okOtherSongs = join '|', @otherSongs;
 my @songArgs = sort {$a cmp $b} (@hardSongs, @otherSongs);
 my $okSongArgs = join '|', @songArgs;
 
-my @gameArgs = qw(doubles nonstop);
+my @gameArgs = qw(doubles nonstop nonstopdoubles);
 my $okGameArgs = join '|', @gameArgs;
 
 my @difficultyArgs = qw(beginner basic difficult expert challenge);
@@ -99,8 +160,8 @@ my %difficultyAbbrevs = (
   challenge => 'cha',
 );
 
-my @roundArgs = qw(1st 2nd 3rd 4nonstop);
-my $okRoundArgs = join '|', @roundArgs;
+my @stageArgs = qw(1st 2nd 3rd 4extra 4nonstop);
+my $okStageArgs = join '|', @stageArgs;
 
 my @barArgs = qw(bar nobar);
 my $okBarArgs = join '|', @barArgs;
@@ -113,10 +174,62 @@ my $usage = "Usage:
     -open a terminal using term and get its window id with xwininfo
     -open feh with --info set to type in the newly opened terminal with xdotool
 
-  $0 --datestats
+  $0 --orientation [FILTER FILTER ..]
+    for each song file, print \"<orientation> <filename>\",
+      where orientation is one of \"landscape\", \"portrait\", or \"unknown\"
+    uses \"$EXIFTOOL_EXEC\", falling back on \"$PIX_EXEC\"
+
+  $0 --datestats [FORMAT_OPT_DATES FORMAT_OPT_DATES ..] [FILTER FILTER ..]
     format stats for each date
 
-  $0 --print [--notes NOTES_CSV] [FILTER FILTER ..]
+    FORMAT_OPT_DATES
+      --showscores
+        show all scores, one per line, instead of just a count
+      --reverse
+        print newest dates first, instead of oldest dates first
+      --short
+        dont show individual songs at all
+
+    FILTER
+      see --print FILTER
+
+  $0 --coursestats [FORMAT_OPT_COURSES FORMAT_OPT_COURSES ..] [FILTER FILTER ..]
+    show songs that appear to be part of the same course, played back-to-back
+    songs must be of increasing stage number,
+      and have mtimes at most 5min between successive stages.
+      (stages can be missing; an extra 5min is allowed for any gaps)
+    e.g.:
+      A 1st 12:00
+      B 2nd 12:03
+      C 3rd 12:07
+      D 1st 12:11
+      E 3rd 12:17
+      F 1st 12:38
+      G 2nd 12:46
+      H 3rd 12:47
+      => [A-B-C], [D-E], [F], [G-H]
+         A and B and C are a normal stage, less than 5 between each
+         C and D are not sequential stages
+         D and E are within 5min+5min, with gap for missing 2nd
+         F and G are NOT within 5min
+         G and G are within 5min
+         F and H are within 5min+5min, but 2nd is not missing
+
+    FORMAT_OPT_COURSES
+      --minlen LENGTH
+        show only courses where at least LENGTH scores are recorded
+        default is: 2
+        LENGTH=3
+          show only courses with 3 or more songs recorded (after filtering)
+        LENGTH=2 {default}
+          show only courses with 2 or more songs recorded (after filtering)
+        LENGTH=1 or LENGTH=0
+          show all courses,, even if only one score recorded (after filtering)
+
+    FILTER
+      see --print FILTER
+
+  $0 --print [FORMAT_OPT_SONGS FORMAT_OPT_SONGS ..] [FILTER FILTER ..]
     parse filenames of score pictures in $scoreDir
       and print the result
 
@@ -124,19 +237,22 @@ my $usage = "Usage:
     specifying the same FILTER twice is legal, but useless
     some FILTERs override others as indicated, so specifying both is useless
 
-    NOTES_CSV
-      comma-separated list of notes to add.
-      default is '$defaultNotesFormat'.
-      use empty string for none
+    FORMAT_OPT_SONGS
+      --notes NOTES_CSV
+        comma-separated list of notes to add.
+        default is '$defaultNotesFormat'.
+        use empty string for none
 
-      extra
-        add EXTRA if EXTRA is set for the song
-      highscore
-        add 'SCORE SONG' if SCORE is the highest in the bucket
-      nobar
-        add 'nobar' if SONG is a HARD_SONG and BAR is 'nobar'
-      3rd
-        add '3rd' if SONG is a HARD_SONG and ROUND is '3rd'
+        extra
+          add EXTRA if EXTRA is set for the song
+        highscore
+          add 'SCORE SONG' if SCORE is the highest in the bucket
+        nobar
+          add 'nobar' if SONG is a HARD_SONG and BAR is 'nobar'
+        3rd
+          add '3rd' if SONG is a HARD_SONG and STAGE is '3rd'
+      --abbrev
+        shorten bucket names by using song abbreviations
 
     FILTER: SONG
       --song REGEX
@@ -152,12 +268,15 @@ my $usage = "Usage:
     FILTER: GAME
       --singles
         include only scores where GAME is not defined
-        {overrides --doubles and --nonstop}
+        {overrides --doubles and --nonstop and --nonstopdoubles}
       --doubles
         include only scores where GAME is doubles
-        {overrides --singles and --nonstop}
+        {overrides --singles and --nonstop and --nonstopdoubles}
       --nonstop
         include only scores where GAME is nonstop
+        {overrides --singles and --doubles and --nonstopdoubles}
+      --nonstopdoubles
+        include only scores where GAME is nonstopdoubles
         {overrides --singles and --doubles}
 
     FILTER: SCORE
@@ -165,6 +284,9 @@ my $usage = "Usage:
         include only scores where SCORE >= N
       --maxscore N
         include only scores where SCORE <= N
+      --monotonic, --increasing, --records
+        disclude any score that is lower than any score from a previous date,
+        with the same SONG, GAME, and DIFFICULTY
 
     FILTER: DATE
       --date YYYYMMDD, --mindate YYYYMMDD
@@ -175,6 +297,37 @@ my $usage = "Usage:
       --recent, --sixmos, --sixmonths, --6mos
         same as '--mindate N', where N is the date 180 days ago
         {overrides --date}
+
+    FILTER: BAR
+      --bar
+        include only scores where BAR=bar
+      --nobar
+        include only scores where BAR=nobar
+      --diffbar
+        include only scores where BAR is different than at least half of all
+          scores with the same SONG, GAME, and DIFFICULTY
+          (counted against all scores, before any filtering)
+      --samebar
+        include only scores where BAR is the same as at least half of all
+          scores with the same SONG, GAME, and DIFFICULTY
+          (counted against all scores, before any filtering)
+
+      e.g.:
+        TOTAL|BAR=bar|BAR=nobar|--bar |--nobar |--diffbar|--samebar
+        =====|=======|=========|======|========|=========|===========
+        2    |1      |1        |B1 N0 |B0 N1   |B1 N1    |B1 N1
+        2    |2      |0        |B2 N0 |B0 N0   |B0 N0    |B2 N0
+        3    |1      |2        |B1 N0 |B0 N2   |B1 N0    |B0 N2
+        4    |2      |2        |B2 N0 |B0 N2   |B2 N2    |B2 N2
+
+        the 3rd row, in english, says if there are 3 songs recorded
+          for the given <SONG>-<GAME>-<DIFFICULTY>,
+          and 1 has BAR=bar, and 2 have BAR=nobar, then:
+            --bar will show the one with BAR=bar
+            --nobar will show the two with BAR=nobar
+            --diffbar will show the one with BAR=bar
+            --samebar will show the two with BAR=nobar
+
 
     scores are grouped into sections by '\"<SONG>-<GAME>-<DIFFICULTY>\"'
     '<GAME>-' is omitted if GAME is not set
@@ -196,7 +349,7 @@ my $usage = "Usage:
             \"paranoiarespect-expert\"
             20140331,723150,
 
-  $0 --gnuplot [PLOT_OPTION PLOT_OPTION ..] [--notes=NOTES_CSV] [FILTER FILTER ..]
+  $0 --gnuplot [PLOT_OPTION PLOT_OPTION ..] [FORMAT_OPT_SONGS FORMAT_OPT_SONGS ..] [FILTER FILTER ..]
     format songs as above and write to a tmp file
     write a gnuplot script and run it in gnuplot
       all PLOT_OPTIONs must precede all FILTERs
@@ -214,8 +367,21 @@ my $usage = "Usage:
         use 'smooth bezier' instead of 'with linespoints'
         also turns off all notes unless --notes is given
 
-    NOTES_CSV
-      see --print NOTES_CSV
+    FORMAT_OPT_SONGS
+      see --print FORMAT_OPT_SONGS
+
+    FILTER
+      see --print FILTER
+
+  $0 --files [FILTER FILTER ..]
+    print the filenames, one per line without directories, of matching songs
+
+    FILTER
+      see --print FILTER
+
+  $0 --bestfiles [FILTER FILTER ..]
+    print the filename of the highest score for each set of scores with the same:
+      [<SONG>, <GAME>, <DIFFICULTY>]
 
     FILTER
       see --print FILTER
@@ -223,7 +389,7 @@ my $usage = "Usage:
   $0 JPG_FILE [ARG ARG ..]
 
   rename a jpeg file using a consistent format
-  \"########_###_SONG_GAME_DIFFICULTY_SCORE_EXTRA_BAR_ROUND.jpg\"
+  \"########_###_SONG_GAME_DIFFICULTY_SCORE_EXTRA_BAR_STAGE.jpg\"
   ######## is presumably a date in YYYYMMDD and ### is the camera pic index
 
      JPG_FILE
@@ -231,8 +397,8 @@ my $usage = "Usage:
        must start with '########_###' and end with '.jpg'
 
      ARG
-       one of [SONG|GAME|DIFFICULTY|SCORE|ROUND|BAR|EXTRA]
-       exactly one SONG, DIFFICULTY, SCORE, ROUND, and BAR must be given
+       one of [SONG|GAME|DIFFICULTY|SCORE|STAGE|BAR|EXTRA]
+       exactly one SONG, DIFFICULTY, SCORE, STAGE, and BAR must be given
        exactly zero or one GAME args can be given
        exactly zero or one EXTRA args can be given
 
@@ -262,42 +428,62 @@ my $usage = "Usage:
      BAR
        one of [$okBarArgs]
 
-     ROUND
-       one of [$okRoundArgs]
+     STAGE
+       one of [$okStageArgs]
 
   $0 --bash-complete COMP_LINE COMP_POINT
-     print a list of words for bash completion
+     print a list of words for bash completion, one per line
      COMP_LINE  - the full cmdline as a string
      COMP_POINT - the cursor position in the cmdline
 ";
 
 sub fehterm($@);
+sub orientation($@);
+sub dateStats($@);
+sub courseStats($@);
 sub scoreStats($@);
+sub parsePlotOptions($);
+sub parseFilterOptions($);
 sub name(@);
 sub parseArgs(@);
-sub getScoreFiles();
-sub parseScoreFiles(@);
-sub getScoreBuckets($@);
+sub getScoresByFile();
+sub listScoreFiles();
+sub parseScoreFile($);
+sub sortScores($);
+sub getBucketName($$@);
+sub getScoreBuckets($$@);
 sub formatBucketCsv($$$);
-sub formatScores($$);
+sub getBucketBarCounts($);
+sub filterScores($$);
+sub formatScores($$$);
+sub getBestScores($);
 sub gnuplot($$);
 sub combine(@);
+sub mtime($);
+sub getImageOrientation($);
 sub bashComplete($$);
+sub warnMsg($);
 sub run(@);
 
 sub main(@){
   if(@_ == 3 and $_[0] =~ /^--bash-complete$/ and $_[2] =~ /^\d+$/){
-    print join ' ', bashComplete($_[1], $_[2]);
+    print map {"$_\n"} bashComplete($_[1], $_[2]);
     exit 0;
   }
 
   if(@_ == 1 and $_[0] =~ /^(--fehterm)$/){
     my $cmd = shift;
     fehterm($cmd, @_);
+  }elsif(@_ >= 1 and $_[0] =~ /^(--orientation)$/){
+    my $cmd = shift;
+    orientation($cmd, @_);
   }elsif(@_ >= 1 and $_[0] =~ /^(--datestats)$/){
     my $cmd = shift;
     dateStats($cmd, @_);
-  }elsif(@_ >= 1 and $_[0] =~ /^(--print|--gnuplot)$/){
+  }elsif(@_ >= 1 and $_[0] =~ /^(--coursestats)$/){
+    my $cmd = shift;
+    courseStats($cmd, @_);
+  }elsif(@_ >= 1 and $_[0] =~ /^(--print|--gnuplot|--files|--bestfiles)$/){
     my $cmd = shift;
     scoreStats($cmd, @_);
   }else{
@@ -331,26 +517,78 @@ sub fehterm($@){
   run "/usr/bin/feh", "-g", "800x800", "--info", $infoCmd;
 }
 
+sub orientation($@){
+  my $cmd = shift;
+  my $opts = [@_];
+
+  my $filters = parseFilterOptions $opts;
+  my $scoresByFile = getScoresByFile();
+  $scoresByFile = filterScores $scoresByFile, $filters;
+
+  for my $file(sort keys %$scoresByFile){
+    my $orientation = getImageOrientation "$scoreDir/$file";
+    $orientation = "unknown" if not defined $orientation;
+    print "$orientation $file\n";
+  }
+}
+
 sub dateStats($@){
   my $cmd = shift;
-  die $usage if @_ != 0;
+  my $opts = [@_];
 
-  my @scoreFiles = getScoreFiles();
-  my $scoresByFile = parseScoreFiles(@scoreFiles);
+  my $showScores = 0;
+  my $reverse = 0;
+  my $short = 0;
+  while(@$opts > 0 and $$opts[0] =~ /^($okFormatOptDatesRegex)$/){
+    my $opt = shift @$opts;
+    my $arg;
+    if($opt =~ /^($argOptFormatOptDatesRegex)$/){
+      die "malformed or missing argument to $opt\n" if @$opts == 0;
+      $arg = shift @$opts;
+    }
+
+    if($opt =~ /^(--showscores)$/){
+      $showScores = 1;
+    }elsif($opt =~ /^(--reverse)$/){
+      $reverse = 1;
+    }elsif($opt =~ /^(--short)$/){
+      $short = 1;
+    }
+  }
+
+  my $filters = parseFilterOptions $opts;
+
+  die $usage if @$opts != 0;
+
+  my $scoresByFile = getScoresByFile();
+  $scoresByFile = filterScores $scoresByFile, $filters;
+
+  my %mtimes;
+
+  for my $file(keys %$scoresByFile){
+    my $mtime = mtime "$scoreDir/$file";
+    $mtimes{$file} = $mtime;
+  }
+
   my $dateBuckets = {};
   for my $file(sort keys %$scoresByFile){
     my $score = $$scoresByFile{$file};
-    my $date = $$score{date};
+    my $mtime = $mtimes{$file};
+    my $date = `date --date \@$mtime +%Y%m%d`;
+    chomp $date;
     $$dateBuckets{$date} = [] if not defined $$dateBuckets{$date};
     push @{$$dateBuckets{$date}}, $score;
   }
 
   my %isHardSong = map {$_ => 1} @hardSongs;
 
-  for my $date(reverse sort keys %$dateBuckets){
+  my @dates = sort keys %$dateBuckets;
+  @dates = reverse @dates if $reverse;
+
+  for my $date(@dates){
     my @dateScores = @{$$dateBuckets{$date}};
+    my $totalCount = 0;
     my $hardSinglesCount = 0;
-    my $otherSinglesCount = 0;
     my $doublesCount = 0;
     my $total = @dateScores;
     for my $score(@dateScores){
@@ -358,18 +596,37 @@ sub dateStats($@){
         $doublesCount++;
       }elsif($isHardSong{$$score{song}}){
         $hardSinglesCount++;
-      }else{
-        $otherSinglesCount++;
       }
+      $totalCount++;
     }
 
-    my $buckets = getScoreBuckets \@dateScores, qw(song game difficulty);
+    my $dateEpoch = `date +%s --date=$date`;
+    chomp $dateEpoch;
+
+    my $minMtime = undef;
+    my $maxMtime = undef;
+
+    my $buckets = getScoreBuckets \@dateScores, 0, qw(song game difficulty);
     my @bucketSummary;
     for my $bucketName(sort keys %$buckets){
       my @scores = @{$$buckets{$bucketName}};
       my $first = $scores[0];
       my ($song, $game, $difficulty) = (
         $$first{song}, $$first{game}, $$first{difficulty});
+
+      for my $score(@scores){
+        my $file = $$score{file};
+        my $mtime = $mtimes{$file};
+
+        my $dateDiff = $dateEpoch - $mtime;
+        $dateDiff *= -1 if $dateDiff < 0;
+        if($dateDiff > 1*24*60*60){
+          next;
+        }
+
+        $minMtime = $mtime if not defined $minMtime or $mtime < $minMtime;
+        $maxMtime = $mtime if not defined $maxMtime or $mtime > $maxMtime;
+      }
 
       my $songAbbrev = $songAbbrevs{$song};
       my $diffAbbrev = $difficultyAbbrevs{$difficulty};
@@ -389,11 +646,20 @@ sub dateStats($@){
         count=>$count,
         isDoubles=>$isDoubles ? 1 : 0,
         isHardSingles=>(not $isDoubles and $isHardSong{$song}) ? 1 : 0,
+        scores=>[reverse sort map {$$_{score}} @scores],
       };
     }
 
-    printf "%s %2d-H %2d-D %2d-O",
-      $date, $hardSinglesCount, $doublesCount, $otherSinglesCount;
+    my $elapsedMin;
+    if(defined $minMtime and defined $maxMtime){
+      $elapsedMin = ($maxMtime - $minMtime) / 60;
+    }else{
+      $elapsedMin = 0;
+    }
+
+    my $fmt = "";
+    $fmt .= sprintf "%s %2d-T %2d-H %2d-D  %3dm",
+      $date, $totalCount, $hardSinglesCount, $doublesCount, $elapsedMin;
 
     @bucketSummary = sort {
       $$b{count} <=> $$a{count}
@@ -402,64 +668,215 @@ sub dateStats($@){
         or $b cmp $a
     } @bucketSummary;
 
-    for my $summary(@bucketSummary){
-      printf "  %2d %s", $$summary{count}, $$summary{name};
+    if(not $short){
+      for my $summary(@bucketSummary){
+        if($showScores){
+          $fmt .= sprintf "\n  %-9s %s", $$summary{name}, "@{$$summary{scores}}";
+        }else{
+          $fmt .= sprintf "  %2d %s", $$summary{count}, $$summary{name};
+        }
+      }
+      if($showScores){
+        $fmt .= "\n";
+      }
     }
 
-    print "\n";
+    print "$fmt\n";
+  }
+}
+
+sub courseStats($@){
+  my $cmd = shift;
+  my $opts = [@_];
+
+  my $minlen = 2;
+  while(@$opts > 0 and $$opts[0] =~ /^($okFormatOptCoursesRegex)$/){
+    my $opt = shift @$opts;
+    my $arg;
+    if($opt =~ /^($argOptFormatOptCoursesRegex)$/){
+      die "malformed or missing argument to $opt\n" if @$opts == 0;
+      $arg = shift @$opts;
+    }
+    if($opt =~ /^(--minlen)$/){
+      $minlen = $arg;
+    }
+  }
+
+  my $filters = parseFilterOptions $opts;
+
+  die $usage if @$opts != 0;
+
+  my $stageNums = {
+    "1st" => 1,
+    "2nd" => 2,
+    "3rd" => 3,
+    "4extra" => 4,
+    "4nonstop" => 4,
+  };
+
+  my $scoresByFile = getScoresByFile();
+  $scoresByFile = filterScores $scoresByFile, $filters;
+
+  my $mtimes = {};
+  for my $file(keys %$scoresByFile){
+    $$mtimes{$file} = mtime "$scoreDir/$file";
+  }
+
+  my @sortedScores = sort {$$mtimes{$a} <=> $$mtimes{$b}} keys %$scoresByFile;
+
+  my @courses;
+  my $curCourse = undef;
+  my $lastStageNum = undef;
+  my $lastMtime = undef;
+  for my $file(@sortedScores){
+    my $score = $$scoresByFile{$file};
+    my $mtime = $$mtimes{$file};
+    my $stage = $$score{stage};
+    my $stageNum = $$stageNums{$stage};
+    die "invalid stage '$stage'\n" if not defined $stageNum;
+
+    my $isNewCourse = 0;
+    if(defined $lastStageNum && defined $lastMtime){
+      die "mtimes out of order at $file\n" if $lastMtime > $mtime;
+      my $stageNumDiff = $stageNum - $lastStageNum;
+      my $mtimeDiff = $mtime - $lastMtime;
+
+      if($stageNumDiff <= 0){
+        $isNewCourse = 1;
+      }elsif($mtimeDiff > $stageGapSeconds*$stageNumDiff){
+        $isNewCourse = 1;
+      }
+    }
+
+    if(not defined $curCourse or $isNewCourse){
+      $curCourse = [];
+      push @courses, $curCourse;
+    }
+    push @$curCourse, $score;
+
+    $lastStageNum = $stageNum;
+    $lastMtime = $mtime;
+  }
+
+  @courses = grep {@$_ >= $minlen} @courses;
+
+  for my $course(@courses){
+    my $first = ${$course}[0];
+    my $fmt = "$$first{date}:";
+    for my $score(@$course){
+      my $shortName = $songAbbrevs{$$score{song}};
+      $fmt .= " $shortName";
+    }
+    $fmt .= "\n";
+    for my $score(@$course){
+      my ($song, $game, $difficulty) = (
+        $$score{song}, $$score{game}, $$score{difficulty});
+
+      my $songAbbrev = $songAbbrevs{$song};
+      my $diffAbbrev = $difficultyAbbrevs{$difficulty};
+      my $shortName = $songAbbrevs{$song};
+      my $isDoubles = 0;
+      if(defined $game and $game eq "doubles"){
+        $shortName .= "-DBL";
+        $isDoubles = 1;
+      }
+      if($difficulty ne $defaultDifficulty{$song}){
+        $shortName .= "-$diffAbbrev";
+      }
+      $fmt .= "  $$score{stage} $$score{score} $shortName\n";
+    }
+    print $fmt;
   }
 }
 
 sub scoreStats($@){
   my $cmd = shift;
+  my $opts = [@_];
 
-  my $plotOptions = {};
-  if($cmd =~ /^(--gnuplot)$/){
-    while(@_ > 0 and $_[0] =~ /^($okPlotOptionsRegex)$/){
-      my $opt = shift;
-      my $arg;
-      if($opt =~ /^($argOptPlotOptionsRegex)$/){
-        die "$usage\nmissing arg to $opt\n" if @_ == 0;
-        $arg = shift;
-      }
-
-      if($opt =~ /^(--file)$/){
-        $$plotOptions{file} = $arg;
-      }elsif($opt =~ /^(--size)$/){
-        die "$usage\ninvalid $opt: $arg\n" if $arg !~ /^(\d+)[ ,x]+(\d+)$/;
-        $$plotOptions{size} = "$1,$2";
-      }elsif($opt =~ /^(--smooth)$/){
-        $$plotOptions{smooth} = 1;
-      }
-    }
-  }
+  my $plotOptions = parsePlotOptions $opts if $cmd =~ /^(--gnuplot)$/;
 
   my $okNotes = $defaultNotes;
   if($$plotOptions{smooth}){
     $okNotes = {map {$_ => 0} keys %$okNotes};
   }
 
-  if(@_ > 0 and $_[0] =~ /^(--notes)$/){
-    my $opt = shift;
-    die "$usage\nmissing arg to $opt\n" if @_ == 0;
-    my $arg = shift;
-    my $notesCsv = $arg;
-    $$okNotes{$_} = 0 foreach keys %$okNotes;
+  my $abbrevBucket = 0;
 
-    my @notes = split /\s*,\s*/, $notesCsv;
-    for my $note(@notes){
-      die "invalid $opt: $arg\n" if not defined $$okNotes{$note};
-      $$okNotes{$note} = 1;
+  if($cmd =~ /^(--print|--gnuplot)/){
+    while(@$opts > 0 and $$opts[0] =~ /^($okFormatOptSongsRegex)$/){
+      my $opt = shift @$opts;
+      my $arg;
+      if($opt =~ /^($argOptFormatOptSongsRegex)$/){
+        die "malformed or missing argument to $opt\n" if @$opts == 0;
+        $arg = shift @$opts;
+      }
+      if($opt =~ /^(--notes)$/){
+        my $notesCsv = $arg;
+        $$okNotes{$_} = 0 foreach keys %$okNotes;
+
+        my @notes = split /\s*,\s*/, $notesCsv;
+        for my $note(@notes){
+          die "invalid $opt: $arg\n" if not defined $$okNotes{$note};
+          $$okNotes{$note} = 1;
+        }
+      }elsif($opt =~ /^(--abbrev)$/){
+        $abbrevBucket = 1;
+      }
     }
   }
 
+  my $filters = parseFilterOptions $opts;
+
+  if($cmd =~ /^(--print)$/){
+    my $fmt = formatScores($okNotes, $abbrevBucket, $filters);
+    print $fmt;
+  }elsif($cmd =~ /^(--gnuplot)$/){
+    my $fmt = formatScores($okNotes, $abbrevBucket, $filters);
+    gnuplot $plotOptions, $fmt;
+  }elsif($cmd =~ /^(--files)$/){
+    my $scoresByFile = getScoresByFile();
+    $scoresByFile = filterScores $scoresByFile, $filters;
+    print join '', map {"$_\n"} sort keys %$scoresByFile;
+  }elsif($cmd =~ /^(--bestfiles)$/){
+    my $bestScores = getBestScores($filters);
+    for my $bucketName(sort keys %$bestScores){
+      print $$bestScores{$bucketName}{file} . "\n";
+    }
+  }
+}
+
+sub parsePlotOptions($){
+  my $opts = shift;
+  my $plotOptions = {};
+  while(@$opts > 0 and $$opts[0] =~ /^($okPlotOptionsRegex)$/){
+    my $opt = shift @$opts;
+    my $arg;
+    if($opt =~ /^($argOptPlotOptionsRegex)$/){
+      die "$usage\nmissing arg to $opt\n" if @$opts == 0;
+      $arg = shift @$opts;
+    }
+
+    if($opt =~ /^(--file)$/){
+      $$plotOptions{file} = $arg;
+    }elsif($opt =~ /^(--size)$/){
+      die "$usage\ninvalid $opt: $arg\n" if $arg !~ /^(\d+)[ ,x]+(\d+)$/;
+      $$plotOptions{size} = "$1,$2";
+    }elsif($opt =~ /^(--smooth)$/){
+      $$plotOptions{smooth} = 1;
+    }
+  }
+  return ($opts, $plotOptions);
+}
+
+sub parseFilterOptions($){
+  my $opts = shift;
   my $filters = {};
-  while(@_ > 0){
-    my $opt = shift;
+  while(@$opts > 0){
+    my $opt = shift @$opts;
     my $arg;
     if($opt =~ /^($argOptFiltersRegex)$/){
-      die "$usage\nmissing arg to $opt\n" if @_ == 0;
-      $arg = shift;
+      die "$usage\nmissing arg to $opt\n" if @$opts == 0;
+      $arg = shift @$opts;
     }
 
     if($opt =~ /^(--song)$/){
@@ -467,17 +884,19 @@ sub scoreStats($@){
       my $regex = "^$arg\$";
       $$filters{songs} = {map {$_ => $_ =~ m/$regex/ ? 1 : 0} @songArgs};
     }elsif($opt =~ /^(--hard)$/){
-      my $regex = "($okHardSongs)";
+      my $regex = "^($okHardSongs)\$";
       $$filters{songs} = {map {$_ => $_ =~ m/$regex/ ? 1 : 0} @songArgs};
     }elsif($opt =~ /^(--nothard)$/){
-      my $regex = "($okOtherSongs)";
+      my $regex = "^($okOtherSongs)\$";
       $$filters{songs} = {map {$_ => $_ =~ m/$regex/ ? 1 : 0} @songArgs};
     }elsif($opt =~ /^(--singles)$/){
-      $$filters{game} = {nonstop => 0, doubles => 0, "" => 1};
+      $$filters{game} = {doubles => 0, nonstop => 0, nonstopdoubles => 0, "" => 1};
     }elsif($opt =~ /^(--doubles)$/){
-      $$filters{game} = {nonstop => 0, doubles => 1, "" => 0};
+      $$filters{game} = {doubles => 1, nonstop => 0, nonstopdoubles => 0, "" => 0};
     }elsif($opt =~ /^(--nonstop)$/){
-      $$filters{game} = {nonstop => 1, doubles => 0, "" => 0};
+      $$filters{game} = {doubles => 0, nonstop => 1, nonstopdoubles => 0, "" => 0};
+    }elsif($opt =~ /^(--nonstopdoubles)$/){
+      $$filters{game} = {doubles => 0, nonstop => 0, nonstopdoubles => 1, "" => 0};
     }elsif($opt =~ /^(--score|--minscore)$/){
       die "$usage\ninvalid $opt: $arg\n" if $arg !~ /^(\d+)$/;
       $$filters{minscore} = $1;
@@ -487,6 +906,8 @@ sub scoreStats($@){
     }elsif($opt =~ /^(--mindate|--date)$/){
       die "$usage\ninvalid $opt: $arg\n" if $arg !~ /^(\d{8})$/;
       $$filters{mindate} = $1;
+    }elsif($opt =~ /^(--monotonic|--increasing|--records)$/){
+      $$filters{monotonic} = 1;
     }elsif($opt =~ /^(--recent|--sixmonths|--sixmos|--6mos)$/){
       eval {
         require DateTime;
@@ -498,16 +919,19 @@ sub scoreStats($@){
     }elsif($opt =~ /^(--maxdate)$/){
       die "$usage\ninvalid $opt: $arg\n" if $arg !~ /^(\d{8})$/;
       $$filters{maxdate} = $1;
+    }elsif($opt =~ /^(--bar)$/){
+      $$filters{bar} = "bar";
+    }elsif($opt =~ /^(--nobar)$/){
+      $$filters{bar} = "nobar";
+    }elsif($opt =~ /^(--diffbar)$/){
+      $$filters{bar} = "diff";
+    }elsif($opt =~ /^(--samebar)$/){
+      $$filters{bar} = "same";
     }else{
       die "$usage\nunknown filter: $opt\n";
     }
   }
-  my $fmt = formatScores($okNotes, $filters);
-  if($cmd =~ /^(--print)$/){
-    print $fmt;
-  }elsif($cmd =~ /^(--gnuplot)$/){
-    gnuplot $plotOptions, $fmt;
-  }
+  return $filters;
 }
 
 sub name(@){
@@ -518,11 +942,53 @@ sub name(@){
   die "missing DIFFICULTY\n" if not defined $$info{difficulty};
   die "missing SCORE\n" if not defined $$info{score};
   die "missing BAR\n" if not defined $$info{bar};
-  die "missing ROUND\n" if not defined $$info{round};
+  die "missing STAGE\n" if not defined $$info{stage};
+
+  my $bucketName = getBucketName $info, 0, qw(song game difficulty);
+
+  my $scoresByFile = getScoresByFile();
+  my $scores = [values %$scoresByFile];
+  my $buckets = getScoreBuckets($scores, 0, qw(song game difficulty));
+
+  my $orient = getImageOrientation $file;
+  my $game = $$info{game};
+  $game = "singles" if not defined $game;
+  if(not defined $orient){
+    warnMsg("unknown orientation");
+  }elsif($orient eq "landscape" and $game =~ /^(singles|nonstop)$/){
+    warnMsg("image orientation is $orient, which is unusual for game=$game");
+  }elsif($orient eq "portrait" and $game =~ /^(doubles|nonstopdoubles)$/){
+    warnMsg("image orientation is $orient, which is unusual for game=$game");
+  }
+
+  if(not defined $$buckets{$bucketName}){
+    warnMsg("no existing scores found for $bucketName");
+  }else{
+    my $minScore = 0;
+    my $maxScore = 0;
+    for my $score(@{$$buckets{$bucketName}}){
+      $minScore = $$score{score} if $$score{score} < $minScore;
+      $maxScore = $$score{score} if $$score{score} > $maxScore;
+    }
+    if($$info{score} < $minScore){
+      warnMsg("new LOW score $minScore => $$info{score}");
+    }elsif($$info{score} > $maxScore){
+      warnMsg("new HIGH score $maxScore => $$info{score}");
+    }
+
+    my $bucketBarCounts = getBucketBarCounts $buckets;
+    my $barCount = $$bucketBarCounts{$bucketName}{bar};
+    my $nobarCount = $$bucketBarCounts{$bucketName}{nobar};
+    if($$info{bar} eq "bar" and $barCount < $nobarCount){
+      warnMsg("$bucketName is usually 'nobar'");
+    }elsif($$info{bar} eq "nobar" and $nobarCount < $barCount){
+      warnMsg("$bucketName is usually 'bar'");
+    }
+  }
 
   $file =~ s/^\.\///;
 
-  if($file !~ /^(\d{8}_\d{3}).*\.jpg$/){
+  if($file !~ /^(\d{8}_\d{3,}).*\.jpg$/){
     die "misnamed jpg file: $file\n";
   }
   my $prefix = $1;
@@ -535,7 +1001,7 @@ sub name(@){
   $newFileName .= "_$$info{score}";
   $newFileName .= "_$$info{extra}" if defined $$info{extra};
   $newFileName .= "_$$info{bar}";
-  $newFileName .= "_$$info{round}";
+  $newFileName .= "_$$info{stage}";
   $newFileName .= ".jpg";
 
   my @cmd = ("mv", $file, $newFileName);
@@ -555,7 +1021,7 @@ sub parseArgs(@){
       return undef if defined $$info{difficulty};
       $$info{difficulty} = $arg;
     }elsif($arg =~ /^(\d,?){5,6}(\d)$/){
-      print STDERR "WARN: score non-multiple-of-ten: $arg\n" if $2 != 0;
+      warnMsg("score non-multiple-of-ten: $arg") if $2 != 0;
       my $score = $arg;
       $score =~ s/,//g;
       $score = int($score);
@@ -567,9 +1033,9 @@ sub parseArgs(@){
     }elsif($arg =~ /^($okBarArgs)$/){
       return undef if defined $$info{bar};
       $$info{bar} = $arg;
-    }elsif($arg =~ /^($okRoundArgs)$/){
-      return undef if defined $$info{round};
-      $$info{round} = $arg;
+    }elsif($arg =~ /^($okStageArgs)$/){
+      return undef if defined $$info{stage};
+      $$info{stage} = $arg;
     }else{
       return undef;
     }
@@ -577,53 +1043,91 @@ sub parseArgs(@){
   return $info;
 }
 
-sub getScoreFiles(){
+sub getScoresByFile(){
+  my @files = listScoreFiles();
+  my $scoresByFile = { map {$_ => parseScoreFile $_} @files };
+  return $scoresByFile;
+}
+
+sub listScoreFiles(){
   my @files = `cd $scoreDir && ls *.jpg`;
   chomp foreach @files;
-  @files = grep {$_ =~ /^\d+_.*\.jpg$/ and $_ !~ /_reminder_/} @files;
+  @files = grep {$_ =~ /^\d+_.*\.jpg$/} @files;
+  @files = grep {$_ !~ /_reminder_/} @files;
+  @files = grep {$_ !~ /_close\.jpg$/} @files;
   return @files;
 }
 
-sub parseScoreFiles(@){
-  my @files = @_;
-  my $scores = {};
-  for my $file(@files){
-    if($file !~ /^
-      (\d{8})
-      _(\d+)
-      _($okSongArgs)
-      (?:_($okGameArgs))?
-      _($okDifficultyArgs)
-      _(\d+)
-      (?:_($okExtraArgs))?
-      _($okBarArgs)
-      _($okRoundArgs)
-      \.jpg$/x){
-      die "malformed file name: $file\n";
-    }
-    $$scores{$file} = {
-      file       => $file,
-      date       => $1,
-      index      => $2,
-      song       => $3,
-      game       => $4,
-      difficulty => $5,
-      score      => $6,
-      extra      => $7,
-      bar        => $8,
-      round      => $9,
-    };
+sub parseScoreFile($){
+  my $file = shift;
+  if($file !~ /^
+    (\d{8})
+    _(\d+)
+    _($okSongArgs)
+    (?:_($okGameArgs))?
+    _($okDifficultyArgs)
+    _(\d+)
+    (?:_($okExtraArgs))?
+    _($okBarArgs)
+    _($okStageArgs)
+    \.jpg$/x){
+    die "malformed file name: $file\n";
   }
-  return $scores;
+  return {
+    file       => $file,
+    date       => $1,
+    index      => $2,
+    song       => $3,
+    game       => $4,
+    difficulty => $5,
+    score      => $6,
+    extra      => $7,
+    bar        => $8,
+    stage      => $9,
+  };
 }
 
-sub getScoreBuckets($@){
-  my ($scores, @bucketFields) = @_;
+sub sortScores($){
+  my $scores = shift;
+  return [sort {
+    my $aGame = defined $$a{game} ? $$a{game} : "";
+    my $bGame = defined $$b{game} ? $$b{game} : "";
+    $$a{date} <=> $$b{date}
+    ||
+    $aGame cmp $bGame
+    ||
+    $$a{song} cmp $$b{song}
+    ||
+    $$a{difficulty} cmp $$b{difficulty}
+    ||
+    $$a{file} cmp $$b{file}
+  } @$scores];
+}
+
+sub getBucketName($$@){
+  my ($score, $abbrevBucket, @bucketFields) = @_;
+  my @bucketFieldVals;
+  for my $bucketField(@bucketFields){
+    my $val = $$score{$bucketField};
+    if($abbrevBucket){
+      if($bucketField eq "song"){
+        $val = $songAbbrevs{$val} if defined $songAbbrevs{$val};
+      }elsif($bucketField eq "difficulty"){
+        $val = $difficultyAbbrevs{$val} if defined $difficultyAbbrevs{$val};
+      }
+    }
+    push @bucketFieldVals, $val;
+  }
+  return join "-", grep {defined $_} @bucketFieldVals;
+}
+
+sub getScoreBuckets($$@){
+  my ($scores, $abbrevBucket, @bucketFields) = @_;
+  $scores = sortScores $scores;
+
   my $buckets = {};
   for my $score(@$scores){
-    my @bucketFieldVals = map {$$score{$_}} @bucketFields;
-
-    my $bucketName = join "-", grep {defined $_} @bucketFieldVals;
+    my $bucketName = getBucketName $score, $abbrevBucket, @bucketFields;
     $$buckets{$bucketName} = [] if not defined $$buckets{$bucketName};
     push @{$$buckets{$bucketName}}, $score;
   }
@@ -631,13 +1135,15 @@ sub getScoreBuckets($@){
 }
 
 sub formatBucketCsv($$$){
-  my ($okNotes, $bucketName, $bucket) = @_;
+  my ($okNotes, $bucketName, $bucketScores) = @_;
 
   my %isHardSong = map {$_ => 1} @hardSongs;
 
+  $bucketScores = sortScores $bucketScores;
+
   my $maxScore = undef;
   my $maxScoreFile = undef;
-  for my $s(sort @$bucket){
+  for my $s(@$bucketScores){
     if(not defined $maxScore or $$s{score} > $maxScore){
       $maxScore = $$s{score};
       $maxScoreFile = $$s{file};
@@ -645,7 +1151,7 @@ sub formatBucketCsv($$$){
   }
 
   my $fmt = "";
-  for my $s(sort @$bucket){
+  for my $s(@$bucketScores){
     my @notes;
     if($$okNotes{'extra'} and defined $$s{extra}){
       push @notes, $$s{extra};
@@ -657,8 +1163,8 @@ sub formatBucketCsv($$$){
     if($$okNotes{'nobar'} and $$s{bar} eq "nobar" and $isHardSong{$$s{song}}){
       push @notes, $$s{bar};
     }
-    if($$okNotes{'3rd'} and $$s{round} eq "3rd" and $isHardSong{$$s{song}}){
-      push @notes, $$s{round};
+    if($$okNotes{'3rd'} and $$s{stage} eq "3rd" and $isHardSong{$$s{song}}){
+      push @notes, $$s{stage};
     }
 
     my $note = join " ", @notes;
@@ -668,11 +1174,28 @@ sub formatBucketCsv($$$){
   return $fmt;
 }
 
-sub formatScores($$){
-  my ($okNotes, $filters) = @_;
+sub getBucketBarCounts($){
+  my $buckets = shift;
+  my $bucketBarCounts = {};
+  for my $bucketName(keys %$buckets){
+    my $bucketScores = $$buckets{$bucketName};
+    my $barCount = 0;
+    my $nobarCount = 0;
+    for my $score(@$bucketScores){
+      $barCount++ if $$score{bar} eq "bar";
+      $nobarCount++ if $$score{bar} eq "nobar";
+    }
+    $$bucketBarCounts{$bucketName}{bar} = $barCount;
+    $$bucketBarCounts{$bucketName}{nobar} = $nobarCount;
+  }
+  return $bucketBarCounts;
+}
 
-  my @scoreFiles = getScoreFiles();
-  my $scoresByFile = parseScoreFiles(@scoreFiles);
+sub filterScores($$){
+  my ($scoresByFile, $filters) = @_;
+  $scoresByFile = {%$scoresByFile};
+
+  my $origScoresByFile = {%$scoresByFile};
 
   for my $file(sort keys %$scoresByFile){
     my $s = $$scoresByFile{$file};
@@ -722,19 +1245,96 @@ sub formatScores($$){
     }
     delete $$scoresByFile{$file} if not $ok;
   }
+
+  if($$filters{bar}){
+    my $scores = [values %$origScoresByFile];
+    my $buckets = getScoreBuckets($scores, 0, qw(song game difficulty));
+    my $bucketBarCounts = getBucketBarCounts $buckets;
+    for my $bucketName(sort keys %$buckets){
+      my $bucketScores = $$buckets{$bucketName};
+      my $barCount = $$bucketBarCounts{$bucketName}{bar};
+      my $nobarCount = $$bucketBarCounts{$bucketName}{nobar};
+      for my $score(@$bucketScores){
+        my $bar = $$score{bar};
+        my $sameCount = $bar eq "bar" ? $barCount : $nobarCount;
+        my $diffCount = $bar eq "bar" ? $nobarCount : $barCount;
+        if($$filters{bar} eq "bar" and $bar ne "bar"){
+          delete $$scoresByFile{$$score{file}};
+        }elsif($$filters{bar} eq "nobar" and $bar ne "nobar"){
+          delete $$scoresByFile{$$score{file}};
+        }elsif($$filters{bar} eq "same" and $sameCount < $diffCount){
+          delete $$scoresByFile{$$score{file}};
+        }elsif($$filters{bar} eq "diff" and $diffCount < $sameCount){
+          delete $$scoresByFile{$$score{file}};
+        }
+      }
+    }
+  }
+
+  if($$filters{monotonic}){
+    my $scores = [values %$scoresByFile];
+    my $buckets = getScoreBuckets($scores, 0, qw(song game difficulty));
+    for my $bucketName(sort keys %$buckets){
+      my $bucketScores = $$buckets{$bucketName};
+      sortScores $bucketScores;
+      my $curMaxScore = undef;
+      for my $score(@$bucketScores){
+        if(not defined $curMaxScore or $$score{score} > $curMaxScore){
+          $curMaxScore = $$score{score};
+        }else{
+          delete $$scoresByFile{$$score{file}};
+        }
+      }
+    }
+  }
+
   die "no scores found\n" if keys %$scoresByFile == 0;
 
-  my @scores = map { $$scoresByFile{$_} } sort keys %$scoresByFile;
-  my $buckets = getScoreBuckets(\@scores, qw(song game difficulty));
+  return $scoresByFile;
+}
+
+sub formatScores($$$){
+  my ($okNotes, $abbrevBucket, $filters) = @_;
+
+  my $scoresByFile = getScoresByFile();
+  $scoresByFile = filterScores $scoresByFile, $filters;
+
+  my $scores = [values %$scoresByFile];
+  my $buckets = getScoreBuckets($scores, $abbrevBucket, qw(song game difficulty));
 
   my $fmt = "";
   for my $bucketName(sort keys %$buckets){
-    my $bucket = $$buckets{$bucketName};
+    my $bucketScores = $$buckets{$bucketName};
     $fmt .= "\n\n" unless $fmt eq "";
     $fmt .= "\"$bucketName\"\n";
-    $fmt .= formatBucketCsv $okNotes, $bucketName, $bucket;
+    $fmt .= formatBucketCsv $okNotes, $bucketName, $bucketScores;
   }
   return $fmt;
+}
+
+sub getBestScores($){
+  my ($filters) = @_;
+
+  my $scoresByFile = getScoresByFile();
+  $scoresByFile = filterScores $scoresByFile, $filters;
+
+  my $scores = [values %$scoresByFile];
+  my $buckets = getScoreBuckets($scores, 0, qw(song game difficulty));
+
+  my $bestScores = {};
+
+  for my $bucketName(sort keys %$buckets){
+    my $bucketScores = $$buckets{$bucketName};
+    my $maxScore;
+    for my $s(@$bucketScores){
+      if(not defined $maxScore or $$s{score} > $$maxScore{score}){
+        $maxScore = $s;
+      }
+    }
+    $$bestScores{$bucketName} = $maxScore if defined $maxScore;
+  }
+
+  return $bestScores;
 }
 
 sub gnuplot($$){
@@ -756,7 +1356,8 @@ sub gnuplot($$){
   $script .= "set xdata time\n";
   $script .= "set timefmt \"\%Y\%m\%d\"\n";
   $script .= "set datafile separator \",\"\n";
-  $script .= "set key autotitle columnheader\n";
+  $script .= "set key autotitle columnheader horizontal\n";
+  $script .= "set grid noytics mxtics linewidth 4 , linewidth 2\n";
 
   $script .= "set term pngcairo size $pngSize\n";
   $script .= "set output \"$outputFile\"\n";
@@ -808,6 +1409,46 @@ sub combine(@){
   return @c;
 }
 
+sub mtime($){
+  my $path = shift;
+  die "not a file or directory: $path\n" if not -e $path;
+  my @stat = stat $path;
+  return $stat[9];
+}
+
+sub getImageOrientation($){
+  my $file = shift;
+  die "not a file: $file\n" if not -f $file;
+  my ($width, $height, $orient);
+
+  open FH, "-|", $EXIFTOOL_EXEC, "-ImageWidth", "-ImageHeight", "-Orientation", $file;
+  while(my $line = <FH>){
+    $width = $1 if $line =~ /^Image Width\s*:\s*(\d+)$/;
+    $height = $1 if $line =~ /^Image Height\s*:\s*(\d+)$/;
+    $orient = $1 if $line =~ /^Orientation\s*:\s*(.*)$/;
+  }
+  close FH;
+
+  if(not defined $height or not defined $width){
+    my $pix = `$PIX_EXEC $file 2>/dev/null`;
+    if($pix =~ /^(\d+)x(\d+)$/){
+      ($height, $width) = ($1, $2);
+    }
+  }
+
+  if(defined $orient and $orient =~ /Rotate.*90|Rotate.*270/){
+    ($width, $height) = ($height, $width);
+  }
+
+  if(not defined $height or not defined $width){
+    return undef;
+  }elsif($height > $width){
+    return "portrait";
+  }else{
+    return "landscape";
+  }
+}
+
 sub bashComplete($$){
   my ($cmdLine, $pos) = @_;
   my $cmd = substr $cmdLine, 0, $pos;
@@ -822,35 +1463,75 @@ sub bashComplete($$){
   if(@words == 0){
     my @jpgFiles = `ls *.jpg 2>/dev/null`;
     chomp foreach @jpgFiles;
-    return ("--fehterm", "--datestats", "--print", "--gnuplot", @jpgFiles);
+    return ("--fehterm", "--orientation", "--datestats", "--coursestats",
+      "--print", "--gnuplot", "--files", "--bestfiles", @jpgFiles);
   }
 
-  if($words[0] =~ /^(--print|--gnuplot)$/){
+  if($words[0] =~ /^(--print|--gnuplot|--files|--bestfiles|--datestats|--coursestats|--orientation)$/){
     my $cmd = shift @words;
     my @complete;
     my $lastWord = $words[-1] if @words > 0;
     $lastWord = "" if not defined $lastWord;
 
-    if($lastWord =~ /^(--song)$/){
-      return @songArgs;
-    }elsif($lastWord =~ /^(--notes)$/){
-      my @combinations = combine sort keys %$defaultNotes;
-      my @csv = sort map {join ",", @$_} @combinations;
-      return sort @csv;
-    }elsif($lastWord =~ /^($argOptFiltersRegex|$argOptPlotOptionsRegex|--notes)$/){
-      return ();
+    if($cmd =~ /^(--print|--gnuplot|--files|--bestfiles|--datestats|--coursestats|--orientation)$/){
+      if($lastWord =~ /^(--song)$/){
+        return @songArgs;
+      }elsif($lastWord =~ /^($argOptFiltersRegex)$/){
+        return ();
+      }
+    }
+
+    if($cmd =~ /^(--print|--gnuplot)$/){
+      if($lastWord =~ /^(--notes)$/){
+        my @combinations = combine sort keys %$defaultNotes;
+        my @csv = sort map {join ",", @$_} @combinations;
+        return sort @csv;
+      }elsif($lastWord =~ /^($argOptFormatOptSongsRegex)$/){
+        return ();
+      }
     }
 
     if($cmd =~ /^(--gnuplot)$/){
       while(@words > 0 and $words[0] =~ /^($okPlotOptionsRegex)$/){
         my $opt = shift @words;
+        if(@words == 0 and $opt =~ /^($argOptPlotOptionsRegex)$/){
+          return ();
+        }
         shift @words if $opt =~ /^($argOptPlotOptionsRegex)$/;
       }
       if(@words == 0){
         @complete = (@okPlotOptions, @complete);
       }
     }
-    @complete = ("--notes", @complete) if @words == 0;
+    if($cmd =~ /^(--print|--gnuplot)/){
+      @complete = (@okFormatOptSongs, @complete) if @words == 0;
+    }
+    if($cmd =~ /^(--datestats)/){
+      my @args = @words;
+      while(@args > 0 and $args[0] =~ /^($okFormatOptDatesRegex)$/){
+        my $opt = shift @args;
+        if(@args == 0 and $opt =~ /^($argOptFormatOptDatesRegex)$/){
+          return ();
+        }
+        shift @args if $opt =~ /^($argOptFormatOptDatesRegex)$/;
+      }
+      @complete = (@okFormatOptDates, @complete) if @args == 0;
+    }
+    if($cmd =~ /^(--coursestats)/){
+      my @args = @words;
+      while(@args > 0 and $args[0] =~ /^($okFormatOptCoursesRegex)$/){
+        my $opt = shift @args;
+        if(@args == 0 and $opt =~ /^($argOptFormatOptCoursesRegex)$/){
+          if(defined $opt and $opt =~ /^(--minlen)$/){
+            return ("1", "2", "3");
+          }else{
+            return ();
+          }
+        }
+        shift @args if $opt =~ /^($argOptFormatOptCoursesRegex)$/;
+      }
+      @complete = ("--minlen", @complete) if @args == 0;
+    }
     @complete = (@okFilters, @complete);
     return @complete;
   }
@@ -868,9 +1549,14 @@ sub bashComplete($$){
   @complete = (@difficultyArgs, @complete) if not defined $$info{difficulty};
   #@complete = (@extraArgs, @complete) if not defined $$info{extra};
   @complete = (@barArgs, @complete) if not defined $$info{bar};
-  @complete = (@roundArgs, @complete) if not defined $$info{round};
+  @complete = (@stageArgs, @complete) if not defined $$info{stage};
 
   return @complete;
+}
+
+sub warnMsg($){
+  my $msg = shift;
+  print STDERR "\n\nWARN: $msg\n";
 }
 
 sub run(@){
