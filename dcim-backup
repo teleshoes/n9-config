@@ -5,7 +5,7 @@ use warnings;
 my $localDCIM = "$ENV{HOME}/Code/n9/backup/DCIM";
 my $remoteDCIM = "/home/user/MyDocs/DCIM";
 
-my @filetypes = qw(jpg jpeg mp4);
+my @filetypes = qw(jpg jpeg png mp4);
 
 sub reorganizeBackedUpRemotes($$$$);
 sub md5sumMaps(\@);
