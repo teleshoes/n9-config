@@ -26,7 +26,7 @@
   <cookie></cookie>
   <latitude>40.69</latitude>
   <longitude>-73.4</longitude>
-  <detail_url>http://xml.weather.com/weather/local/USNY0330?cm_ven=1CW&amp;site=wx.com-bar&amp;cm_ite=wx-cc&amp;par=1CWFFv1.1.9&amp;cm_pla=wx.com-bar&amp;cm_cat=FFv1.1.9&amp;unit=m&amp;hbhf=12</detail_url>
+  <detail_url>http://wxdata.weather.com/wxdata/weather/local/USNY0330?cm_ven=1CW&amp;site=wx.com-bar&amp;cm_ite=wx-cc&amp;par=1CWFFv1.1.9&amp;cm_pla=wx.com-bar&amp;cm_cat=FFv1.1.9&amp;unit=m&amp;hbhf=12</detail_url>
   <hours_url></hours_url>
   <view_url>http://www.weather.com/weather/tenday/USNY0330</view_url>
   <converter>/opt/com.meecast.omweather/lib/weathercom</converter>
@@ -43,7 +43,7 @@
   <cookie></cookie>
   <latitude>40.71</latitude>
   <longitude>-74.01</longitude>
-  <detail_url>http://xml.weather.com/weather/local/USNY0996?cm_ven=1CW&amp;site=wx.com-bar&amp;cm_ite=wx-cc&amp;par=1CWFFv1.1.9&amp;cm_pla=wx.com-bar&amp;cm_cat=FFv1.1.9&amp;unit=m&amp;hbhf=12</detail_url>
+  <detail_url>http://wxdata.weather.com/wxdata/weather/local/USNY0996?cm_ven=1CW&amp;site=wx.com-bar&amp;cm_ite=wx-cc&amp;par=1CWFFv1.1.9&amp;cm_pla=wx.com-bar&amp;cm_cat=FFv1.1.9&amp;unit=m&amp;hbhf=12</detail_url>
   <hours_url></hours_url>
   <view_url>http://www.weather.com/weather/tenday/USNY0996</view_url>
   <converter>/opt/com.meecast.omweather/lib/weathercom</converter>
@@ -60,7 +60,7 @@
   <cookie></cookie>
   <latitude>42.65</latitude>
   <longitude>-73.75</longitude>
-  <detail_url>http://xml.weather.com/weather/local/USNY0011?cm_ven=1CW&amp;site=wx.com-bar&amp;cm_ite=wx-cc&amp;par=1CWFFv1.1.9&amp;cm_pla=wx.com-bar&amp;cm_cat=FFv1.1.9&amp;unit=m&amp;hbhf=12</detail_url>
+  <detail_url>http://wxdata.weather.com/wxdata/weather/local/USNY0011?cm_ven=1CW&amp;site=wx.com-bar&amp;cm_ite=wx-cc&amp;par=1CWFFv1.1.9&amp;cm_pla=wx.com-bar&amp;cm_cat=FFv1.1.9&amp;unit=m&amp;hbhf=12</detail_url>
   <hours_url></hours_url>
   <view_url>http://www.weather.com/weather/tenday/USNY0011</view_url>
   <converter>/opt/com.meecast.omweather/lib/weathercom</converter>
