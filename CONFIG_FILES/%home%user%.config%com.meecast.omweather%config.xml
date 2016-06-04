@@ -7,7 +7,7 @@
  <pressure_unit>mbar</pressure_unit>
  <visible_unit>mi</visible_unit>
  <language>System</language>
- <current_station_id>3</current_station_id>
+ <current_station_id>0</current_station_id>
  <update_period>14400</update_period>
  <update_connect>false</update_connect>
  <fullscreen>false</fullscreen>
