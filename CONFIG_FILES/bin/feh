@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub main(@){
+  my @meeseepicsArgs;
+  for my $arg(@_){
+    if($arg !~ /^-/){
+      push @meeseepicsArgs, $arg;
+    }
+  }
+  system "/opt/meeseepics/bin/meeseepics", @meeseepicsArgs;
+}
+
+&main(@ARGV);
