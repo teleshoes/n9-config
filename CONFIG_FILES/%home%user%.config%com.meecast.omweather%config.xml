@@ -3,7 +3,7 @@
  <base>/opt/com.meecast.omweather/share/</base>
  <iconset>Meecast</iconset>
  <temperature_unit>F</temperature_unit>
- <wind_speed_unit>mi/h</wind_speed_unit>
+ <wind_speed_unit>mph</wind_speed_unit>
  <pressure_unit>mbar</pressure_unit>
  <visible_unit>m</visible_unit>
  <language>System</language>
