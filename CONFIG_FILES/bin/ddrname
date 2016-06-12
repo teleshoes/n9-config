@@ -75,19 +75,22 @@ my @songArr = (
   ['astupidbarber'            => 'stBrb' => 'other' => 'expert'],
   ['belovin'                  => 'beLov' => 'other' => 'expert'],
   ['blindjustice'             => 'blnJs' => 'other' => 'expert'],
+  ['breakdown'                => 'brkDn' => 'other' => 'expert'],
   ['candystar'                => 'canSt' => 'other' => 'expert'],
   ['colors'                   => 'color' => 'other' => 'challenge'],
   ['comeclean'                => 'cmCln' => 'other' => 'expert'],
+  ['deadend'                  => 'dedEn' => 'other' => 'expert'],
   ['destinylovers'            => 'dstnL' => 'other' => 'expert'],
   ['dive'                     => 'diveB' => 'other' => 'expert'],
   ['doll'                     => 'dollT' => 'other' => 'challenge'],
   ['dragonblade'              => 'drgnB' => 'other' => 'expert'],
   ['dropout'                  => 'drpOt' => 'other' => 'expert'],
-  ['dynamiterave'             => 'dyrav' => 'other' => 'expert'],
-  ['dynamiteraveairspecial'   => 'dyrvA' => 'other' => 'challenge'],
+  ['dynamiterave'             => 'dyRav' => 'other' => 'expert'],
+  ['dynamiteraveairspecial'   => 'dyRvA' => 'other' => 'challenge'],
   ['exoticethnic'             => 'exEth' => 'other' => 'expert'],
   ['flowers'                  => 'flwrs' => 'other' => 'expert'],
   ['flow'                     => 'flwJa' => 'other' => 'expert'],
+  ['freedom'                  => 'fredm' => 'other' => 'expert'],
   ['groove2001'               => 'grv21' => 'other' => 'expert'],
   ['healingvision'            => 'hgVsn' => 'other' => 'expert'],
   ['healingvisionangelic'     => 'hgVnA' => 'other' => 'expert'],
@@ -96,9 +99,15 @@ my @songArr = (
   ['holic'                    => 'holic' => 'other' => 'expert'],
   ['huntingforyou'            => 'hnt4U' => 'other' => 'expert'],
   ['hypereurobeat'            => 'hyEur' => 'other' => 'expert'],
+  ['insertion'                => 'insrt' => 'other' => 'expert'],
+  ['jamandmarmalade'          => 'jmMar' => 'other' => 'expert'],
+  ['loveisorange'             => 'lvOrn' => 'other' => 'expert'],
   ['magicdoor'                => 'mgcDr' => 'other' => 'expert'],
-  ['marswar3'                 => 'mrswr' => 'other' => 'expert'],
+  ['marswar3'                 => 'mrsWr' => 'other' => 'expert'],
   ['matsurijapan'             => 'matsu' => 'other' => 'expert'],
+  ['maximizer'                => 'mxmzr' => 'other' => 'expert'],
+  ['mexicanfolksong'          => 'mexFS' => 'other' => 'expert'],
+  ['midnightspecial'          => 'midNS' => 'other' => 'expert'],
   ['mugen'                    => 'mugen' => 'other' => 'expert'],
   ['mysummerlove'             => 'mySLv' => 'other' => 'expert'],
   ['no13'                     => 'no13T' => 'other' => 'expert'],
@@ -108,25 +117,29 @@ my @songArr = (
   ['paranoiaeternalstm200'    => 'prEte' => 'other' => 'expert'],
   ['paranoiaevolution200'     => 'prEvo' => 'other' => 'expert'],
   ['paranoiamaxdirtymix190'   => 'prDrt' => 'other' => 'expert'],
-  ['peace'                    => 'peave' => 'other' => 'expert'],
+  ['peace'                    => 'peace' => 'other' => 'expert'],
+  ['pinkrose'                 => 'pnkRs' => 'other' => 'expert'],
   ['pluto'                    => 'pluto' => 'other' => 'expert'],
   ['putyourfaithinme'         => 'PYFIM' => 'other' => 'expert'],
   ['rainbowrainbow'           => 'rnbow' => 'other' => 'expert'],
-  ['raspberryheart'           => 'rsphr' => 'other' => 'expert'],
+  ['raspberryheart'           => 'rspHr' => 'other' => 'expert'],
   ['rememberyou'              => 'remYo' => 'other' => 'expert'],
   ['sakura'                   => 'sakra' => 'other' => 'expert'],
   ['sanamollete'              => 'sanaM' => 'other' => 'expert'],
+  ['senoritavirtual'          => 'senVi' => 'other' => 'expert'],
   ['stealth'                  => 'stlth' => 'other' => 'expert'],
-  ['sunkissdrop'              => 'snkdr' => 'other' => 'expert'],
+  ['sunkissdrop'              => 'snkDr' => 'other' => 'expert'],
   ['sunrise'                  => 'sunri' => 'other' => 'expert'],
-  ['sweetsweetmagic'          => 'swtma' => 'other' => 'expert'],
+  ['sweetsweetmagic'          => 'swtMa' => 'other' => 'expert'],
+  ['tripmachine'              => 'trpMa' => 'other' => 'expert'],
+  ['tripmachinesurvivor'      => 'trpMS' => 'other' => 'expert'],
   ['tsugaru'                  => 'tsuga' => 'other' => 'expert'],
   ['tsugaruapplemix'          => 'tsuAM' => 'other' => 'challenge'],
   ['trust'                    => 'trust' => 'other' => 'expert'],
   ['try2luvyou'               => 'try2L' => 'other' => 'expert'],
   ['twomonthsoff'             => 'twoMO' => 'other' => 'expert'],
   ['vforextreme'              => 'v4Ext' => 'other' => 'challenge'],
-  ['whynot'                   => 'whynt' => 'other' => 'expert'],
+  ['whynot'                   => 'whyNt' => 'other' => 'expert'],
 
   ['bemanispirits'            => 'nonBS' => 'other' => 'difficult'],
   ['classic'                  => 'nonCL' => 'other' => 'difficult'],
@@ -386,11 +399,27 @@ my $usage = "Usage:
     FILTER
       see --print FILTER
 
+  $0 JPG_FILE REMINDER
+
+    rename a jpeg file, adding '_<REMINDER>' before .jpg
+
+     JPG_FILE
+       jpeg file to rename
+       must start with '########_###' and end with '.jpg'
+
+     REMINDER
+       text to append
+       can optionally start with the same prefix as JPG_FILE ('########_###')
+         and/or end in '.jpg', in which case the prefix or suffix are removed
+       must start with 'reminder_' or 'closeup_',
+         contain only letters, numbers, and underscores,
+         and end with a letter or number
+
   $0 JPG_FILE [ARG ARG ..]
 
-  rename a jpeg file using a consistent format
-  \"########_###_SONG_GAME_DIFFICULTY_SCORE_EXTRA_BAR_STAGE.jpg\"
-  ######## is presumably a date in YYYYMMDD and ### is the camera pic index
+    rename a jpeg file using a consistent format
+    \"########_###_SONG_GAME_DIFFICULTY_SCORE_EXTRA_BAR_STAGE.jpg\"
+    ######## is presumably a date in YYYYMMDD and ### is the camera pic index
 
      JPG_FILE
        jpeg file to rename
@@ -445,6 +474,7 @@ sub scoreStats($@);
 sub parsePlotOptions($);
 sub parseFilterOptions($);
 sub name(@);
+sub nameReminder($$);
 sub parseArgs(@);
 sub getScoresByFile();
 sub listScoreFiles();
@@ -486,7 +516,9 @@ sub main(@){
   }elsif(@_ >= 1 and $_[0] =~ /^(--print|--gnuplot|--files|--bestfiles)$/){
     my $cmd = shift;
     scoreStats($cmd, @_);
-  }else{
+  }elsif(@_ == 2 and $_[0] =~ /\.jpg$/){
+    nameReminder($_[0], $_[1]);
+  }elsif(@_ > 1 and $_[0] =~ /\.jpg$/){
     name(@_);
   }
 }
@@ -934,6 +966,28 @@ sub parseFilterOptions($){
   return $filters;
 }
 
+sub nameReminder($$){
+  my ($file, $reminder) = @_;
+
+  $file =~ s/^\.\///;
+
+  if($file !~ /^(\d{8}_\d{3,}).*\.jpg$/){
+    die "misnamed jpg file: $file\n";
+  }
+  my $prefix = $1;
+  $reminder =~ s/^$prefix//;
+  $reminder =~ s/\.jpg$//;
+
+  if($reminder !~ /^(reminder|closeup)_[a-zA-Z0-9_]*[a-zA-Z0-9]$/){
+    die "invalid reminder: $reminder\n";
+  }
+
+  my $newFileName = "${prefix}_${reminder}.jpg";
+
+  my @cmd = ("mv", $file, $newFileName);
+  run @cmd;
+}
+
 sub name(@){
   my $file = shift;
   my $info = parseArgs @_;
@@ -1054,7 +1108,7 @@ sub listScoreFiles(){
   chomp foreach @files;
   @files = grep {$_ =~ /^\d+_.*\.jpg$/} @files;
   @files = grep {$_ !~ /_reminder_/} @files;
-  @files = grep {$_ !~ /_close\.jpg$/} @files;
+  @files = grep {$_ !~ /_closeup_/} @files;
   return @files;
 }
 
@@ -1550,6 +1604,8 @@ sub bashComplete($$){
   #@complete = (@extraArgs, @complete) if not defined $$info{extra};
   @complete = (@barArgs, @complete) if not defined $$info{bar};
   @complete = (@stageArgs, @complete) if not defined $$info{stage};
+
+  @complete = ("reminder_", "closeup_", @complete) if @words == 0;
 
   return @complete;
 }
