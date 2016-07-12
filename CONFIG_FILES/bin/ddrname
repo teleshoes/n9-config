@@ -10,7 +10,13 @@ my $EXIFTOOL_EXEC = "exiftool";
 my $PIX_EXEC = "pix";
 
 my $gnuplotDefaultPngSize = "1920,1080";
-my $stageGapSeconds = 5 * 60;
+
+#songs with mtimes within 5m, and at least 30s between, are the same course
+my $minStageGapSeconds = 30;
+my $maxStageGapSeconds = 5 * 60;
+
+my @DEFAULT_BUCKET_FIELDS = qw(song game difficulty machine);
+my $bucketFieldDesc = join "-", map {"<" . uc($_) . ">"} @DEFAULT_BUCKET_FIELDS;
 
 my $defaultNotes = {
   'extra' => 1,
@@ -23,6 +29,7 @@ my $defaultNotesFormat = join ",", grep {$$defaultNotes{$_}} keys %$defaultNotes
 my @okFilters = qw(
   --song --hard --nothard
   --singles --doubles --nonstop --nonstopdoubles
+  --sn2 --2013 --a
   --score --minscore --maxscore --monotonic --increasing --records
   --date --mindate
   --maxdate
@@ -71,11 +78,14 @@ my @songArr = (
 
   ['321stars'                 => '321st' => 'other' => 'expert'],
   ['aadjamuro'                => 'aaDJA' => 'other' => 'expert'],
+  ['am3p303bassmix'           => 'am3pB' => 'other' => 'challenge'],
   ['arenaissance'             => 'aRena' => 'other' => 'challenge'],
   ['astupidbarber'            => 'stBrb' => 'other' => 'expert'],
+  ['b4u'                      => 'b4uNa' => 'other' => 'expert'],
   ['belovin'                  => 'beLov' => 'other' => 'expert'],
   ['blindjustice'             => 'blnJs' => 'other' => 'expert'],
   ['breakdown'                => 'brkDn' => 'other' => 'expert'],
+  ['canbereal'                => 'canBR' => 'other' => 'expert'],
   ['candystar'                => 'canSt' => 'other' => 'expert'],
   ['colors'                   => 'color' => 'other' => 'challenge'],
   ['comeclean'                => 'cmCln' => 'other' => 'expert'],
@@ -101,6 +111,8 @@ my @songArr = (
   ['hypereurobeat'            => 'hyEur' => 'other' => 'expert'],
   ['insertion'                => 'insrt' => 'other' => 'expert'],
   ['jamandmarmalade'          => 'jmMar' => 'other' => 'expert'],
+  ['janejana'                 => 'jneJn' => 'other' => 'expert'],
+  ['jerkitout'                => 'jrkIO' => 'other' => 'expert'],
   ['loveisorange'             => 'lvOrn' => 'other' => 'expert'],
   ['magicdoor'                => 'mgcDr' => 'other' => 'expert'],
   ['marswar3'                 => 'mrsWr' => 'other' => 'expert'],
@@ -121,11 +133,13 @@ my @songArr = (
   ['pinkrose'                 => 'pnkRs' => 'other' => 'expert'],
   ['pluto'                    => 'pluto' => 'other' => 'expert'],
   ['putyourfaithinme'         => 'PYFIM' => 'other' => 'expert'],
+  ['rainbowflyer'             => 'rbFly' => 'other' => 'expert'],
   ['rainbowrainbow'           => 'rnbow' => 'other' => 'expert'],
   ['raspberryheart'           => 'rspHr' => 'other' => 'expert'],
   ['rememberyou'              => 'remYo' => 'other' => 'expert'],
   ['sakura'                   => 'sakra' => 'other' => 'expert'],
   ['sanamollete'              => 'sanaM' => 'other' => 'expert'],
+  ['seduction'                => 'sdctn' => 'other' => 'expert'],
   ['senoritavirtual'          => 'senVi' => 'other' => 'expert'],
   ['stealth'                  => 'stlth' => 'other' => 'expert'],
   ['sunkissdrop'              => 'snkDr' => 'other' => 'expert'],
@@ -159,8 +173,16 @@ my $okOtherSongs = join '|', @otherSongs;
 my @songArgs = sort {$a cmp $b} (@hardSongs, @otherSongs);
 my $okSongArgs = join '|', @songArgs;
 
-my @gameArgs = qw(doubles nonstop nonstopdoubles);
+my @gameArgs = qw(singles doubles nonstop nonstopdoubles);
+my $singlesGameArg = "singles";
 my $okGameArgs = join '|', @gameArgs;
+
+my %gameAbbrevs = (
+  singles => 'SGL',
+  doubles => 'DBL',
+  nonstop => 'NON',
+  nonstopdoubles => 'NDB',
+);
 
 my @difficultyArgs = qw(beginner basic difficult expert challenge);
 my $okDifficultyArgs = join '|', @difficultyArgs;
@@ -172,6 +194,10 @@ my %difficultyAbbrevs = (
   expert => 'exp',
   challenge => 'cha',
 );
+
+my @machineArgs = qw(sn2 2013 a);
+my $defaultMachineArg = "sn2";
+my $okMachineArgs = join '|', @machineArgs;
 
 my @stageArgs = qw(1st 2nd 3rd 4extra 4nonstop);
 my $okStageArgs = join '|', @stageArgs;
@@ -280,7 +306,7 @@ my $usage = "Usage:
 
     FILTER: GAME
       --singles
-        include only scores where GAME is not defined
+        include only scores where GAME is singles OR not defined
         {overrides --doubles and --nonstop and --nonstopdoubles}
       --doubles
         include only scores where GAME is doubles
@@ -290,7 +316,15 @@ my $usage = "Usage:
         {overrides --singles and --doubles and --nonstopdoubles}
       --nonstopdoubles
         include only scores where GAME is nonstopdoubles
-        {overrides --singles and --doubles}
+        {overrides --singles and --nonstop and --doubles}
+
+    FILTER: MACHINE
+      --sn2
+        include only scores where MACHINE is sn2
+      --2013
+        include only scores where MACHINE is 2013
+      --a
+        include only scores where MACHINE is a
 
     FILTER: SCORE
       --score N, --minscore N
@@ -299,7 +333,7 @@ my $usage = "Usage:
         include only scores where SCORE <= N
       --monotonic, --increasing, --records
         disclude any score that is lower than any score from a previous date,
-        with the same SONG, GAME, and DIFFICULTY
+        with the same $bucketFieldDesc
 
     FILTER: DATE
       --date YYYYMMDD, --mindate YYYYMMDD
@@ -318,11 +352,11 @@ my $usage = "Usage:
         include only scores where BAR=nobar
       --diffbar
         include only scores where BAR is different than at least half of all
-          scores with the same SONG, GAME, and DIFFICULTY
+          scores with the same \"$bucketFieldDesc\"
           (counted against all scores, before any filtering)
       --samebar
         include only scores where BAR is the same as at least half of all
-          scores with the same SONG, GAME, and DIFFICULTY
+          scores with the same \"$bucketFieldDesc\"
           (counted against all scores, before any filtering)
 
       e.g.:
@@ -334,7 +368,7 @@ my $usage = "Usage:
         4    |2      |2        |B2 N0 |B0 N2   |B2 N2    |B2 N2
 
         the 3rd row, in english, says if there are 3 songs recorded
-          for the given <SONG>-<GAME>-<DIFFICULTY>,
+          for the given $bucketFieldDesc,
           and 1 has BAR=bar, and 2 have BAR=nobar, then:
             --bar will show the one with BAR=bar
             --nobar will show the two with BAR=nobar
@@ -342,8 +376,9 @@ my $usage = "Usage:
             --samebar will show the two with BAR=nobar
 
 
-    scores are grouped into sections by '\"<SONG>-<GAME>-<DIFFICULTY>\"'
-    '<GAME>-' is omitted if GAME is not set
+    scores are grouped into sections by \"$bucketFieldDesc\"
+      '<GAME>-' is omitted if GAME is '$singlesGameArg' (or missing)
+      '<MACHINE>-' is omitted if MACHINE is '$defaultMachineArg'
     each section starts with the name, and then contains the scores,
       one per line, formatted '<date>,<score>,<notes>'
     sections are separated by two newlines
@@ -394,7 +429,7 @@ my $usage = "Usage:
 
   $0 --bestfiles [FILTER FILTER ..]
     print the filename of the highest score for each set of scores with the same:
-      [<SONG>, <GAME>, <DIFFICULTY>]
+      $bucketFieldDesc
 
     FILTER
       see --print FILTER
@@ -418,7 +453,7 @@ my $usage = "Usage:
   $0 JPG_FILE [ARG ARG ..]
 
     rename a jpeg file using a consistent format
-    \"########_###_SONG_GAME_DIFFICULTY_SCORE_EXTRA_BAR_STAGE.jpg\"
+    \"########_###_SONG_GAME_DIFFICULTY_MACHINE_SCORE_EXTRA_BAR_STAGE.jpg\"
     ######## is presumably a date in YYYYMMDD and ### is the camera pic index
 
      JPG_FILE
@@ -426,25 +461,27 @@ my $usage = "Usage:
        must start with '########_###' and end with '.jpg'
 
      ARG
-       one of [SONG|GAME|DIFFICULTY|SCORE|STAGE|BAR|EXTRA]
+       one of [SONG|GAME|DIFFICULTY|MACHINE|SCORE|STAGE|BAR|EXTRA]
        exactly one SONG, DIFFICULTY, SCORE, STAGE, and BAR must be given
-       exactly zero or one GAME args can be given
-       exactly zero or one EXTRA args can be given
+       exactly zero or one GAME args can be given  {missing means 'singles'}
+       exactly zero or one MACHINE args can be given  {defaults to '$defaultMachineArg'}
+       exactly zero or one EXTRA args can be given  {optional}
 
      SONG
        one of <HARD_SONG> or <OTHER_SONG>
-
      HARD_SONG
        one of [$okHardSongs]
-
      OTHER_SONG
        one of [$okOtherSongs]
 
      GAME
-       one of [$okGameArgs]
+       one of [$okGameArgs]  {missing means 'singles'}
 
      DIFFICULTY
        one of [$okDifficultyArgs]
+
+     MACHINE
+       one of [$okMachineArgs]  {defaults to '$defaultMachineArg'}
 
      SCORE
        an integer between 100,000 and 1,000,000
@@ -452,7 +489,7 @@ my $usage = "Usage:
        commas, if present, are stripped out
 
      EXTRA
-       one of [$okExtraArgs]
+       one of [$okExtraArgs]  {optional}
 
      BAR
        one of [$okBarArgs]
@@ -520,6 +557,8 @@ sub main(@){
     nameReminder($_[0], $_[1]);
   }elsif(@_ > 1 and $_[0] =~ /\.jpg$/){
     name(@_);
+  }else{
+    die $usage;
   }
 }
 
@@ -546,7 +585,7 @@ sub fehterm($@){
     . "echo %f; "
     ;
 
-  run "/usr/bin/feh", "-g", "800x800", "--info", $infoCmd;
+  run "/usr/bin/feh", "-g", "800x800+50+50", "--info", $infoCmd;
 }
 
 sub orientation($@){
@@ -624,7 +663,7 @@ sub dateStats($@){
     my $doublesCount = 0;
     my $total = @dateScores;
     for my $score(@dateScores){
-      if(defined $$score{game} and $$score{game} eq "doubles"){
+      if($$score{game} eq "doubles"){
         $doublesCount++;
       }elsif($isHardSong{$$score{song}}){
         $hardSinglesCount++;
@@ -638,13 +677,14 @@ sub dateStats($@){
     my $minMtime = undef;
     my $maxMtime = undef;
 
-    my $buckets = getScoreBuckets \@dateScores, 0, qw(song game difficulty);
+    my $buckets = getScoreBuckets \@dateScores, 1, @DEFAULT_BUCKET_FIELDS;
     my @bucketSummary;
     for my $bucketName(sort keys %$buckets){
       my @scores = @{$$buckets{$bucketName}};
       my $first = $scores[0];
-      my ($song, $game, $difficulty) = (
-        $$first{song}, $$first{game}, $$first{difficulty});
+
+      my $isDoubles = $$first{game} eq "doubles" ? 1 : 0;
+      my $hardSong = $isHardSong{$$first{song}} ? 1 : 0;
 
       for my $score(@scores){
         my $file = $$score{file};
@@ -660,24 +700,12 @@ sub dateStats($@){
         $maxMtime = $mtime if not defined $maxMtime or $mtime > $maxMtime;
       }
 
-      my $songAbbrev = $songAbbrevs{$song};
-      my $diffAbbrev = $difficultyAbbrevs{$difficulty};
-      my $shortName = $songAbbrevs{$song};
-      my $isDoubles = 0;
-      if(defined $game and $game eq "doubles"){
-        $shortName .= "-DBL";
-        $isDoubles = 1;
-      }
-      if($difficulty ne $defaultDifficulty{$song}){
-        $shortName .= "-$diffAbbrev";
-      }
-
       my $count = @scores;
       push @bucketSummary, {
-        name=>$shortName,
+        name=>$bucketName,
         count=>$count,
         isDoubles=>$isDoubles ? 1 : 0,
-        isHardSingles=>(not $isDoubles and $isHardSong{$song}) ? 1 : 0,
+        isHardSingles=>(not $isDoubles and $hardSong) ? 1 : 0,
         scores=>[reverse sort map {$$_{score}} @scores],
       };
     }
@@ -754,7 +782,10 @@ sub courseStats($@){
     $$mtimes{$file} = mtime "$scoreDir/$file";
   }
 
-  my @sortedScores = sort {$$mtimes{$a} <=> $$mtimes{$b}} keys %$scoresByFile;
+  my @sortedScores = sort {
+    $$mtimes{$a} <=> $$mtimes{$b}
+    || $a cmp $b
+  } keys %$scoresByFile;
 
   my @courses;
   my $curCourse = undef;
@@ -773,9 +804,12 @@ sub courseStats($@){
       my $stageNumDiff = $stageNum - $lastStageNum;
       my $mtimeDiff = $mtime - $lastMtime;
 
+      my $minMtimeDiff = $minStageGapSeconds*$stageNumDiff;
+      my $maxMtimeDiff = $maxStageGapSeconds*$stageNumDiff;
+
       if($stageNumDiff <= 0){
         $isNewCourse = 1;
-      }elsif($mtimeDiff > $stageGapSeconds*$stageNumDiff){
+      }elsif($mtimeDiff < $minMtimeDiff or $mtimeDiff > $maxMtimeDiff){
         $isNewCourse = 1;
       }
     }
@@ -796,26 +830,12 @@ sub courseStats($@){
     my $first = ${$course}[0];
     my $fmt = "$$first{date}:";
     for my $score(@$course){
-      my $shortName = $songAbbrevs{$$score{song}};
-      $fmt .= " $shortName";
+      $fmt .= " " . getBucketName $score, 1, @DEFAULT_BUCKET_FIELDS;
     }
     $fmt .= "\n";
     for my $score(@$course){
-      my ($song, $game, $difficulty) = (
-        $$score{song}, $$score{game}, $$score{difficulty});
-
-      my $songAbbrev = $songAbbrevs{$song};
-      my $diffAbbrev = $difficultyAbbrevs{$difficulty};
-      my $shortName = $songAbbrevs{$song};
-      my $isDoubles = 0;
-      if(defined $game and $game eq "doubles"){
-        $shortName .= "-DBL";
-        $isDoubles = 1;
-      }
-      if($difficulty ne $defaultDifficulty{$song}){
-        $shortName .= "-$diffAbbrev";
-      }
-      $fmt .= "  $$score{stage} $$score{score} $shortName\n";
+      my $abbrevBucketName = getBucketName $score, 1, @DEFAULT_BUCKET_FIELDS;
+      $fmt .= "  $$score{stage} $$score{score} $abbrevBucketName\n";
     }
     print $fmt;
   }
@@ -922,13 +942,19 @@ sub parseFilterOptions($){
       my $regex = "^($okOtherSongs)\$";
       $$filters{songs} = {map {$_ => $_ =~ m/$regex/ ? 1 : 0} @songArgs};
     }elsif($opt =~ /^(--singles)$/){
-      $$filters{game} = {doubles => 0, nonstop => 0, nonstopdoubles => 0, "" => 1};
+      $$filters{game} = {singles => 1, doubles => 0, nonstop => 0, nonstopdoubles => 0};
     }elsif($opt =~ /^(--doubles)$/){
-      $$filters{game} = {doubles => 1, nonstop => 0, nonstopdoubles => 0, "" => 0};
+      $$filters{game} = {singles => 0, doubles => 1, nonstop => 0, nonstopdoubles => 0};
     }elsif($opt =~ /^(--nonstop)$/){
-      $$filters{game} = {doubles => 0, nonstop => 1, nonstopdoubles => 0, "" => 0};
+      $$filters{game} = {singles => 0, doubles => 0, nonstop => 1, nonstopdoubles => 0};
     }elsif($opt =~ /^(--nonstopdoubles)$/){
-      $$filters{game} = {doubles => 0, nonstop => 0, nonstopdoubles => 1, "" => 0};
+      $$filters{game} = {singles => 0, doubles => 0, nonstop => 0, nonstopdoubles => 1};
+    }elsif($opt =~ /^(--sn2)$/){
+      $$filters{machine} = {sn2 => 1, 2013 => 0, a => 0};
+    }elsif($opt =~ /^(--2013)$/){
+      $$filters{machine} = {sn2 => 0, 2013 => 1, a => 0};
+    }elsif($opt =~ /^(--a)$/){
+      $$filters{machine} = {sn2 => 0, 2013 => 0, a => 1};
     }elsif($opt =~ /^(--score|--minscore)$/){
       die "$usage\ninvalid $opt: $arg\n" if $arg !~ /^(\d+)$/;
       $$filters{minscore} = $1;
@@ -993,20 +1019,21 @@ sub name(@){
   my $info = parseArgs @_;
   die $usage if not defined $file or not -f $file or not defined $info;
   die "missing SONG\n" if not defined $$info{song};
+  die "missing GAME\n" if not defined $$info{game};
   die "missing DIFFICULTY\n" if not defined $$info{difficulty};
+  die "missing MACHINE\n" if not defined $$info{machine};
   die "missing SCORE\n" if not defined $$info{score};
   die "missing BAR\n" if not defined $$info{bar};
   die "missing STAGE\n" if not defined $$info{stage};
 
-  my $bucketName = getBucketName $info, 0, qw(song game difficulty);
+  my $bucketName = getBucketName $info, 0, @DEFAULT_BUCKET_FIELDS;
 
   my $scoresByFile = getScoresByFile();
   my $scores = [values %$scoresByFile];
-  my $buckets = getScoreBuckets($scores, 0, qw(song game difficulty));
+  my $buckets = getScoreBuckets($scores, 0, @DEFAULT_BUCKET_FIELDS);
 
   my $orient = getImageOrientation $file;
   my $game = $$info{game};
-  $game = "singles" if not defined $game;
   if(not defined $orient){
     warnMsg("unknown orientation");
   }elsif($orient eq "landscape" and $game =~ /^(singles|nonstop)$/){
@@ -1050,8 +1077,9 @@ sub name(@){
   my $newFileName = '';
   $newFileName .= "$prefix";
   $newFileName .= "_$$info{song}";
-  $newFileName .= "_$$info{game}" if defined $$info{game};
+  $newFileName .= "_$$info{game}" if $$info{game} ne $singlesGameArg;
   $newFileName .= "_$$info{difficulty}";
+  $newFileName .= "_$$info{machine}";
   $newFileName .= "_$$info{score}";
   $newFileName .= "_$$info{extra}" if defined $$info{extra};
   $newFileName .= "_$$info{bar}";
@@ -1074,6 +1102,9 @@ sub parseArgs(@){
     }elsif($arg =~ /^($okDifficultyArgs)$/){
       return undef if defined $$info{difficulty};
       $$info{difficulty} = $arg;
+    }elsif($arg =~ /^($okMachineArgs)$/){
+      return undef if defined $$info{machine};
+      $$info{machine} = $arg;
     }elsif($arg =~ /^(\d,?){5,6}(\d)$/){
       warnMsg("score non-multiple-of-ten: $arg") if $2 != 0;
       my $score = $arg;
@@ -1094,6 +1125,10 @@ sub parseArgs(@){
       return undef;
     }
   }
+
+  $$info{game} = $singlesGameArg if not defined $$info{game};
+  $$info{machine} = $defaultMachineArg if not defined $$info{machine};
+
   return $info;
 }
 
@@ -1115,40 +1150,42 @@ sub listScoreFiles(){
 sub parseScoreFile($){
   my $file = shift;
   if($file !~ /^
-    (\d{8})
-    _(\d+)
-    _($okSongArgs)
-    (?:_($okGameArgs))?
-    _($okDifficultyArgs)
-    _(\d+)
-    (?:_($okExtraArgs))?
-    _($okBarArgs)
-    _($okStageArgs)
+    (?<date>\d{8})
+    _(?<index>\d+)
+    _(?<song>$okSongArgs)
+    (?:_(?<game>$okGameArgs))?
+    _(?<difficulty>$okDifficultyArgs)
+    _(?<machine>$okMachineArgs)
+    _(?<score>\d+)
+    (?:_(?<extra>$okExtraArgs))?
+    _(?<bar>$okBarArgs)
+    _(?<stage>$okStageArgs)
     \.jpg$/x){
     die "malformed file name: $file\n";
   }
-  return {
+  my $info = {
     file       => $file,
-    date       => $1,
-    index      => $2,
-    song       => $3,
-    game       => $4,
-    difficulty => $5,
-    score      => $6,
-    extra      => $7,
-    bar        => $8,
-    stage      => $9,
+    date       => $+{date},
+    index      => $+{index},
+    song       => $+{song},
+    game       => $+{game},
+    difficulty => $+{difficulty},
+    machine    => $+{machine},
+    score      => $+{score},
+    extra      => $+{extra},
+    bar        => $+{bar},
+    stage      => $+{stage},
   };
+  $$info{game} = $singlesGameArg if not defined $$info{game} or $$info{game} eq "";
+  return $info;
 }
 
 sub sortScores($){
   my $scores = shift;
   return [sort {
-    my $aGame = defined $$a{game} ? $$a{game} : "";
-    my $bGame = defined $$b{game} ? $$b{game} : "";
     $$a{date} <=> $$b{date}
     ||
-    $aGame cmp $bGame
+    $$a{game} cmp $$b{game}
     ||
     $$a{song} cmp $$b{song}
     ||
@@ -1165,9 +1202,23 @@ sub getBucketName($$@){
     my $val = $$score{$bucketField};
     if($abbrevBucket){
       if($bucketField eq "song"){
-        $val = $songAbbrevs{$val} if defined $songAbbrevs{$val};
+        $val = $songAbbrevs{$val};
       }elsif($bucketField eq "difficulty"){
-        $val = $difficultyAbbrevs{$val} if defined $difficultyAbbrevs{$val};
+        if($val eq $defaultDifficulty{$$score{song}}){
+          $val = undef;
+        }else{
+          $val = $difficultyAbbrevs{$val};
+        }
+      }elsif($bucketField eq "game"){
+        if($val eq $singlesGameArg){
+          $val = undef;
+        }else{
+          $val = $gameAbbrevs{$val};
+        }
+      }elsif($bucketField eq "machine"){
+        if($val eq $defaultMachineArg){
+          $val = undef;
+        }
       }
     }
     push @bucketFieldVals, $val;
@@ -1264,8 +1315,14 @@ sub filterScores($$){
     if(defined $$filters{game}){
       my $f = $$filters{game};
       my $game = $$s{game};
-      $game = "" if not defined $game;
       if(defined $$f{$game} and not $$f{$game}){
+        $ok = 0;
+      }
+    }
+    if(defined $$filters{machine}){
+      my $f = $$filters{machine};
+      my $machine = $$s{machine};
+      if(defined $$f{$machine} and not $$f{$machine}){
         $ok = 0;
       }
     }
@@ -1302,7 +1359,7 @@ sub filterScores($$){
 
   if($$filters{bar}){
     my $scores = [values %$origScoresByFile];
-    my $buckets = getScoreBuckets($scores, 0, qw(song game difficulty));
+    my $buckets = getScoreBuckets($scores, 0, @DEFAULT_BUCKET_FIELDS);
     my $bucketBarCounts = getBucketBarCounts $buckets;
     for my $bucketName(sort keys %$buckets){
       my $bucketScores = $$buckets{$bucketName};
@@ -1327,7 +1384,7 @@ sub filterScores($$){
 
   if($$filters{monotonic}){
     my $scores = [values %$scoresByFile];
-    my $buckets = getScoreBuckets($scores, 0, qw(song game difficulty));
+    my $buckets = getScoreBuckets($scores, 0, @DEFAULT_BUCKET_FIELDS);
     for my $bucketName(sort keys %$buckets){
       my $bucketScores = $$buckets{$bucketName};
       sortScores $bucketScores;
@@ -1354,7 +1411,7 @@ sub formatScores($$$){
   $scoresByFile = filterScores $scoresByFile, $filters;
 
   my $scores = [values %$scoresByFile];
-  my $buckets = getScoreBuckets($scores, $abbrevBucket, qw(song game difficulty));
+  my $buckets = getScoreBuckets($scores, $abbrevBucket, @DEFAULT_BUCKET_FIELDS);
 
   my $fmt = "";
   for my $bucketName(sort keys %$buckets){
@@ -1373,7 +1430,7 @@ sub getBestScores($){
   $scoresByFile = filterScores $scoresByFile, $filters;
 
   my $scores = [values %$scoresByFile];
-  my $buckets = getScoreBuckets($scores, 0, qw(song game difficulty));
+  my $buckets = getScoreBuckets($scores, 0, @DEFAULT_BUCKET_FIELDS);
 
   my $bestScores = {};
 
@@ -1601,6 +1658,7 @@ sub bashComplete($$){
   @complete = (@songArgs, @complete) if not defined $$info{song};
   #@complete = (@gameArgs, @complete) if not defined $$info{game};
   @complete = (@difficultyArgs, @complete) if not defined $$info{difficulty};
+  #@complete = (@machineArgs, @complete) if not defined $$info{machine};
   #@complete = (@extraArgs, @complete) if not defined $$info{extra};
   @complete = (@barArgs, @complete) if not defined $$info{bar};
   @complete = (@stageArgs, @complete) if not defined $$info{stage};
