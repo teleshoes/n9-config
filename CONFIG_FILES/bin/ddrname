@@ -85,6 +85,7 @@ my @songArr = (
   ['belovin'                  => 'beLov' => 'other' => 'expert'],
   ['blindjustice'             => 'blnJs' => 'other' => 'expert'],
   ['breakdown'                => 'brkDn' => 'other' => 'expert'],
+  ['burnbabyburn'             => 'brnBa' => 'other' => 'expert'],
   ['canbereal'                => 'canBR' => 'other' => 'expert'],
   ['candystar'                => 'canSt' => 'other' => 'expert'],
   ['colors'                   => 'color' => 'other' => 'challenge'],
@@ -101,6 +102,8 @@ my @songArr = (
   ['flowers'                  => 'flwrs' => 'other' => 'expert'],
   ['flow'                     => 'flwJa' => 'other' => 'expert'],
   ['freedom'                  => 'fredm' => 'other' => 'expert'],
+  ['givemeup'                 => 'givMU' => 'other' => 'expert'],
+  ['goldensky'                => 'gldSk' => 'other' => 'expert'],
   ['groove2001'               => 'grv21' => 'other' => 'expert'],
   ['healingvision'            => 'hgVsn' => 'other' => 'expert'],
   ['healingvisionangelic'     => 'hgVnA' => 'other' => 'expert'],
@@ -113,6 +116,7 @@ my @songArr = (
   ['jamandmarmalade'          => 'jmMar' => 'other' => 'expert'],
   ['janejana'                 => 'jneJn' => 'other' => 'expert'],
   ['jerkitout'                => 'jrkIO' => 'other' => 'expert'],
+  ['lamouretlaliberte'        => 'lamou' => 'other' => 'expert'],
   ['loveisorange'             => 'lvOrn' => 'other' => 'expert'],
   ['magicdoor'                => 'mgcDr' => 'other' => 'expert'],
   ['marswar3'                 => 'mrsWr' => 'other' => 'expert'],
@@ -120,6 +124,7 @@ my @songArr = (
   ['maximizer'                => 'mxmzr' => 'other' => 'expert'],
   ['mexicanfolksong'          => 'mexFS' => 'other' => 'expert'],
   ['midnightspecial'          => 'midNS' => 'other' => 'expert'],
+  ['mindparasite'             => 'mndPa' => 'other' => 'expert'],
   ['mugen'                    => 'mugen' => 'other' => 'expert'],
   ['mysummerlove'             => 'mySLv' => 'other' => 'expert'],
   ['no13'                     => 'no13T' => 'other' => 'expert'],
@@ -128,14 +133,17 @@ my @songArr = (
   ['paranoia'                 => 'paran' => 'other' => 'expert'],
   ['paranoiaeternalstm200'    => 'prEte' => 'other' => 'expert'],
   ['paranoiaevolution200'     => 'prEvo' => 'other' => 'expert'],
+  ['paranoiakcet'             => 'prKct' => 'other' => 'expert'],
   ['paranoiamaxdirtymix190'   => 'prDrt' => 'other' => 'expert'],
   ['peace'                    => 'peace' => 'other' => 'expert'],
   ['pinkrose'                 => 'pnkRs' => 'other' => 'expert'],
   ['pluto'                    => 'pluto' => 'other' => 'expert'],
   ['putyourfaithinme'         => 'PYFIM' => 'other' => 'expert'],
+  ['quickmaster'              => 'qkMst' => 'other' => 'expert'],
   ['rainbowflyer'             => 'rbFly' => 'other' => 'expert'],
   ['rainbowrainbow'           => 'rnbow' => 'other' => 'expert'],
   ['raspberryheart'           => 'rspHr' => 'other' => 'expert'],
+  ['redzone'                  => 'redZn' => 'other' => 'expert'],
   ['rememberyou'              => 'remYo' => 'other' => 'expert'],
   ['sakura'                   => 'sakra' => 'other' => 'expert'],
   ['sanamollete'              => 'sanaM' => 'other' => 'expert'],
@@ -145,6 +153,7 @@ my @songArr = (
   ['sunkissdrop'              => 'snkDr' => 'other' => 'expert'],
   ['sunrise'                  => 'sunri' => 'other' => 'expert'],
   ['sweetsweetmagic'          => 'swtMa' => 'other' => 'expert'],
+  ['sync'                     => 'syncE' => 'other' => 'expert'],
   ['tripmachine'              => 'trpMa' => 'other' => 'expert'],
   ['tripmachinesurvivor'      => 'trpMS' => 'other' => 'expert'],
   ['tsugaru'                  => 'tsuga' => 'other' => 'expert'],
@@ -196,7 +205,7 @@ my %difficultyAbbrevs = (
 );
 
 my @machineArgs = qw(sn2 2013 a);
-my $defaultMachineArg = "sn2";
+my $defaultMachineArg = "a";
 my $okMachineArgs = join '|', @machineArgs;
 
 my @stageArgs = qw(1st 2nd 3rd 4extra 4nonstop);
@@ -527,12 +536,27 @@ sub getBestScores($);
 sub gnuplot($$);
 sub combine(@);
 sub mtime($);
+sub checkUnique(@);
 sub getImageOrientation($);
 sub bashComplete($$);
 sub warnMsg($);
 sub run(@);
 
 sub main(@){
+  #allow abbrevs to be the same as the full song name (e.g.: chaos)
+  my @uniqSongAbbrevs = sort values %songAbbrevs;
+  @uniqSongAbbrevs = grep {not defined $songAbbrevs{$_}} @uniqSongAbbrevs;
+  checkUnique(
+    @okFilters,
+    @okFormatOptDates, @okFormatOptCourses, @okFormatOptSongs, @okPlotOptions,
+
+    @songArgs, @gameArgs, @difficultyArgs,
+    @machineArgs, @stageArgs, @barArgs, @extraArgs,
+    @uniqSongAbbrevs,
+    (sort values %gameAbbrevs),
+    (sort values %difficultyAbbrevs),
+  );
+
   if(@_ == 3 and $_[0] =~ /^--bash-complete$/ and $_[2] =~ /^\d+$/){
     print map {"$_\n"} bashComplete($_[1], $_[2]);
     exit 0;
@@ -1557,6 +1581,22 @@ sub getImageOrientation($){
     return "portrait";
   }else{
     return "landscape";
+  }
+}
+
+sub checkUnique(@){
+  my %uniqCI;
+  my %uniqCS;
+  for my $s(@_){
+    if(defined $uniqCI{lc $s}){
+      if(not defined $uniqCS{$s}){
+        die "FATAL: case-insensitive duplicate allowed arg: $s\n";
+      }else{
+        die "FATAL: duplicate allowed arg: $s\n";
+      }
+    }
+    $uniqCI{lc $s} = 1;
+    $uniqCS{$s} = 1;
   }
 }
 
