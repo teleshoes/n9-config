@@ -1,0 +1,134 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $stepAliasesData = [
+  marvelous  => [qw(m)],
+  perfect    => [qw(p)],
+  great      => [qw(g)],
+  good       => [qw(d)],
+  almost     => [qw(a)],
+  boo        => [qw(b miss)],
+  ok         => [qw(o)],
+  ng         => [qw(n nogood)],
+];
+my $sepLen = 12;
+my %stepAliases;
+my @stepOrder;
+my $stepFormat;
+for(my $i=0; $i<@$stepAliasesData; $i+=2){
+  my ($name, @aliases) = ($$stepAliasesData[$i], @{$$stepAliasesData[$i+1]});
+  push @aliases, $name;
+  push @stepOrder, $name;
+  $stepAliases{$name} = {map {$_ => 1} @aliases};
+  my $sep = " "x($sepLen-length $name);
+  my $aliasFmt = join " | ", @aliases;
+  my $ucName = uc $name;
+  $stepFormat .= "\n      $ucName:$sep$aliasFmt";
+}
+
+my $usage = "Usage:
+  $0 [MACHINE] [<COUNT>[<STEPNAME>] <COUNT>[<STEPNAME>] ...]
+    take a list of steps any calculate dance points.
+    assume any not given are 0
+    duplicate stepnames are not allowed
+    any counts missing stepnames are assumed to count towards the total,
+      but not effect the dance points
+
+    for MACHINE=a, dance points are:
+      MARVELOUS * (S)
+      + PERFECT * (S - 10)
+      + GREAT   * (S*0.6 - 10)
+      + GOOD    * (S*0.2 - 10)
+      + OK      * (S)
+    where S = 1000000/(total of all steps)
+
+    for MACHINE=sn2, dance points are:
+      MARVELOUS * (S)
+      + PERFECT * (S - 10)
+      + GREAT   * (S*0.5 - 10)
+      + OK      * (S)
+    where S = 1000000/(total of all steps)
+
+  MACHINE
+    a     a-ish calc (default)
+    sn2   supernova2-ish calc
+
+  COUNT
+    an integer count
+
+  STEPNAME
+    optional case-insensitive step name$stepFormat
+";
+
+sub main(@){
+  my $machine = shift if @_ > 0 and $_[0] =~ /^(sn2|a)$/;
+  $machine = 'a' if not defined $machine;
+
+  my %steps;
+  $steps{other} = 0;
+  for my $s(@_){
+    if($s =~ /^(\d+)(\w+)?$/i){
+      my ($count, $stepAlias) = ($1, $2);
+      my $stepname = undef;
+      if(defined $stepAlias and $stepAlias ne ""){
+        for my $realStepname(sort keys %stepAliases){
+          my $okAliases = $stepAliases{$realStepname};
+          if(defined $$okAliases{lc $stepAlias}){
+            $stepname = $realStepname;
+            last;
+          }
+        }
+        die "$usage\ninvalid stepname: $stepAlias\n" if not defined $stepname;
+        die "duplicate stepname: $stepname\n" if defined $steps{$stepname};
+        $steps{$stepname} = $count;
+      }else{
+        $steps{other} += $count;
+      }
+    }else{
+      die "$usage\ninvalid step: $s\n";
+    }
+  }
+
+  my $total = 0;
+  $total += $_ foreach values %steps;
+  my $s = 1000000/$total;
+
+  my $dancepoints = 0;
+  for my $stepname(@stepOrder){
+    my $count = defined $steps{$stepname} ? $steps{$stepname} : 0;
+    my $sep = " "x($sepLen-length $stepname);
+    if($stepname eq "marvelous"){
+      if($machine =~ /^(a|sn2)$/){
+        $dancepoints += $count * ($s);
+      }
+    }elsif($stepname eq "perfect"){
+      if($machine =~ /^(a|sn2)$/){
+        $dancepoints += $count * ($s-10);
+      }
+    }elsif($stepname eq "great"){
+      if($machine =~ /^(a)$/){
+        $dancepoints += $count * ($s*0.6-10);
+      }elsif($machine =~ /^(sn2)$/){
+        $dancepoints += $count * ($s*0.5-10);
+      }
+    }elsif($stepname eq "good"){
+      if($machine =~ /^(a)$/){
+        $dancepoints += $count * ($s*0.2-10);
+      }elsif($machine =~ /^(sn2)$/){
+        $dancepoints += 0;
+      }
+    }elsif($stepname eq "ok"){
+      if($machine =~ /^(a|sn2)$/){
+        $dancepoints += $count * ($s);
+      }
+    }
+    print uc($stepname) . "$sep=> $count\n";
+  }
+  print "\n";
+  print "TOTAL: $total\n";
+  print "DANCEPOINTS: $dancepoints\n";
+  print "DISPLAY: " . int($dancepoints/10)*10 . "\n";
+}
+
+&main(@ARGV);
