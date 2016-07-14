@@ -1,0 +1,30 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub run(@);
+
+sub main(@){
+  my $d = `date +%Y-%m-%d_%s`;
+  chomp $d;
+  my $file = "sbcam-$d.jpeg";
+
+  my $sbHost = `seedbox`;
+  chomp $sbHost;
+
+  run "seedbox", "-r", "bash -c '"
+    . " echo running streamer on `hostname`;"
+    . " streamer -f jpeg -o /tmp/$file;"
+    . " scp /tmp/$file $sbHost:~/$file;"
+    . "'";
+
+  run "scp", "$sbHost:~/$file", "/tmp/$file";
+  run "feh", "/tmp/$file";
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+&main(@ARGV);
