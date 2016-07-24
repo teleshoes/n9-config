@@ -62,6 +62,7 @@ my $argOptPlotOptionsRegex = join "|", qw( --file --size );
 # DDRA-style 1-20 scale
 my $HARD_SONG_FEET = 14;
 
+sub getUsage(;$);
 sub readSongList();
 sub fehterm($@);
 sub orientation($@);
@@ -137,7 +138,10 @@ my $okBarArgs = join '|', @barArgs;
 my @extraArgs = qw(fc pfc);
 my $okExtraArgs = join '|', @extraArgs;
 
-my $usage = "Usage:
+sub getUsage(;$){
+  my $msg = shift;
+
+  my $usage = "Usage:
   $0 --fehterm
     -open a terminal using term and get its window id with xwininfo
     -open feh with --info set to type in the newly opened terminal with xdotool
@@ -407,7 +411,18 @@ my $usage = "Usage:
        exactly zero or one EXTRA args can be given  {optional}
 
      SONG
-       one of [$okSongArgs]
+       song name from $SONG_LIST_FILE
+
+       each non-empty line in the song list must be formatted like this:
+       \"SONG   ABBREV   FEET FEET FEET FEET FEET    FEET FEET FEET FEET\"
+
+         SONG is the song name
+           if consists only of lower-case letters, numbers, and dashes (e.g.: max-300)
+         ABBREV is the abbreviation for the SONG
+         FEET is the song's feet difficulty. it must be an integer or a single dash '-'
+           they are listed in the song list in the following order:
+           singles (beginner, basic, difficult, expert, challenge)
+           doubles (basic, difficult, expert, challenge)
 
      GAME
        one of [$okGameArgs]  {missing means 'singles'}
@@ -436,7 +451,19 @@ my $usage = "Usage:
      print a list of words for bash completion, one per line
      COMP_LINE  - the full cmdline as a string
      COMP_POINT - the cursor position in the cmdline
-";
+  ";
+
+  $usage =~ s/\s*$//;
+  chomp $usage;
+  $usage .= "\n";
+
+  if(defined $msg){
+    chomp $msg;
+    $usage .= "\n$msg\n";
+  }
+
+  return $usage;
+}
 
 sub main(@){
   #allow abbrevs to be the same as the full song name (e.g.: chaos)
@@ -478,12 +505,14 @@ sub main(@){
   }elsif(@_ > 1 and $_[0] =~ /\.jpg$/){
     name(@_);
   }else{
-    die $usage;
+    die getUsage();
   }
 }
 
 sub readSongList(){
-  die "$usage\nERROR: Could not find $SONG_LIST_FILE\n" if not -f $SONG_LIST_FILE;
+  if(not -f $SONG_LIST_FILE){
+    die getUsage("ERROR: Could not find $SONG_LIST_FILE") if not -f $SONG_LIST_FILE;
+  }
   open FH, "< $SONG_LIST_FILE" or die "Could not read $SONG_LIST_FILE\n$!\n";
   my @songs;
   while(my $line = <FH>){
@@ -492,11 +521,11 @@ sub readSongList(){
       my ($song, $abbrev, $feet) = ($1, $2, $3);
       my @feetArr = $feet =~ /\s+(\d+|-)/g;
       if(@feetArr != 9){
-        die "$usage\nERROR: Malformed feet in line in $SONG_LIST_FILE: $line";
+        die getUsage("ERROR: Malformed feet in line in $SONG_LIST_FILE: $line");
       }
       push @songs, [$song, $abbrev, [@feetArr]];
     }else{
-      die "$usage\nERROR: Malformed line in $SONG_LIST_FILE: $line";
+      die getUsage("ERROR: Malformed line in $SONG_LIST_FILE: $line");
     }
   }
   return @songs;
@@ -504,7 +533,7 @@ sub readSongList(){
 
 sub fehterm($@){
   my $cmd = shift;
-  die $usage if @_ != 0;
+  die getUsage() if @_ != 0;
 
   my $windowTitle = "ddrname-fehterm";
   run ("term",
@@ -569,7 +598,7 @@ sub dateStats($@){
 
   my $filters = parseFilterOptions $opts;
 
-  die $usage if @$opts != 0;
+  die getUsage() if @$opts != 0;
 
   my $scoresByFile = getScoresByFile();
   $scoresByFile = filterScores $scoresByFile, $filters;
@@ -702,7 +731,7 @@ sub courseStats($@){
 
   my $filters = parseFilterOptions $opts;
 
-  die $usage if @$opts != 0;
+  die getUsage() if @$opts != 0;
 
   my $stageNums = {
     "1st" => 1,
@@ -842,14 +871,14 @@ sub parsePlotOptions($){
     my $opt = shift @$opts;
     my $arg;
     if($opt =~ /^($argOptPlotOptionsRegex)$/){
-      die "$usage\nmissing arg to $opt\n" if @$opts == 0;
+      die getUsage("missing arg to $opt") if @$opts == 0;
       $arg = shift @$opts;
     }
 
     if($opt =~ /^(--file)$/){
       $$plotOptions{file} = $arg;
     }elsif($opt =~ /^(--size)$/){
-      die "$usage\ninvalid $opt: $arg\n" if $arg !~ /^(\d+)[ ,x]+(\d+)$/;
+      die getUsage("invalid $opt: $arg") if $arg !~ /^(\d+)[ ,x]+(\d+)$/;
       $$plotOptions{size} = "$1,$2";
     }elsif($opt =~ /^(--smooth)$/){
       $$plotOptions{smooth} = 1;
@@ -865,12 +894,12 @@ sub parseFilterOptions($){
     my $opt = shift @$opts;
     my $arg;
     if($opt =~ /^($argOptFiltersRegex)$/){
-      die "$usage\nmissing arg to $opt\n" if @$opts == 0;
+      die getUsage("missing arg to $opt") if @$opts == 0;
       $arg = shift @$opts;
     }
 
     if($opt =~ /^(--song)$/){
-      die "$usage\nmissing arg to $opt\n" if not defined $arg;
+      die getUsage("missing arg to $opt") if not defined $arg;
       my $regex = "^$arg\$";
       $$filters{songs} = {map {$_ => $_ =~ m/$regex/ ? 1 : 0} @songArgs};
     }elsif($opt =~ /^(--hard)$/){
@@ -892,13 +921,13 @@ sub parseFilterOptions($){
     }elsif($opt =~ /^(--a)$/){
       $$filters{machine} = {sn2 => 0, 2013 => 0, a => 1};
     }elsif($opt =~ /^(--score|--minscore)$/){
-      die "$usage\ninvalid $opt: $arg\n" if $arg !~ /^(\d+)$/;
+      die getUsage("invalid $opt: $arg") if $arg !~ /^(\d+)$/;
       $$filters{minscore} = $1;
     }elsif($opt =~ /^(--maxscore)$/){
-      die "$usage\ninvalid $opt: $arg\n" if $arg !~ /^(\d+)$/;
+      die getUsage("invalid $opt: $arg") if $arg !~ /^(\d+)$/;
       $$filters{maxscore} = $1;
     }elsif($opt =~ /^(--mindate|--date)$/){
-      die "$usage\ninvalid $opt: $arg\n" if $arg !~ /^(\d{8})$/;
+      die getUsage("invalid $opt: $arg") if $arg !~ /^(\d{8})$/;
       $$filters{mindate} = $1;
     }elsif($opt =~ /^(--monotonic|--increasing|--records)$/){
       $$filters{monotonic} = 1;
@@ -911,7 +940,7 @@ sub parseFilterOptions($){
       my $sixmos = DateTime->now->subtract(days=>180)->strftime('%Y%m%d');
       $$filters{mindate} = $sixmos;
     }elsif($opt =~ /^(--maxdate)$/){
-      die "$usage\ninvalid $opt: $arg\n" if $arg !~ /^(\d{8})$/;
+      die getUsage("invalid $opt: $arg") if $arg !~ /^(\d{8})$/;
       $$filters{maxdate} = $1;
     }elsif($opt =~ /^(--bar)$/){
       $$filters{bar} = "bar";
@@ -922,7 +951,7 @@ sub parseFilterOptions($){
     }elsif($opt =~ /^(--samebar)$/){
       $$filters{bar} = "same";
     }else{
-      die "$usage\nunknown filter: $opt\n";
+      die getUsage("unknown filter: $opt");
     }
   }
   return $filters;
@@ -953,7 +982,7 @@ sub nameReminder($$){
 sub name(@){
   my $file = shift;
   my $info = parseArgs @_;
-  die $usage if not defined $file or not -f $file or not defined $info;
+  die getUsage() if not defined $file or not -f $file or not defined $info;
   die "missing SONG\n" if not defined $$info{song};
   die "missing GAME\n" if not defined $$info{game};
   die "missing DIFFICULTY\n" if not defined $$info{difficulty};
