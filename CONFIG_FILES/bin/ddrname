@@ -3,6 +3,8 @@ use strict;
 use warnings;
 use Time::HiRes qw(sleep);
 
+my $SONG_LIST_FILE = "$ENV{HOME}/.config/ddrname-songlist";
+
 my $scoreDir = "$ENV{HOME}/Desktop/DCIM/xddr";
 $scoreDir = "/home/user/pixmirror/xddr" if not -d $scoreDir;
 
@@ -27,7 +29,8 @@ my $defaultNotes = {
 my $defaultNotesFormat = join ",", grep {$$defaultNotes{$_}} keys %$defaultNotes;
 
 my @okFilters = qw(
-  --song --hard --nothard
+  --song
+  --hard --nothard
   --singles --doubles --nonstop --nonstopdoubles
   --sn2 --2013 --a
   --score --minscore --maxscore --monotonic --increasing --records
@@ -56,130 +59,47 @@ my @okPlotOptions = qw(--file --size --smooth);
 my $okPlotOptionsRegex = join "|", @okPlotOptions;
 my $argOptPlotOptionsRegex = join "|", qw( --file --size );
 
-my @songArr = (
-  ['arrabbiata'                           => 'arbta' => 'hard' => 'expert'],
-  ['am-3p-chaos-special'                  => 'am3pc' => 'hard' => 'challenge'],
-  ['b4u-voltage-special'                  => 'b4uvs' => 'hard' => 'challenge'],
-  ['bag'                                  => 'bagRe' => 'hard' => 'expert'],
-  ['chaos'                                => 'chaos' => 'hard' => 'expert'],
-  ['fascination-eternal-love-mix'         => 'fascE' => 'hard' => 'expert'],
-  ['healing-d-vision'                     => 'hgDvn' => 'hard' => 'expert'],
-  ['the-legend-of-max'                    => 'legmx' => 'hard' => 'expert'],
-  ['max-300'                              => 'mx300' => 'hard' => 'expert'],
-  ['max-300-super-max-me-mix'             => 'm3smm' => 'hard' => 'challenge'],
-  ['max-300-x-special'                    => 'm3xsp' => 'hard' => 'challenge'],
-  ['maxx-unlimited'                       => 'maxxU' => 'hard' => 'expert'],
-  ['paranoia-respect'                     => 'prRsp' => 'hard' => 'expert'],
-  ['paranoia-survivor'                    => 'prSur' => 'hard' => 'expert'],
-  ['paranoia-survivor-max'                => 'prSrM' => 'hard' => 'expert'],
-  ['trim'                                 => 'trimK' => 'hard' => 'expert'],
-  ['trip-machine-phoenix'                 => 'trpMP' => 'hard' => 'challenge'],
-  ['xepher'                               => 'xephe' => 'hard' => 'challenge'],
+# DDRA-style 1-20 scale
+my $HARD_SONG_FEET = 14;
 
-  ['321stars'                             => '321st' => 'other' => 'expert'],
-  ['aa-djamuro'                           => 'aaDJA' => 'other' => 'expert'],
-  ['am-3p-303-bass-mix'                   => 'am3pB' => 'other' => 'challenge'],
-  ['a-renaissance'                        => 'aRena' => 'other' => 'challenge'],
-  ['a-stupid-barber'                      => 'stBrb' => 'other' => 'expert'],
-  ['b4u'                                  => 'b4uNa' => 'other' => 'expert'],
-  ['be-lovin'                             => 'beLov' => 'other' => 'expert'],
-  ['blind-justice-torn-souls-hurt-faiths' => 'blnJs' => 'other' => 'expert'],
-  ['break-down'                           => 'brkDn' => 'other' => 'expert'],
-  ['burn-baby-burn'                       => 'brnBa' => 'other' => 'expert'],
-  ['can-be-real'                          => 'canBR' => 'other' => 'expert'],
-  ['candy-star'                           => 'canSt' => 'other' => 'expert'],
-  ['colors-for-extreme'                   => 'color' => 'other' => 'challenge'],
-  ['come-clean'                           => 'cmCln' => 'other' => 'expert'],
-  ['dead-end'                             => 'dedEn' => 'other' => 'expert'],
-  ['destiny-lovers'                       => 'dstnL' => 'other' => 'expert'],
-  ['dive-more-deep-and-deeper-style'      => 'diveB' => 'other' => 'expert'],
-  ['doll'                                 => 'dollT' => 'other' => 'challenge'],
-  ['dragon-blade'                         => 'drgnB' => 'other' => 'expert'],
-  ['drop-out'                             => 'drpOt' => 'other' => 'expert'],
-  ['dynamite-rave'                        => 'dyRav' => 'other' => 'expert'],
-  ['dynamite-rave-air-special'            => 'dyRvA' => 'other' => 'challenge'],
-  ['exotic-ethnic'                        => 'exEth' => 'other' => 'expert'],
-  ['hana-ranman-flowers'                  => 'flwrs' => 'other' => 'expert'],
-  ['flow-jammin-ragga-mix'                => 'flwJa' => 'other' => 'expert'],
-  ['freedom'                              => 'fredm' => 'other' => 'expert'],
-  ['give-me-up'                           => 'givMU' => 'other' => 'expert'],
-  ['golden-sky'                           => 'gldSk' => 'other' => 'expert'],
-  ['groove-2001'                          => 'grv21' => 'other' => 'expert'],
-  ['healing-vision'                       => 'hgVsn' => 'other' => 'expert'],
-  ['healing-vision-angelic-mix'           => 'hgVnA' => 'other' => 'expert'],
-  ['himawari'                             => 'himaw' => 'other' => 'expert'],
-  ['hold-on-me'                           => 'hldOM' => 'other' => 'expert'],
-  ['holic'                                => 'holic' => 'other' => 'expert'],
-  ['hunting-for-you'                      => 'hnt4U' => 'other' => 'expert'],
-  ['hyper-eurobeat'                       => 'hyEur' => 'other' => 'expert'],
-  ['insertion-machine-gun-kelly-mix'      => 'inMGK' => 'other' => 'expert'],
-  ['jam-and-marmalade'                    => 'jmMar' => 'other' => 'expert'],
-  ['janejana'                             => 'jneJn' => 'other' => 'expert'],
-  ['jerk-it-out'                          => 'jrkIO' => 'other' => 'expert'],
-  ['l-amour-et-la-liberte-darwindjsilver' => 'lamDJ' => 'other' => 'expert'],
-  ['love-is-orange'                       => 'lvOrn' => 'other' => 'expert'],
-  ['magic-door-theme-of-space-maco'       => 'mgcDr' => 'other' => 'expert'],
-  ['mars-war-3'                           => 'mrsWr' => 'other' => 'expert'],
-  ['matsuri-japan'                        => 'matsu' => 'other' => 'expert'],
-  ['maximizer'                            => 'mxmzr' => 'other' => 'expert'],
-  ['la-bamba-mexican-folk-song'           => 'mexFS' => 'other' => 'expert'],
-  ['midnight-special'                     => 'midNS' => 'other' => 'expert'],
-  ['mind-parasite'                        => 'mndPa' => 'other' => 'expert'],
-  ['mugen'                                => 'mugen' => 'other' => 'expert'],
-  ['my-summer-love'                       => 'mySLv' => 'other' => 'expert'],
-  ['no-13'                                => 'no13T' => 'other' => 'expert'],
-  ['orion-78-ameuro-mix'                  => 'ornEu' => 'other' => 'expert'],
-  ['orion-78-civilization-mix'            => 'ornCi' => 'other' => 'expert'],
-  ['paranoia'                             => 'paran' => 'other' => 'expert'],
-  ['paranoia-eternal'                     => 'prEte' => 'other' => 'expert'],
-  ['paranoia-evolution'                   => 'prEvo' => 'other' => 'expert'],
-  ['paranoia-kcet-clean-mix'              => 'prKct' => 'other' => 'expert'],
-  ['paranoia-max-dirty-mix'               => 'prDrt' => 'other' => 'expert'],
-  ['peace-v'                              => 'peace' => 'other' => 'expert'],
-  ['pink-rose'                            => 'pnkRs' => 'other' => 'expert'],
-  ['pluto'                                => 'pluto' => 'other' => 'expert'],
-  ['put-your-faith-in-me'                 => 'PYFIM' => 'other' => 'expert'],
-  ['quick-master'                         => 'qkMst' => 'other' => 'expert'],
-  ['rainbow-flyer'                        => 'rbFly' => 'other' => 'expert'],
-  ['rainbow-rainbow'                      => 'rnbow' => 'other' => 'expert'],
-  ['raspberry-heart'                      => 'rspHr' => 'other' => 'expert'],
-  ['red-zone'                             => 'redZn' => 'other' => 'expert'],
-  ['remember-you'                         => 'remYo' => 'other' => 'expert'],
-  ['sakura'                               => 'sakra' => 'other' => 'expert'],
-  ['sana-mollete-ne-ente'                 => 'sanaM' => 'other' => 'expert'],
-  ['seduction-vocal-remix'                => 'sedVR' => 'other' => 'expert'],
-  ['la-senorita-virtual'                  => 'senVi' => 'other' => 'expert'],
-  ['stealth'                              => 'stlth' => 'other' => 'expert'],
-  ['sunkiss-drop'                         => 'snkDr' => 'other' => 'expert'],
-  ['sunrise-jason-nevins-remix'           => 'sunri' => 'other' => 'expert'],
-  ['sweet-sweet-love-magic'               => 'swtMa' => 'other' => 'expert'],
-  ['sync-extreme-version'                 => 'syncE' => 'other' => 'expert'],
-  ['trip-machine'                         => 'trpMa' => 'other' => 'expert'],
-  ['trip-machine-survivor'                => 'trpMS' => 'other' => 'expert'],
-  ['tsugaru'                              => 'tsuga' => 'other' => 'expert'],
-  ['tsugaru-apple-mix'                    => 'tsuAM' => 'other' => 'challenge'],
-  ['trust-dancedancerevolution-mix'       => 'trust' => 'other' => 'expert'],
-  ['try-2-luv-u'                          => 'try2L' => 'other' => 'expert'],
-  ['two-months-off'                       => 'twoMO' => 'other' => 'expert'],
-  ['v-for-extreme'                        => 'v4Ext' => 'other' => 'challenge'],
-  ['why-not'                              => 'whyNt' => 'other' => 'expert'],
+sub readSongList();
+sub fehterm($@);
+sub orientation($@);
+sub dateStats($@);
+sub courseStats($@);
+sub scoreStats($@);
+sub parsePlotOptions($);
+sub parseFilterOptions($);
+sub name(@);
+sub nameReminder($$);
+sub parseArgs(@);
+sub getScoresByFile();
+sub listScoreFiles();
+sub parseScoreFile($);
+sub sortScores($);
+sub getBucketName($$@);
+sub getScoreBuckets($$@);
+sub formatBucketCsv($$$);
+sub getBucketBarCounts($);
+sub filterScores($$);
+sub formatScores($$$);
+sub getBestScores($);
+sub gnuplot($$);
+sub combine(@);
+sub mtime($);
+sub parseFeetDifficulties(@);
+sub checkUnique(@);
+sub getImageOrientation($);
+sub bashComplete($$);
+sub warnMsg($);
+sub run(@);
 
-  ['bemanispirits'                        => 'nonBS' => 'other' => 'difficult'],
-  ['classic'                              => 'nonCL' => 'other' => 'difficult'],
-  ['skipmaster'                           => 'nonSM' => 'other' => 'difficult'],
-  ['terra'                                => 'nonTR' => 'other' => 'difficult'],
-);
+my @songArr = readSongList();
 
 my %songAbbrevs = map { $$_[0] => $$_[1] } @songArr;
-my %defaultDifficulty = map { $$_[0] => $$_[3] } @songArr;
+my %songFeetDifficulties = map { $$_[0] => parseFeetDifficulties(@{$$_[2]}) } @songArr;
 
-my @hardSongs = map { $$_[0] } grep { $$_[2] eq 'hard' } @songArr;
-my $okHardSongs = join '|', @hardSongs;
-
-my @otherSongs = map { $$_[0] } grep { $$_[2] eq 'other' } @songArr;
-my $okOtherSongs = join '|', @otherSongs;
-
-my @songArgs = sort {$a cmp $b} (@hardSongs, @otherSongs);
+my @songArgs = sort {$a cmp $b} map { $$_[0] } @songArr;
 my $okSongArgs = join '|', @songArgs;
 
 my @gameArgs = qw(singles doubles nonstop nonstopdoubles);
@@ -296,22 +216,32 @@ my $usage = "Usage:
         highscore
           add 'SCORE SONG' if SCORE is the highest in the bucket
         nobar
-          add 'nobar' if SONG is a HARD_SONG and BAR is 'nobar'
+          add 'nobar' if $bucketFieldDesc is hard (FEET>=$HARD_SONG_FEET) and BAR is 'nobar'
         3rd
-          add '3rd' if SONG is a HARD_SONG and STAGE is '3rd'
+          add '3rd' if $bucketFieldDesc is hard (FEET>=$HARD_SONG_FEET) and STAGE is '3rd'
       --abbrev
         shorten bucket names by using song abbreviations
 
     FILTER: SONG
       --song REGEX
         include only scores where the whole SONG string matches REGEX
-        {overrides --hard and --nothard}
+
+    FILTER: FEET
       --hard
-        include only scores where SONG is a HARD_SONG
-        {overrides --nothard and --song}
+        include only scores where $bucketFieldDesc is hard (FEET>=$HARD_SONG_FEET)
+        {overrides --nothard}
       --nothard
-        include only scores where SONG is not a HARD_SONG
-        {overrides --song and --hard}
+        include only scores where $bucketFieldDesc is not hard (FEET<$HARD_SONG_FEET)
+        {overrides --hard}
+
+      FEET are ALWAYS in the DDR-A/DDR-2013/DDR-X/etc 1-20 scale (MAX300=15)
+      FEET were taken from zenius-i-vanisher, using the following games in order:
+        DDR-A
+        DDR-2013
+        DDR-X
+        DDR-SN2
+      if DDR-SN2 (which uses the old 1-10 scale) is used, it is scaled up
+        using the average ratio for that difficulty between DDRA and SN2
 
     FILTER: GAME
       --singles
@@ -393,8 +323,8 @@ my $usage = "Usage:
     sections are separated by two newlines
     <notes> are space-separated list of:
       EXTRA   if one of [$okExtraArgs] is present in the filename
-      nobar   if SONG is a HARD_SONG
-      3rd     if SONG is a HARD_SONG
+      nobar   if $bucketFieldDesc is hard (FEET>=$HARD_SONG_FEET)
+      3rd     if $bucketFieldDesc is hard (FEET>=$HARD_SONG_FEET)
 
       e.g.: \"max300-doubles-expert\"
             20140331,723150,
@@ -477,11 +407,7 @@ my $usage = "Usage:
        exactly zero or one EXTRA args can be given  {optional}
 
      SONG
-       one of <HARD_SONG> or <OTHER_SONG>
-     HARD_SONG
-       one of [$okHardSongs]
-     OTHER_SONG
-       one of [$okOtherSongs]
+       one of [$okSongArgs]
 
      GAME
        one of [$okGameArgs]  {missing means 'singles'}
@@ -511,36 +437,6 @@ my $usage = "Usage:
      COMP_LINE  - the full cmdline as a string
      COMP_POINT - the cursor position in the cmdline
 ";
-
-sub fehterm($@);
-sub orientation($@);
-sub dateStats($@);
-sub courseStats($@);
-sub scoreStats($@);
-sub parsePlotOptions($);
-sub parseFilterOptions($);
-sub name(@);
-sub nameReminder($$);
-sub parseArgs(@);
-sub getScoresByFile();
-sub listScoreFiles();
-sub parseScoreFile($);
-sub sortScores($);
-sub getBucketName($$@);
-sub getScoreBuckets($$@);
-sub formatBucketCsv($$$);
-sub getBucketBarCounts($);
-sub filterScores($$);
-sub formatScores($$$);
-sub getBestScores($);
-sub gnuplot($$);
-sub combine(@);
-sub mtime($);
-sub checkUnique(@);
-sub getImageOrientation($);
-sub bashComplete($$);
-sub warnMsg($);
-sub run(@);
 
 sub main(@){
   #allow abbrevs to be the same as the full song name (e.g.: chaos)
@@ -584,6 +480,26 @@ sub main(@){
   }else{
     die $usage;
   }
+}
+
+sub readSongList(){
+  die "$usage\nERROR: Could not find $SONG_LIST_FILE\n" if not -f $SONG_LIST_FILE;
+  open FH, "< $SONG_LIST_FILE" or die "Could not read $SONG_LIST_FILE\n$!\n";
+  my @songs;
+  while(my $line = <FH>){
+    next if $line =~ /^\s*$/;
+    if($line =~ /^([a-zA-Z0-9\-]+)\s*([a-zA-Z0-9]+)((?:\s+(?:\d+|-)){9})$/){
+      my ($song, $abbrev, $feet) = ($1, $2, $3);
+      my @feetArr = $feet =~ /\s+(\d+|-)/g;
+      if(@feetArr != 9){
+        die "$usage\nERROR: Malformed feet in line in $SONG_LIST_FILE: $line";
+      }
+      push @songs, [$song, $abbrev, [@feetArr]];
+    }else{
+      die "$usage\nERROR: Malformed line in $SONG_LIST_FILE: $line";
+    }
+  }
+  return @songs;
 }
 
 sub fehterm($@){
@@ -675,8 +591,6 @@ sub dateStats($@){
     push @{$$dateBuckets{$date}}, $score;
   }
 
-  my %isHardSong = map {$_ => 1} @hardSongs;
-
   my @dates = sort keys %$dateBuckets;
   @dates = reverse @dates if $reverse;
 
@@ -689,7 +603,7 @@ sub dateStats($@){
     for my $score(@dateScores){
       if($$score{game} eq "doubles"){
         $doublesCount++;
-      }elsif($isHardSong{$$score{song}}){
+      }elsif($$score{feet} > $HARD_SONG_FEET){
         $hardSinglesCount++;
       }
       $totalCount++;
@@ -708,7 +622,7 @@ sub dateStats($@){
       my $first = $scores[0];
 
       my $isDoubles = $$first{game} eq "doubles" ? 1 : 0;
-      my $hardSong = $isHardSong{$$first{song}} ? 1 : 0;
+      my $hardSong = $$first{feer} > $HARD_SONG_FEET ? 1 : 0;
 
       for my $score(@scores){
         my $file = $$score{file};
@@ -960,11 +874,9 @@ sub parseFilterOptions($){
       my $regex = "^$arg\$";
       $$filters{songs} = {map {$_ => $_ =~ m/$regex/ ? 1 : 0} @songArgs};
     }elsif($opt =~ /^(--hard)$/){
-      my $regex = "^($okHardSongs)\$";
-      $$filters{songs} = {map {$_ => $_ =~ m/$regex/ ? 1 : 0} @songArgs};
+      $$filters{minfeet} = $HARD_SONG_FEET;
     }elsif($opt =~ /^(--nothard)$/){
-      my $regex = "^($okOtherSongs)\$";
-      $$filters{songs} = {map {$_ => $_ =~ m/$regex/ ? 1 : 0} @songArgs};
+      $$filters{maxfeet} = $HARD_SONG_FEET-1;
     }elsif($opt =~ /^(--singles)$/){
       $$filters{game} = {singles => 1, doubles => 0, nonstop => 0, nonstopdoubles => 0};
     }elsif($opt =~ /^(--doubles)$/){
@@ -1200,7 +1112,19 @@ sub parseScoreFile($){
     bar        => $+{bar},
     stage      => $+{stage},
   };
+
   $$info{game} = $singlesGameArg if not defined $$info{game} or $$info{game} eq "";
+
+  my $feet = $songFeetDifficulties{$$info{song}}{$$info{game}}{$$info{difficulty}};
+  if(not defined $feet or $feet !~ /^\d+$/){
+    if($$info{game} =~ /^(nonstop|nonstopdoubles)$/){
+      $feet = 0;
+    }else{
+      die "NO FEET DIFFICULTY FOUND FOR: $file\n";
+    }
+  }
+  $$info{feet} = $feet;
+
   return $info;
 }
 
@@ -1228,11 +1152,7 @@ sub getBucketName($$@){
       if($bucketField eq "song"){
         $val = $songAbbrevs{$val};
       }elsif($bucketField eq "difficulty"){
-        if($val eq $defaultDifficulty{$$score{song}}){
-          $val = undef;
-        }else{
-          $val = $difficultyAbbrevs{$val};
-        }
+        $val = $difficultyAbbrevs{$val};
       }elsif($bucketField eq "game"){
         if($val eq $singlesGameArg){
           $val = undef;
@@ -1266,8 +1186,6 @@ sub getScoreBuckets($$@){
 sub formatBucketCsv($$$){
   my ($okNotes, $bucketName, $bucketScores) = @_;
 
-  my %isHardSong = map {$_ => 1} @hardSongs;
-
   $bucketScores = sortScores $bucketScores;
 
   my $maxScore = undef;
@@ -1289,10 +1207,10 @@ sub formatBucketCsv($$$){
       my $abbrev = $songAbbrevs{$$s{song}};
       push @notes, "$$s{score} $abbrev";
     }
-    if($$okNotes{'nobar'} and $$s{bar} eq "nobar" and $isHardSong{$$s{song}}){
+    if($$okNotes{'nobar'} and $$s{bar} eq "nobar" and $$s{feet} > $HARD_SONG_FEET){
       push @notes, $$s{bar};
     }
-    if($$okNotes{'3rd'} and $$s{stage} eq "3rd" and $isHardSong{$$s{song}}){
+    if($$okNotes{'3rd'} and $$s{stage} eq "3rd" and $$s{feet} > $HARD_SONG_FEET){
       push @notes, $$s{stage};
     }
 
@@ -1333,6 +1251,20 @@ sub filterScores($$){
       my $f = $$filters{songs};
       my $song = $$s{song};
       if(defined $$f{$song} and not $$f{$song}){
+        $ok = 0;
+      }
+    }
+    if(defined $$filters{minfeet}){
+      my $f = $$filters{minfeet};
+      my $feet = $$s{feet};
+      if($feet < $f){
+        $ok = 0;
+      }
+    }
+    if(defined $$filters{maxfeet}){
+      my $f = $$filters{maxfeet};
+      my $feet = $$s{feet};
+      if($feet > $f){
         $ok = 0;
       }
     }
@@ -1582,6 +1514,36 @@ sub getImageOrientation($){
   }else{
     return "landscape";
   }
+}
+
+sub parseFeetDifficulties(@){
+  my @feetArr = @_;
+  if(@feetArr != 9){
+    die "invalid feet list: @feetArr\n";
+  }
+  for my $feet(@feetArr){
+    if($feet !~ /^(\d+|-)$/){
+      die "invalid feet: $feet\n";
+    }
+  }
+
+  my $i=0;
+
+  return {
+    singles => {
+      beginner  => $feetArr[$i++],
+      basic     => $feetArr[$i++],
+      difficult => $feetArr[$i++],
+      expert    => $feetArr[$i++],
+      challenge => $feetArr[$i++],
+    },
+    doubles => {
+      basic     => $feetArr[$i++],
+      difficult => $feetArr[$i++],
+      expert    => $feetArr[$i++],
+      challenge => $feetArr[$i++],
+    },
+  };
 }
 
 sub checkUnique(@){
