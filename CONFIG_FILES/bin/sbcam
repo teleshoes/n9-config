@@ -4,7 +4,17 @@ use warnings;
 
 sub run(@);
 
+my $usage = "Usage:
+  $0 [FILENAME]
+    run `streamer` on `seedbox -r`, copy the image over
+    if FILENAME is specified, move to FILENAME
+    if FILENAME is NOT specified, run `feh` on the image
+";
+
 sub main(@){
+  my $destFile = shift;
+  die $usage if @_ > 0;
+
   my $d = `date +%Y-%m-%d_%s`;
   chomp $d;
   my $file = "sbcam-$d.jpeg";
@@ -19,7 +29,11 @@ sub main(@){
     . "'";
 
   run "scp", "$sbHost:~/$file", "/tmp/$file";
-  run "feh", "/tmp/$file";
+  if(defined $destFile){
+    run "mv", "/tmp/$file", $destFile;
+  }else{
+    run "feh", "/tmp/$file";
+  }
 }
 
 sub run(@){
