@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub run(@);
+
+sub main(@){
+  if(@_ > 0 and $_[0] =~ /^off$/){
+    run "sudo", "sslvpn", "off", "aws";
+  }else{
+    run "sudo", "sslvpn", "on", "aws";
+    run "udo", "escribe-hosts";
+    run "ping", "-w", 5, "-c", 1, "ehr.dev";
+  }
+}
+
+sub run(@){
+  print "@_\n";
+  system @_;
+}
+
+&main(@ARGV);
