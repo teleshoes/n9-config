@@ -87,4 +87,22 @@
   <converter>/opt/com.meecast.omweather/lib/weathercom</converter>
   <gps>false</gps>
  </station>
+ <station>
+  <source_name>weather.com</source_name>
+  <station_name>London</station_name>
+  <station_id>UKXX0085</station_id>
+  <country>United Kingdom</country>
+  <region>United Kingdom</region>
+  <file_name>/home/user/.config/com.meecast.omweather/weather.com_UKXX0085</file_name>
+  <forecast_url>http://wxdata.weather.com/wxdata/weather/local/UKXX0085?cm_ven=1CW&amp;site=wx.com-bar&amp;cm_ite=wx-cc&amp;par=1CWFFv1.1.9&amp;cm_pla=wx.com-bar&amp;cm_cat=FFv1.1.9&amp;unit=m&amp;dayf=9&amp;cc=*</forecast_url>
+  <cookie></cookie>
+  <latitude>51.5</latitude>
+  <longitude>-0.13</longitude>
+  <map_url>http://mapserver.weather.com/MapServer/map?layers=sat&amp;lat=51.500000&amp;lng=-0.130000&amp;bpp=8&amp;fmt=png&amp;w=854&amp;h=480&amp;zoom=5&amp;base=msve-hyb&amp;g=1.5&amp;tx=0.7</map_url>
+  <detail_url>http://wxdata.weather.com/wxdata/weather/local/UKXX0085?cm_ven=1CW&amp;site=wx.com-bar&amp;cm_ite=wx-cc&amp;par=1CWFFv1.1.9&amp;cm_pla=wx.com-bar&amp;cm_cat=FFv1.1.9&amp;unit=m&amp;hbhf=12</detail_url>
+  <hours_url></hours_url>
+  <view_url>http://www.weather.com/weather/tenday/UKXX0085</view_url>
+  <converter>/opt/com.meecast.omweather/lib/weathercom</converter>
+  <gps>false</gps>
+ </station>
 </config>
