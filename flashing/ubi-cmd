@@ -9,7 +9,7 @@ sub usbDev();
 sub main(@){
   my $cmd = "@_";
   my $dev = usbDev;
-  die "Error: no usb/enx dev\n" if not defined $dev;
+  die "Error: no usb/enx/enp dev\n" if not defined $dev;
   system "sudo", "ifconfig", $dev, "up";
   system "sudo", "ifconfig", $dev, "192.168.2.14";
   open FH, "> $tmpFile" or die "Couldnt write $tmpFile\n";
@@ -29,8 +29,13 @@ sub usbDev(){
   for my $line(@ifconfigLines){
     return $1 if $line =~ /^(usb\d+):?\s/;
   }
+  #enx: mac address
   for my $line(@ifconfigLines){
     return $1 if $line =~ /^(enx[0-9a-f]+):?\s/;
+  }
+  #enp: pci bus/slot
+  for my $line(@ifconfigLines){
+    return $1 if $line =~ /^(enp[a-z0-9]+):?\s/;
   }
   return undef;
 }
