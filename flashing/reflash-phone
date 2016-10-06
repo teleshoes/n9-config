@@ -104,7 +104,7 @@ sub flashAndRootStrap($$$){
 
 sub attemptSSH(){
   print "\n\n\nattempting to ssh\n";
-  print "waiting for usb/enx device to appear in ifconfig -a\n";
+  print "waiting for usb/enx/enp device to appear in ifconfig -a\n";
   my $dev;
   while(not defined $dev){
     print ".";
@@ -180,8 +180,13 @@ sub usbDev(){
   for my $line(@ifconfigLines){
     return $1 if $line =~ /^(usb\d+):?\s/;
   }
+  #enx: mac address
   for my $line(@ifconfigLines){
     return $1 if $line =~ /^(enx[0-9a-f]+):?\s/;
+  }
+  #enp: pci bus/slot
+  for my $line(@ifconfigLines){
+    return $1 if $line =~ /^(enp[a-z0-9]+):?\s/;
   }
   return undef;
 }
