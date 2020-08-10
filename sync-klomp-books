@@ -2,8 +2,8 @@
 use strict;
 use warnings;
 
-system "klomp-cmd playlist-main";
-system "n9u", "-s", "klomp-cmd playlist-main";
+system "klomp-playlist main";
+system "n9u", "-s", "klomp-playlist main";
 
 sub modS($$){
   my $file = shift;
@@ -40,12 +40,12 @@ if($localCur < $remoteCur and $localList <= $remoteList){
   print "remote => local\n";
   system "rsync -avP user@`n9`:$dir/ $dir";
   print "books on local\n";
-  system "klomp-cmd", "playlist", "books";
+  system "klomp-playlist", "books";
 }elsif($localCur > $remoteCur and $localList >= $remoteList){
   print "local => remote\n";
   system "rsync -avP $dir/ user@`n9`:$dir";
   print "books on remote\n";
-  system "n9u", "-s", "klomp-cmd", "playlist", "books";
+  system "n9u", "-s", "klomp-playlist", "books";
 }else{
   print "not updating\n";
 }
